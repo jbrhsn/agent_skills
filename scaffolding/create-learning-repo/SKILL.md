@@ -659,13 +659,38 @@ Summary:
 
 ---
 
+## Adapting to Other Agents
+
+This skill was authored for **OpenCode** (`SKILL.md` format with frontmatter).
+To use it with other platforms:
+
+| Platform | How to adapt |
+|---|---|
+| **Claude Code** | Copy the content below the frontmatter into your project's `CLAUDE.md` under a `## Skills` or `## Workflows` section. |
+| **Cursor** | Paste the content (below frontmatter) into `.cursor/rules/create-learning-repo.mdc`, set rule type to `Agent Requested`. |
+| **GitHub Copilot** | Add the content to `.github/copilot-instructions.md` under a clearly labelled heading. |
+| **ChatGPT / Claude (web)** | Copy the full content below the frontmatter and paste it as your first message before describing your task. |
+
+The workflow phases and constraints translate directly — only the loading mechanism differs per platform.
+
+---
+
 ## Reference: directory layout for this skill
 
 ```
-~/.config/opencode/skills/create-learning-repo/
-└── SKILL.md       ← this file
+agent_skills/
+└── scaffolding/
+    └── create-learning-repo/
+        ├── SKILL.md      ← this file (OpenCode primary format)
+        └── README.md     ← human-readable guide for this skill
 ```
 
-To make this skill available to all projects on this machine, it lives in global scope.
-To restrict it to one project, move it to `.opencode/skills/create-learning-repo/SKILL.md`
-inside that project's root.
+**To install globally** (available in all your projects):
+```bash
+cp -r agent_skills/scaffolding/create-learning-repo ~/.config/opencode/skills/
+```
+
+**To install per-project** (available only in the current project):
+```bash
+cp -r agent_skills/scaffolding/create-learning-repo .opencode/skills/
+```

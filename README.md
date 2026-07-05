@@ -1,49 +1,64 @@
+<div align="center">
+
 # Agent Skills
 
-A curated collection of skills for AI coding agents — structured workflows that give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality behavior for common development tasks.
+**Structured workflows for AI coding agents — tested in real sessions, ready to install.**
 
-Each skill is a prompt file your agent loads and follows like a playbook. Every skill in this repo has been authored and tested in real sessions.
+Give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality behavior for common development tasks. Each skill is a prompt file your agent loads and follows like a playbook.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
+</div>
 
 ---
 
 ## Skills
 
-### scaffolding
+### Scaffolding
 
-| Skill | Description |
+> Session management and project scaffolding workflows.
+
+| Skill | What it does |
 |---|---|
-| [create-learning-repo](./scaffolding/create-learning-repo/README.md) | Scaffold a structured learning repository for any topic or certification — phased intake, live research, folder design, templates, and file generation |
-| [init-session](./scaffolding/init-session/README.md) | Rebuild full project context at the start of a session — reads handoff log, README, and AGENTS.md, runs an alignment check, and produces a concise briefing |
-| [end-session](./scaffolding/end-session/README.md) | Write a high-signal handoff at the end of a session — refreshed rolling project summary plus a detailed session entry for the next agent |
+| [**create-learning-repo**](./scaffolding/create-learning-repo/README.md) | Scaffold a structured learning repository for any topic or certification — phased intake, live research, folder design, templates, and file generation |
+| [**init-session**](./scaffolding/init-session/README.md) | Rebuild full project context at the start of a session — reads handoff log, README, and AGENTS.md, runs an alignment check, and produces a concise briefing |
+| [**end-session**](./scaffolding/end-session/README.md) | Write a high-signal handoff at the end of a session — refreshed rolling project summary plus a detailed session entry for the next agent |
 
 ---
 
-## How to use
+## Getting started
 
-### With OpenCode (primary)
+### Install with OpenCode
 
-**Global install** — skill available in all your projects:
+Copy any skill into your OpenCode skills directory:
+
 ```bash
-cp -r scaffolding/create-learning-repo ~/.config/opencode/skills/
+# Global — available in all your projects
+cp -r scaffolding/<skill-name> ~/.config/opencode/skills/
+
+# Per-project — available only in the current project
+cp -r scaffolding/<skill-name> .opencode/skills/
 ```
 
-**Per-project install** — skill available only in the current project:
+To install all three skills at once:
+
 ```bash
-cp -r scaffolding/create-learning-repo .opencode/skills/
+cp -r scaffolding/create-learning-repo scaffolding/init-session scaffolding/end-session \
+  ~/.config/opencode/skills/
 ```
 
-OpenCode loads skills automatically. Once installed, just describe what you want and the agent will invoke the right skill.
+OpenCode loads skills automatically. Once installed, describe what you want and the agent invokes the right skill.
 
-### With other agents
+### Use with other agents
 
-Each skill's `SKILL.md` includes an **Adapting to Other Agents** table with exact instructions for:
+Each skill's `SKILL.md` contains an **Adapting to Other Agents** section with exact instructions per platform:
 
-| Platform | Mechanism |
+| Platform | How to load the skill |
 |---|---|
 | **Claude Code** | Add content to `CLAUDE.md` under a named section |
-| **Cursor** | Add as a `.cursor/rules/*.mdc` file, type `Agent Requested` |
+| **Cursor** | Add as `.cursor/rules/<skill-name>.mdc`, type `Agent Requested` |
 | **GitHub Copilot** | Add content to `.github/copilot-instructions.md` |
-| **ChatGPT / Claude (web)** | Paste the skill content as your opening system message |
+| **ChatGPT / Claude (web)** | Paste the skill content as your opening message |
 
 The workflow phases and constraints are platform-agnostic — only the loading mechanism differs.
 
@@ -56,15 +71,18 @@ Each skill lives in a `category/skill-name/` folder with exactly two files:
 ```
 category/
 └── skill-name/
-    ├── SKILL.md     ← the agent-facing skill (OpenCode format)
-    └── README.md    ← human-readable guide: triggers, workflow, examples, related skills
+    ├── SKILL.md     ← agent-facing skill (OpenCode format with frontmatter)
+    └── README.md    ← human-readable guide: triggers, workflow, examples, limitations
 ```
 
-Use the templates in [`templates/`](./templates/) as your starting point:
-- `SKILL.md.template` — full skill structure with frontmatter, phases, and constraints
-- `skill-readme.template.md` — per-skill README with all required sections
+Start from the templates in [`templates/`](./templates/):
 
-Only tested skills belong in this repo. New skills are added after they've been run in real sessions.
+| Template | Use it to |
+|---|---|
+| [`SKILL.md.template`](./templates/SKILL.md.template) | Author a new agent-facing skill with frontmatter, phases, and constraints |
+| [`skill-readme.template.md`](./templates/skill-readme.template.md) | Write the human-readable README for a skill |
+
+> Only tested skills belong here. New skills are added after they've been run in real sessions.
 
 ---
 
@@ -75,5 +93,7 @@ MIT — see [LICENSE](./LICENSE) for details.
 ---
 
 <div align="center">
-Made by <a href="https://github.com/jbrhsn">jbrhsn</a>
+
+Made by [jbrhsn](https://github.com/jbrhsn)
+
 </div>

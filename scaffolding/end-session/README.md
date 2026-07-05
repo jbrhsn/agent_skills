@@ -24,8 +24,8 @@
 - You want a clean record of what changed before closing out
 
 **Do NOT use this skill when:**
-- You want to commit or push code (this skill only writes the handoff file)
-- You're in the middle of a session and just want a quick status — use `init-session` to read state
+- You want to commit or push code (this skill only writes the handoff file — commit separately)
+- You want to check current project status mid-session (read `.agent_docs/handoff.md` directly or run `git status`)
 
 ---
 
@@ -35,8 +35,8 @@ This skill runs in 4 phases:
 
 | Phase | Name | What happens |
 |---|---|---|
-| 1 | Inspect repo | Runs `git status`, `git diff`, `git log` to ground the handoff in evidence |
-| 2 | Read existing handoff | Reads `.agent_docs/handoff.md` to preserve continuity (creates it if missing) |
+| 1 | Read existing handoff | Reads `.agent_docs/handoff.md` to preserve continuity (creates it if missing) |
+| 2 | Inspect repo | Runs `git status`, `git diff`, `git log` to ground the handoff in evidence |
 | 3 | Write updated handoff | Rewrites the rolling summary; appends a new detailed session entry |
 | 4 | Confirm | Prints a one-line confirmation of what was written |
 
@@ -53,11 +53,11 @@ End session — we implemented the rate limiter and deferred the Redis migration
 
 **Agent does:**
 ```
-Phase 1: Runs git status, git diff --stat, git log.
-         Sees: 3 files changed, rate-limiter.ts added, tests updated.
-
-Phase 2: Reads .agent_docs/handoff.md.
+Phase 1: Reads .agent_docs/handoff.md.
          Finds existing rolling summary and last session entry.
+
+Phase 2: Runs git status, git diff --stat, git log.
+         Sees: 3 files changed, rate-limiter.ts added, tests updated.
 
 Phase 3: Rewrites rolling summary:
          "Now: rate limiter complete; Redis migration deferred to next session."

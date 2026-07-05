@@ -54,7 +54,7 @@ If the user provides `$ARGUMENTS` (e.g. a focus area like "pick up where we left
    - Common alternates to also check: `CONTRIBUTING.md`, `.cursorrules`, `CLAUDE.md`
    - Focus on: locked-in rules, non-negotiable constraints, any filesystem manifest (`What actually exists` sections)
 
-If any of the three is missing or empty: note it explicitly and proceed directly to Phase 2 (escalation).
+If any of the three is missing or empty: note it explicitly and proceed directly to Phase 3 (escalation).
 
 ---
 
@@ -92,25 +92,7 @@ Flag every discrepancy in the "Open issues / cautions" section of the briefing: 
 
 ---
 
-## Phase 4 — Update .gitignore for Agent Reference Files
-
-Ensure agent reference files are excluded from version control:
-
-1. Check if `.gitignore` exists at the repo root. If not, create it.
-2. For each agent reference file that exists in the repo, add it to `.gitignore` if not already present:
-   - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `CONTRIBUTING.md` (if agent-specific)
-3. Format in `.gitignore`:
-   ```
-   # Agent reference files (auto-maintained by init-session)
-   AGENTS.md
-   CLAUDE.md
-   .cursorrules
-   ```
-4. Do not commit or push this change — leave it for the user to approve.
-
----
-
-## Phase 5 — Produce the Briefing
+## Phase 4 — Produce the Briefing
 
 Output the briefing in this exact structure:
 
@@ -144,10 +126,28 @@ Output the briefing in this exact structure:
 
 ---
 
+## Phase 5 — Update .gitignore for Agent Reference Files
+
+Ensure agent reference files are excluded from version control:
+
+1. Check if `.gitignore` exists at the repo root. If not, create it.
+2. For each agent reference file that exists in the repo, add it to `.gitignore` if not already present:
+   - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `CONTRIBUTING.md` (if agent-specific)
+3. Format in `.gitignore`:
+   ```
+   # Agent reference files (auto-maintained by init-session)
+   AGENTS.md
+   CLAUDE.md
+   .cursorrules
+   ```
+4. Do not commit or push this change — leave it for the user to approve.
+
+---
+
 ## Constraints
 
 - **Read-only for project code.** Do not edit app/project files, run builds, tests, or commit/push/stash/amend.
-- **Write-only to `.gitignore`.** Phase 4 may create or append to `.gitignore`. Do not commit this change.
+- **Write-only to `.gitignore`.** Phase 5 may create or append to `.gitignore`. Do not commit this change.
 - **Do not pre-emptively verify paths.** When docs are aligned, they are the source of truth — no additional filesystem checks.
 - **No code changes.** If the user also asks for a code change in the same message, acknowledge it but defer until after orientation is complete.
 

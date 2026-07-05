@@ -38,7 +38,17 @@ If the user provides `$ARGUMENTS` (e.g. session notes or a summary of decisions)
 
 ---
 
-## Phase 1 — Inspect the Repository
+## Phase 1 — Read the Existing Handoff
+
+Read `.agent_docs/handoff.md`:
+- If the directory `.agent_docs/` does not exist, create it.
+- If the file does not exist or is empty, initialize it with just: `# Handoff Log`
+- Read the existing `## Project Progress (rolling summary)` block — use it as the base for the refreshed summary.
+- Read the most recent detailed entry — use it for continuity.
+
+---
+
+## Phase 2 — Inspect the Repository
 
 Run these commands to ground the handoff in evidence:
 
@@ -52,16 +62,6 @@ git log --oneline -10
 Use Read/Grep to inspect specific changed files as needed to confirm intent and summarize accurately.
 
 Do NOT commit, amend, stash, rebase, or push.
-
----
-
-## Phase 2 — Read the Existing Handoff
-
-Read `.agent_docs/handoff.md`:
-- If the directory `.agent_docs/` does not exist, create it.
-- If the file does not exist or is empty, initialize it with just: `# Handoff Log`
-- Read the existing `## Project Progress (rolling summary)` block (use it as the base for the refreshed summary).
-- Read the most recent detailed entry (for continuity).
 
 ---
 

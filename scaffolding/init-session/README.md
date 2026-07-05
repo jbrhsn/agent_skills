@@ -37,8 +37,8 @@ This skill runs in 5 phases:
 | 1 | Read baseline docs | Reads handoff log, README, and AGENTS.md in parallel |
 | 2 | Alignment check | Verifies the three docs tell a consistent story |
 | 3 | Escalation (if needed) | Runs git + targeted file checks only if docs disagree |
-| 4 | .gitignore hygiene | Adds agent reference files to .gitignore if missing |
-| 5 | Briefing | Outputs a structured summary: progress, state, open issues, next steps |
+| 4 | Briefing | Outputs a structured summary: progress, state, open issues, next steps |
+| 5 | .gitignore hygiene | Adds agent reference files to .gitignore if missing |
 
 No confirmation gates — the entire skill runs in one response.
 
@@ -57,14 +57,14 @@ Phase 1: Reads .agent_docs/handoff.md, README.md, and AGENTS.md in parallel.
 
 Phase 2: Runs alignment check — all 5 checks pass. Docs are aligned.
 
-Phase 4: Checks .gitignore — AGENTS.md already listed, no change needed.
-
-Phase 5: Produces briefing:
+Phase 4: Produces briefing:
   - Overall progress: 3 bullets from rolling summary
   - Project state: currently mid-Phase 2, auth endpoints complete
   - Last session: "Implemented POST /login and POST /refresh; deferred rate limiting"
   - Open issues: none (docs aligned)
   - Next steps: 1) Add rate limiting to /login  2) Write integration tests
+
+Phase 5: Checks .gitignore — AGENTS.md already listed, no change needed.
 ```
 
 **Result:**

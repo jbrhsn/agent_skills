@@ -107,7 +107,6 @@ cp -r agent_skills/scaffolding/create-learning-repo .opencode/skills/
 |---|---|
 | [scaffolding/init-session](../init-session/README.md) | Use at the start of every authoring session to reload context from the handoff log before populating stubs |
 | [scaffolding/end-session](../end-session/README.md) | Use at the end of each authoring session to write a handoff log that preserves your progress |
-| [documentation/readme-writer](../../documentation/readme-writer/README.md) | Use to populate the root README stub once the repo structure is finalized |
 
 ---
 
