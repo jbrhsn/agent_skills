@@ -4,13 +4,48 @@
 
 _Last updated: 2026-07-05_
 
-**Current phase:** Repo initialization — **Status:** phase complete
-**Now:** Repo is structured and populated with 3 tested skills, templates, LICENSE, CONTRIBUTING.md, and a full portfolio README. All changes are unstaged.
+**Current phase:** Content quality + polish — **Status:** phase complete
+**Now:** Repo is clean and fully committed (3 commits). All skill content has been evaluated and corrected; README is visually polished. Ready to push or continue adding skills.
 
 **Progress so far:**
-- Session 1 — Initialized repo structure: 3 skills converted/copied into `scaffolding/`, 2 templates written, root README, LICENSE (MIT), CONTRIBUTING.md placeholder added. Untested skeleton skills were created and then removed at user's direction — only tested skills remain.
+- Session 1 — Initialized repo: 3 skills scaffolded into `scaffolding/`, templates written, README/LICENSE/CONTRIBUTING added. Committed as `7773121`.
+- Session 2 — Evaluated all skill content; applied 7 targeted fixes (broken links, phase ordering, stale paths, misleading copy); polished README with badge, centered hero, bold skill names, tables. Committed as `dc017c1`.
 
 **Next up:** _None — awaiting user direction._
+
+---
+
+## 2026-07-05 — Skill content evaluation and README polish
+
+**Phase:** Content quality + polish
+**Status:** phase complete
+
+### Current state
+- All 3 skills and their READMEs are accurate and internally consistent
+- Root README is visually polished with a centered hero, MIT badge, and tables throughout
+- Repo is clean — no uncommitted changes, 3 commits on `main`
+
+### Completed this session
+- Evaluated all skill files against original source commands and the agreed format
+- **Fix 1+2** `create-learning-repo/SKILL.md`: replaced stale `~/.config/opencode/skills/` reference with correct repo path; added missing `Adapting to Other Agents` table
+- **Fix 3** `create-learning-repo/README.md`: removed dead link to deleted `documentation/readme-writer` skill
+- **Fix 4** `init-session/SKILL.md` + `README.md`: corrected phase jump wording ("Phase 2" → "Phase 3" for escalation); reordered phases so briefing (4) precedes gitignore update (5), matching original command intent
+- **Fix 5** `end-session/SKILL.md`: swapped Phase 1/2 so handoff is read before repo inspection, restoring original command's continuity guarantee
+- **Fix 6** `end-session/README.md`: fixed misleading "Do NOT use" note; updated phase table and example to match corrected order
+- **Fix 7** `README.md`: replaced hardcoded skill name in install examples with generic `<skill-name>` pattern; added "install all three" convenience command
+- `README.md` visual polish: centered hero block, MIT badge, bold skill names in table, category blockquote, templates bullet list → table, blockquote for "tested only" rule, cleaned footer
+
+### Decisions / rationale
+- **Phase order in `end-session`:** Original command reads handoff first, then inspects git — so the new entry is built by folding evidence into the existing structure, not starting fresh. The converted skill had this reversed; corrected.
+- **Phase order in `init-session`:** Briefing should reach the user before the gitignore side-effect runs — cosmetic but meaningful for UX. Corrected to match original.
+- **No content changes to skill logic:** All 7 fixes were accuracy/consistency corrections only. No workflow logic was altered.
+
+### Guidance for next agent
+- `create-learning-repo/SKILL.md` now includes an `Adapting to Other Agents` section and updated reference path — it is no longer a verbatim copy of `~/.config/opencode/skills/create-learning-repo/SKILL.md`. If the source skill is updated upstream, the two files must be manually reconciled.
+- The "tested skills only" rule is established. Do not add skill stubs speculatively — only add after real session use.
+
+### Recommended next steps
+_None — awaiting user direction._
 
 ---
 
