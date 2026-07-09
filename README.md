@@ -14,15 +14,24 @@ Give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality beha
 
 ## Skills
 
-### Scaffolding
+### Session Management
 
-> Session management and project scaffolding workflows.
+> Load and save project context across agent sessions.
 
 | Skill | What it does |
 |---|---|
-| [**create-learning-repo**](./scaffolding/create-learning-repo/README.md) | Scaffold a structured learning repository for any topic or certification — phased intake, live research, folder design, templates, and file generation |
-| [**init-session**](./scaffolding/init-session/README.md) | Rebuild full project context at the start of a session — reads handoff log, README, and AGENTS.md, runs an alignment check, and produces a concise briefing |
-| [**end-session**](./scaffolding/end-session/README.md) | Write a high-signal handoff at the end of a session — refreshed rolling project summary plus a detailed session entry for the next agent |
+| [**init-session**](./agent_session_management/init-session/README.md) | Restore full project context at session start — reads the handoff log and delivers a concise briefing of open items and last state |
+| [**end-session**](./agent_session_management/end-session/README.md) | Write a high-signal handoff at session end — rolling project summary, session log, and filtered open items for the next agent |
+
+### Learning
+
+> Create and populate Markdown-based learning repositories.
+
+| Skill | What it does |
+|---|---|
+| [**create-learning-repo**](./learning/create-learning-repo/README.md) | Scaffold a structured learning repository for any topic or certification — phased intake, live research, folder design, templates, and stub generation |
+| [**author-chapter**](./learning/author-chapter/README.md) | Populate a stub chapter with fully template-compliant content — live-sourced research, every section written to spec, quality gate before write |
+| [**generate-practice-exam**](./learning/generate-practice-exam/README.md) | Generate a blueprint-weighted mock exam or targeted drill from already-authored chapter content, with per-option answer rationale |
 
 ---
 
@@ -30,28 +39,32 @@ Give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality beha
 
 ### Install with OpenCode
 
-Copy any skill into your OpenCode skills directory:
+Copy any skill into your OpenCode skills directory. Run these commands from the repo root:
 
 ```bash
 # Global — available in all your projects
-cp -r scaffolding/<skill-name> ~/.config/opencode/skills/
 
-# Per-project — available only in the current project
-cp -r scaffolding/<skill-name> .opencode/skills/
+# Session management skills
+cp -r agent_session_management/init-session ~/.config/opencode/skills/
+cp -r agent_session_management/end-session ~/.config/opencode/skills/
+
+# Learning skills
+cp -r learning/create-learning-repo ~/.config/opencode/skills/
+cp -r learning/author-chapter ~/.config/opencode/skills/
+cp -r learning/generate-practice-exam ~/.config/opencode/skills/
 ```
 
-To install all three skills at once:
-
 ```bash
-cp -r scaffolding/create-learning-repo scaffolding/init-session scaffolding/end-session \
-  ~/.config/opencode/skills/
+# Per-project — available only in the current project
+cp -r agent_session_management/init-session .opencode/skills/
+cp -r learning/create-learning-repo .opencode/skills/
 ```
 
 OpenCode loads skills automatically. Once installed, describe what you want and the agent invokes the right skill.
 
 ### Use with other agents
 
-Each skill's `SKILL.md` contains an **Adapting to Other Agents** section with exact instructions per platform:
+Each skill's `SKILL.md` contains a **Portability** section with exact instructions per platform:
 
 | Platform | How to load the skill |
 |---|---|
@@ -64,25 +77,20 @@ The workflow phases and constraints are platform-agnostic — only the loading m
 
 ---
 
-## Adding new skills
+## Skill structure
 
-Each skill lives in a `category/skill-name/` folder with exactly two files:
+Each skill lives in a `category/skill-name/` folder:
 
 ```
 category/
 └── skill-name/
-    ├── SKILL.md     ← agent-facing skill (OpenCode format with frontmatter)
-    └── README.md    ← human-readable guide: triggers, workflow, examples, limitations
+    ├── SKILL.md       ← agent-facing skill (OpenCode format with frontmatter)
+    ├── README.md      ← human-readable guide: triggers, workflow, examples, limitations
+    └── reference/     ← optional: runtime files the skill reads (templates, rubrics)
+        └── *.md
 ```
 
-Start from the templates in [`templates/`](./templates/):
-
-| Template | Use it to |
-|---|---|
-| [`SKILL.md.template`](./templates/SKILL.md.template) | Author a new agent-facing skill with frontmatter, phases, and constraints |
-| [`skill-readme.template.md`](./templates/skill-readme.template.md) | Write the human-readable README for a skill |
-
-> Only tested skills belong here. New skills are added after they've been run in real sessions.
+> **Only tested skills belong here.** Skills are added only after being exercised in a real session — no untested stubs.
 
 ---
 

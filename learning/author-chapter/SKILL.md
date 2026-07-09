@@ -145,6 +145,12 @@ Show a compact brief and gate:
 - Leave zero `<!-- TODO -->` or `STUB` markers.
 - Depth calibration: Key Concepts + ELI5 + Worked Example carry the teaching load (~75% of effort); snippets ~15%; questions ~10% but non-negotiable.
 
+### End of Phase 2
+
+> **Phase 2 complete.** The full draft is above.
+> Review the content, section order, depth, and examples.
+> Reply **"proceed"** to run the quality gate, or give corrections first.
+
 ---
 
 ## Phase 3 — Quality gate

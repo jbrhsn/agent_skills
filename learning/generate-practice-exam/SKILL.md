@@ -76,6 +76,11 @@ Determine whether the source is a structured learning repo or a loose Markdown f
 - **Structured repo** (`AGENTS.md` + `templates/` found by walking up from the source path): use its conventions (answer format, naming, objective wording).
 - **Loose Markdown folder** (no repo markers): tell the user "This looks like a loose Markdown folder rather than a structured learning repo. I'll generate questions from the Markdown files you point me to, using my built-in exam format. Proceed?" — continue only after confirmation.
 
+### End of Phase 0
+
+> **Phase 0 complete.** I have the scope, mode, question count, format preferences, and answer style.
+> Reply **"proceed"** to inspect the source content and confirm readiness, or adjust any settings first.
+
 ---
 
 ## Phase 1 — Source ingestion and readiness check
@@ -152,6 +157,12 @@ Each question uses the item template and obeys:
 
 ### Traceability
 For each question, keep an internal note of the source file/section it came from — used in drill mode for the "review this" pointer and in the quality gate for coverage checking.
+
+### End of Phase 2
+
+> **Phase 2 complete.** All [N] questions are listed above.
+> Review the stems, options, and rationale for correctness and coverage.
+> Reply **"proceed"** to assemble the final exam file, or request revisions first.
 
 ---
 

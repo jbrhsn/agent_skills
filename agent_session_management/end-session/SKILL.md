@@ -13,21 +13,39 @@ Follow these steps in order every time the skill activates. Do not skip steps.
 
 **Get today's date** (needed for the session log entry):
 
-```powershell
-Get-Date -Format 'yyyy-MM-dd'
-```
+Detect the platform and run the appropriate command with the `bash` tool:
+
+- **Linux / macOS:**
+  ```bash
+  date +%Y-%m-%d
+  ```
+- **Windows (PowerShell):**
+  ```powershell
+  Get-Date -Format 'yyyy-MM-dd'
+  ```
 
 **Get recently modified project files** (last 8 hours):
 
-```powershell
-& "$env:USERPROFILE\.config\opencode\skills\end-session\get-session-context.ps1" -HoursBack 8 -Root "."
-```
+Again, detect the platform and use the appropriate command:
 
-Use the `bash` tool for both. The file list is the primary signal for inferring what was worked on this session.
+- **Linux / macOS:**
+  ```bash
+  git log --since="8 hours ago" --name-only --pretty=format: | sort -u | grep -v '^$'
+  ```
+  If the repo has no git history or the result is empty, fall back to:
+  ```bash
+  find . -not -path './.git/*' -newer .git/index -type f 2>/dev/null | sort
+  ```
 
-If the file list returns no results, retry with `-HoursBack 24`. If still empty, note "No project files modified this session" in the session log.
+- **Windows (PowerShell):**
+  ```powershell
+  & "$env:USERPROFILE\.config\opencode\skills\end-session\get-session-context.ps1" -HoursBack 8 -Root "."
+  ```
+  The script outputs one line per file: `<timestamp>  <relative-path>`. Parse it as plain text — do not treat it as a table.
 
-The script outputs one line per file: `<timestamp>  <relative-path>`. Parse it as plain text — do not treat it as a table.
+Use the `bash` tool for all commands. The file list is the primary signal for inferring what was worked on this session.
+
+If the file list returns no results, retry with a 24-hour window (replace `8 hours ago` with `24 hours ago`, or `-HoursBack 24` on Windows). If still empty, note "No project files modified this session" in the session log.
 
 ---
 
