@@ -46,7 +46,7 @@ To design the right repo for you, I need a few details:
 
 1. Topic / Certification  
    What is the exact topic or certification name?
-   (e.g. "AWS Solutions Architect Associate", "Apache Kafka", "System Design")
+   (a certification, a technology or tool, or a broad concept — anything you want to master)
 
 2. Learning goal — choose all that apply:
    a) Pass a certification exam
@@ -183,27 +183,48 @@ Apply the style the user chose in Phase 0 (or default to lowercase-hyphen style 
 
 **Lowercase-hyphen style (default):**
 
-| Level | Format | Example |
-|---|---|---|
-| Repo root | `topic-slug` chosen or derived | `apache-kafka-mastery` |
-| Section | `01-section-name/` | `01-core-concepts/` |
-| Module | `01-module-name/` | `01-producers-and-consumers/` |
-| Chapter | `01-chapter-name/` | `01-topic-partitions/` |
+| Level | Format |
+|---|---|
+| Repo root | `topic-slug` chosen or derived |
+| Section | `01-section-name/` |
+| Module | `01-module-name/` |
+| Chapter | `01-chapter-name/` |
 
 **ALLCAPS-underscore style (if user selected):**
 
-| Level | Format | Example |
-|---|---|---|
-| Repo root | User-specified or derived | `Apache-Kafka-Mastery` |
-| Section | `SECTION_XX_DESCRIPTIVE_NAME/` | `SECTION_01_CORE_CONCEPTS/` |
-| Module | `MODULE_XX_Descriptive_Name/` | `MODULE_01_Producers_And_Consumers/` |
-| Chapter | `CHAPTER_XX_Descriptive_Name/` | `CHAPTER_01_Topic_Partitions/` |
+| Level | Format |
+|---|---|
+| Repo root | User-specified or derived |
+| Section | `SECTION_XX_DESCRIPTIVE_NAME/` |
+| Module | `MODULE_XX_Descriptive_Name/` |
+| Chapter | `CHAPTER_XX_Descriptive_Name/` |
 
 **Rules that apply regardless of style:**
 - Use the **actual technology/subject names** in folder names — never generic placeholders like `module-1` or `chapter-a`.
 - Every folder is numerically prefixed for correct sort order.
 - No spaces in any path component.
-- **Windows MAX_PATH caution:** Full paths over ~220 characters fail silently on Windows. Shorten folder names proactively for deep trees and note any shortenings in the section index.
+- **Windows MAX_PATH caution:** Full paths over ~220 characters fail silently on Windows. Apply the 40-character component cap below proactively and note any shortenings in the parent section index.
+
+### Slug derivation algorithm
+
+Use this deterministic algorithm when deriving a folder or file slug from a chapter/module/section name. Apply it consistently — it prevents silent MAX_PATH failures and collision ambiguity.
+
+**Steps (apply in order):**
+1. Lowercase the entire name.
+2. Replace any character that is not a letter, digit, or space with a space.
+3. Collapse all whitespace runs to a single hyphen (or underscore for ALLCAPS style).
+4. Trim leading and trailing hyphens/underscores.
+5. **Cap each component at 40 characters,** truncating at the last complete word boundary before the limit (never cut mid-word).
+6. For ALLCAPS style: uppercase the result and replace hyphens with underscores.
+
+**Collision rule:** If two slugs under the same parent are identical after applying steps 1–6, append a numeric disambiguator to the later one: `-2`, `-3`, … (or `_2`, `_3` for ALLCAPS). Record the collision in the parent index file.
+
+**Recording shortenings:** Any component that was truncated in step 5 must be noted in the parent section or module index, mapping the shortened slug back to the original full name. This ensures forward links remain navigable.
+
+**Worked application of the algorithm:**
+- A name at or under 40 characters passes through steps 1–4 unchanged (aside from case/separator normalisation) and is used as-is.
+- A name longer than 40 characters is truncated at the last word boundary that keeps the slug within 40 characters; the dropped words are recorded in the parent index per the shortening rule above.
+- Two chapters under the same parent that normalise to the same slug get `-2`/`-3` (or `_2`/`_3`) suffixes in scaffold order.
 
 ### File naming conventions
 
@@ -211,18 +232,39 @@ Apply the style the user chose in Phase 0 (or default to lowercase-hyphen style 
 |---|---|---|
 | Topic notes (ALLCAPS style) | `01_snake_case.md` … `03_snake_case.md` | 3 per chapter by default |
 | Topic notes (hyphen style) | `01-snake-case.md` … `03-snake-case.md` | 3 per chapter by default |
-| Thought leadership | `04-thought-leadership.md` / `04_thought_leadership_article_template.md` | `04_`/`04-` when 3 topic notes; `05_`/`05-` when 4 topic notes |
-| Interview prep | `05-interview-prep.md` / `05_interview_prep.md` | Only if intent detected |
+| Thought leadership | `NN-thought-leadership.md` / `NN_thought_leadership.md` | `NN` = (topic-note count + 1). See numbering rule below. |
+| Interview prep | `NN-interview-prep.md` / `NN_interview_prep.md` | `NN` = (topic-note count + 2 if thought leadership also present, else + 1). Only if intent detected. |
 | Lab file | `LAB-XX-name.md` / `LAB_XX_name.md` | Global sequence — never reset |
 | Section index | `README.md` or `INDEX.md` inside section folder | Created at scaffold time |
 | Module index | Not created at scaffold time — on request only | |
 
+### Per-chapter file numbering rule
+
+Auxiliary files are numbered **sequentially after the topic notes**, in this fixed order: topic notes → thought leadership → interview prep. The number of topic notes (3 standard, 4 for dense chapters) determines the starting point; there is no fixed number for any auxiliary file.
+
+| Chapter config | Topic notes | Thought leadership | Interview prep |
+|---|---|---|---|
+| 3 notes, no aux | `01`–`03` | — | — |
+| 3 notes + thought leadership | `01`–`03` | `04` | — |
+| 3 notes + interview prep | `01`–`03` | — | `04` |
+| 3 notes + both | `01`–`03` | `04` | `05` |
+| 4 notes (dense) + both | `01`–`04` | `05` | `06` |
+
+This ordering is deterministic: interview prep always takes the number *after* thought leadership when both are present, so the two never collide regardless of topic-note count.
+
 ### Topic file count per chapter
 
-- **Standard:** 3 topic notes + thought leadership file
-- **Dense chapters** (user-confirmed during Phase 0): 4 topic notes + thought leadership file at `05_`/`05-`
+- **Standard:** 3 topic notes + any auxiliary files (thought leadership / interview prep) as detected in Phase 0
+- **Dense chapters** (user-confirmed during Phase 0): 4 topic notes + auxiliary files
 
-Ask the user to confirm during Phase 0 if any sections should use 4 topic notes. Do not assume based on position.
+Auxiliary file numbers follow the **Per-chapter file numbering rule** above — they are always sequential after the topic notes. Ask the user to confirm during Phase 0 if any sections should use 4 topic notes. Do not assume based on position.
+
+### Filename lock and forward-link contract
+
+**Filenames are locked after Phase 5 scaffold.** Once the scaffold is written, file and folder names must not be changed. This is the forward-link contract: authored chapters may link to files that do not yet have content (because they will be populated later). Those links will resolve correctly as long as names stay stable. Renaming to "fix" a broken-looking link breaks every other link to that file.
+
+- Record the locked names in the Phase 2 tree output so the user has a stable reference.
+- Use relative paths for all cross-references between files, so links resolve regardless of where the repo lives on disk.
 
 ### Full repo tree structure
 
@@ -231,6 +273,7 @@ Ask the user to confirm during Phase 0 if any sections should use 4 topic notes.
 ├── README.md                        ← populated (written in Phase 5)
 ├── AGENTS.md                        ← populated (written in Phase 4)
 ├── templates/
+│   ├── README.md                    ← POPULATED (lists templates + destinations)
 │   ├── chapter-notes-template.md    ← POPULATED
 │   ├── section-index-template.md    ← POPULATED
 │   ├── module-index-template.md     ← POPULATED
@@ -261,8 +304,32 @@ Ask the user to confirm during Phase 0 if any sections should use 4 topic notes.
 
 - Sections follow a natural difficulty ramp: Foundations → Core Competency → Advanced / Specialised → Expert Practice.
 - If a certification exists, the final content section (before capstone) must be **exam prep**: mock questions, common pitfalls, exam strategy, timing.
-- Each chapter is sized for **1.5–3 hours** of focused study. If total chapters × avg hours does not roughly match the user's Phase 0 budget, flag it and suggest a rescope before proceeding.
+- Each chapter is sized for **1.5–3 hours** of focused study.
 - The capstone must draw on skills from at least two sections.
+
+### Budget reconciliation
+
+Once the chapter count is known, compute the hour range and compare it to the user's Phase 0 budget before presenting the tree.
+
+**Formula:**
+- `low = chapters × 1.5 hrs`
+- `high = chapters × 3.0 hrs`
+
+**Decision rule:** If the user's stated budget falls **outside [low, high] by more than 25%**, do not silently proceed. Propose a specific structural fix:
+- Budget too low → name the section(s) to cut or the chapters to merge, then show a revised tree.
+- Budget too high → name the section(s) or bonus chapters to add, or flag that the budget is generous and proceed as-is if the user confirms.
+
+Only proceed when the budget is inside the range, or the user has explicitly acknowledged the mismatch.
+
+**Required reconciliation table** (include in the Phase 2 output, above the full tree):
+
+| Section | Chapters | Hrs low | Hrs high |
+|---|---|---|---|
+| [Section 1 name] | N | N×1.5 | N×3.0 |
+| [Section 2 name] | N | N×1.5 | N×3.0 |
+| … | | | |
+| **Total** | **N** | **N×1.5** | **N×3.0** |
+| **Your budget** | — | **X hrs** | ← within range? |
 
 ### Present the tree
 
@@ -276,606 +343,43 @@ Show the complete folder + file tree annotated with:
 ### End of Phase 2
 
 > **Phase 2 complete.**  
-> Does this structure look right? Confirm folder names, section order, chapter sizing, and total hours.  
+> Does this structure look right? Confirm folder names, section order, chapter sizing, and the budget reconciliation table.  
 > Reply **"proceed"** to continue to Phase 3 (templates), or request changes.
 
 ---
 
 ## Phase 3 — Templates
 
-**Goal:** Generate all template files in full. Present them and wait for confirmation before writing anything to disk.
+**Goal:** Confirm the set of template files that will be written to disk, then proceed to Phase 4 where they are copied from `reference/` to the repo.
 
-### Always generate these four
+Template bodies are **not** inlined here — they live in `reference/` (relative to this skill's base directory) where they can be read on demand without bloating context. The manifest below is the source of truth for which files exist and when each is generated.
 
-#### 3a. `chapter-notes-template.md`
+### Template manifest
 
-````markdown
-# [Chapter Title]
-
-**Section:** [Section] | **Module:** [Module] | **Est. time:** [X hrs] | **Exam mapping:** [Domain/objective or "Supporting content"]
-
----
-
-## TL;DR
-
-<!-- 2–4 sentences. What this topic is, why it matters, and the single most important thing to remember.
-     End with: **The one thing to remember: ...** -->
-
----
-
-## ELI5 — Explain It Like I'm 5
-
-<!-- Mandatory. 3–6 sentences of plain English using a concrete everyday analogy.
-     The analogy must map structurally onto the technical concept — not just vaguely compare.
-     No jargon in this section. Prose only, no bullets.
-     Non-compliant: "Think of X as a way to represent Y." (too vague)
-     Compliant: name a familiar object, map its mechanism to the technical process,
-     and explicitly correct the most common misconception. -->
-
----
-
-## Learning Objectives
-
-By the end of this chapter you will be able to:
-- [ ] [Action-verb outcome — specific and testable, e.g. "Configure X to achieve Y"]
-- [ ] [Outcome 2]
-- [ ] [Outcome 3–5 total — use verbs: implement, diagnose, compare, explain, design]
-
----
-
-## Visual Overview
-
-<!-- Recommended. Include when the topic has a visualisable process, architecture, or decision flow.
-     Aim for 2–4 diagrams. Place each under its own ### sub-header inside a plain fenced code block
-     (no language tag). Use box-drawing characters for structure:
-       Flows (left-to-right):  ──►   Vertical:  │  ├  └
-       Corners:  ┌ ┐ ┘ └       Labels: ▲ ▼ ◄ ►
-     Good diagram types:
-       - Pipeline / data flow  (e.g. Input ──► Process ──► Output)
-       - Decision tree         (branch on a key condition)
-       - Architecture comparison (side-by-side option A vs option B)
-       - Before / after        (anti-pattern state vs correct state)
-     If the topic is purely conceptual with nothing to visualise, omit this section. -->
-
-### [Diagram Title — e.g. "Pipeline Flow"]
-
-```
-[left-to-right or top-to-bottom diagram here]
-Input ──► Step 1 ──► Step 2 ──► Output
-```
-
-### [Diagram Title — e.g. "Decision Tree"]
-
-```
-Is condition X true?
-├── Yes ──► Approach A
-└── No  ──► Is condition Y true?
-            ├── Yes ──► Approach B
-            └── No  ──► Approach C
-```
-
----
-
-## Key Concepts
-
-<!-- For EACH concept sub-section, answer all three questions:
-     1. What is it? (1–2 sentence definition)
-     2. How does it work mechanistically? (2–4 sentences on the process/behaviour that produces the result)
-     3. Where does it appear in the tool/platform ecosystem? (command, API call, config field, UI location)
-     A sub-section that only answers question 1 is non-compliant. -->
-
-### [Concept A]
-
-### [Concept B]
-
-### [Concept C]
-
-### Key Parameters / Configuration Knobs
-
-<!-- Required for any chapter covering a configurable component.
-     "Decision rule" must be a concrete actionable rule, not a restatement of the parameter.
-     If no configurable parameters exist for this topic, write: "No configurable parameters for this topic." -->
-
-| Parameter | What it controls | Decision rule |
-|---|---|---|
-| [param] | [what it does] | [when to set it to X vs Y] |
-
-### Worked Example: Requirement → Decision
-
-<!-- Mandatory. Walk through one complete, realistic decomposition.
-     Given: [plain-English scenario — not "Example: configure X"]
-     Step 1 — Identify the goal: [what outcome is needed]
-     Step 2 — Define inputs: [what data/config/context enters]
-     Step 3 — Define outputs: [what the downstream step expects]
-     Step 4 — Apply constraints: [constraints relevant to this domain and topic]
-     Step 5 — Select the approach: [specific tool/command/pattern + one-sentence rationale vs alternatives]
-     If no selection decision exists, substitute a realistic failure diagnosis walkthrough. -->
-
----
-
-## Implementation
-
-<!-- At least 2 code or config snippets from different angles.
-     Every snippet starts with a comment naming the business/operational problem it solves.
-     At least one snippet must be an anti-pattern, labeled # Anti-pattern: or # Wrong:,
-     immediately followed by the corrected version with an explanation of what breaks. -->
-
-```[language]
-# Scenario: [the real-world problem this solves]
-
-```
-
-```[language]
-# Anti-pattern: [describe the wrong approach and why it fails]
-
-# Correct approach:
-
-```
-
----
-
-## Common Pitfalls & Misconceptions
-
-<!-- Each bullet: (1) bolded label, (2) why beginners make this mistake, (3) correct mental model.
-     Bare bullets with no explanation are non-compliant. -->
-
-- **[Pitfall label]** — [Why the wrong intuition forms]. [Correct mental model].
-- **[Pitfall label]** — [Why the wrong intuition forms]. [Correct mental model].
-- **[Pitfall label]** — [Why the wrong intuition forms]. [Correct mental model].
-
----
-
-## Key Definitions
-
-| Term | Definition |
-|---|---|
-| [Term] | [Precise, scoped definition — not a dictionary entry] |
-
----
-
-## Summary / Quick Recall
-
-- [Key takeaway 1 — one line, scannable]
-- [Key takeaway 2]
-- [3–7 takeaways total — designed for a 60-second pre-exam scan]
-
----
-
-## Self-Check Questions
-
-<!-- 5 questions. Cognitive level distribution:
-     Q1: recall (definition or fact)
-     Q2–Q3: application (apply concept to a new scenario)
-     Q4–Q5: analysis or trade-off (compare options, select best under constraints)
-     At least 1 must be multi-select ("Which TWO...").
-     Every answer: explain why correct AND why main distractor(s) are wrong.
-     One-word answers are non-compliant. -->
-
-1. [Recall question]
-
-   <details><summary>Answer</summary>
-
-   [Why this is the correct answer. Why the most tempting wrong answer fails.]
-
-   </details>
-
-2. [Application question]
-
-   <details><summary>Answer</summary>
-
-   [Answer with rationale.]
-
-   </details>
-
-3. **Which TWO** [multi-select question]
-   - A.
-   - B.
-   - C.
-   - D.
-   - E.
-
-   <details><summary>Answer</summary>
-
-   [Why both correct answers qualify. Why the most tempting wrong answer fails.]
-
-   </details>
-
-4. [Analysis question]
-
-   <details><summary>Answer</summary>
-
-   [Answer with rationale.]
-
-   </details>
-
-5. [Trade-off question]
-
-   <details><summary>Answer</summary>
-
-   [Answer with rationale.]
-
-   </details>
-
----
-
-## Further Reading
-
-<!-- Official documentation only. No third-party blogs, Medium, or YouTube.
-     Format: [Title](url) — *verified YYYY-MM-DD* — [one-line description]
-     Verify every URL with webfetch before writing. -->
-
-- [Title](url) — *verified YYYY-MM-DD* — [description]
-````
-
-#### 3b. `module-index-template.md`
-
-````markdown
-# [Module Name]
-
-**Part of:** [Section] | **Estimated time:** [X hrs] | **Prerequisites:** [Prior module or "None"] | **Exam mapping:** [Domain/objective]
-
-## Overview
-
-[1–2 sentences: what this module covers and why it matters in the learning arc.]
-
-## Learning Outcomes
-
-By completing this module you will be able to:
-- [Outcome 1]
-- [Outcome 2]
-- [Outcome 3–5]
-
-## Chapters
-
-| # | Chapter | Est. time | File |
+| File | Reference source | Destination in repo | When generated |
 |---|---|---|---|
-| 1 | [Chapter name] | [X hrs] | [relative link to notes file] |
-| 2 | [Chapter name] | [X hrs] | [relative link] |
-
-## How This Module Fits
-
-[What came before, what this module unlocks, what comes next.]
-
-## Study Tips
-
-[Specific, practical advice for this module — tools to set up, known difficulty spikes, common pacing mistakes. Generic advice ("take notes") does not belong here.]
-````
-
-#### 3c. `section-index-template.md`
-
-````markdown
-# [Section Name]
-
-**Estimated time:** [X hrs] | **Exam domain weight:** [~X% or "N/A"] | **Prerequisites:** [Prior section or "None"]
-
-## Overview
-
-[2–3 sentences: scope of this section, what phase of the learning arc it covers, why it matters.]
-
-## Learning Outcomes
-
-By completing this section you will be able to:
-- [Outcome 1]
-- [Outcome 2]
-- [Outcome 3–5]
-
-## Modules
-
-| # | Module | Est. time | Chapters |
-|---|---|---|---|
-| 1 | [Module name] | [X hrs] | [N] |
-| 2 | [Module name] | [X hrs] | [N] |
-
-## How This Section Fits
-
-[Connection to the previous section and what it unlocks for the next.]
-
-## Study Tips
-
-[Section-specific advice — environments to set up, things to review from prerequisites, known difficulty spikes.]
-````
-
-#### 3d. `authoring-guidelines.md`
-
-````markdown
-# Authoring Guidelines & Quality Rubric
-
-## Voice & Tone
-
-- Write for **learning**, not documentation. Explain *why* things work the way they do.
-- Active voice. Concrete examples over abstract definitions.
-- Target voice: "knowledgeable colleague at a whiteboard" — not a textbook, not a marketing page.
-- Assume the reader knows the prerequisites but is new to this specific topic.
-
-## Depth Calibration
-
-- **Key Concepts (incl. ELI5, Worked Example):** ~75% of authoring effort. This is where teaching happens.
-- **Implementation snippets:** ~15%. Must be realistic and runnable. At least one anti-pattern.
-- **Self-Check Questions:** ~10% but non-negotiable. 5 questions, spanning recall → application → analysis.
-- Do not invert these proportions. A chapter with 10 code examples and 2 sentences of explanation teaches nothing.
-
-## ELI5 Requirements
-
-Every chapter opens with an ELI5 section. Rules:
-- Plain English, zero jargon.
-- A concrete everyday analogy that maps structurally onto the concept — not just a vague comparison.
-- 3–6 sentences, prose only.
-- Must address the most common misconception about the topic.
-
-## Worked Examples
-
-Every chapter must have at least one complete Worked Example following the Requirement → Decision format:
-- Given a realistic scenario (not a toy example)
-- Step through goal → inputs → outputs → constraints → approach + rationale
-- If no selection decision exists, use a failure diagnosis walkthrough instead
-
-## Visual Overview
-
-Include a `## Visual Overview` section in a topic note when the subject has a pipeline, architecture, decision path, or before/after contrast that is easier to grasp visually than in prose. It is **recommended, not required** — omit for purely conceptual topics with nothing to diagram.
-
-**Placement:** After `## Learning Objectives`, before `## Key Concepts`.
-
-**Format rules:**
-- Each diagram under its own `### [Diagram Title]` sub-header
-- Diagrams in plain fenced code blocks — no language tag
-- Use box-drawing characters: `──►` for flow arrows; `│ ├ └ ─ ┌ ┐ ┘` for tree/box structure; `▲ ▼ ◄ ►` for labels
-- Aim for 2–4 diagrams per note; a single well-drawn diagram is better than four cluttered ones
-
-**Diagram types that work well:**
-- **Pipeline flow** — left-to-right data or process flow with labeled arrows
-- **Decision tree** — branch on a key condition; shows when to choose A vs B
-- **Side-by-side comparison** — architecture option A vs option B
-- **Before / after** — anti-pattern state → correct state
-
-## Self-Check Questions
-
-- 5 questions per chapter. Distribution: Q1 recall, Q2–Q3 application, Q4–Q5 analysis/trade-off.
-- At least 1 must be multi-select ("Which TWO...").
-- Every answer must explain why the correct answer is right AND why the main distractor(s) are wrong.
-- Use `<details><summary>Answer</summary>` for all answers.
-- One-word answers are non-compliant.
-
-## Source Hygiene
-
-- Cite source URL and retrieval date for every specific doc, API reference, or changelog entry.
-- Flag fast-evolving features with: `> ⚠️ Fast-evolving: verify against current official docs before relying on this.`
-- Official documentation only — no third-party blogs, Medium, or YouTube.
-
-## Blueprint Drift Warning
-
-Exam objectives and API surfaces change over time. If you are authoring more than 6 months after the repo was created, verify the current official exam guide or documentation before writing. Do not assume the Phase 1 research summary is still current.
-
-## Quality Checklist
-
-Run before marking a chapter complete:
-
-- [ ] TL;DR ends with a bolded "one thing to remember"
-- [ ] ELI5 uses a concrete structural analogy, no jargon, addresses a misconception
-- [ ] Every Key Concepts sub-section answers: What? How does it work? Where does it appear?
-- [ ] Key Parameters table exists (or explicit "no configurable parameters" note)
-- [ ] Worked Example follows the Requirement → Decision 5-step format
-- [ ] At least 2 implementation snippets from different angles
-- [ ] At least 1 anti-pattern snippet with corrected version
-- [ ] All snippets start with a `# Scenario:` or `# Anti-pattern:` comment
-- [ ] Visual Overview present (if topic has a visualisable process) — 2–4 diagrams, each under a `###` sub-header in a plain fenced block
-- [ ] Pitfalls have all 3 parts: label + why beginners make it + correct mental model
-- [ ] 5 Self-Check questions spanning 3 cognitive levels
-- [ ] At least 1 multi-select question
-- [ ] All answers explain why correct AND why distractors fail
-- [ ] Further Reading uses only official docs, all links verified with webfetch
-- [ ] No filler — every sentence earns its space
-````
-
-### Conditionally generate (based on Phase 0 intent)
-
-#### 3e. `thought-leadership-template.md` — only if goal (c) detected
-
-````markdown
-# [Chapter Title] — Thought Leadership
-
-**Section:** [Section] | **Target audience:** [e.g. senior engineers, tech leads, general tech audience] | **Target publication:** [e.g. personal blog, LinkedIn, conference talk]
-
-## Hook / Opening Thesis
-
-[1–2 sentences that stop a busy person scrolling. What is the non-obvious claim this piece makes? Do NOT open with "In today's world..." or "As X continues to evolve..."]
-
-## Key Claims (3–5)
-
-1. [Specific and defensible claim — not generic]
-2. [Claim 2]
-3. [Claim 3]
-
-## Supporting Evidence & Examples
-
-[For each claim: data, case study, observed pattern, or first-hand experience. Be specific — name the tools, the failure, the numbers.]
-
-## The Original Angle
-
-[What does this say that cannot be found elsewhere? Why are YOU the right person to say it?]
-
-## Counterarguments to Address
-
-[What would a skeptical expert push back with? Acknowledge and respond to the strongest objections.]
-
-## Practical Takeaways for the Reader
-
-- [What can the reader do differently after reading this?]
-- [Concrete action or mental model shift]
-
-## Call to Action
-
-[What do you want the reader to do next?]
-
-## Further Reading / References
-
-- [Source](URL) — [why it supports the argument]
-
----
-<!-- PUBLISHING CHECKLIST (delete before posting):
-  - [ ] Hook does NOT start with "In today's world" or "As X evolves"
-  - [ ] At least one concrete example or metric
-  - [ ] Personal voice throughout ("I", "we", "my team")
-  - [ ] Ends with a specific discussion question or call to action
-  - [ ] 600–900 words when measured
--->
-````
-
-#### 3f. `interview-prep-template.md` — only if goal (b) detected
-
-````markdown
-# [Chapter Title] — Interview Prep
-
-**Section:** [Section] | **Role target:** [e.g. Senior Engineer, Solutions Architect, Data Engineer]
-
-## Core Conceptual Questions
-
-These test whether you understand the fundamentals.
-
-| Question | Key points to cover | Common weak-answer trap |
-|---|---|---|
-| [Question 1] | [2–3 bullet points] | [What shallow candidates say] |
-| [Question 2] | [...] | [...] |
-
-## Applied / Scenario Questions
-
-**Q:** [Realistic engineering scenario]
-
-**Strong answer framework:**
-- [Point 1]
-- [Point 2]
-- [How to show tradeoff awareness]
-
-## System Design / Architecture Questions (if applicable)
-
-**Q:** [Design question]
-
-**Approach:**
-1. Clarify requirements
-2. Propose structure
-3. Justify choices and name tradeoffs explicitly
-
-## Vocabulary That Signals Expertise
-
-Use these terms naturally — don't force them:
-- [Term] — [when/why to use it]
-
-## Vocabulary That Signals Weakness
-
-Avoid these — they signal outdated or shallow understanding:
-- [Term/phrase] — [why it's a red flag]
-
-## STAR Answer Frame
-
-**Situation:** [Realistic scenario using this chapter's concepts]  
-**Task:** [What you were responsible for]  
-**Action:** [Specific technical decisions and why]  
-**Result:** [Quantified outcome if possible]
-
-## Red Flags Interviewers Watch For
-
-[Specific to this topic area — not generic interview advice]
-````
-
-#### 3g. `lab-template.md` — only if labs were requested in Phase 0
-
-````markdown
-# [Lab Title]
-
-**Lab:** LAB-[XX] | **Section:** [Section] | **Module:** [Module] | **Est. time:** [X hrs]
-
-## Objective
-
-[One sentence: what the learner will have built or demonstrated by the end.]
-
-## Prerequisites
-
-- [Prior lab or concept]
-- [Environment requirement]
-
-## Setup
-
-[Environment setup steps — specific commands, not vague instructions.]
-
-```[language]
-# Setup commands
-```
-
-## Steps
-
-### Step 1 — [Action]
-
-[Instructions]
-
-```[language]
-# Step 1 code/config
-```
-
-### Step 2 — [Action]
-
-...
-
-## Validation
-
-[How to verify the lab succeeded — specific observable output or test command.]
-
-```[language]
-# Validation command / expected output
-```
-
-## Teardown
-
-[How to clean up resources created during the lab.]
-
-## Reflection Questions
-
-1. [What would break if you changed X?]
-2. [What would you do differently in production?]
-3. [How does this connect to [next topic]?]
-````
-
-#### 3h. `capstone-template.md` — always generate
-
-````markdown
-# [Capstone Project Title]
-
-**Sections covered:** [list sections this draws on] | **Est. time:** [X hrs]
-
-## Problem Statement
-
-[A realistic scenario that requires integrating skills from multiple sections. Must not be solvable using only one section's knowledge.]
-
-## Requirements
-
-- Functional: [what it must do]
-- Non-functional: [performance, reliability, cost, or other constraints]
-
-## Architecture Design
-
-[Describe the high-level approach before implementing. Justify the key choices.]
-
-## Implementation Guide
-
-[Step-by-step — specific enough to follow, not so prescriptive that there is only one solution.]
-
-## Tradeoffs & Optimisation
-
-[What tradeoffs did you make? What would you change with more time or budget?]
-
-## Reflection
-
-- What was harder than expected?
-- What would you do differently?
-- What did this project reveal that the individual chapters didn't?
-
-## Thought Leadership Hook
-
-[One paragraph: what insight from building this project is worth sharing publicly?]
-````
+| `chapter-notes-template.md` | `reference/chapter-notes-template.md` | `templates/chapter-notes-template.md` | Always |
+| `section-index-template.md` | `reference/section-index-template.md` | `templates/section-index-template.md` | Always |
+| `module-index-template.md` | `reference/module-index-template.md` | `templates/module-index-template.md` | Always |
+| `authoring-guidelines.md` | `reference/authoring-guidelines.md` | `templates/authoring-guidelines.md` | Always |
+| `capstone-template.md` | `reference/capstone-template.md` | `templates/capstone-template.md` | Always |
+| `thought-leadership-template.md` | `reference/thought-leadership-template.md` | `templates/thought-leadership-template.md` | Goal (c) detected in Phase 0 |
+| `interview-prep-template.md` | `reference/interview-prep-template.md` | `templates/interview-prep-template.md` | Goal (b) detected in Phase 0 |
+| `lab-template.md` | `reference/lab-template.md` | `templates/lab-template.md` | Labs requested in Phase 0 |
+
+**Key sections in `chapter-notes-template.md`** (the core template every notes file follows):
+TL;DR → ELI5 → Learning Objectives → Visual Overview (recommended) → Key Concepts (definition + mechanism + platform manifestation per sub-section) → Key Parameters table → Worked Example (Requirement → Decision, 5 steps) → Implementation (≥2 snippets, ≥1 anti-pattern) → Common Pitfalls (3-part format) → Key Definitions → Summary / Quick Recall → Self-Check Questions (5 Qs spanning recall/application/analysis, ≥1 multi-select, all answers with rationale) → Further Reading (official docs only, verified URLs).
+
+**Key sections in `authoring-guidelines.md`**: Voice & Tone → Depth Calibration → ELI5 Requirements → Worked Examples → Visual Overview guidelines → Self-Check Questions → Source Hygiene → Blueprint Drift Warning → Quality Checklist.
+
+### On-demand template display
+
+If the user asks to see a specific template ("show me the chapter-notes template", "what does the lab template look like"), read the relevant `reference/<name>` file and display it in full. Do not pre-display all templates in a single message.
 
 ### End of Phase 3
 
-> **Phase 3 complete.** The templates above will be written to `templates/`.  
-> Any changes before I create the files?  
+> **Phase 3 complete.** The templates listed above will be copied from `reference/` to `templates/` in Phase 4.  
+> Any template additions or removals before I create the files?  
 > Reply **"proceed"** to continue to Phase 4 (AGENTS.md + templates on disk), or request edits.
 
 ---
@@ -988,8 +492,8 @@ If no selection decision exists, substitute a realistic failure diagnosis walkth
 
 ### Rule 5 — Snippets must be scenario-first, not topic-first
 Every code or config snippet must begin with a comment naming the real-world problem being solved.  
-Non-compliant: `# Example: create index`  
-Compliant: `# Scenario: provision a read-replica to offload reporting queries without impacting the primary`  
+Non-compliant: a comment that only names the feature or command being demonstrated.  
+Compliant: a comment that states the concrete operational goal the snippet achieves and the constraint that makes it the right choice.  
 At least one snippet per file must be an anti-pattern (`# Anti-pattern:`) immediately followed by the corrected version with an explanation of what breaks.
 
 ### Rule 6 — Pitfalls must have three parts
@@ -1009,11 +513,13 @@ When a topic involves a pipeline, decision path, architecture, or before/after c
 ## File Naming Rules
 (Adjust based on repo naming style)
 - Notes: `01_snake_case.md` / `01-kebab-case.md` (zero-padded)
-- Thought leadership: `04_thought_leadership_article_template.md` / `04-thought-leadership.md`
+- Thought leadership: `NN_thought_leadership.md` / `NN-thought-leadership.md` — `NN` is the next number after the topic notes
+- Interview prep: `NN_interview_prep.md` / `NN-interview-prep.md` — `NN` is the number after thought leadership when both are present
 - Labs: `LAB_XX_snake_case.md` / `LAB-XX-kebab.md` (global sequence)
 - Section folders: `SECTION_XX_NAME/` or `01-name/`
 - Module folders: `MODULE_XX_Name/` or `01-name/`
 - Chapter folders: `CHAPTER_XX_Name/` or `01-name/`
+- Auxiliary files (thought leadership, interview prep) are numbered sequentially after the topic notes; interview prep always follows thought leadership so they never collide.
 
 ---
 
@@ -1028,16 +534,18 @@ When a topic involves a pipeline, decision path, architecture, or before/after c
 - Do not populate stubs without explicit user instruction
 - Do not paraphrase syllabus or exam objectives — quote verbatim from the source of truth
 - Do not add content not traceable to the authoritative source
-- Do not renumber files or folders after scaffold — names are locked
+- Do not renumber or rename files or folders after scaffold — filenames are locked from Phase 5. Authored chapters may forward-link to not-yet-written stubs; those links resolve when the target is populated. Renaming to "fix" a link breaks every other reference to that file.
 - Do not link to third-party blogs, Medium, or YouTube
 - Do not skip or merge sections without user approval
 ````
 
 ### 4b — Write all template files
 
-Write all templates from Phase 3 to `<repo-root>/templates/` using the `Write` tool, with their full content exactly as presented in Phase 3. These are the only non-stub files other than `AGENTS.md` and `README.md`.
+For each template in the Phase 3 manifest that applies to this repo, read the corresponding file from `reference/<name>` (relative to this skill's base directory) and write its content verbatim to `<repo-root>/templates/<name>` using the `Write` tool. Do **not** paraphrase or abbreviate the template content — copy it exactly.
 
-Also create `templates/README.md` listing each template file and its destination.
+These are the only non-stub files other than `AGENTS.md` and `README.md`.
+
+Also create `templates/README.md` listing each template file, its reference source, and its destination in the repo.
 
 ### End of Phase 4
 
@@ -1059,6 +567,8 @@ Every file outside `templates/` and outside `AGENTS.md`/`README.md` contains exa
 ```
 
 No headings, no tables, no prose — one comment line only. This applies to: all section/module/chapter content files, `progress-tracker.md`, `00-roadmap/learning-roadmap.md`, all capstone files.
+
+**Idempotency rule:** Before writing a stub, check whether the file already exists and has content beyond the stub line. If it does, **skip it — never overwrite.** This makes Phase 5 re-runnable: re-invoking it after an interruption creates only the missing files and leaves authored content intact.
 
 ### Section and module index stubs
 
@@ -1090,6 +600,26 @@ Use only the user's topic name, section names, and goal — no generic boilerpla
 
 For repos with more than 30 files, use the `TodoWrite` tool to track scaffold progress: mark each section `pending` → `in_progress` → `completed` as its files are written. Write one section at a time.
 
+### Phase 5 verification pass
+
+After all stubs are written, run a planned-vs-actual check before reporting the scaffold summary. This catches silent failures (Windows MAX_PATH truncations, permission errors, interrupted writes).
+
+**Steps:**
+1. Build the **planned file list** from the Phase 2 tree (every file that should exist, including stubs, all `templates/` files and `templates/README.md`, `AGENTS.md`, and `README.md`).
+2. For each planned file, check whether it exists on disk.
+3. Produce a diff table:
+
+| Planned file | Exists? | Action taken |
+|---|---|---|
+| `path/to/file.md` | ✓ | — |
+| `path/to/missing.md` | ✗ | Created now |
+
+4. Re-create any missing files (applying the idempotency rule — skip files that exist with real content).
+5. For the `README.md`, verify that every relative link in the Section summaries and repository structure points to a file or folder that now exists. List any broken links and fix them.
+6. Only proceed to the scaffold summary once planned count = actual count.
+
+**Resumability:** If Phase 5 is interrupted at any point, re-invoke it. The idempotency rule ensures no authored content is overwritten; only missing stubs will be created.
+
 ### End of Phase 5
 
 Report the scaffold summary:
@@ -1104,7 +634,7 @@ Thought leadership:    N  (stubs)
 Interview prep:        N  (stubs, if applicable)
 Lab stubs:             N  (if applicable)
 Capstone stubs:        N
-Template files:        N  (fully populated)
+Template files:        N  (fully populated, incl. templates/README.md)
 AGENTS.md:             1  (fully populated)
 README.md:             1  (fully populated)
 ────────────────────────────────
@@ -1151,13 +681,17 @@ This commit captures the folder structure, templates, and `AGENTS.md` before any
 
 - **Templates and AGENTS.md are the only files with content.** `README.md` also gets content. Everything else is one stub line. No exceptions.
 - **Never assume tool names, vendor names, cloud providers, or platform names.** Derive everything from what the user said. Never default to any specific technology in folder names, template language, or AGENTS.md.
-- **Folder and file names use the actual subject names** — not generic placeholders like `module-1` or `chapter-a`.
+- **Folder and file names use the actual subject names** — not generic placeholders like `module-1` or `chapter-a`. Apply the deterministic slug algorithm (Phase 2) consistently.
 - **One phase per response.** Never combine phases. Each phase (except Phase 6) ends with an explicit confirmation gate.
 - **Always fetch live information in Phase 1.** Never invent curriculum structure from training data alone.
-- **If the hour budget is unrealistic**, say so with a reasoned alternative before proceeding. A typical chapter is 1.5–3 hours; flag any scope that cannot fit within the user's budget.
+- **Hour budget must reconcile.** If the Phase 0 budget is outside [chapters × 1.5, chapters × 3.0] by more than 25%, propose a specific structural fix before proceeding (Phase 2).
 - **Always cite sources** with URL and retrieval date in the Phase 1 summary.
 - **Always use TodoWrite** to track progress when file count exceeds 30.
-- **Windows MAX_PATH:** Proactively shorten deep path components for Windows compatibility. Note any shortenings in the relevant index file.
+- **Windows MAX_PATH:** Proactively apply the 40-character component cap from the slug algorithm. Note any shortenings in the relevant index file.
+- **Stub creation is idempotent.** Before writing a stub, check for existing non-empty content and skip if found. Phase 5 is re-runnable after any interruption.
+- **Phase 5 always ends with a verification pass.** Compare planned files to actual files on disk; re-create any missing stubs; verify README relative links. Only report the scaffold summary once planned = actual.
+- **Filenames are locked after Phase 5.** Never renumber or rename — doing so breaks forward links from authored chapters to not-yet-written stubs.
+- **Template bodies live in `reference/`.** Never inline template bodies into SKILL.md. Always read from `reference/<name>` and copy to `templates/<name>` in Phase 4b.
 
 ---
 
