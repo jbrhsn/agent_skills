@@ -323,6 +323,39 @@ By the end of this chapter you will be able to:
 
 ---
 
+## Visual Overview
+
+<!-- Recommended. Include when the topic has a visualisable process, architecture, or decision flow.
+     Aim for 2–4 diagrams. Place each under its own ### sub-header inside a plain fenced code block
+     (no language tag). Use box-drawing characters for structure:
+       Flows (left-to-right):  ──►   Vertical:  │  ├  └
+       Corners:  ┌ ┐ ┘ └       Labels: ▲ ▼ ◄ ►
+     Good diagram types:
+       - Pipeline / data flow  (e.g. Input ──► Process ──► Output)
+       - Decision tree         (branch on a key condition)
+       - Architecture comparison (side-by-side option A vs option B)
+       - Before / after        (anti-pattern state vs correct state)
+     If the topic is purely conceptual with nothing to visualise, omit this section. -->
+
+### [Diagram Title — e.g. "Pipeline Flow"]
+
+```
+[left-to-right or top-to-bottom diagram here]
+Input ──► Step 1 ──► Step 2 ──► Output
+```
+
+### [Diagram Title — e.g. "Decision Tree"]
+
+```
+Is condition X true?
+├── Yes ──► Approach A
+└── No  ──► Is condition Y true?
+            ├── Yes ──► Approach B
+            └── No  ──► Approach C
+```
+
+---
+
 ## Key Concepts
 
 <!-- For EACH concept sub-section, answer all three questions:
@@ -576,6 +609,24 @@ Every chapter must have at least one complete Worked Example following the Requi
 - Step through goal → inputs → outputs → constraints → approach + rationale
 - If no selection decision exists, use a failure diagnosis walkthrough instead
 
+## Visual Overview
+
+Include a `## Visual Overview` section in a topic note when the subject has a pipeline, architecture, decision path, or before/after contrast that is easier to grasp visually than in prose. It is **recommended, not required** — omit for purely conceptual topics with nothing to diagram.
+
+**Placement:** After `## Learning Objectives`, before `## Key Concepts`.
+
+**Format rules:**
+- Each diagram under its own `### [Diagram Title]` sub-header
+- Diagrams in plain fenced code blocks — no language tag
+- Use box-drawing characters: `──►` for flow arrows; `│ ├ └ ─ ┌ ┐ ┘` for tree/box structure; `▲ ▼ ◄ ►` for labels
+- Aim for 2–4 diagrams per note; a single well-drawn diagram is better than four cluttered ones
+
+**Diagram types that work well:**
+- **Pipeline flow** — left-to-right data or process flow with labeled arrows
+- **Decision tree** — branch on a key condition; shows when to choose A vs B
+- **Side-by-side comparison** — architecture option A vs option B
+- **Before / after** — anti-pattern state → correct state
+
 ## Self-Check Questions
 
 - 5 questions per chapter. Distribution: Q1 recall, Q2–Q3 application, Q4–Q5 analysis/trade-off.
@@ -606,6 +657,7 @@ Run before marking a chapter complete:
 - [ ] At least 2 implementation snippets from different angles
 - [ ] At least 1 anti-pattern snippet with corrected version
 - [ ] All snippets start with a `# Scenario:` or `# Anti-pattern:` comment
+- [ ] Visual Overview present (if topic has a visualisable process) — 2–4 diagrams, each under a `###` sub-header in a plain fenced block
 - [ ] Pitfalls have all 3 parts: label + why beginners make it + correct mental model
 - [ ] 5 Self-Check questions spanning 3 cognitive levels
 - [ ] At least 1 multi-select question
@@ -866,13 +918,14 @@ The authoritative template is `templates/chapter-notes-template.md`. Every notes
 1. **TL;DR** — 2–4 sentences ending with a bolded "one thing to remember"
 2. **ELI5** — Mandatory plain-language analogy section, no jargon
 3. **Learning Objectives** — Specific, testable, action-verb outcomes
-4. **Key Concepts** — Each sub-section: definition + mechanism + [TOOL/PLATFORM] manifestation
-5. **[TOOL/PLATFORM] Implementation** — ≥2 snippets (different angles) including one anti-pattern
-6. **Common Pitfalls** — Each: bolded label + why beginners make it + correct mental model
-7. **Key Definitions** — Precise, scoped definitions only
-8. **Summary / Quick Recall** — 3–7 scannable takeaways
-9. **Self-Check Questions** — 5 questions spanning recall → application → analysis; ≥1 multi-select
-10. **Further Reading** — Official docs only, all links verified
+4. **Visual Overview** — Recommended when the topic has a visualisable process; 2–4 ASCII diagrams in plain fenced blocks under `###` sub-headers; placed after Learning Objectives, before Key Concepts
+5. **Key Concepts** — Each sub-section: definition + mechanism + [TOOL/PLATFORM] manifestation
+6. **[TOOL/PLATFORM] Implementation** — ≥2 snippets (different angles) including one anti-pattern
+7. **Common Pitfalls** — Each: bolded label + why beginners make it + correct mental model
+8. **Key Definitions** — Precise, scoped definitions only
+9. **Summary / Quick Recall** — 3–7 scannable takeaways
+10. **Self-Check Questions** — 5 questions spanning recall → application → analysis; ≥1 multi-select
+11. **Further Reading** — Official docs only, all links verified
 
 ### Template → destination mapping
 
@@ -947,6 +1000,9 @@ Every Self-Check answer must explain why the correct answer is right AND why the
 
 ### Rule 8 — Self-Check questions must span cognitive levels
 Required distribution: Q1 recall, Q2–Q3 application, Q4–Q5 analysis/trade-off. Five recall questions is non-compliant even if one is multi-select.
+
+### Rule 9 — Visual Overview is recommended for visualisable topics
+When a topic involves a pipeline, decision path, architecture, or before/after contrast, include a `## Visual Overview` section placed **after `## Learning Objectives` and before `## Key Concepts`**. Format: each diagram under its own `### [Diagram Title]` sub-header inside a plain fenced code block (no language tag). Use `──►` for flow arrows and `│ ├ └ ─ ┌ ┐` for tree/box structure. Aim for 2–4 diagrams. Omit this section only for purely conceptual topics where no process or structure exists to diagram.
 
 ---
 
