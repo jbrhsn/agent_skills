@@ -18,7 +18,7 @@ Do **not** use it to generate ideas (use `seed-expander`), to build the source d
 
 ## What it does
 
-- **Reads the source draft and confirms targets.** Asks which target(s) the user wants (LinkedIn, Medium, or both) and determines the best-fit content-type from the draft's substance. A step-by-step with code becomes a Tutorial, a numbered structure a Listicle, a single sharp insight a Short, a layered argument a Long/Article. If the type is ambiguous, it asks rather than guesses.
+- **Reads the source draft and confirms expected outputs.** Before generating anything, asks the user what outputs they expect (LinkedIn and/or Medium types, carousel copy, tutorial) and stops for the answer, then determines the best-fit content-type from the draft's substance. A step-by-step with code becomes a Tutorial, a numbered structure a Listicle, a single sharp insight a Short, a layered argument a Long/Article. If the type is ambiguous, it asks rather than guesses.
 - **Offers LinkedIn format options.** Because the user prefers a mix of formats, it generates **2-3 LinkedIn format options** (e.g. Short Post + Long Post + Carousel outline) so they can pick per post.
 - **Reshapes rather than rewrites.** Re-cuts the SAME core idea per platform, applying the platform tone rules and the matrix constraints (length, formatting). It does not write a different piece.
 - **Adapts voice per platform.** Reads `voice-tone/` if present; voice adapts by both content type and platform.
@@ -54,7 +54,7 @@ Do **not** use it to generate ideas (use `seed-expander`), to build the source d
 
 | Step | What happens |
 |---|---|
-| **1. Read source + confirm targets** | Read the draft; ask which platform(s); detect the best-fit content-type per target (ask if ambiguous); offer 2-3 LinkedIn format options |
+| **1. Read source + confirm expected outputs** | Read the draft; ask the user which outputs they expect (LinkedIn and/or Medium types, carousel copy, tutorial) and stop for their answer; detect the best-fit content-type per target (ask if ambiguous); present the 2-3 LinkedIn format menu before generating any LinkedIn file |
 | **2. Produce the versions** | Re-cut the same core idea per platform, applying tone rules and matrix constraints; emit carousel copy as JSON; structure tutorials with code blocks but do not claim verification |
 | **3. Review-first (stop)** | Present all versions/options and stop; user picks, tweaks, or rejects |
 | **4. Persist** | Write to `linkedin/<slug>-<type>.md`, `medium/<slug>-<type>.md`, and `linkedin/carousels/<slug>/slides.json`; confirm the paths |

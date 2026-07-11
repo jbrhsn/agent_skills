@@ -40,8 +40,15 @@ Read `voice-tone/` if present and adapt. If a needed voice-tone folder is expect
 
 ## Workflow
 
-### 1. Read the source draft + confirm targets
-Read the source draft. Ask the user which target(s) they want. For each target, determine the content-type:
+### 1. Read the source draft + confirm expected outputs
+Read the source draft. Before generating anything, ASK the user what outputs they expect and STOP for their answer. Do not assume. Surface the concrete deliverables this skill supports:
+- **LinkedIn**: Short Post, Long Post, Article, and/or Carousel copy (any mix).
+- **Medium**: Short Article, Long Article, Tutorial, and/or Listicle (any mix).
+- **Both platforms**, or just one.
+- **Carousel copy** to hand off to `carousel-builder` for rendered images.
+- **Tutorial** copy to hand off to `tutorial-verifier` for code execution.
+
+For each chosen target, determine the content-type:
 - Detect the best-fit type from the draft's substance (a step-by-step with code → Tutorial; a numbered structure → Listicle; a single sharp insight → Short; a layered argument → Long/Article).
 - If the type is ambiguous, ASK rather than guess.
 - For **LinkedIn**, you MUST present the 2-3 format menu (Short Post, Long Post, Carousel outline) and get an explicit selection from the user BEFORE generating any LinkedIn file. Do not default to a single format.
