@@ -82,6 +82,7 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 | **3. Claim-integrity gate** | Run `claim_lint.py`; resolve every FAIL by citing/flagging/rewording; re-run until exit 0 |
 | **4. Review-first (stop)** | Present the lint-clean draft + one-line claim audit; iterate in place until approved; no auto-handoff |
 | **5. Persist** | Fill/create `drafts/<slug>.md`, set `**Status:** drafted`, keep/consolidate markers, re-run the gate once more; confirm the path |
+| **6. Ask for expected outputs** | After persisting, ask the user which downstream outputs they want (LinkedIn and/or Medium versions, carousel images, verified tutorial code, editorial pass, or nothing) and only hand off to the matching skill after they pick |
 
 ---
 
@@ -101,6 +102,7 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 - **A clean, platform-neutral source draft** structured hook → point → evidence/story → takeaway, voice-matched, with every risky claim cited or explicitly flagged.
 - **A one-line claim audit** ("N risky claims: X cited, Y flagged UNVERIFIED, Z personal") plus the lint result (PASS, or the FAIL list and how each item was resolved).
 - **The persisted draft** at `drafts/<slug>.md` with `**Status:** drafted`, re-linted clean on save, and a confirmed path.
+- **A prompt asking what to produce next** (LinkedIn and/or Medium versions, carousel images, verified tutorial code, an editorial pass, or nothing) so the user chooses the downstream output instead of the skill assuming one.
 
 ---
 

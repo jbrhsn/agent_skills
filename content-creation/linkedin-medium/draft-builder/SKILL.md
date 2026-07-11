@@ -89,11 +89,23 @@ Write/update the source draft in `drafts/<slug>.md`:
 
 Confirm the file path to the user.
 
+### 6. Ask what outputs the user expects next
+After the draft is persisted, do NOT assume the next step. ASK the user what they want to produce from this draft, and stop for their answer. Offer the concrete options this pipeline supports:
+- **LinkedIn version(s)** (Short Post, Long Post, Article, or Carousel copy) via `platform-adapter`.
+- **Medium version(s)** (Short/Long Article, Tutorial, Listicle) via `platform-adapter`.
+- **Both LinkedIn and Medium.**
+- **Rendered carousel images** from carousel copy via `carousel-builder`.
+- **Verified tutorial code** (if the draft contains code) via `tutorial-verifier`.
+- **An editorial polish / variants pass** via `editorial-reviewer`.
+- **Nothing further for now** (stop at the platform-neutral draft).
+
+Only hand off to the relevant skill(s) after the user picks. If they pick nothing, stop here.
+
 ## Scripts reference
 - `scripts/claim_lint.py`: scans a draft for risky claims (numbers, %, money, multipliers, dated stats, research appeals, named attributions, factual superlatives) that are NOT accounted for by `[source: ...]`, `[UNVERIFIED]`, or `[personal]`. Skips code blocks, headings, blockquotes, and stub scaffolding by default. Flags: `--section <heading>` (lint only that section body), `--whole-file`, `--json`. Exit `0` clean, `1` unaccounted claims found, `2` usage error. Standard-library Python only.
 
 ## Handoff
-An approved, claim-clean source draft is the input to `platform-adapter` (LinkedIn/Medium versions) and, for tutorials, `tutorial-verifier`. Because the draft's claims are already cited or flagged, downstream skills inherit that provenance instead of guessing. This skill stops at the platform-neutral draft on purpose.
+An approved, claim-clean source draft is the input to `platform-adapter` (LinkedIn/Medium versions) and, for tutorials, `tutorial-verifier`. Because the draft's claims are already cited or flagged, downstream skills inherit that provenance instead of guessing. This skill stops at the platform-neutral draft on purpose, and Step 6 asks the user which of these outputs they actually want before any handoff happens.
 
 ## Conventions
 
