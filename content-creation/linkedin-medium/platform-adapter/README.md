@@ -19,11 +19,12 @@ Do **not** use it to generate ideas (use `seed-expander`), to build the source d
 ## What it does
 
 - **Reads the source draft and confirms expected outputs.** Before generating anything, asks the user what outputs they expect (LinkedIn and/or Medium types, carousel copy, tutorial) and stops for the answer, then determines the best-fit content-type from the draft's substance. A step-by-step with code becomes a Tutorial, a numbered structure a Listicle, a single sharp insight a Short, a layered argument a Long/Article. If the type is ambiguous, it asks rather than guesses.
-- **Offers LinkedIn format options.** Because the user prefers a mix of formats, it generates **2-3 LinkedIn format options** (e.g. Short Post + Long Post + Carousel outline) so they can pick per post.
+- **Offers LinkedIn format options.** Because the user prefers a mix of formats, it MUST present the 2-3 LinkedIn format menu (Short Post, Long Post, Carousel outline) and get an explicit selection BEFORE generating any LinkedIn file, never defaulting to a single format.
 - **Reshapes rather than rewrites.** Re-cuts the SAME core idea per platform, applying the platform tone rules and the matrix constraints (length, formatting). It does not write a different piece.
 - **Adapts voice per platform.** Reads `voice-tone/` if present; voice adapts by both content type and platform.
 - **Applies platform formatting.** LinkedIn Short/Long get line-break and scannability formatting; LinkedIn Article and Medium Long get headers/subheadings; Medium Tutorial gets steps plus fenced code blocks (without claiming the code is verified); LinkedIn Carousel gets structured slide copy emitted as JSON for `carousel-builder`.
 - **Review-first (mandatory stop).** Presents all generated versions/options and stops. The user picks, tweaks, or rejects before anything is written.
+- **Runs a voice-compliance gate before writing.** Before persisting any platform file, it scans the generated text against the `voice-tone/` profile's avoided words/phrases and punctuation rules, auto-fixes mechanical violations, and flags judgment calls for you. Skips silently if no voice-tone exists.
 - **Persists after approval.** Writes LinkedIn versions to `linkedin/<slug>-<type>.md`, Medium versions to `medium/<slug>-<type>.md`, and carousel slide JSON to `linkedin/carousels/<slug>/slides.json`, then confirms the paths.
 
 ---
@@ -57,7 +58,7 @@ Do **not** use it to generate ideas (use `seed-expander`), to build the source d
 | **1. Read source + confirm expected outputs** | Read the draft; ask the user which outputs they expect (LinkedIn and/or Medium types, carousel copy, tutorial) and stop for their answer; detect the best-fit content-type per target (ask if ambiguous); present the 2-3 LinkedIn format menu before generating any LinkedIn file |
 | **2. Produce the versions** | Re-cut the same core idea per platform, applying tone rules and matrix constraints; emit carousel copy as JSON; structure tutorials with code blocks but do not claim verification |
 | **3. Review-first (stop)** | Present all versions/options and stop; user picks, tweaks, or rejects |
-| **4. Persist** | Write to `linkedin/<slug>-<type>.md`, `medium/<slug>-<type>.md`, and `linkedin/carousels/<slug>/slides.json`; confirm the paths |
+| **4. Persist** | Write to `linkedin/<slug>-<type>.md`, `medium/<slug>-<type>.md`, and `linkedin/carousels/<slug>/slides.json`; confirm the paths; runs the voice-compliance gate before writing |
 
 Carousel slide copy is emitted in the JSON schema `carousel-builder` expects:
 
@@ -95,6 +96,7 @@ Carousel slide copy is emitted in the JSON schema `carousel-builder` expects:
 - **Never claims tutorial code is verified.** Medium Tutorials are structured with code blocks but handed off to `tutorial-verifier` for actual execution.
 - **Never silently creates folders** and **never silently overwrites.** It asks how to proceed if a needed output folder is missing or a target file exists.
 - **Stops for review** before writing anything.
+- **Tracker updates are prompted, not automatic.** If a `content-log.md`/`content-log.json` tracker exists, the skill asks in one line whether to update it after writing; a missing tracker never blocks the skill.
 
 ---
 

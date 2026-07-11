@@ -26,8 +26,9 @@ Do **not** use it to expand a raw idea into an outline (that is `seed-expander`)
 - **Runs a per-platform mechanical/formatting pass.** LinkedIn variants get short lines, generous whitespace, a strong first 1-2 lines, and scannable breaks; Medium variants get clear subheadings, logical section structure, and readable paragraph length, so every variant is platform-ready.
 - **Uses voice material when available.** If a cwd-relative `voice-tone/` folder exists, it reads it to judge voice authenticity and keep edits sounding like the user. If a voice-tone folder is expected but missing, it asks how to proceed rather than guessing.
 - **Stops before writing.** Presents all variants and diagnostics, then STOPS and asks the user to choose, mix, or reject. It never picks for the user and never auto-writes.
-- **Writes only the chosen version.** After the user picks, it confirms the target folder (`linkedin/` or `medium/`, cwd-relative), asks how to proceed if that folder is missing, writes the chosen or mixed version, and confirms the exact path back.
+- **Writes only the chosen version.** After the user picks, it confirms the target folder (`linkedin/` or `medium/`, cwd-relative), asks how to proceed if that folder is missing, writes the chosen or mixed version, and confirms the exact path back. Before writing the chosen version, it runs a voice-compliance gate: scans against the voice-tone profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls.
 - **Iterates on request.** The chosen variant can be fed back in as new input for another fresh round of variants.
+- **Persists standing style rules.** If you state a standing style rule during review (for example, no em-dashes), it offers to persist that rule to `voice-tone/profile.md` so every skill inherits it.
 
 ---
 
@@ -40,14 +41,14 @@ Every piece is evaluated against these five dimensions, and different variants d
 | 1 | **Hook strength** | Does the opening earn the next line? |
 | 2 | **Clarity / tightness** | Is filler cut, phrasing tightened, the point sharpened? |
 | 3 | **Contrarian angle** | Is there a sharper, more differentiated take? |
-| 4 | **Voice authenticity** | Does it still sound like the user (per `voice-tone/`)? |
+| 4 | **Voice authenticity** | Does it still sound like the user (per `voice-tone/`)? Explicitly scans each variant against the voice profile's avoided words/phrases and punctuation, auto-fixing mechanical bans and flagging judgment calls. |
 | 5 | **Scannability** | Is it easy to skim on the target platform? |
 
 ---
 
 ## Variants output
 
-Default is 2-3 numbered variants, each with a short editorial-angle label and a one-line "what changed and why" diagnostic. Typical shapes:
+Default is 2-3 numbered variants, each with a short editorial-angle label and a one-line "what changed and why" diagnostic. Each variant also reports a "voice check:" line stating passed / N auto-fixed / M flagged against the profile's avoided list. Typical shapes:
 
 - **Variant 1 (Tighter hook):** rewrites the opening for immediate pull.
 - **Variant 2 (More contrarian):** pushes a sharper, differentiated take.
@@ -64,7 +65,7 @@ If the user asks for a specific number (e.g. "give me 4"), that count is honored
 3. **Produce 2-3 labeled variants**: numbered, angle-labeled, each with a one-line change diagnostic.
 4. **Mechanical / formatting pass**: apply the per-platform formatting so each variant is platform-ready.
 5. **Mandatory review-first STOP**: present everything, then STOP; the user chooses, mixes, or rejects. Nothing is written.
-6. **Write the chosen version**: only after the pick: confirm the target folder, ask if it is missing (never auto-create), write the chosen/mixed version, and report the exact path.
+6. **Write the chosen version**: only after the pick: confirm the target folder, ask if it is missing (never auto-create), write the chosen/mixed version, and report the exact path; runs the voice-compliance gate before writing.
 
 ---
 
@@ -82,7 +83,7 @@ If the user asks for a specific number (e.g. "give me 4"), that count is honored
 ## Outputs
 
 - A short per-dimension diagnostic of the piece's strengths and weaknesses.
-- **2-3 labeled, platform-formatted variants**, each with a one-line "what changed and why."
+- **2-3 labeled, platform-formatted variants**, each with a one-line "what changed and why" and a "voice check:" line reporting passed / N auto-fixed / M flagged against the profile's avoided list.
 - Only after the user chooses: the chosen (or mixed) version written to `linkedin/` or `medium/` (cwd-relative), with the exact path confirmed.
 
 ---
@@ -93,7 +94,7 @@ If the user asks for a specific number (e.g. "give me 4"), that count is honored
 - **Never auto-creates folders.** If the target folder is missing, it asks how to proceed.
 - **Never silently overwrites.** If the target file exists, it asks to overwrite, write a `-v2` (then `-v3`...) variant, or pick a new name.
 - **Does not author from scratch.** It reviews and edits finished pieces; it is not for expanding ideas, drafting, or platform reshaping.
-- **Tracker updates are optional.** If a `content-log.json`/`content-log.md` tracker exists, updating status is best-effort; a missing tracker never blocks the skill.
+- **Tracker updates are optional.** After writing, the skill ASKS in one line whether to update the `content-log.json`/`content-log.md` tracker; a missing tracker never blocks the skill.
 
 ---
 

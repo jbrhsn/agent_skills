@@ -26,7 +26,7 @@ Do **not** use it to generate the ideas themselves (use `seed-expander`), to res
 - **Builds a platform-neutral source draft.** Structures every draft as **hook → point → evidence/story → takeaway**, with no LinkedIn line-break formatting or Medium subheadings yet, just clean, complete prose with a clear spine. Length is whatever the idea genuinely needs.
 - **Enforces claim integrity with a linter.** Runs `scripts/claim_lint.py` as a hard gate before review; every risky claim must be accounted for by an inline marker (see Claim-integrity contract below).
 - **Review-first (mandatory stop).** Presents the lint-clean draft plus a one-line claim audit, then stops for edits/approval. Iterates in place, re-running the gate after any change that touches a claim, and never hands off to `platform-adapter` automatically.
-- **Persists after approval.** Fills the stub's `## Draft` section (or creates a new file with the same structure), sets `**Status:** drafted`, keeps or consolidates claim markers, and re-runs the gate one final time on the persisted file.
+- **Persists after approval.** Fills the stub's `## Draft` section (or creates a new file with the same structure), sets `**Status:** drafted`, keeps or consolidates claim markers, and re-runs the gate one final time on the persisted file. It also runs a voice-compliance gate before writing: scans the draft against the voice-tone profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls (distinct from the claim-integrity linter).
 
 ---
 
@@ -50,9 +50,11 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 
 - **`scripts/claim_lint.py`**: scans a draft for risky claims (numbers, percentages, money, multipliers, dated stats, research appeals, named attributions, factual superlatives) that are NOT accounted for by `[source: ...]`, `[UNVERIFIED]`, or `[personal]`. Skips code blocks, headings, blockquotes, and stub scaffolding by default. Standard-library Python only.
 
+  Resolve `$SKILL_DIR` to the skill's directory (project-local `.opencode/skills/draft-builder` or global `~/.config/opencode/skills/draft-builder`).
+
   Run as the mandatory gate before review:
   ```
-  python3 .opencode/skills/draft-builder/scripts/claim_lint.py drafts/<slug>.md --section Draft
+  python3 $SKILL_DIR/scripts/claim_lint.py drafts/<slug>.md --section Draft
   ```
 
   **Flags:**
@@ -81,7 +83,7 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 | **2. Build the source draft** | Write hook → point → evidence/story → takeaway, platform-neutral, voice-matched, applying the claim contract inline |
 | **3. Claim-integrity gate** | Run `claim_lint.py`; resolve every FAIL by citing/flagging/rewording; re-run until exit 0 |
 | **4. Review-first (stop)** | Present the lint-clean draft + one-line claim audit; iterate in place until approved; no auto-handoff |
-| **5. Persist** | Fill/create `drafts/<slug>.md`, set `**Status:** drafted`, keep/consolidate markers, re-run the gate once more; confirm the path |
+| **5. Persist** | Fill/create `drafts/<slug>.md`, set `**Status:** drafted`, keep/consolidate markers, re-run the gate once more; confirm the path; runs the voice-compliance gate before writing |
 
 ---
 
@@ -111,6 +113,7 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 - **Never silently creates folders** and **never silently overwrites**. It asks how to proceed if `drafts/` is missing or a target file exists.
 - **Requires a voice signal.** If `voice-tone/` is absent it stops and asks rather than guessing a voice.
 - **Stops at the platform-neutral draft.** It does not produce LinkedIn/Medium versions or verify code.
+- **Tracker updates are prompted, not automatic.** If a `content-log.md`/`content-log.json` tracker exists, the skill asks in one line whether to update it after writing; a missing tracker never blocks the skill.
 
 ---
 

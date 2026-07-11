@@ -21,9 +21,10 @@ Do **not** use it to write the actual draft (use `draft-builder`), to reshape a 
 
 - **Intakes the seed.** Reads the user's raw thought, bullets, paragraph, project note, or link. If the seed is a link, it fetches it. Asks one clarifying question only if the seed is truly ambiguous about domain or intent.
 - **Confirms goal weighting.** Asks once (if unclear) whether the user wants **thought-leadership** or **career-visibility** weighting. Both are valid, and each idea is tagged.
-- **Does thorough research.** Not a quick 2-3 fetch skim: fetches multiple relevant, recent sources (news, docs, HN/Reddit discussions, primary sources), cross-references claims across sources, notes points of debate or contrarian takes, and captures the URL plus a one-line takeaway for each source actually used.
+- **Does thorough research.** Not a quick 2-3 fetch skim: fetches multiple relevant, recent sources (news, docs, HN/Reddit discussions, primary sources), cross-references claims across sources, notes points of debate or contrarian takes, and captures the URL plus a one-line takeaway for each source actually used. If sources are unreachable or gated, it reports which ones failed and never presents placeholder or invented sources as if researched.
 - **Expands into 8-10 distinct angles.** Each angle includes a **Hook** (one punchy line), an **Angle type** (`thought-leadership` or `career-visibility`), a **Suggested platform + content-type** from the matrix, a **Why now** timeliness hook, and the 1-3 **Sources** backing it. Angles are genuinely distinct (different lens, audience, or format), not 10 rewrites of one take.
 - **Review-first (mandatory stop).** Presents all angles in a scannable list and stops. Nothing is written until the user picks which angles to keep (all / a subset / none) and optionally edits hooks or retags.
+- **Runs a voice-compliance gate before writing.** If a `voice-tone/` profile or samples exist, it scans generated hooks and copy against the profile's avoided words/phrases and punctuation rules, auto-fixes mechanical violations (banned punctuation), and flags judgment calls (hype words, AI-voice markers) for you. Skips silently if no voice-tone exists.
 - **Writes approved stubs.** For each approved angle, writes a stub file to `drafts/` after confirming the folder exists. Never silently creates folders.
 
 ---
@@ -53,7 +54,7 @@ Each angle is tagged with a suggested platform and content-type drawn from this 
 | **2. Thorough research** | Fetch multiple recent sources, cross-reference claims, capture URL + one-line takeaway per source used |
 | **3. Expand into angles** | Produce 8-10 distinct angles, each with Hook, Angle type, Platform + type, Why now, Sources |
 | **4. Review-first (stop)** | Present all angles in a scannable list and stop; user keeps all/subset/none and may edit |
-| **5. Write approved stubs** | After confirmation, write each approved angle as `drafts/<slug>.md`; confirm the written paths |
+| **5. Write approved stubs** | After confirmation, write each approved angle as `drafts/<slug>.md`; confirm the written paths: runs the voice-compliance gate before writing |
 
 Each written stub follows a fixed structure: working title, `**Status:** idea`, platform/type, angle tag, hook, `## Why now`, `## Research sources`, `## Raw notes / seed`, and an empty `## Draft` section to hand off to `draft-builder`.
 
@@ -84,6 +85,7 @@ Each written stub follows a fixed structure: working title, `**Status:** idea`, 
 - **Never silently creates folders.** If `drafts/` is missing when about to write stubs, it stops and asks how to proceed.
 - **Never overwrites silently.** If a target file exists, it asks the user to overwrite, write a `-v2`/`-v3` variant, or pick a new name.
 - **Stops at stubs.** It does not write the draft body. That is `draft-builder`'s job.
+- **Tracker updates are prompted, not automatic.** If a `content-log.md`/`content-log.json` tracker exists, the skill asks in one line whether to update it after writing; a missing tracker never blocks the skill.
 
 ---
 

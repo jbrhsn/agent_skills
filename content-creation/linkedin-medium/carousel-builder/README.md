@@ -25,6 +25,8 @@ Do **not** use it to write or adapt the slide copy itself (use `platform-adapter
 - **Auto-fits every slide.** Steps font sizes down until title+body fit the safe area above the reserved footer band; warns and exits non-fatally when a slide still overflows so the copy can be shortened or split.
 - **Reads from a canonical slides JSON** at `linkedin/carousels/<slug>/slides.json`, using real per-slide content (no lorem ipsum).
 - **Optional PNG export** with graceful degradation. SVGs/HTML stay valid output even when the PNG rasterizer is absent.
+- **Probes PNG export tooling up front** (cairosvg for SVG, a headless browser for HTML) and reports which export formats this machine supports before rendering, so PNG limits are known early rather than discovered at the end.
+- **Runs a voice-compliance gate before writing slide copy.** If a `voice-tone/` profile or samples exist, it scans slide titles and bodies against the profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls. Skips silently if no voice-tone exists.
 - **Respects folder rules.** All paths are cwd-relative; never silently creates the `linkedin/` tree or guesses at a missing `voice-tone/` folder. It asks.
 
 ---
@@ -64,10 +66,11 @@ Theme choice affects only the HTML render; the design spec and auto-fit are them
 
 Never runs end-to-end automatically. The mandatory stop point is:
 
-1. Emit a **design spec** with `scripts/spec.py` (canvas, palette, font, slide count, per-slide auto-fit result incl. overflow warnings).
-2. Render **only slide 1** as a preview (`--only 1`).
-3. **STOP.** Show the spec + preview path and let the user review/approve. If the spec reports overflow on any slide, recommend shortening/splitting that slide's copy first.
-4. Only after approval, render all slides and (optionally) export PNGs.
+1. During the folder-confirm step, probe the PNG export tooling (cairosvg, a headless browser) and report which export formats this machine supports.
+2. Emit a **design spec** with `scripts/spec.py` (canvas, palette, font, slide count, per-slide auto-fit result incl. overflow warnings).
+3. Render **only slide 1** as a preview (`--only 1`).
+4. **STOP.** Show the spec + preview path and let the user review/approve. If the spec reports overflow on any slide, recommend shortening/splitting that slide's copy first.
+5. Only after approval, render all slides and (optionally) export PNGs.
 
 ---
 
@@ -103,6 +106,8 @@ Use real per-slide content, no lorem ipsum. If `platform-adapter` produced the c
 
 All scripts use only the Python standard library for generation. `cairosvg` and a headless browser are **optional** add-ons for PNG export only.
 
+Script and template paths resolve under `$SKILL_DIR`, the skill's own directory (project-local `.opencode/skills/carousel-builder` or global `~/.config/opencode/skills/carousel-builder`). Commands in the skill are prefixed with `$SKILL_DIR/scripts/...` and `$SKILL_DIR/templates/...`.
+
 ---
 
 ## Inputs
@@ -134,6 +139,7 @@ All scripts use only the Python standard library for generation. `cairosvg` and 
 - **Themes apply to the HTML path only.** The SVG path has a single built-in dark style.
 - **Overflowing slides are warned, not auto-fixed.** If copy is too long at the smallest font size, the skill flags the slide (exit `3`) and recommends shortening/splitting rather than spilling over the footer band.
 - **Never auto-creates folders or overwrites files.** Asks the user if `linkedin/`/`voice-tone/` are missing, and offers overwrite / `-v2` variant / new name when a target exists.
+- **Tracker updates are prompted, not automatic.** If a `content-log.md`/`content-log.json` tracker exists, the skill asks in one line whether to update it after writing; a missing tracker never blocks the skill.
 
 ---
 

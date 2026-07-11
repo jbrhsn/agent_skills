@@ -23,7 +23,7 @@ Do **not** use it for pure prose articles with no executable code, for editing/f
 - **Builds a verification plan** per block (execute or static? which env? which deps? any dangerous shell flagged for refusal).
 - **Runs each block in a throwaway temp directory** via `scripts/verify.py`, capturing stdout/stderr/exit code and whether it executed or was statically validated.
 - **Falls back to static validation** (`compile()`, `node --check`, `bash -n`) when a runtime or setup is unavailable, or when a shell snippet is refused, never guessing that code works.
-- **Formats a Medium article** with numbered steps and language-tagged blocks, each labeled `verified ✓`, `statically validated ⚠`, or `not verified, no runtime ⏭`, including captured output for executed blocks.
+- **Formats a Medium article** with numbered steps and language-tagged blocks, each labeled `verified ✓`, `statically validated ⚠`, or `not verified, no runtime ⏭`, including captured output for executed blocks. Before writing the article, it runs a voice-compliance gate on the PROSE only (never code blocks): scans against the voice-tone profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls.
 
 ---
 
@@ -119,7 +119,7 @@ Each step is numbered and in original tutorial order, keeps its language tag, an
 <expected output, from the captured run>
 ```
 
-Never label a block `verified` unless it actually ran. Include captured output for executed blocks so readers see real results.
+Never label a block `verified` unless it actually ran. Include captured output for executed blocks so readers see real results. Before writing, the voice-compliance gate runs on the PROSE only (never code blocks): it scans against the voice-tone profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls.
 
 ---
 
@@ -152,6 +152,7 @@ Never label a block `verified` unless it actually ran. Include captured output f
 - **Depends on available runtimes.** Missing `uv`/`python3`, `node`/`npm`, or `bash` downgrades a block to static validation or unknown.
 - **Not fully automatic.** Stops for approval before executing anything and again before writing the final article.
 - **Never auto-creates folders or overwrites files.** Asks when `drafts/`/`medium/`/`voice-tone/` are missing, and offers overwrite / `-v2` variant / new name when a target exists.
+- **Tracker updates are prompted, not automatic.** If a `content-log.md`/`content-log.json` tracker exists, the skill asks in one line whether to update it after writing; a missing tracker never blocks the skill.
 
 ---
 
