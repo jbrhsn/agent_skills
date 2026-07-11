@@ -82,7 +82,7 @@ Every row must be ✓ before writing.
 - [ ] Pitfalls have all 3 parts (label + why + correct model)
 - [ ] 5 Self-Check questions spanning 3 cognitive levels
 - [ ] ≥1 multi-select question
-- [ ] `<details>` count equals the total question count
+- [ ] `<details>` count equals the total question count (+1 if a sample question section exists)
 - [ ] Every answer explains why correct AND why distractors fail
 - [ ] Further Reading: official docs only, every link webfetch-verified this session
 - [ ] Zero `TODO` / `STUB` markers remain

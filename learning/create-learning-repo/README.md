@@ -27,7 +27,7 @@ Guides you through **six confirmed phases** to produce a ready-to-author skeleto
 | **Phase 1 — Research** | Fetches the official exam blueprint, documentation, and changelog in parallel; presents a structured research summary for approval |
 | **Phase 2 — Structure** | Designs the full folder + file tree with budget reconciliation, domain mapping, and naming-convention enforcement; awaits approval |
 | **Phase 3 — Templates** | Confirms the set of template files to be generated, based on detected goals |
-| **Phase 4 — Write AGENTS.md + templates** | Copies templates from `reference/` to `templates/`, writes the repo's `AGENTS.md` with 9 content-depth rules |
+| **Phase 4 — Write AGENTS.md + templates** | Copies templates from `reference/` to `templates/`, writes the repo's `AGENTS.md` with the 9 content-depth rules (`author-chapter` and `generate-practice-exam` enforce these rules via their quality gates) |
 | **Phase 5 — Scaffold stubs + README** | Creates every folder and one-line stub file, writes the root `README.md`, runs a planned-vs-actual verification pass |
 | **Phase 6 — Git init** | Checks for `.git`; prints the first-commit command — runs automatically after Phase 5 |
 
@@ -38,7 +38,7 @@ Every phase (except Phase 6) ends with an explicit "proceed" gate — you approv
 ## What gets created
 
 - A `templates/` directory — the **only** directory with real file content
-- `AGENTS.md` — authoring rules and 9 content-depth standards for the repo
+- `AGENTS.md` — authoring rules and the 9 content-depth standards for the repo (the same standards `author-chapter` drafts to and its quality gate checks)
 - `README.md` — populated with repo metadata, learning path table, and section summaries
 - Blank one-line stubs for every content file (`<!-- stub: populate using templates/ -->`)
 

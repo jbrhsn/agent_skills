@@ -88,6 +88,9 @@ Run these `webfetch` calls in parallel; record URL + retrieval date for each:
 ### Step 2 — Handle truncation
 If a doc page is long and `webfetch` truncates, delegate a targeted read to the `explore` agent or fetch a more specific sub-page. Do not author from truncated output.
 
+### Step 2b — Offline / unreachable sources
+If official sources cannot be reached (no network, or every fetch fails), **stop rather than author from training data** — product names, APIs, and objectives drift. Tell the user and offer two paths: (a) paste the relevant official-doc excerpts directly into the chat so the chapter can be grounded in them, or (b) run `create-learning-repo`'s Phase 1 fallback AI-query prompts elsewhere and paste the results back. Only resume once cited source material is available.
+
 ### Step 3 — Source hygiene
 - Only official documentation counts as a citable source — no third-party blogs, Medium, or YouTube.
 - Format every link as `[Title](url) — *verified YYYY-MM-DD*`.

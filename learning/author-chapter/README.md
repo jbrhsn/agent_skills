@@ -47,7 +47,7 @@ This makes the skill portable across repos with different templates and standard
 
 ## Quality gate checks (Phase 3)
 
-Every chapter is validated against these checks before writing. Any ✗ blocks completion:
+These checks are the enforcement layer for the repo's 9 content-depth rules (defined in the repo's `AGENTS.md`, written by `create-learning-repo`) — one rule maps to one or more concrete checks. Every chapter is validated against them before writing. Any ✗ blocks completion:
 
 | Check | Type |
 |---|---|
@@ -62,7 +62,7 @@ Every chapter is validated against these checks before writing. Any ✗ blocks c
 | Pitfalls have all 3 parts (label + why + correct model) | Structural |
 | 5 questions spanning 3 cognitive levels | Count + qualitative |
 | ≥1 multi-select question | Deterministic |
-| `<details>` count == question count | Count |
+| `<details>` count == question count (+1 if a sample question section exists) | Count |
 | Every answer explains correct + why distractors fail | Qualitative |
 | Further Reading: official docs only, all links verified | Deterministic |
 | Zero TODO/STUB markers remain | Deterministic |
@@ -100,7 +100,7 @@ Quality gate:  PASS (all checks ✓)
 - **One file per invocation.** The skill authors only the file you explicitly name. It does not batch-populate a module unless you ask for each file separately.
 - **Stubs only, freely.** For files with existing authored content, the skill stops and asks before proceeding.
 - **Official sources only.** The Further Reading section uses only official documentation — no third-party blogs, Medium, or YouTube.
-- **Live research required.** Phase 1 makes real web requests. Avoid running in offline environments.
+- **Live research required.** Phase 1 makes real web requests. Avoid running in offline environments. If official sources are unreachable, the skill stops rather than authoring from training data — paste doc excerpts directly, or use `create-learning-repo`'s Phase 1 fallback prompts and share the results.
 - **No exam/quiz generation.** Use `generate-practice-exam` for that.
 
 ---
