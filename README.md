@@ -33,6 +33,32 @@ Give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality beha
 | [**author-chapter**](./learning/author-chapter/README.md) | Populate a stub chapter with fully template-compliant content — live-sourced research, every section written to spec, quality gate before write |
 | [**generate-practice-exam**](./learning/generate-practice-exam/README.md) | Generate a blueprint-weighted mock exam or targeted drill from already-authored chapter content, with per-option answer rationale |
 
+### Development
+
+> Plan, build, design, and document software projects.
+
+| Skill | What it does |
+|---|---|
+| [**lean-coder**](./development/lean-coder/README.md) | A "lazy senior developer" discipline for coding work — the least code that correctly and safely solves the problem; adds `/review-diff` and `/audit-repo` workflows for finding over-engineering |
+| [**project-planner**](./development/project-planner/README.md) | Plan and spec a project before coding — produces spec, design, roadmap, and backlog docs under `docs/` (`/plan-project`) |
+| [**repo-docs-publisher**](./development/repo-docs-publisher/README.md) | Prepare a repo to go public — scans the code and checks for secrets first, then writes README, HOW_TO_USE, CONTRIBUTING, LICENSE, and optional community/GitHub docs |
+| [**ui-ux-designer**](./development/ui-ux-designer/README.md) | Design user flows, screens, and a design system into `docs/ux-design.md` (`/design-ux`) — detects non-UI projects (CLI/API/backend) and stops rather than fabricating screens |
+
+### Content Creation
+
+> A LinkedIn/Medium content pipeline — from raw idea to posting-ready output. Each skill is standalone; together they chain **seed → draft → adapt → {carousel, verify} → review**, with voice and tracking as cross-cutting support.
+
+| Skill | What it does |
+|---|---|
+| [**seed-expander**](./content-creation/linkedin-medium/seed-expander/README.md) | Turn one seed idea into 8-10 researched, tagged content angles, then write approved ones as `drafts/` stubs |
+| [**draft-builder**](./content-creation/linkedin-medium/draft-builder/README.md) | Turn messy notes or a stub into one clean, platform-neutral source draft — voice-matched, with claim integrity enforced by a linter (no invented facts) |
+| [**platform-adapter**](./content-creation/linkedin-medium/platform-adapter/README.md) | Reshape a source draft into platform-specific LinkedIn/Medium versions using the content-type matrix, adapting voice per platform |
+| [**carousel-builder**](./content-creation/linkedin-medium/carousel-builder/README.md) | Render carousel slide copy into actual 1080x1350 slide image files (SVG or themed HTML/CSS), locally, with optional PNG export — no image APIs |
+| [**tutorial-verifier**](./content-creation/linkedin-medium/tutorial-verifier/README.md) | Extract, run, and verify a tutorial's Python/JS/shell code blocks in isolation (static fallback when no runtime), then format Medium-ready blocks labeled verified or statically-validated |
+| [**editorial-reviewer**](./content-creation/linkedin-medium/editorial-reviewer/README.md) | Run a finished post/article through a structured editorial pass and return 2-3 labeled variants to choose, mix, or reject — never auto-replaces your text |
+| [**voice-profiler**](./content-creation/linkedin-medium/voice-profiler/README.md) | Analyze writing samples in `voice-tone/` once and distill a reusable `voice-tone/profile.md` so voice stays consistent across skills |
+| [**content-tracker**](./content-creation/linkedin-medium/content-tracker/README.md) | A lightweight cross-session content log — track pipeline status, query the backlog, check posting cadence, and archive posted pieces |
+
 ---
 
 ## Getting started
@@ -52,19 +78,39 @@ cp -r agent_session_management/end-session ~/.config/opencode/skills/
 cp -r learning/create-learning-repo ~/.config/opencode/skills/
 cp -r learning/author-chapter ~/.config/opencode/skills/
 cp -r learning/generate-practice-exam ~/.config/opencode/skills/
+
+# Development skills
+cp -r development/lean-coder ~/.config/opencode/skills/
+cp -r development/project-planner ~/.config/opencode/skills/
+cp -r development/repo-docs-publisher ~/.config/opencode/skills/
+cp -r development/ui-ux-designer ~/.config/opencode/skills/
+
+# Content creation skills (LinkedIn/Medium pipeline)
+cp -r content-creation/linkedin-medium/seed-expander ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/draft-builder ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/platform-adapter ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/carousel-builder ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/tutorial-verifier ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/editorial-reviewer ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/voice-profiler ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/content-tracker ~/.config/opencode/skills/
 ```
 
 ```bash
 # Per-project — available only in the current project
 cp -r agent_session_management/init-session .opencode/skills/
 cp -r learning/create-learning-repo .opencode/skills/
+cp -r development/lean-coder .opencode/skills/
+cp -r content-creation/linkedin-medium/draft-builder .opencode/skills/
 ```
 
 OpenCode loads skills automatically. Once installed, describe what you want and the agent invokes the right skill.
 
+> **Content-creation skills ship helper scripts** (under `scripts/`) that run on **standard-library Python 3** — no install needed. Optional PNG export in `carousel-builder` uses `cairosvg` or a headless browser if present, and degrades gracefully if not.
+
 ### Use with other agents
 
-Each skill's `SKILL.md` contains a **Portability** section with exact instructions per platform:
+Each skill's `README.md` has an **Other platforms** section with exact instructions per platform:
 
 | Platform | How to load the skill |
 |---|---|
@@ -86,9 +132,16 @@ category/
 └── skill-name/
     ├── SKILL.md       ← agent-facing skill (OpenCode format with frontmatter)
     ├── README.md      ← human-readable guide: triggers, workflow, examples, limitations
-    └── reference/     ← optional: runtime files the skill reads (templates, rubrics)
-        └── *.md
+    └── support/       ← optional runtime files the skill reads or runs
 ```
+
+The optional support directory varies by category:
+
+| Category | Support dir | Contents |
+|---|---|---|
+| `learning/`, `agent_session_management/` | `reference/` (singular) | Templates, rubrics, quality gates |
+| `development/` | `references/` (plural) | Templates, checklists, command references |
+| `content-creation/linkedin-medium/` | `scripts/` (+ `templates/` for `carousel-builder`) | Standard-library Python helpers and HTML slide themes |
 
 > **Only tested skills belong here.** Skills are added only after being exercised in a real session — no untested stubs.
 
