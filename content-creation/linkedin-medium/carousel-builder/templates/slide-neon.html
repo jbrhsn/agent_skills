@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Carousel Slide {{INDEX}}/{{TOTAL}} — Neon</title>
+<style>
+  /* THEME: Neon / cyberpunk — near-black background with glowing neon text and
+     borders. Canvas + geometry in sync with scripts/render_svg.py: 1080x1350,
+     MARGIN 100, FOOTER_BAND 140. Placeholders: {{TITLE}} {{BODY}} {{FOOTER}}
+     {{INDEX}} {{TOTAL}}. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #050014; }
+  .slide {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    overflow: hidden;
+    color: #f0f0ff;
+    font-family: Helvetica, "Helvetica Neue", Arial, "Liberation Sans", "DejaVu Sans", sans-serif;
+    padding: 100px 100px 140px 100px; /* bottom == FOOTER_BAND */
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,0,200,0.18), transparent 55%),
+      radial-gradient(circle at 50% 100%, rgba(0,225,255,0.16), transparent 55%),
+      #050014;
+  }
+  /* faint grid to sell the cyber vibe */
+  .slide::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,225,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,225,255,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .accent {
+    position: relative; width: 160px; height: 8px; border-radius: 4px;
+    background: #00e1ff; margin-bottom: 44px; flex: 0 0 auto;
+    box-shadow: 0 0 12px #00e1ff, 0 0 28px #00e1ff;
+  }
+  .content { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  .title {
+    font-size: 68px; font-weight: 800; line-height: 1.18;
+    color: #ff2fd0; letter-spacing: 0.5px;
+    text-shadow: 0 0 8px #ff2fd0, 0 0 22px #ff2fd0, 0 0 44px rgba(255,47,208,0.6);
+  }
+  .body {
+    font-size: 40px; font-weight: 400; line-height: 1.42;
+    color: #9df9ff; margin-top: 60px; white-space: pre-wrap;
+    text-shadow: 0 0 6px rgba(0,225,255,0.7), 0 0 16px rgba(0,225,255,0.4);
+  }
+  .footer {
+    position: absolute; left: 100px; right: 100px; bottom: 80px;
+    display: flex; justify-content: space-between;
+    font-size: 28px; color: #7af7ff;
+    text-shadow: 0 0 8px rgba(0,225,255,0.7);
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="accent"></div>
+    <div class="content">
+      <h1 class="title">{{TITLE}}</h1>
+      <p class="body">{{BODY}}</p>
+    </div>
+    <div class="footer">
+      <span class="footer-handle">{{FOOTER}}</span>
+      <span class="footer-counter">{{INDEX}}/{{TOTAL}}</span>
+    </div>
+  </div>
+</body>
+</html>

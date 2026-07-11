@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Carousel Slide {{INDEX}}/{{TOTAL}} — LinkedIn</title>
+<style>
+  /* THEME: LinkedIn-branded — official LinkedIn blue (#0A66C2) on white, clean
+     corporate feed look with an "in" mark. Canvas + geometry in sync with
+     scripts/render_svg.py: 1080x1350, MARGIN 100, FOOTER_BAND 140.
+     Placeholders: {{TITLE}} {{BODY}} {{FOOTER}} {{INDEX}} {{TOTAL}}. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #f3f2ef; } /* LinkedIn feed grey */
+  .slide {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    color: #1d2226;
+    font-family: Helvetica, "Helvetica Neue", Arial, "Liberation Sans", "DejaVu Sans", sans-serif;
+    padding: 100px 100px 140px 100px; /* bottom == FOOTER_BAND */
+    display: flex;
+    flex-direction: column;
+    border-top: 16px solid #0a66c2; /* brand bar */
+  }
+  /* "in" logo mark */
+  .accent {
+    width: 96px; height: 96px; border-radius: 16px;
+    background: #0a66c2; margin-bottom: 44px; flex: 0 0 auto;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .accent::after {
+    content: "in"; color: #ffffff; font-weight: 800; font-size: 56px;
+    line-height: 1; padding-bottom: 14px;
+  }
+  .content { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  .title {
+    font-size: 68px; font-weight: 700; line-height: 1.16;
+    color: #0a66c2; letter-spacing: -0.5px;
+  }
+  .body {
+    font-size: 40px; font-weight: 400; line-height: 1.45;
+    color: #333333; margin-top: 60px; white-space: pre-wrap;
+  }
+  .footer {
+    position: absolute; left: 100px; right: 100px; bottom: 80px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 28px; color: #0a66c2; font-weight: 600;
+    border-top: 2px solid #e0dfdc; padding-top: 28px;
+  }
+  .footer-counter { color: #666666; font-weight: 400; }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="accent"></div>
+    <div class="content">
+      <h1 class="title">{{TITLE}}</h1>
+      <p class="body">{{BODY}}</p>
+    </div>
+    <div class="footer">
+      <span class="footer-handle">{{FOOTER}}</span>
+      <span class="footer-counter">{{INDEX}}/{{TOTAL}}</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Carousel Slide {{INDEX}}/{{TOTAL}}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #1e293b; }
+  /* LinkedIn portrait carousel canvas. Constants kept in sync with
+     scripts/render_svg.py: 1080x1350, MARGIN 100, FOOTER_BAND 140. */
+  .slide {
+    width: 1080px;
+    height: 1350px;
+    background: #0f172a;
+    color: #f8fafc;
+    font-family: Helvetica, "Helvetica Neue", Arial, "Liberation Sans", "DejaVu Sans", sans-serif;
+    padding: 100px 100px 140px 100px; /* bottom padding == FOOTER_BAND */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .accent {
+    width: 120px;
+    height: 10px;
+    background: #38bdf8;
+    margin-bottom: 40px;
+    flex: 0 0 auto;
+  }
+  .content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden; /* clip rather than spill into the footer band */
+  }
+  .title {
+    font-size: 68px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #f8fafc;
+    max-width: 100%;
+  }
+  .body {
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #cbd5e1;
+    margin-top: 60px;
+    white-space: pre-wrap;
+  }
+  .footer {
+    position: absolute;
+    left: 100px;
+    right: 100px;
+    bottom: 80px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 28px;
+    color: #64748b;
+  }
+</style>
+</head>
+<body>
+  <div class="slide">
+    <div class="accent"></div>
+    <div class="content">
+      <h1 class="title">{{TITLE}}</h1>
+      <p class="body">{{BODY}}</p>
+    </div>
+    <div class="footer">
+      <span class="footer-handle">{{FOOTER}}</span>
+      <span class="footer-counter">{{INDEX}}/{{TOTAL}}</span>
+    </div>
+  </div>
+</body>
+</html>
