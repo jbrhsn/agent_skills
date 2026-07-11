@@ -1,6 +1,6 @@
 # platform-adapter
 
-Takes one platform-neutral source draft and reshapes it into platform- and type-specific versions for LinkedIn and/or Medium, following the content-type matrix. It re-cuts the same core idea per platform — it does not write a different piece — adapting voice by content type AND platform, and writes the results into `linkedin/` and `medium/`.
+Takes one platform-neutral source draft and reshapes it into platform- and type-specific versions for LinkedIn and/or Medium, following the content-type matrix. It re-cuts the same core idea per platform, not a different piece, adapting voice by content type AND platform, and writes the results into `linkedin/` and `medium/`.
 
 ---
 
@@ -12,15 +12,15 @@ Takes one platform-neutral source draft and reshapes it into platform- and type-
 | Make a Medium version | "make a Medium version", "turn this into a Medium deep dive" |
 | Format for posting | "format this for posting", "give me both" |
 
-Do **not** use it to generate ideas (use `seed-expander`), to build the source draft itself (use `draft-builder`), to render carousel images (use `carousel-builder` — this skill emits slide copy only), to execute tutorial code (use `tutorial-verifier`), or to produce edited variants (use `editorial-reviewer`).
+Do **not** use it to generate ideas (use `seed-expander`), to build the source draft itself (use `draft-builder`), to render carousel images (use `carousel-builder`, since this skill emits slide copy only), to execute tutorial code (use `tutorial-verifier`), or to produce edited variants (use `editorial-reviewer`).
 
 ---
 
 ## What it does
 
-- **Reads the source draft and confirms targets.** Asks which target(s) the user wants (LinkedIn, Medium, or both) and determines the best-fit content-type from the draft's substance — a step-by-step with code becomes a Tutorial, a numbered structure a Listicle, a single sharp insight a Short, a layered argument a Long/Article. If the type is ambiguous, it asks rather than guesses.
+- **Reads the source draft and confirms targets.** Asks which target(s) the user wants (LinkedIn, Medium, or both) and determines the best-fit content-type from the draft's substance. A step-by-step with code becomes a Tutorial, a numbered structure a Listicle, a single sharp insight a Short, a layered argument a Long/Article. If the type is ambiguous, it asks rather than guesses.
 - **Offers LinkedIn format options.** Because the user prefers a mix of formats, it generates **2-3 LinkedIn format options** (e.g. Short Post + Long Post + Carousel outline) so they can pick per post.
-- **Reshapes rather than rewrites.** Re-cuts the SAME core idea per platform, applying the platform tone rules and the matrix constraints (length, formatting) — it does not write a different piece.
+- **Reshapes rather than rewrites.** Re-cuts the SAME core idea per platform, applying the platform tone rules and the matrix constraints (length, formatting). It does not write a different piece.
 - **Adapts voice per platform.** Reads `voice-tone/` if present; voice adapts by both content type and platform.
 - **Applies platform formatting.** LinkedIn Short/Long get line-break and scannability formatting; LinkedIn Article and Medium Long get headers/subheadings; Medium Tutorial gets steps plus fenced code blocks (without claiming the code is verified); LinkedIn Carousel gets structured slide copy emitted as JSON for `carousel-builder`.
 - **Review-first (mandatory stop).** Presents all generated versions/options and stops. The user picks, tweaks, or rejects before anything is written.
@@ -45,8 +45,8 @@ Do **not** use it to generate ideas (use `seed-expander`), to build the source d
 
 ## Platform tone rules
 
-- **LinkedIn** — more direct, personal, first-person; short punchy lines with deliberate line breaks and whitespace; a strong scroll-stopping hook in the first 1-2 lines; scannable.
-- **Medium** — more considered and essayistic; real subheadings; longer paragraphs allowed; title + subtitle + section structure.
+- **LinkedIn**: more direct, personal, first-person; short punchy lines with deliberate line breaks and whitespace; a strong scroll-stopping hook in the first 1-2 lines; scannable.
+- **Medium**: more considered and essayistic; real subheadings; longer paragraphs allowed; title + subtitle + section structure.
 
 ---
 
@@ -91,9 +91,9 @@ Carousel slide copy is emitted in the JSON schema `carousel-builder` expects:
 ## Limitations
 
 - **Reshapes, never re-conceives.** It re-cuts the source draft; it does not write a different piece.
-- **Emits carousel copy only** — it never renders images; that is `carousel-builder`.
-- **Never claims tutorial code is verified** — Medium Tutorials are structured with code blocks but handed off to `tutorial-verifier` for actual execution.
-- **Never silently creates folders** and **never silently overwrites** — it asks how to proceed if a needed output folder is missing or a target file exists.
+- **Emits carousel copy only.** It never renders images; that is `carousel-builder`.
+- **Never claims tutorial code is verified.** Medium Tutorials are structured with code blocks but handed off to `tutorial-verifier` for actual execution.
+- **Never silently creates folders** and **never silently overwrites.** It asks how to proceed if a needed output folder is missing or a target file exists.
 - **Stops for review** before writing anything.
 
 ---
@@ -103,7 +103,7 @@ Carousel slide copy is emitted in the JSON schema `carousel-builder` expects:
 Run from the **repo root** (`agent_skills/`):
 
 ```bash
-# Global — available in all projects (Linux/macOS)
+# Global: available in all projects (Linux/macOS)
 cp -r content-creation/linkedin-medium/platform-adapter ~/.config/opencode/skills/
 
 # Per-project only
@@ -128,10 +128,10 @@ Copy-Item -Recurse content-creation\linkedin-medium\platform-adapter "$env:USERP
 
 `platform-adapter` is the third stage of the LinkedIn/Medium content pipeline: **seed-expander → draft-builder → platform-adapter → {carousel-builder, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
-- **`draft-builder`** — produces the source draft this skill reshapes (the previous stage)
-- **`carousel-builder`** — renders the carousel slide JSON this skill emits into SVG/HTML/PNG slides
-- **`tutorial-verifier`** — runs and verifies the code in tutorial versions this skill produces
-- **`editorial-reviewer`** — produces 2-3 edited variants of any version to choose from
-- **`seed-expander`** — generates the ideas at the start of the pipeline
-- **`voice-profiler`** — builds the `voice-tone/` profile this skill reads to adapt voice
-- **`content-tracker`** — tracks each piece's status across the pipeline
+- **`draft-builder`**: produces the source draft this skill reshapes (the previous stage)
+- **`carousel-builder`**: renders the carousel slide JSON this skill emits into SVG/HTML/PNG slides
+- **`tutorial-verifier`**: runs and verifies the code in tutorial versions this skill produces
+- **`editorial-reviewer`**: produces 2-3 edited variants of any version to choose from
+- **`seed-expander`**: generates the ideas at the start of the pipeline
+- **`voice-profiler`**: builds the `voice-tone/` profile this skill reads to adapt voice
+- **`content-tracker`**: tracks each piece's status across the pipeline

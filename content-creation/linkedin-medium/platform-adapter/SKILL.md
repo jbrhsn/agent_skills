@@ -12,10 +12,10 @@ Take one platform-neutral source draft and reshape it into platform- and type-sp
 - User says: "make a LinkedIn version", "turn this into a Medium deep dive", "give me both".
 
 ## Folder conventions (resolve relative to CWD)
-- `drafts/` — source drafts read from here.
-- `linkedin/` — LinkedIn versions written here.
-- `medium/` — Medium versions written here.
-- `voice-tone/` — voice samples + style instructions.
+- `drafts/`: source drafts read from here.
+- `linkedin/`: LinkedIn versions written here.
+- `medium/`: Medium versions written here.
+- `voice-tone/`: voice samples + style instructions.
 
 If `linkedin/` or `medium/` is needed but missing, STOP and ask the user how to proceed. Never silently create folders.
 
@@ -35,8 +35,8 @@ Read `voice-tone/` if present and adapt. If a needed voice-tone folder is expect
 | Medium | Listicle | varies | Numbered/structured list |
 
 ## Platform tone rules
-- **LinkedIn** — more direct, personal, first-person; short punchy lines with deliberate line breaks and whitespace; strong scroll-stopping hook in the first 1-2 lines; scannable.
-- **Medium** — more considered and essayistic; real subheadings; longer paragraphs allowed; title + subtitle + section structure.
+- **LinkedIn**: more direct, personal, first-person; short punchy lines with deliberate line breaks and whitespace; strong scroll-stopping hook in the first 1-2 lines; scannable.
+- **Medium**: more considered and essayistic; real subheadings; longer paragraphs allowed; title + subtitle + section structure.
 
 ## Workflow
 
@@ -44,23 +44,25 @@ Read `voice-tone/` if present and adapt. If a needed voice-tone folder is expect
 Read the source draft. Ask the user which target(s) they want. For each target, determine the content-type:
 - Detect the best-fit type from the draft's substance (a step-by-step with code → Tutorial; a numbered structure → Listicle; a single sharp insight → Short; a layered argument → Long/Article).
 - If the type is ambiguous, ASK rather than guess.
-- For **LinkedIn**, since the user prefers a mix of formats, generate **2-3 format options** (e.g. Short Post + Long Post + Carousel outline) so they can pick per post.
+- For **LinkedIn**, you MUST present the 2-3 format menu (Short Post, Long Post, Carousel outline) and get an explicit selection from the user BEFORE generating any LinkedIn file. Do not default to a single format.
 
 ### 2. Produce the versions
-- Reshape the SAME core idea per platform — do not write a different piece; re-cut the source draft.
+- Reshape the SAME core idea per platform. Do not write a different piece; re-cut the source draft.
 - Apply the platform tone rules and the matrix constraints (length, formatting).
 - **LinkedIn Short/Long**: apply line-break/scannability formatting.
 - **LinkedIn Article / Medium Long**: add headers/subheadings.
-- **LinkedIn Carousel**: output slide COPY as structured slides (title + body + optional footer per slide, 8-12 slides). Do NOT render images — hand off to `carousel-builder`. Emit the slides as the JSON schema carousel-builder expects:
+- **LinkedIn Carousel**: output slide COPY as structured slides (title + body + optional footer per slide, 8-12 slides). Do NOT render images. Hand off to `carousel-builder`. Emit the slides as the JSON schema carousel-builder expects:
   ```json
   {"slug":"<slug>","slides":[{"title":"...","body":"...","footer":"@handle"}]}
   ```
-- **Medium Tutorial**: structure with steps + fenced code blocks, but do NOT claim code is verified — hand off to `tutorial-verifier` for actual execution.
+- **Medium Tutorial**: structure with steps + fenced code blocks, but do NOT claim code is verified. Hand off to `tutorial-verifier` for actual execution.
 
 ### 3. Review-first (mandatory stop)
 Present all generated versions/options. STOP. Let the user pick, tweak, or reject before anything is written.
 
 ### 4. Persist (after approval)
+**Voice compliance gate (before any content file write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the generated text against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks" sections. Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what you changed. Flag judgment-call violations (hype words, AI-voice markers, cliches) for the user rather than silently rewriting. Never emit a pattern the profile bans. If no voice-tone exists, skip this silently.
+
 - LinkedIn versions → `linkedin/<slug>-<type>.md`
 - Medium versions → `medium/<slug>-<type>.md`
 - Carousel slide JSON → `linkedin/carousels/<slug>/slides.json` (input for carousel-builder)
@@ -75,10 +77,10 @@ Confirm the written paths.
 ## Conventions
 
 These are shared assumptions so the content skills interoperate. Each skill
-still works standalone — none of these require another skill to be present.
+still works standalone. None of these require another skill to be present.
 
 - **Folders** (all cwd-relative): `drafts/`, `linkedin/`, `medium/`,
-  `archive/`, `voice-tone/`. Never auto-create — ask the user if missing.
+  `archive/`, `voice-tone/`. Never auto-create: ask the user if missing.
 - **Slug**: lowercase, hyphenated, derived from the working title. Reused as
   the filename stem across skills so a piece is traceable.
 - **Filenames**: `drafts/<slug>.md`, `linkedin/<slug>-<type>.md`,
@@ -88,5 +90,6 @@ still works standalone — none of these require another skill to be present.
   variant, or pick a new name.
 - **Status values** (if a tracker file like `content-log.md` or
   `content-log.json` exists at cwd): `idea` -> `drafted` -> `reviewed` ->
-  `posted` -> `archived`. Updating the tracker is optional and best-effort;
-  absence of a tracker must never block the skill.
+  `posted` -> `archived`. If such a tracker exists, after writing or moving a
+  file ASK the user in one line whether to update it to the new status.
+  Absence of a tracker must never block the skill.

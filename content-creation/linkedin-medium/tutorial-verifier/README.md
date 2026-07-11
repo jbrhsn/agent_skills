@@ -1,6 +1,6 @@
 # tutorial-verifier
 
-Turns a tutorial draft that contains code into a Medium-ready article whose code blocks have actually been **run and verified** — or, when execution is impossible, **statically validated** and clearly labeled as such. Extracts Python, JS/Node, and shell blocks, runs them in an isolated working directory, falls back to static syntax checks when no runtime exists, and never claims code ran when it did not.
+Turns a tutorial draft that contains code into a Medium-ready article whose code blocks have actually been **run and verified**, or, when execution is impossible, **statically validated** and clearly labeled as such. Extracts Python, JS/Node, and shell blocks, runs them in an isolated working directory, falls back to static syntax checks when no runtime exists, and never claims code ran when it did not.
 
 ---
 
@@ -19,11 +19,11 @@ Do **not** use it for pure prose articles with no executable code, for editing/f
 ## What it does
 
 - **Extracts every fenced code block** from the draft, recording its language tag (```python / ```js / ```bash), inferring and noting the language when untagged.
-- **Handles incremental multi-block tutorials.** When block 2 depends on block 1's variables/files/installed packages, it concatenates the dependent blocks in order into one snippet and verifies them as a unit — instead of producing false failures from fresh isolated envs — then maps captured output back to each block. Genuinely independent blocks are verified separately.
+- **Handles incremental multi-block tutorials.** When block 2 depends on block 1's variables/files/installed packages, it concatenates the dependent blocks in order into one snippet and verifies them as a unit, instead of producing false failures from fresh isolated envs, then maps captured output back to each block. Genuinely independent blocks are verified separately.
 - **Builds a verification plan** per block (execute or static? which env? which deps? any dangerous shell flagged for refusal).
 - **Runs each block in a throwaway temp directory** via `scripts/verify.py`, capturing stdout/stderr/exit code and whether it executed or was statically validated.
-- **Falls back to static validation** (`compile()`, `node --check`, `bash -n`) when a runtime or setup is unavailable, or when a shell snippet is refused — never guessing that code works.
-- **Formats a Medium article** with numbered steps and language-tagged blocks, each labeled `verified ✓`, `statically validated ⚠`, or `not verified — no runtime ⏭`, including captured output for executed blocks.
+- **Falls back to static validation** (`compile()`, `node --check`, `bash -n`) when a runtime or setup is unavailable, or when a shell snippet is refused, never guessing that code works.
+- **Formats a Medium article** with numbered steps and language-tagged blocks, each labeled `verified ✓`, `statically validated ⚠`, or `not verified, no runtime ⏭`, including captured output for executed blocks.
 
 ---
 
@@ -31,14 +31,14 @@ Do **not** use it for pure prose articles with no executable code, for editing/f
 
 Never auto-runs end-to-end. There are two mandatory stop points:
 
-1. **Before executing anything** — show the extracted code blocks with detected language, and the verification plan (env per block, deps to install, any shell snippets flagged dangerous). Wait for approval.
-2. **Before writing the final article** — show the verification RESULTS (pass/fail/unknown, executed vs. statically validated, captured output) and wait for approval to write into `medium/`.
+1. **Before executing anything.** Show the extracted code blocks with detected language, and the verification plan (env per block, deps to install, any shell snippets flagged dangerous). Wait for approval.
+2. **Before writing the final article.** Show the verification RESULTS (pass/fail/unknown, executed vs. statically validated, captured output) and wait for approval to write into `medium/`.
 
 ---
 
 ## Security
 
-**This is NOT a sandbox.** The isolated temp directory only isolates the **working directory and `HOME`** — it does **not** restrict network access, environment variables, or the rest of the filesystem.
+**This is NOT a sandbox.** The isolated temp directory only isolates the **working directory and `HOME`**. It does **not** restrict network access, environment variables, or the rest of the filesystem.
 
 - The dangerous-command scan is a best-effort **denylist** and is trivially bypassable (aliases, variable indirection, `eval`, encoding, base64, encoded args). It is **not** a security boundary.
 - **Never run untrusted third-party code** through this skill. It is meant for verifying the user's **own** tutorial snippets only.
@@ -74,8 +74,8 @@ python3 scripts/verify.py --lang shell --file block3.sh --json
 
 | Language | Execution | Static fallback |
 |---|---|---|
-| **python** | Isolated venv — `uv venv` preferred, else `python3 -m venv`; deps installed only inside the venv (`uv pip install --python …` or the venv's `pip`) | `compile()` syntax check when no venv toolchain works or a dependency install fails |
-| **js** | Temp node project — `npm init -y`, optional `npm install <pkg>`, then `node snippet.js` | `node --check`; if `node` itself is missing, static validation is not possible (reported as unknown) |
+| **python** | Isolated venv: `uv venv` preferred, else `python3 -m venv`; deps installed only inside the venv (`uv pip install --python …` or the venv's `pip`) | `compile()` syntax check when no venv toolchain works or a dependency install fails |
+| **js** | Temp node project: `npm init -y`, optional `npm install <pkg>`, then `node snippet.js` | `node --check`; if `node` itself is missing, static validation is not possible (reported as unknown) |
 | **shell** | Sandboxed temp cwd with `HOME` pointed at the sandbox; runs only after the dangerous-command scan passes | `bash -n`; a snippet matching the denylist is REFUSED and only `bash -n` is run |
 
 The `--requirement` flag is repeatable and is ignored for shell. Output streams are capped at 256 KB each; each execution is bounded by `--timeout` (default 120s).
@@ -96,9 +96,9 @@ The `--requirement` flag is repeatable and is ignored for shell. Output streams 
 | `0` | pass | Executed OR statically validated cleanly |
 | `1` | fail | Runtime error, syntax error, refused, etc. |
 | `2` | usage | Usage / internal error (e.g. snippet file not found) |
-| `3` | unknown | Could not verify — no runtime/setup available; neither executed nor statically checkable |
+| `3` | unknown | Could not verify: no runtime/setup available; neither executed nor statically checkable |
 
-**`UNKNOWN` is not a failure** — it means "could not verify here." Surface it honestly (label the block `not verified — no runtime ⏭`) rather than claiming the code works.
+**`UNKNOWN` is not a failure.** It means "could not verify here." Surface it honestly (label the block `not verified, no runtime ⏭`) rather than claiming the code works.
 
 ---
 
@@ -107,7 +107,7 @@ The `--requirement` flag is repeatable and is ignored for shell. Output streams 
 Each step is numbered and in original tutorial order, keeps its language tag, and is labeled by verification mode:
 
 ```
-### Step N — <what this does>
+### Step N: <what this does>
 
 <short prose, in the project's voice/tone if voice-tone/ exists>
 
@@ -140,15 +140,15 @@ Never label a block `verified` unless it actually ran. Include captured output f
 
 - **Extracted blocks + verification plan** shown at the first stop point.
 - **Verification results** (pass/fail/unknown, executed vs. statically validated, captured output) shown at the second stop point.
-- **A Medium-ready article** under `medium/` — numbered steps, language-tagged code blocks each labeled `verified ✓`, `statically validated ⚠`, or `not verified — no runtime ⏭`, with captured output for executed blocks.
+- **A Medium-ready article** under `medium/`: numbered steps, language-tagged code blocks each labeled `verified ✓`, `statically validated ⚠`, or `not verified, no runtime ⏭`, with captured output for executed blocks.
 
 ---
 
 ## Limitations
 
-- **Not a security sandbox.** Only the working directory and `HOME` are isolated — not network, environment, or the wider filesystem. Never run untrusted code through it.
+- **Not a security sandbox.** Only the working directory and `HOME` are isolated, not network, environment, or the wider filesystem. Never run untrusted code through it.
 - **The dangerous-command scan is a bypassable denylist**, not a boundary; obfuscated snippets should be refused and validated statically.
-- **Static validation is syntax-only** — it confirms the code parses, not that it behaves correctly. `UNKNOWN`/`statically validated` blocks are labeled honestly and never presented as `verified`.
+- **Static validation is syntax-only.** It confirms the code parses, not that it behaves correctly. `UNKNOWN`/`statically validated` blocks are labeled honestly and never presented as `verified`.
 - **Depends on available runtimes.** Missing `uv`/`python3`, `node`/`npm`, or `bash` downgrades a block to static validation or unknown.
 - **Not fully automatic.** Stops for approval before executing anything and again before writing the final article.
 - **Never auto-creates folders or overwrites files.** Asks when `drafts/`/`medium/`/`voice-tone/` are missing, and offers overwrite / `-v2` variant / new name when a target exists.
@@ -160,7 +160,7 @@ Never label a block `verified` unless it actually ran. Include captured output f
 Run from the **repo root** (`agent_skills/`):
 
 ```bash
-# Global — available in all projects (Linux/macOS)
+# Global: available in all projects (Linux/macOS)
 cp -r content-creation/linkedin-medium/tutorial-verifier ~/.config/opencode/skills/
 
 # Per-project only
@@ -185,10 +185,10 @@ Copy-Item -Recurse content-creation\linkedin-medium\tutorial-verifier "$env:USER
 
 Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → `platform-adapter` → {`carousel-builder`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
-- **`seed-expander`** — expands a raw idea into an outline/angle
-- **`draft-builder`** — turns the outline into the full tutorial draft this skill verifies
-- **`platform-adapter`** — adapts the draft into platform formats upstream
-- **`carousel-builder`** — sibling downstream step; renders carousel slide images
-- **`editorial-reviewer`** — final editorial pass on the surrounding prose
-- **`voice-profiler`** — builds the `voice-tone/` guidance used for prose around code
-- **`content-tracker`** — maintains the `content-log` status (`idea` → `drafted` → `reviewed` → `posted` → `archived`)
+- **`seed-expander`**: expands a raw idea into an outline/angle
+- **`draft-builder`**: turns the outline into the full tutorial draft this skill verifies
+- **`platform-adapter`**: adapts the draft into platform formats upstream
+- **`carousel-builder`**: sibling downstream step; renders carousel slide images
+- **`editorial-reviewer`**: final editorial pass on the surrounding prose
+- **`voice-profiler`**: builds the `voice-tone/` guidance used for prose around code
+- **`content-tracker`**: maintains the `content-log` status (`idea` → `drafted` → `reviewed` → `posted` → `archived`)

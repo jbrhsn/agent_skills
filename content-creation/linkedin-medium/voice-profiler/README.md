@@ -1,6 +1,6 @@
 # voice-profiler
 
-Analyzes the user's writing samples in the cwd-relative `voice-tone/` folder **once** and distills them into a single reusable summary file, `voice-tone/profile.md`. Other content skills can then read this one profile so the user's voice stays consistent — instead of each skill re-deriving voice from raw samples and drifting apart over time.
+Analyzes the user's writing samples in the cwd-relative `voice-tone/` folder **once** and distills them into a single reusable summary file, `voice-tone/profile.md`. Other content skills can then read this one profile so the user's voice stays consistent, instead of each skill re-deriving voice from raw samples and drifting apart over time.
 
 ---
 
@@ -14,29 +14,29 @@ Analyzes the user's writing samples in the cwd-relative `voice-tone/` folder **o
 
 Run it **once** to establish the profile before a lot of content work, then refresh it whenever samples or voice change.
 
-Do **not** use it to author content — it only profiles voice. Expanding an idea is `seed-expander`, drafting is `draft-builder`, platform reshaping is `platform-adapter`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, and step verification is `tutorial-verifier`. Those skills *consume* the profile; they do not produce it.
+Do **not** use it to author content; it only profiles voice. Expanding an idea is `seed-expander`, drafting is `draft-builder`, platform reshaping is `platform-adapter`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, and step verification is `tutorial-verifier`. Those skills *consume* the profile; they do not produce it.
 
 ---
 
 ## What it does
 
 - **Reads `voice-tone/` once.** Reads every file in the cwd-relative `voice-tone/` folder (except an existing `profile.md`, handled specially), covering two input kinds: **writing samples** (past posts/articles/drafts) and **explicit style-instruction files** (written-down rules the user has dropped in).
-- **Treats instructions as ground truth.** Explicit style-instruction files are authoritative and folded into the profile as-is — they take precedence over patterns merely inferred from samples, which are treated as evidence.
-- **Distills a single reusable profile.** Writes `voice-tone/profile.md`, framed explicitly at the top as **"guidance to adapt from"** — never a rigid template to copy verbatim.
+- **Treats instructions as ground truth.** Explicit style-instruction files are authoritative and folded into the profile as-is. They take precedence over patterns merely inferred from samples, which are treated as evidence.
+- **Distills a single reusable profile.** Writes `voice-tone/profile.md`, framed explicitly at the top as **"guidance to adapt from"**, never a rigid template to copy verbatim.
 - **Captures how the user writes.** Tone/register, POV/person, sentence rhythm and length, favored words/phrases, avoided words/phrases, structural habits (openings/closings/lists/questions), punctuation and formatting quirks, the verbatim explicit style instructions, and per-platform notes (LinkedIn vs Medium) when samples span platforms.
-- **Flags confidence.** Under a **Notes & Uncertainties** section it calls out anything thin ("only 2 samples", "no Medium samples — LinkedIn notes only") so downstream consumers know how much to trust each part.
+- **Flags confidence.** Under a **Notes & Uncertainties** section it calls out anything thin ("only 2 samples", "no Medium samples, LinkedIn notes only") so downstream consumers know how much to trust each part.
 - **Asks if `voice-tone/` is missing or empty.** If the folder does not exist or has no usable samples/instructions, it STOPS and asks the user how to proceed (point to samples, paste them in chat, or skip). It never silently creates the folder or any file inside it.
 
 ---
 
-## Optional / adaptive guidance — never a hard dependency
+## Optional / adaptive guidance: never a hard dependency
 
 The `voice-tone/profile.md` this skill produces is **OPTIONAL** for every other skill:
 
 - Skills that consume it use `profile.md` **if present** for a fast, consistent read of the voice.
-- If `profile.md` is **absent**, those skills still work — they degrade gracefully to reading the raw samples in `voice-tone/` directly.
+- If `profile.md` is **absent**, those skills still work. They degrade gracefully to reading the raw samples in `voice-tone/` directly.
 
-So running voice-profiler is a convenience/consistency optimization, not a dependency. Nothing breaks if it never runs. The profile is **adaptive guidance to adapt from**, applied to new content and platforms — not old text to reproduce.
+So running voice-profiler is a convenience/consistency optimization, not a dependency. Nothing breaks if it never runs. The profile is **adaptive guidance to adapt from**, applied to new content and platforms, not old text to reproduce.
 
 ---
 
@@ -57,7 +57,7 @@ The generated `profile.md` uses these section headers:
 | **Per-Platform Notes (LinkedIn / Medium)** | how the voice shifts per platform, or a note that samples are single-platform |
 | **Notes & Uncertainties** | confidence flags for anything thin |
 
-Each section is concise, actionable bullet guidance a downstream skill can apply — not prose essays.
+Each section is concise, actionable bullet guidance a downstream skill can apply, not prose essays.
 
 ---
 
@@ -84,7 +84,7 @@ Each section is concise, actionable bullet guidance a downstream skill can apply
 ## Outputs
 
 - A drafted voice profile presented in chat for approval/edits.
-- After approval: `voice-tone/profile.md` — the single shared, reusable voice reference downstream skills read when present.
+- After approval: `voice-tone/profile.md`, the single shared, reusable voice reference downstream skills read when present.
 - On a refresh where `profile.md` already exists: a diff/summary of proposed changes, then an overwrite / keep / merge decision applied.
 
 ---
@@ -105,7 +105,7 @@ Each section is concise, actionable bullet guidance a downstream skill can apply
 Run from the **repo root** (`agent_skills/`):
 
 ```bash
-# Global — available in all projects (Linux/macOS)
+# Global: available in all projects (Linux/macOS)
 cp -r content-creation/linkedin-medium/voice-profiler ~/.config/opencode/skills/
 
 # Per-project only
@@ -130,8 +130,8 @@ Copy-Item -Recurse content-creation\linkedin-medium\voice-profiler "$env:USERPRO
 
 A cross-cutting support skill for the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> `platform-adapter` -> {`carousel-builder`, `tutorial-verifier`} -> `editorial-reviewer`, with **`voice-profiler`** and `content-tracker` as cross-cutting support.
 
-- **`draft-builder`**, **`platform-adapter`**, **`editorial-reviewer`**, **`carousel-builder`**, **`tutorial-verifier`** — all read `voice-tone/profile.md` when present, and fall back to raw samples when absent
-- **`seed-expander`** — expands a raw idea into structured angles/outline
-- **`content-tracker`** — the other cross-cutting support skill; an optional pipeline tracker
+- **`draft-builder`**, **`platform-adapter`**, **`editorial-reviewer`**, **`carousel-builder`**, **`tutorial-verifier`**: all read `voice-tone/profile.md` when present, and fall back to raw samples when absent
+- **`seed-expander`**: expands a raw idea into structured angles/outline
+- **`content-tracker`**: the other cross-cutting support skill; an optional pipeline tracker
 
 `voice-profiler` improves consistency across the whole suite without ever becoming a hard dependency.

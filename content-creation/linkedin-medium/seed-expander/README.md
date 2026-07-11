@@ -1,6 +1,6 @@
 # seed-expander
 
-Turns ONE user-provided seed idea into 8-10 distinct, post-worthy content angles for LinkedIn and Medium, grounded in fresh web research. On the user's confirmation, it writes the approved angles as stub draft files. It never generates ideas cold — the user always supplies the seed; the skill's job is research, expansion, and angle-shaping.
+Turns ONE user-provided seed idea into 8-10 distinct, post-worthy content angles for LinkedIn and Medium, grounded in fresh web research. On the user's confirmation, it writes the approved angles as stub draft files. It never generates ideas cold. The user always supplies the seed; the skill's job is research, expansion, and angle-shaping.
 
 ---
 
@@ -20,9 +20,9 @@ Do **not** use it to write the actual draft (use `draft-builder`), to reshape a 
 ## What it does
 
 - **Intakes the seed.** Reads the user's raw thought, bullets, paragraph, project note, or link. If the seed is a link, it fetches it. Asks one clarifying question only if the seed is truly ambiguous about domain or intent.
-- **Confirms goal weighting.** Asks once (if unclear) whether the user wants **thought-leadership** or **career-visibility** weighting — both are valid, and each idea is tagged.
+- **Confirms goal weighting.** Asks once (if unclear) whether the user wants **thought-leadership** or **career-visibility** weighting. Both are valid, and each idea is tagged.
 - **Does thorough research.** Not a quick 2-3 fetch skim: fetches multiple relevant, recent sources (news, docs, HN/Reddit discussions, primary sources), cross-references claims across sources, notes points of debate or contrarian takes, and captures the URL plus a one-line takeaway for each source actually used.
-- **Expands into 8-10 distinct angles.** Each angle includes a **Hook** (one punchy line), an **Angle type** (`thought-leadership` or `career-visibility`), a **Suggested platform + content-type** from the matrix, a **Why now** timeliness hook, and the 1-3 **Sources** backing it. Angles are genuinely distinct — different lens, audience, or format — not 10 rewrites of one take.
+- **Expands into 8-10 distinct angles.** Each angle includes a **Hook** (one punchy line), an **Angle type** (`thought-leadership` or `career-visibility`), a **Suggested platform + content-type** from the matrix, a **Why now** timeliness hook, and the 1-3 **Sources** backing it. Angles are genuinely distinct (different lens, audience, or format), not 10 rewrites of one take.
 - **Review-first (mandatory stop).** Presents all angles in a scannable list and stops. Nothing is written until the user picks which angles to keep (all / a subset / none) and optionally edits hooks or retags.
 - **Writes approved stubs.** For each approved angle, writes a stub file to `drafts/` after confirming the folder exists. Never silently creates folders.
 
@@ -83,7 +83,7 @@ Each written stub follows a fixed structure: working title, `**Status:** idea`, 
 - **Never generates ideas cold.** The user must supply the seed; the skill only researches, expands, and shapes angles.
 - **Never silently creates folders.** If `drafts/` is missing when about to write stubs, it stops and asks how to proceed.
 - **Never overwrites silently.** If a target file exists, it asks the user to overwrite, write a `-v2`/`-v3` variant, or pick a new name.
-- **Stops at stubs.** It does not write the draft body — that is `draft-builder`'s job.
+- **Stops at stubs.** It does not write the draft body. That is `draft-builder`'s job.
 
 ---
 
@@ -92,7 +92,7 @@ Each written stub follows a fixed structure: working title, `**Status:** idea`, 
 Run from the **repo root** (`agent_skills/`):
 
 ```bash
-# Global — available in all projects (Linux/macOS)
+# Global: available in all projects (Linux/macOS)
 cp -r content-creation/linkedin-medium/seed-expander ~/.config/opencode/skills/
 
 # Per-project only
@@ -117,10 +117,10 @@ Copy-Item -Recurse content-creation\linkedin-medium\seed-expander "$env:USERPROF
 
 `seed-expander` is the first stage of the LinkedIn/Medium content pipeline: **seed-expander → draft-builder → platform-adapter → {carousel-builder, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
-- **`draft-builder`** — consumes an approved stub and turns it into a full source draft (the next stage)
-- **`platform-adapter`** — reshapes a source draft into LinkedIn/Medium versions
-- **`carousel-builder`** — renders carousel slide copy into image files
-- **`tutorial-verifier`** — runs and verifies code in tutorial drafts
-- **`editorial-reviewer`** — produces edited variants of a version
-- **`voice-profiler`** — builds the `voice-tone/` profile used to shape hooks
-- **`content-tracker`** — tracks each piece's status across the pipeline
+- **`draft-builder`**: consumes an approved stub and turns it into a full source draft (the next stage)
+- **`platform-adapter`**: reshapes a source draft into LinkedIn/Medium versions
+- **`carousel-builder`**: renders carousel slide copy into image files
+- **`tutorial-verifier`**: runs and verifies code in tutorial drafts
+- **`editorial-reviewer`**: produces edited variants of a version
+- **`voice-profiler`**: builds the `voice-tone/` profile used to shape hooks
+- **`content-tracker`**: tracks each piece's status across the pipeline

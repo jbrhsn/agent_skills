@@ -1,6 +1,6 @@
 # content-tracker
 
-A lightweight, cross-session tracker for a LinkedIn/Medium content pipeline. It owns a single log at the current working directory root and moves each content idea through its lifecycle: `idea -> drafted -> reviewed -> posted -> archived`. It is **optional infrastructure** — other skills may write to the log but never require it.
+A lightweight, cross-session tracker for a LinkedIn/Medium content pipeline. It owns a single log at the current working directory root and moves each content idea through its lifecycle: `idea -> drafted -> reviewed -> posted -> archived`. It is **optional infrastructure**. Other skills may write to the log but never require it.
 
 ---
 
@@ -13,13 +13,13 @@ A lightweight, cross-session tracker for a LinkedIn/Medium content pipeline. It 
 | Query the pipeline | "what haven't I posted yet", "show my backlog", "what's overdue this week", "show everything for LinkedIn" |
 | Archive published work | "archive the ones I've posted" |
 
-Do **not** use it to write or draft content — that belongs to the authoring skills. Expanding an idea is `seed-expander`, drafting is `draft-builder`, platform reshaping is `platform-adapter`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, step verification is `tutorial-verifier`, and voice capture is `voice-profiler`. This skill only tracks state; it never produces content.
+Do **not** use it to write or draft content. That belongs to the authoring skills. Expanding an idea is `seed-expander`, drafting is `draft-builder`, platform reshaping is `platform-adapter`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, step verification is `tutorial-verifier`, and voice capture is `voice-profiler`. This skill only tracks state; it never produces content.
 
 ---
 
 ## What it does
 
-- **Owns one source of truth.** `content-log.json` at the cwd root is authoritative; `content-log.md` is a human-readable mirror rendered from the JSON. Never hand-edit the MD — regenerate it with `render`. Every mutation re-renders the MD automatically.
+- **Owns one source of truth.** `content-log.json` at the cwd root is authoritative; `content-log.md` is a human-readable mirror rendered from the JSON. Never hand-edit the MD. Regenerate it with `render`. Every mutation re-renders the MD automatically.
 - **Moves pieces through a status lifecycle.** Each entry advances `idea -> drafted -> reviewed -> posted -> archived`, with sane forward transitions enforced.
 - **Tracks structured entries.** Each entry carries `slug` (unique key), `title`, `status`, `platform` (LinkedIn / Medium / both), `type`, `created`, `updated`, `posted_date`, optional `sources` (URLs), and optional `notes`.
 - **Queries the pipeline.** Lists everything, unposted-only work, per-platform slices (entries marked `both` always match), and a cadence/overdue report.
@@ -30,7 +30,7 @@ Do **not** use it to write or draft content — that belongs to the authoring sk
 
 ## Optional infrastructure
 
-This tracker is **optional**. It works alone; other skills MAY write to the log but must never require it. If the log is missing, the other skills degrade gracefully — a missing tracker is not an error, just an absent convenience.
+This tracker is **optional**. It works alone; other skills MAY write to the log but must never require it. If the log is missing, the other skills degrade gracefully. A missing tracker is not an error, just an absent convenience.
 
 ---
 
@@ -54,7 +54,7 @@ Setting status to `posted` stamps `posted_date` automatically.
 
 ## Scripts
 
-`scripts/track.py` — standard-library Python, no dependencies. Subcommands:
+`scripts/track.py`: standard-library Python, no dependencies. Subcommands:
 
 | Subcommand | What it does |
 |---|---|
@@ -101,7 +101,7 @@ Target cadence is **2-3 posts per week**. The backlog is flagged *overdue / behi
 - fewer than **2 posts** occurred in the **last 7 days**, OR
 - **nothing has been posted in more than 4 days**.
 
-Only `posted` entries with a valid `posted_date` count toward cadence. This is a simple, documented heuristic — not a scheduler.
+Only `posted` entries with a valid `posted_date` count toward cadence. This is a simple, documented heuristic, not a scheduler.
 
 ---
 
@@ -126,8 +126,8 @@ Only `posted` entries with a valid `posted_date` count toward cadence. This is a
 
 ## Outputs
 
-- `content-log.json` — the authoritative pipeline log (created only after the user confirms).
-- `content-log.md` — a rendered, human-readable mirror; regenerated on every mutation or via `render`.
+- `content-log.json`: the authoritative pipeline log (created only after the user confirms).
+- `content-log.md`: a rendered, human-readable mirror; regenerated on every mutation or via `render`.
 - Query results: backlog, unposted work, per-platform slices, and a cadence/overdue report (human-readable or `--json`).
 - Archived entries with their content files moved into `archive/` (after confirmation).
 
@@ -149,7 +149,7 @@ Only `posted` entries with a valid `posted_date` count toward cadence. This is a
 Run from the **repo root** (`agent_skills/`):
 
 ```bash
-# Global — available in all projects (Linux/macOS)
+# Global, available in all projects (Linux/macOS)
 cp -r content-creation/linkedin-medium/content-tracker ~/.config/opencode/skills/
 
 # Per-project only
@@ -176,7 +176,7 @@ For any platform, `scripts/track.py` is standard-library Python and can be run d
 
 A cross-cutting support skill for the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> `platform-adapter` -> {`carousel-builder`, `tutorial-verifier`} -> `editorial-reviewer`, with `voice-profiler` and **`content-tracker`** as cross-cutting support.
 
-- **`seed-expander`**, **`draft-builder`**, **`platform-adapter`**, **`carousel-builder`**, **`tutorial-verifier`**, **`editorial-reviewer`** — the authoring/publishing pipeline; each MAY record status here but never requires it
-- **`voice-profiler`** — the other cross-cutting support skill; captures voice into `voice-tone/profile.md`
+- **`seed-expander`**, **`draft-builder`**, **`platform-adapter`**, **`carousel-builder`**, **`tutorial-verifier`**, **`editorial-reviewer`**: the authoring/publishing pipeline; each MAY record status here but never requires it
+- **`voice-profiler`**: the other cross-cutting support skill; captures voice into `voice-tone/profile.md`
 
 `content-tracker` is the optional memory layer that keeps the pipeline's state visible across sessions.

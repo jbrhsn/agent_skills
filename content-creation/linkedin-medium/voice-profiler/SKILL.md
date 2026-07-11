@@ -5,7 +5,7 @@ description: Use when the user wants to analyze their writing samples and distil
 
 # Voice Profiler
 
-Analyze the user's existing writing samples in the CWD-relative `voice-tone/` folder ONCE and distill them into a single reusable summary file: `voice-tone/profile.md`. Other skills (`draft-builder`, `platform-adapter`, `editorial-reviewer`, `tutorial-verifier`, `carousel-builder`) can then read this one profile so the user's voice stays consistent — instead of each skill independently re-deriving voice from raw samples and drifting apart over time.
+Analyze the user's existing writing samples in the CWD-relative `voice-tone/` folder ONCE and distill them into a single reusable summary file: `voice-tone/profile.md`. Other skills (`draft-builder`, `platform-adapter`, `editorial-reviewer`, `tutorial-verifier`, `carousel-builder`) can then read this one profile so the user's voice stays consistent, instead of each skill independently re-deriving voice from raw samples and drifting apart over time.
 
 The profile is **adaptive guidance to adapt from**, never a rigid template to copy verbatim.
 
@@ -14,7 +14,7 @@ This skill works entirely on its own. It does not require any other skill to be 
 
 The `voice-tone/profile.md` it produces is **OPTIONAL** for every other skill:
 - Skills that consume it use `profile.md` **if present** for a fast, consistent read of the voice.
-- If `profile.md` is **absent**, those skills must still work — they degrade gracefully to reading the raw samples in `voice-tone/` directly.
+- If `profile.md` is **absent**, those skills must still work. They degrade gracefully to reading the raw samples in `voice-tone/` directly.
 
 So running voice-profiler is a convenience/consistency optimization, not a dependency. Nothing breaks if it never runs.
 
@@ -25,10 +25,10 @@ So running voice-profiler is a convenience/consistency optimization, not a depen
 
 ## How it reads `voice-tone/` (resolve relative to CWD)
 `voice-tone/` holds two kinds of inputs, both of which are read:
-1. **Writing samples** — past posts/articles/drafts that demonstrate the user's natural voice.
-2. **Explicit style-instruction files** — any file where the user has written down rules ("avoid hype words", "always open with a question", "use British spelling", etc.). These are authoritative and are folded into the profile as-is; they take precedence over patterns merely inferred from samples.
+1. **Writing samples**: past posts/articles/drafts that demonstrate the user's natural voice.
+2. **Explicit style-instruction files**: any file where the user has written down rules ("avoid hype words", "always open with a question", "use British spelling", etc.). These are authoritative and are folded into the profile as-is; they take precedence over patterns merely inferred from samples.
 
-Read every file in `voice-tone/` (except an existing `profile.md`, which is handled specially — see review-first). Treat instruction files as ground truth and samples as evidence.
+Read every file in `voice-tone/` (except an existing `profile.md`, which is handled specially, see review-first). Treat instruction files as ground truth and samples as evidence.
 
 ## Ask-if-missing rule (never create silently)
 If `voice-tone/` does not exist, or exists but contains no usable samples/instructions, **STOP and ASK** the user how to proceed. Offer:
@@ -39,17 +39,17 @@ If `voice-tone/` does not exist, or exists but contains no usable samples/instru
 Never silently create the `voice-tone/` folder or any file inside it.
 
 ## What the profile captures (adaptive, not rigid)
-The profile describes *how the user tends to write* so another skill can adapt those habits to new content and platforms — not reproduce old text. Capture:
+The profile describes *how the user tends to write* so another skill can adapt those habits to new content and platforms, not reproduce old text. Capture:
 
-- **Tone / register** — formal↔casual, warm↔blunt, playful↔serious, level of authority.
-- **POV / person** — first person? "we"? second-person address to the reader?
-- **Sentence rhythm & length habits** — short punchy vs long flowing, variation patterns, fragment use.
-- **Favored words & phrases** — signature vocabulary, recurring transitions, pet phrases.
-- **Avoided words & phrases** — things the user never uses or explicitly bans (hype words, clichés, jargon).
-- **Structural habits** — how they open (hook style) and close (takeaway/CTA), use of lists, headings, questions, one-line paragraphs, callbacks.
-- **Punctuation quirks** — em-dashes, ellipses, parentheticals, emoji use, capitalization habits.
-- **Explicit style instructions** — verbatim / faithfully summarized from instruction files in `voice-tone/`, marked as authoritative.
-- **Per-platform notes** — if samples span LinkedIn vs Medium (or others), note how the voice shifts per platform (LinkedIn line breaks + hooks, Medium longer-form subheads, etc.). If samples are single-platform or platform-agnostic, say so instead of inventing distinctions.
+- **Tone / register**: formal↔casual, warm↔blunt, playful↔serious, level of authority.
+- **POV / person**: first person? "we"? second-person address to the reader?
+- **Sentence rhythm & length habits**: short punchy vs long flowing, variation patterns, fragment use.
+- **Favored words & phrases**: signature vocabulary, recurring transitions, pet phrases.
+- **Avoided words & phrases**: things the user never uses or explicitly bans (hype words, clichés, jargon).
+- **Structural habits**: how they open (hook style) and close (takeaway/CTA), use of lists, headings, questions, one-line paragraphs, callbacks.
+- **Punctuation quirks**: em-dashes, ellipses, parentheticals, emoji use, capitalization habits.
+- **Explicit style instructions**: verbatim / faithfully summarized from instruction files in `voice-tone/`, marked as authoritative.
+- **Per-platform notes**: if samples span LinkedIn vs Medium (or others), note how the voice shifts per platform (LinkedIn line breaks + hooks, Medium longer-form subheads, etc.). If samples are single-platform or platform-agnostic, say so instead of inventing distinctions.
 
 Frame the whole document as **"guidance to adapt from,"** explicitly, at the top.
 
@@ -67,7 +67,7 @@ The written profile follows these section headers:
 ```markdown
 # Voice Profile
 
-> Guidance to adapt from — not a template to copy verbatim.
+> Guidance to adapt from, not a template to copy verbatim.
 > Adapt these habits to the specific content and platform.
 
 _Sources analyzed: <files in voice-tone/>. Last updated: <date>._
@@ -86,7 +86,7 @@ _Sources analyzed: <files in voice-tone/>. Last updated: <date>._
 ## Notes & Uncertainties
 ```
 
-Keep each section concise and actionable — bullet guidance a downstream skill can apply, not prose essays. Under **Notes & Uncertainties**, flag anything thin (e.g. "only 2 samples", "no Medium samples — LinkedIn notes only") so consumers know the confidence level.
+Keep each section concise and actionable: bullet guidance a downstream skill can apply, not prose essays. Under **Notes & Uncertainties**, flag anything thin (e.g. "only 2 samples", "no Medium samples, LinkedIn notes only") so consumers know the confidence level.
 
 ## Handoff
-Once approved and written, `voice-tone/profile.md` becomes the shared voice reference. Downstream skills read it when present and fall back to raw `voice-tone/` samples when it is absent — so this skill improves consistency without ever becoming a hard dependency.
+Once approved and written, `voice-tone/profile.md` becomes the shared voice reference. Downstream skills read it when present and fall back to raw `voice-tone/` samples when it is absent, so this skill improves consistency without ever becoming a hard dependency.

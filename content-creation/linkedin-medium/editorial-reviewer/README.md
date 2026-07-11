@@ -23,7 +23,7 @@ Do **not** use it to expand a raw idea into an outline (that is `seed-expander`)
 - **Detects platform and type first.** Reads the pasted text or file and infers whether it is a LinkedIn piece (short, punchy, first-person, no subheadings) or a Medium article (long-form, subheadings, section structure). If the platform is unclear, it ASKS before proceeding.
 - **Diagnoses against 5 dimensions.** Gives a brief, per-dimension read of what is strong and what is weak before producing variants.
 - **Produces 2-3 labeled variants.** Each variant emphasizes different review dimensions, carries a short editorial-angle label, and includes a one-line diagnostic of what changed and why.
-- **Runs a per-platform mechanical/formatting pass.** LinkedIn variants get short lines, generous whitespace, a strong first 1-2 lines, and scannable breaks; Medium variants get clear subheadings, logical section structure, and readable paragraph length — so every variant is platform-ready.
+- **Runs a per-platform mechanical/formatting pass.** LinkedIn variants get short lines, generous whitespace, a strong first 1-2 lines, and scannable breaks; Medium variants get clear subheadings, logical section structure, and readable paragraph length, so every variant is platform-ready.
 - **Uses voice material when available.** If a cwd-relative `voice-tone/` folder exists, it reads it to judge voice authenticity and keep edits sounding like the user. If a voice-tone folder is expected but missing, it asks how to proceed rather than guessing.
 - **Stops before writing.** Presents all variants and diagnostics, then STOPS and asks the user to choose, mix, or reject. It never picks for the user and never auto-writes.
 - **Writes only the chosen version.** After the user picks, it confirms the target folder (`linkedin/` or `medium/`, cwd-relative), asks how to proceed if that folder is missing, writes the chosen or mixed version, and confirms the exact path back.
@@ -49,9 +49,9 @@ Every piece is evaluated against these five dimensions, and different variants d
 
 Default is 2-3 numbered variants, each with a short editorial-angle label and a one-line "what changed and why" diagnostic. Typical shapes:
 
-- **Variant 1 — Tighter hook:** rewrites the opening for immediate pull.
-- **Variant 2 — More contrarian:** pushes a sharper, differentiated take.
-- **Variant 3 — Safer / more polished:** cleaner, lower-risk, broadly shareable.
+- **Variant 1 (Tighter hook):** rewrites the opening for immediate pull.
+- **Variant 2 (More contrarian):** pushes a sharper, differentiated take.
+- **Variant 3 (Safer / more polished):** cleaner, lower-risk, broadly shareable.
 
 If the user asks for a specific number (e.g. "give me 4"), that count is honored.
 
@@ -59,12 +59,12 @@ If the user asks for a specific number (e.g. "give me 4"), that count is honored
 
 ## Workflow
 
-1. **Intake + detect platform/type** — read the text/file; infer LinkedIn vs Medium; ask if unclear.
-2. **Analyze against the 5 dimensions** — a short per-dimension diagnostic of strengths and weaknesses.
-3. **Produce 2-3 labeled variants** — numbered, angle-labeled, each with a one-line change diagnostic.
-4. **Mechanical / formatting pass** — apply the per-platform formatting so each variant is platform-ready.
-5. **Mandatory review-first STOP** — present everything, then STOP; the user chooses, mixes, or rejects. Nothing is written.
-6. **Write the chosen version** — only after the pick: confirm the target folder, ask if it is missing (never auto-create), write the chosen/mixed version, and report the exact path.
+1. **Intake + detect platform/type**: read the text/file; infer LinkedIn vs Medium; ask if unclear.
+2. **Analyze against the 5 dimensions**: a short per-dimension diagnostic of strengths and weaknesses.
+3. **Produce 2-3 labeled variants**: numbered, angle-labeled, each with a one-line change diagnostic.
+4. **Mechanical / formatting pass**: apply the per-platform formatting so each variant is platform-ready.
+5. **Mandatory review-first STOP**: present everything, then STOP; the user chooses, mixes, or rejects. Nothing is written.
+6. **Write the chosen version**: only after the pick: confirm the target folder, ask if it is missing (never auto-create), write the chosen/mixed version, and report the exact path.
 
 ---
 
@@ -102,7 +102,7 @@ If the user asks for a specific number (e.g. "give me 4"), that count is honored
 Run from the **repo root** (`agent_skills/`):
 
 ```bash
-# Global — available in all projects (Linux/macOS)
+# Global: available in all projects (Linux/macOS)
 cp -r content-creation/linkedin-medium/editorial-reviewer ~/.config/opencode/skills/
 
 # Per-project only
@@ -127,12 +127,12 @@ Copy-Item -Recurse content-creation\linkedin-medium\editorial-reviewer "$env:USE
 
 Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> `platform-adapter` -> {`carousel-builder`, `tutorial-verifier`} -> **`editorial-reviewer`**.
 
-- **`seed-expander`** — expands a raw idea into structured angles/outline
-- **`draft-builder`** — turns an expanded seed into a full draft
-- **`platform-adapter`** — reshapes a draft for LinkedIn or Medium
-- **`carousel-builder`** — builds LinkedIn carousels
-- **`tutorial-verifier`** — verifies tutorial/code steps before publishing
-- **`voice-profiler`** — produces the optional `voice-tone/profile.md` this skill reads for voice authenticity
-- **`content-tracker`** — optional cross-session pipeline tracker that can record the reviewed status
+- **`seed-expander`**: expands a raw idea into structured angles/outline
+- **`draft-builder`**: turns an expanded seed into a full draft
+- **`platform-adapter`**: reshapes a draft for LinkedIn or Medium
+- **`carousel-builder`**: builds LinkedIn carousels
+- **`tutorial-verifier`**: verifies tutorial/code steps before publishing
+- **`voice-profiler`**: produces the optional `voice-tone/profile.md` this skill reads for voice authenticity
+- **`content-tracker`**: optional cross-session pipeline tracker that can record the reviewed status
 
 `editorial-reviewer` is the final polish stage before a piece is posted.

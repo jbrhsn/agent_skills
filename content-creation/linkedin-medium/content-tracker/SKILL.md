@@ -19,12 +19,12 @@ Use this skill when the user asks to:
   this week", "show everything for LinkedIn".
 - Archive published content ("archive the ones I've posted").
 
-Do NOT use it to write or draft the content — that belongs to the authoring skills.
+Do NOT use it to write or draft the content. That belongs to the authoring skills.
 
 ## Optional infrastructure (standalone)
 
 This tracker is **optional**. It works alone; other skills MAY write to the log but
-must never require it. If the log is missing, the other skills degrade gracefully — a
+must never require it. If the log is missing, the other skills degrade gracefully. A
 missing tracker is not an error, just an absent convenience.
 
 ## Log location and shape
@@ -35,7 +35,7 @@ missing tracker is not an error, just an absent convenience.
 - Archived content files live under a cwd-relative `archive/` folder.
 
 Every path is **cwd-relative**. If a required folder or file is missing, ASK the user
-how to proceed — do not guess another location.
+how to proceed. Do not guess another location.
 
 Each entry:
 
@@ -82,7 +82,7 @@ behind cadence* if EITHER:
 - **nothing has been posted in more than 4 days**.
 
 Only `posted` entries with a valid `posted_date` count toward cadence. This is a simple,
-documented heuristic — not a scheduler.
+documented heuristic, not a scheduler.
 
 ## Workflows
 
@@ -105,8 +105,8 @@ documented heuristic — not a scheduler.
 
 ### Archive (posted -> archived)
 1. Confirm which entries to archive and which content file(s) will move.
-2. Ensure the cwd-relative `archive/` folder exists — if missing, ASK the user.
-3. Move the associated content file(s) into `archive/` — **ask before moving, never
+2. Ensure the cwd-relative `archive/` folder exists. If missing, ASK the user.
+3. Move the associated content file(s) into `archive/`, **ask before moving, never
    silently**.
 4. Run `update --slug S --status archived`.
 
