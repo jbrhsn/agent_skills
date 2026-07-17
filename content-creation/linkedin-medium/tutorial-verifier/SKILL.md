@@ -60,11 +60,20 @@ and validate statically instead.
    tag (```python / ```js / ```bash etc.). Infer language if untagged and note
    the inference.
    - **Multi-block tutorials that build state incrementally** (block 2 depends
-     on block 1's variables/files/installed packages): do NOT verify each block
-     in a fresh isolated env, which produces false failures. Instead concatenate
-     the dependent blocks in order into ONE snippet, verify that as a unit, and
-     map the captured output back to the individual blocks for display. Only
-           verify blocks separately when they are genuinely independent.
+      on block 1's variables/files/installed packages): do NOT verify each block
+      in a fresh isolated env, which produces false failures. Instead concatenate
+      the dependent blocks in order into ONE snippet, verify that as a unit, and
+      map the captured output back to the individual blocks for display. Only
+            verify blocks separately when they are genuinely independent.
+   - **Databricks / notebook magic prefixes** (`%pip`, `%run`, `%sql`, `%scala`, `%r`,
+      `%sh`, `%fs`, `%md`, `%conda`): these are Databricks notebook cell magics that
+      are not valid standalone bash commands. Strip the leading `%` before running
+      `verify.py --lang shell` (e.g. `%pip install X` → `pip install X`). For `%sql`
+      and `%fs` blocks, do NOT attempt execution — label them `statically validated ⚠`
+      and note "Databricks-only magic — not executable outside a cluster notebook."
+      For `%run`, `%scala`, `%r`, and `%md` blocks, skip execution entirely and label
+      as `not verified, no runtime ⏭`. When a pip install block uses `%pip`, stripping
+      the `%` gives a locally-runnable install command; note this in the plan step.
    - **HTTP API tutorial snippets:** blocks that call external APIs with placeholder credentials (e.g. `YOUR_TOKEN`, `https://your-instance.azuredatabricks.net`) will return non-200 responses or non-JSON bodies at execution time. Before verification, check that: (1) the snippet handles non-200 status codes explicitly (not just `response.json()`), and (2) the snippet handles `JSONDecodeError` / non-JSON responses. If these paths are missing, add them before running `verify.py` — otherwise an authentication redirect will surface as a `FAIL` rather than the expected graceful degradation.
 3. **Build the verification plan.** For each block decide: execute or static?
    which isolated env? which dependencies? Flag any shell snippet containing

@@ -89,6 +89,8 @@ This skill can be run repeatedly. After the user picks a variant, they can ask f
 
 If the user states a standing style rule during review (for example "never use em-dashes"), offer to persist it to `voice-tone/profile.md` so every skill inherits it. Do not write the profile without the user's confirmation.
 
+**Voice-rule conflict resolution:** if an element in the source draft (e.g. a closing question, an em-dash, a contractions style) conflicts with a rule in the voice profile, do NOT silently remove it. Instead, flag it explicitly as a judgment call with a one-line note (e.g. "Closing question conflicts with profile rule 'no questions in body'.") and present two options to the user: (A) remove/replace it to comply with the rule, or (B) keep it and note the intentional deviation. Apply option A in one variant and option B in another when producing the variants, so the user can directly compare. Do not resolve the conflict unilaterally.
+
 ## Configurable count
 
 Default is 2-3 variants. If the user asks for a specific number (e.g. "give me 4"), honor it.

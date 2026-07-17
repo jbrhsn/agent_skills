@@ -108,7 +108,11 @@ documented heuristic, not a scheduler.
 2. Ensure the cwd-relative `archive/` folder exists. If missing, ASK the user.
 3. Move the associated content file(s) into `archive/`, **ask before moving, never
    silently**.
-4. Run `update --slug S --status archived`.
+4. Run `archive --slug S` to update status only, or `archive --slug S --content-file path/to/file.md` to move the file and update status in one step.
+
+> **Flag disambiguation:** `--file` (placed BEFORE the subcommand) points to the JSON log file.
+> `--content-file` (placed AFTER `archive`) points to the content file to move.
+> Example: `track.py --file content-log.json archive --slug my-post --content-file linkedin/my-post-long.md`
 
 ## Invoking the script
 

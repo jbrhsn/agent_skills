@@ -375,8 +375,9 @@ def build_parser():
 
     ar = sub.add_parser("archive", help="Archive an entry, optionally moving its file.")
     ar.add_argument("--slug", required=True)
-    ar.add_argument("--file", dest="content_file", default=None,
-                    help="Path to content file to move into archive/.")
+    ar.add_argument("--content-file", dest="content_file", default=None,
+                    help="Path to content file to move into archive/. "
+                         "Use --file (before subcommand) for the JSON log path.")
     ar.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
     ar.set_defaults(func=cmd_archive)
 

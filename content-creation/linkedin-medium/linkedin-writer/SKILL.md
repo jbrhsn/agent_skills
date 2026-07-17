@@ -64,7 +64,7 @@ LinkedIn truncates posts at roughly 150–200 characters on mobile, showing only
   4. **Confession**: "I was wrong about [X] for [specific time]. Here's what changed my mind."
   5. **Mid-scene open**: Drop the reader into a specific moment already in progress, no setup.
 
-These five modes are linkedin-writer's platform-adapted hook vocabulary. For deeper hook engineering with a 7-dimension rubric, naturalness check, and scored variants, use the `hooks-drafter` skill before this step and paste the selected hook into Step 2.
+**For deeper hook engineering**, read `$SKILL_DIR/reference/hook-writing-guide.md` (resolve `$SKILL_DIR` to this skill's directory). It contains the full framework: curiosity gap theory, four psychological levers, five hook types, platform-specific mechanics, a 7-dimension scoring rubric, and a naturalness check. Apply those tools to generate and score the 5 variants if hook quality is the focus of the session. This skill works without that guide — the five modes above are sufficient for most sessions.
 - Use **exact numbers, not round ones**. "847 to 22,400 followers" reads as credible; "20K" reads as marketing. Specificity is a trust signal.
 - **Delete throat-clearing without exception**: any version of "I've been thinking about…", "Excited to share…", "In today's post…", "I wanted to take a moment to…". Cut on sight, every time.
 - The hook must have **at least one of**: tension (contradicts expectation), specificity (a real detail), or a withheld promise (reader must keep reading to resolve it).

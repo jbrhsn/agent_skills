@@ -41,7 +41,7 @@ Produce **8-10 unique angles** from the seed. Each angle must include:
 - **Hook** - one punchy line.
 - **Angle type** - `thought-leadership` or `career-visibility`.
 - **Suggested platform + content-type** drawn from the matrix below.
-- **Why now** - the trending/research hook that makes it timely.
+- **Why now** - the trending/research hook that makes it timely. If the angle is genuinely evergreen (no time-bound hook exists), write "evergreen — no time-bound hook" instead of forcing a timely frame that doesn't fit.
 - **Sources** - the 1-3 research URLs backing it.
 
 Make the angles genuinely distinct (different lens, audience, or format) - not 10 rewrites of one take. To enforce distribution: aim for at least 3 different conceptual lenses (e.g. personal story, research/data, contrarian take, systemic/structural, analogy, how-to), and ensure at least 4 different platform/type combinations from the matrix are represented across the 8-10 angles.
@@ -65,6 +65,8 @@ Ask the user which angles to keep (all / a subset / none). Let them edit hooks o
 
 ### 5. Write approved stubs (only after confirmation)
 **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the hooks and any generated copy against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment calls (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
+
+**Content-log check (before write).** If a `content-log.json` exists at cwd, scan it for slugs that match any of the approved angle slugs. If a slug collision is found, tell the user in one line (e.g. "Slug 'mlflow-responses-agent' already exists in content-log.json with status 'drafted'") and ask whether to proceed with a `-v2` variant slug or skip that stub. Never write a stub that would collide with a tracked slug without asking. If no tracker exists, skip this check silently.
 
 Before writing each stub, check whether a file with the same slug already exists in `drafts/`. If it does, follow the overwrite policy in Conventions below: ask the user — overwrite, write as `-v2`, or pick a new name. Never silently overwrite.
 

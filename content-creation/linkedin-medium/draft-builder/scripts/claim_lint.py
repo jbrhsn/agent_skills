@@ -25,6 +25,18 @@ tutorial-verifier's dangerous-command scan, it is a safety net, not a proof.
 It can miss a laundered claim and can occasionally over-flag. Over-flagging is
 the safe direction: the author resolves it by citing, flagging, or rewording.
 
+KNOWN LIMITATIONS
+=================
+- The ``superlative`` detector matches ``\bmost\b`` unconditionally, which
+  fires on rhetorical questions ("What is the most common cause of X?") and
+  relative comparisons ("most teams use Y"). These are heuristic false
+  positives — resolve them by rewording (e.g. "the leading cause", "the
+  majority of teams") rather than adding a marker.
+- The ``percentage`` detector requires a literal ``%`` character and will NOT
+  catch word-form percentages like "73 percent" or "forty percent". Always
+  use the ``%`` symbol in drafts so the detector can catch the claim, or add
+  a manual ``[UNVERIFIED]`` / ``[source: ...]`` marker when using word form.
+
 NOTE: marker accounting is line-level, not sentence-level. A single
 [UNVERIFIED]/[personal] marker anywhere on a line accounts for all risky
 claims on that line. Multi-sentence lines with two independent claims may
@@ -69,6 +81,8 @@ ANECDOTE_RE = re.compile(r"\[personal\]", re.IGNORECASE)
 RISK_PATTERNS = [
     ("percentage", re.compile(r"\b\d{1,3}(?:\.\d+)?\s?%"),
      "a percentage — cite it or flag it"),
+    ("percentage_word", re.compile(r"\b(?:[1-9]\d*|zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred)\s+percent\b", re.IGNORECASE),
+     "a word-form percentage — cite it or flag it"),
     ("money", re.compile(r"[$£€]\s?\d[\d,]*(?:\.\d+)?\s?(?:[KMB]|billion|million|thousand)?", re.IGNORECASE),
      "a monetary figure — cite it or flag it"),
     ("multiplier", re.compile(r"\b\d+(?:\.\d+)?\s?x\b", re.IGNORECASE),
@@ -187,7 +201,7 @@ def find_risks(line: str):
                     continue
             hits.append((name, hint, m.group(0).strip()))
     # Bare numbers only if no richer numeric detector already fired.
-    if not any(n in {"percentage", "money", "multiplier", "big_number", "year"}
+    if not any(n in {"percentage", "percentage_word", "money", "multiplier", "big_number", "year"}
                for n, _, _ in hits):
         # B3: strip inline code spans before bare-number matching so that
         # version strings and technical values like `30s` or `v1.4.7` don't

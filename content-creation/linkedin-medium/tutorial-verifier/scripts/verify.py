@@ -105,6 +105,32 @@ DANGEROUS_SHELL_PATTERNS = [
 SYSTEM_WRITE_RE = re.compile(r">>?\s*(/(?!tmp/)(?!tmp\b)[A-Za-z]\S*)")
 
 
+# Databricks notebook magic prefixes that must be handled before execution.
+# strip_magic() rewrites %pip -> pip for local execution.
+# These other magics are cluster-only and cannot be executed locally at all.
+MAGIC_STRIP_RE = re.compile(r"^%pip\b", re.MULTILINE)
+MAGIC_CLUSTER_ONLY_RE = re.compile(r"^%(?:sql|fs|run|scala|r|conda)\b", re.MULTILINE | re.IGNORECASE)
+MAGIC_NOOP_RE = re.compile(r"^%(?:md|matplotlib)\b", re.MULTILINE | re.IGNORECASE)
+
+
+def _strip_notebook_magic(source: str):
+    """Pre-process a shell snippet that may contain Databricks notebook magic.
+
+    Returns (processed_source, magic_note) where magic_note is a human-readable
+    string describing what was stripped/detected, or "" if nothing was done.
+    """
+    notes = []
+    # %pip install ... -> pip install ... (locally runnable after stripping)
+    if MAGIC_STRIP_RE.search(source):
+        source = MAGIC_STRIP_RE.sub("pip", source)
+        notes.append("%pip stripped to pip for local execution")
+    # Cluster-only magics: cannot run locally
+    if MAGIC_CLUSTER_ONLY_RE.search(source):
+        notes.append("cluster-only magic present (%sql/%fs/%run/%scala/%r/%conda) — "
+                     "not executable outside a Databricks notebook")
+    return source, "; ".join(notes)
+
+
 def log(msg: str) -> None:
     print(f"[verify] {msg}", file=sys.stderr, flush=True)
 
@@ -319,6 +345,17 @@ def verify_shell(snippet_path, timeout=DEFAULT_TIMEOUT):
     with open(snippet_path, "r", encoding="utf-8") as fh:
         source = fh.read()
 
+    # Pre-process Databricks notebook magic prefixes before any other checks.
+    source, magic_note = _strip_notebook_magic(source)
+    if magic_note and "cluster-only magic" in magic_note:
+        # Contains cluster-only magics (%sql, %fs, etc.) that cannot run locally.
+        static = _shell_static(source)
+        static["detail"] = (f"Databricks-only magic detected — not executable outside "
+                            f"a cluster notebook ({magic_note}) | " + static.get("detail", ""))
+        static["mode"] = "skipped"
+        static["status"] = "unknown"
+        return static
+
     hits = scan_shell(source)
     if hits:
         detail = "REFUSED — dangerous operations detected: " + "; ".join(sorted(set(hits)))
@@ -341,8 +378,10 @@ def verify_shell(snippet_path, timeout=DEFAULT_TIMEOUT):
         env["HOME"] = tmp  # keep any HOME-relative writes inside the sandbox
         rc, out, err = run(["bash", snip], cwd=tmp, env=env, timeout=timeout)
         if rc == 0:
-            return result("pass", "executed", rc, out, err)
-        return result("fail", "executed", rc, out, err, detail="snippet exited non-zero")
+            detail = magic_note if magic_note else ""
+            return result("pass", "executed", rc, out, err, detail=detail)
+        return result("fail", "executed", rc, out, err, detail="snippet exited non-zero"
+                      + (f"; {magic_note}" if magic_note else ""))
 
 
 def _shell_static(source, note=""):

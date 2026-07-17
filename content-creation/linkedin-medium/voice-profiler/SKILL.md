@@ -36,7 +36,7 @@ If `voice-tone/` does not exist, or exists but contains no usable samples/instru
 - paste some samples/style rules directly into the chat, or
 - skip profiling for now.
 
-If `voice-tone/` exists but contains fewer than 2 files totaling under 200 words, warn the user that the profile confidence will be low and offer to proceed anyway or wait for more samples.
+If `voice-tone/` exists but contains fewer than 2 files **or** the combined word count is under 200 words, warn the user that the profile confidence will be low and offer to proceed anyway or wait for more samples.
 
 Never silently create the `voice-tone/` folder or any file inside it.
 

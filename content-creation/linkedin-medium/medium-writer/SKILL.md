@@ -104,7 +104,9 @@ Medium does not count a "read" unless someone stays past roughly 3 seconds. The 
 4. **Authority hook** — open with a claim or number that positions you as worth listening to, then immediately back it with a specific detail (not a vague credential).
    > *"I've read over 200 rejection emails. Only one of them changed how I write."*
 
-These four types are medium-writer's article-opening hooks. For a scored, rubric-graded approach with LinkedIn-style variant engineering, use the `hooks-drafter` skill (select Medium platform) before this step and paste the result into Step 3.
+These four types are the core opening hooks for Medium articles.
+
+**For deeper hook engineering**, read `$SKILL_DIR/reference/hook-writing-guide.md` (resolve `$SKILL_DIR` to this skill's directory — the guide lives alongside this SKILL.md under `reference/`). It contains the full framework: curiosity gap theory, four psychological levers, five hook types, a 7-dimension scoring rubric, and naturalness check. Apply those tools to score and select variants when hook quality is the focus of the session. This skill works without the guide — the four types above are sufficient for most sessions.
 
 **How to pick:** write one variant per type, read all four aloud, cut the three you didn't reach for instinctively.
 
