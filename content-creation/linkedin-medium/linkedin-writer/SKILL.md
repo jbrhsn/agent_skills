@@ -40,7 +40,7 @@ If the user has not specified a type, detect the best fit from the input substan
 Before writing anything:
 - If `voice-tone/profile.md` exists, read it. Use the `### LinkedIn` subsection of `## Per-Platform Notes` if present — this is the most specific voice signal.
 - If only raw samples exist in `voice-tone/`, read them and infer rhythm, vocabulary, and structural habits.
-- If `voice-tone/` does NOT exist, STOP and ask: point to samples, paste style rules, or explicitly proceed with a neutral professional voice.
+- If `voice-tone/` does NOT exist, note this to the user in one line ("No voice-tone/ found — proceeding with neutral professional voice") and continue. Do not block the skill.
 
 Voice adapts to the content type: Short Posts are more punchy and personal; Long Posts allow more narrative and texture; Articles allow a more considered, essayistic tone while still being direct.
 
@@ -63,6 +63,8 @@ LinkedIn truncates posts at roughly 150–200 characters on mobile, showing only
   3. **Number + contrast**: "[Specific small input]. [Specific large outcome]. Here's what happened in between."
   4. **Confession**: "I was wrong about [X] for [specific time]. Here's what changed my mind."
   5. **Mid-scene open**: Drop the reader into a specific moment already in progress, no setup.
+
+These five modes are linkedin-writer's platform-adapted hook vocabulary. For deeper hook engineering with a 7-dimension rubric, naturalness check, and scored variants, use the `hooks-drafter` skill before this step and paste the selected hook into Step 2.
 - Use **exact numbers, not round ones**. "847 to 22,400 followers" reads as credible; "20K" reads as marketing. Specificity is a trust signal.
 - **Delete throat-clearing without exception**: any version of "I've been thinking about…", "Excited to share…", "In today's post…", "I wanted to take a moment to…". Cut on sight, every time.
 - The hook must have **at least one of**: tension (contradicts expectation), specificity (a real detail), or a withheld promise (reader must keep reading to resolve it).
@@ -187,9 +189,12 @@ Present:
 3. A one-line note on the narrative frame used.
 
 STOP. Ask the user to approve, request edits, or reject. Do NOT write any file yet. Iterate on the draft in place if edits are requested, re-running the self-audit after each significant change.
+If running non-interactively (e.g. in a batch pipeline or scripted run), document this gate as "skipped — auto-proceeding with output as drafted" and continue; do not silently omit the gate from the output log.
 
 ### Step 6 — Persist (after approval)
 **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the approved text against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks" sections. Auto-fix mechanical violations (em-dashes, banned punctuation) and report what changed. Flag judgment-call violations (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
+
+**Pre-publish marker cleanup.** The source draft may contain inline `[source: ...]`, `[UNVERIFIED]`, and `[personal]` claim markers from draft-builder. These are provenance markers for the drafting phase — they must be stripped from the final LinkedIn file before publishing. Remove all `[source: ...]` and `[personal]` inline markers. Replace each `[UNVERIFIED]` claim with a softer hedge ("reportedly", "according to some practitioners") or cut the sentence — never publish an `[UNVERIFIED]` claim as a plain statement. Add any cited sources as the first comment on the post after publishing (links in the body tank reach).
 
 Write the file:
 - Short Post → `linkedin/<slug>-short.md`

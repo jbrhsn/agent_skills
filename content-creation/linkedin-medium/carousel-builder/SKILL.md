@@ -98,6 +98,8 @@ stack so PNG rasterization stays consistent when Helvetica is absent.
 - `slug` names the output folder and file prefix.
 Use the **real per-slide content**. No lorem ipsum.
 
+**Field validation:** `title` (string, required — error if missing or empty), `body` (string, required — error if missing or empty), `footer` (string, optional — if omitted, the footer band renders without attribution text; this is valid). Extra fields are ignored. An entry missing `title` or `body` should cause the agent to stop and ask the user to supply the missing content before writing `slides.json`.
+
 ## Workflow
 
 ### 0. Confirm folders

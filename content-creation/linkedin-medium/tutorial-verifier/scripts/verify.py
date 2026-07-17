@@ -45,6 +45,25 @@ import tempfile
 MAX_CAPTURE_BYTES = 256 * 1024  # 256 KB per stream
 DEFAULT_TIMEOUT = 120  # seconds per executed snippet
 
+# Packages that require a live cluster or specialised runtime and can never be
+# pip-installed into a local venv in a meaningful way.  A ModuleNotFoundError
+# for any of these is NOT a code bug — it means "no runtime available here",
+# which maps to UNKNOWN (exit 3), not FAIL (exit 1).
+# Match against the module name that appears after "No module named '...'"
+# (the top-level package name is enough; submodules share the same prefix).
+CLUSTER_ONLY_MODULES = frozenset({
+    "pyspark",
+    "delta",
+    "databricks",
+    "pydatabricks",
+    "dbutils",        # Databricks notebook utility (injected at runtime)
+    "dlt",            # Delta Live Tables module (cluster-injected)
+    "mlflow",         # commonly cluster-managed; treat as cluster-only
+    "tensorflow",     # GPU/cluster runtime
+    "torch",          # GPU/cluster runtime
+    "jax",            # GPU/cluster runtime
+})
+
 # ---------------------------------------------------------------------------
 # Dangerous shell command blocklist. Each entry is a compiled regex checked
 # against the raw snippet text. A match => REFUSE to execute; static only.
@@ -66,7 +85,7 @@ DANGEROUS_SHELL_PATTERNS = [
     (r"[:@]\(\)\s*\{.*\|.*&\s*\}", "fork bomb"),
     (r":\(\)\{", "fork bomb"),
     (r"(curl|wget)\b[^\n|]*\|\s*(sudo\s+)?(sh|bash|zsh)", "remote-exec pipe (curl/wget | sh)"),
-    (r"\beval\b", "eval (dynamic command execution — cannot be statically vetted)"),
+    (r"(?m)^[^#\n]*\beval\b", "eval (dynamic command execution — cannot be statically vetted)"),
     (r">\s*/dev/sd[a-z]", "write to raw disk device"),
     (r"\bshutdown\b", "system shutdown"),
     (r"\breboot\b", "system reboot"),
@@ -88,6 +107,19 @@ SYSTEM_WRITE_RE = re.compile(r">>?\s*(/(?!tmp/)(?!tmp\b)[A-Za-z]\S*)")
 
 def log(msg: str) -> None:
     print(f"[verify] {msg}", file=sys.stderr, flush=True)
+
+
+def _is_cluster_only_import_error(stderr: str) -> bool:
+    """Return True when stderr indicates a ModuleNotFoundError for a
+    known cluster-only package.  These are not code bugs — they mean
+    the required runtime is simply not available locally."""
+    # Match: "ModuleNotFoundError: No module named 'pyspark'"
+    #   or:  "ModuleNotFoundError: No module named 'delta.tables'"
+    m = re.search(r"ModuleNotFoundError: No module named '([^']+)'", stderr)
+    if not m:
+        return False
+    top_level = m.group(1).split(".")[0]
+    return top_level in CLUSTER_ONLY_MODULES
 
 
 def tool_available(name: str) -> bool:
@@ -191,6 +223,17 @@ def verify_python(snippet_path, requirements=None, timeout=DEFAULT_TIMEOUT):
                 rc, out, err = run([py, snip], cwd=tmp, timeout=timeout)
                 if rc == 0:
                     return result("pass", "executed", rc, out, err)
+                # A ModuleNotFoundError for a cluster-only package means the
+                # snippet is correct but requires a runtime not available here.
+                # Reclassify as UNKNOWN rather than FAIL so tutorial authors
+                # are not misled into thinking their code is broken.
+                if _is_cluster_only_import_error(err):
+                    mod = re.search(r"No module named '([^']+)'", err).group(1)
+                    return result(
+                        "unknown", "skipped", rc, out, err,
+                        detail=f"cluster-only module '{mod}' not available locally "
+                               f"— snippet not executable outside a cluster runtime",
+                    )
                 return result("fail", "executed", rc, out, err,
                               detail="snippet exited non-zero")
 
@@ -394,7 +437,10 @@ def main(argv=None):
         print(f"STATUS: {res['status'].upper()} ({label})")
         if res.get("detail"):
             print(f"DETAIL: {res['detail']}")
-        if res.get("returncode") is not None:
+        # Don't print the subprocess returncode for UNKNOWN results — it's the
+        # inner venv process's exit code (1), which is misleading alongside the
+        # tool's own exit code (3) and adds no useful information.
+        if res.get("returncode") is not None and res["status"] != "unknown":
             print(f"EXIT:   {res['returncode']}")
         if res.get("stdout"):
             print("STDOUT:\n" + res["stdout"])

@@ -28,13 +28,15 @@ So running voice-profiler is a convenience/consistency optimization, not a depen
 1. **Writing samples**: past posts/articles/drafts that demonstrate the user's natural voice.
 2. **Explicit style-instruction files**: any file where the user has written down rules ("avoid hype words", "always open with a question", "use British spelling", etc.). These are authoritative and are folded into the profile as-is; they take precedence over patterns merely inferred from samples.
 
-Read every file in `voice-tone/` (except an existing `profile.md`, which is handled specially, see review-first). Treat instruction files as ground truth and samples as evidence.
+Read every file in `voice-tone/` (except an existing `profile.md`, which is handled specially, see review-first). Treat instruction files as ground truth and samples as evidence. When a pattern is inconsistent across samples (e.g. em-dashes appear in some posts but not others), do not collapse it to a single rule — note it as a range or uncertainty in `## Notes & Uncertainties` instead.
 
 ## Ask-if-missing rule (never create silently)
 If `voice-tone/` does not exist, or exists but contains no usable samples/instructions, **STOP and ASK** the user how to proceed. Offer:
 - point to where the samples live,
 - paste some samples/style rules directly into the chat, or
 - skip profiling for now.
+
+If `voice-tone/` exists but contains fewer than 2 files totaling under 200 words, warn the user that the profile confidence will be low and offer to proceed anyway or wait for more samples.
 
 Never silently create the `voice-tone/` folder or any file inside it.
 
@@ -70,7 +72,7 @@ The written profile follows these section headers:
 > Guidance to adapt from, not a template to copy verbatim.
 > Adapt these habits to the specific content and platform.
 
-_Sources analyzed: <files in voice-tone/>. Last updated: <date>._
+_Sources analyzed: <files in voice-tone/>. Last updated: <date: YYYY-MM-DD>._
 
 ## Tone & Register
 ## POV / Person

@@ -25,6 +25,7 @@ import argparse
 import datetime
 import json
 import os
+import shutil
 import sys
 
 STATUSES = ["idea", "drafted", "reviewed", "posted", "archived"]
@@ -276,6 +277,49 @@ def cmd_render(args):
     return 0
 
 
+def cmd_archive(args):
+    data = load(args.file)
+    entries = data["entries"]
+    entry = find(entries, args.slug)
+    if not entry:
+        _emit(
+            args,
+            {"ok": False, "error": "not_found", "slug": args.slug},
+            "No entry with slug '{}'.".format(args.slug),
+        )
+        return 1
+    if args.content_file:
+        if not os.path.exists(args.content_file):
+            _emit(
+                args,
+                {"ok": False, "error": "file_not_found", "file": args.content_file},
+                "File not found: {}".format(args.content_file),
+            )
+            return 1
+        archive_dir = os.path.join(os.getcwd(), "archive")
+        if not os.path.isdir(archive_dir):
+            _emit(
+                args,
+                {"ok": False, "error": "no_archive_dir"},
+                "archive/ directory not found. Create it first or use "
+                "`update --slug {} --status archived` to update status only.".format(args.slug),
+            )
+            return 1
+        dest = shutil.move(args.content_file, archive_dir)
+        print("Moved {} -> {}".format(args.content_file, dest))
+    current = entry.get("status")
+    entry["status"] = "archived"
+    entry["updated"] = today()
+    save(args.file, data)
+    mp = write_md(args.file, data)
+    _emit(
+        args,
+        {"ok": True, "action": "archived", "entry": entry, "md": mp},
+        "Archived '{}': {} -> archived. Rendered {}.".format(args.slug, current, mp),
+    )
+    return 0
+
+
 def _emit(args, payload, human):
     if getattr(args, "json", False):
         print(json.dumps(payload, indent=2))
@@ -294,7 +338,6 @@ def build_parser():
     )
     p.add_argument("--file", default="content-log.json",
                    help="Path to the JSON log (default: content-log.json in cwd).")
-    p.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
     sub = p.add_subparsers(dest="command", required=True)
 
     a = sub.add_parser("add", help="Add a new entry (refuses duplicate slug unless --force).")
@@ -306,12 +349,14 @@ def build_parser():
     a.add_argument("--source", action="append", default=[], help="Source URL (repeatable).")
     a.add_argument("--notes", default=None)
     a.add_argument("--force", action="store_true", help="Overwrite an existing slug.")
+    a.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
     a.set_defaults(func=cmd_add)
 
     u = sub.add_parser("update", help="Update an entry's status (sets updated/posted_date).")
     u.add_argument("--slug", required=True)
     u.add_argument("--status", required=True, choices=STATUSES)
     u.add_argument("--force", action="store_true", help="Override transition guard.")
+    u.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
     u.set_defaults(func=cmd_update)
 
     l = sub.add_parser("list", help="List/query entries.")
@@ -321,10 +366,19 @@ def build_parser():
                    help="Only entries not yet posted/archived.")
     l.add_argument("--overdue", action="store_true",
                    help="Report cadence status; show entries only if behind cadence.")
+    l.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
     l.set_defaults(func=cmd_list)
 
     r = sub.add_parser("render", help="Regenerate content-log.md from the JSON.")
+    r.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
     r.set_defaults(func=cmd_render)
+
+    ar = sub.add_parser("archive", help="Archive an entry, optionally moving its file.")
+    ar.add_argument("--slug", required=True)
+    ar.add_argument("--file", dest="content_file", default=None,
+                    help="Path to content file to move into archive/.")
+    ar.add_argument("--json", action="store_true", help="Emit machine-readable JSON output.")
+    ar.set_defaults(func=cmd_archive)
 
     return p
 

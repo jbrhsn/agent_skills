@@ -67,7 +67,7 @@ def main(argv=None):
 
     if args.json:
         print(json.dumps(spec, indent=2))
-        return 0
+        return 3 if spec["overflows"] else 0
 
     print("CAROUSEL DESIGN SPEC")
     print(f"  slug:        {spec['slug']}")

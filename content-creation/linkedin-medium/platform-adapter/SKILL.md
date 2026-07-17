@@ -65,9 +65,12 @@ For each chosen target, determine the content-type:
 
 ### 3. Review-first (mandatory stop)
 Present all generated versions/options. STOP. Let the user pick, tweak, or reject before anything is written.
+If running non-interactively (e.g. in a batch pipeline or scripted run), document this gate as "skipped — auto-proceeding with output as drafted" and continue; do not silently omit the gate from the output log.
 
 ### 4. Persist (after approval)
 **Voice compliance gate (before any content file write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the generated text against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks" sections. Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what you changed. Flag judgment-call violations (hype words, AI-voice markers, cliches) for the user rather than silently rewriting. Never emit a pattern the profile bans. If no voice-tone exists, skip this silently.
+
+**Pre-publish marker cleanup.** Strip all `[source: ...]` and `[personal]` inline claim markers from LinkedIn output files before writing. For `[UNVERIFIED]` claims, replace with a hedge or cut — never publish an `[UNVERIFIED]` statement as fact. For Medium files, `[source: ...]` markers may be kept as inline citations or converted to hyperlinks per Medium's formatting. Add LinkedIn source URLs as the first comment after publishing.
 
 - LinkedIn versions → `linkedin/<slug>-<type>.md`
 - Medium versions → `medium/<slug>-<type>.md`

@@ -64,7 +64,8 @@ and validate statically instead.
      in a fresh isolated env, which produces false failures. Instead concatenate
      the dependent blocks in order into ONE snippet, verify that as a unit, and
      map the captured output back to the individual blocks for display. Only
-     verify blocks separately when they are genuinely independent.
+           verify blocks separately when they are genuinely independent.
+   - **HTTP API tutorial snippets:** blocks that call external APIs with placeholder credentials (e.g. `YOUR_TOKEN`, `https://your-instance.azuredatabricks.net`) will return non-200 responses or non-JSON bodies at execution time. Before verification, check that: (1) the snippet handles non-200 status codes explicitly (not just `response.json()`), and (2) the snippet handles `JSONDecodeError` / non-JSON responses. If these paths are missing, add them before running `verify.py` — otherwise an authentication redirect will surface as a `FAIL` rather than the expected graceful degradation.
 3. **Build the verification plan.** For each block decide: execute or static?
    which isolated env? which dependencies? Flag any shell snippet containing
    dangerous operations for refusal. **STOP. Show blocks + plan, get approval.**

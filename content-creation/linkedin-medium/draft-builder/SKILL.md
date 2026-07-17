@@ -77,6 +77,7 @@ Report the lint result (PASS, or the FAIL list and how you resolved each item) a
 
 ### 4. Review-first (mandatory stop)
 Present the source draft (now lint-clean) to the user, plus a one-line claim audit ("N risky claims: X cited, Y flagged UNVERIFIED, Z personal"). STOP.
+If running non-interactively (e.g. in a batch pipeline or scripted run), document this gate as "skipped — auto-proceeding with output as drafted" and continue; do not silently omit the gate from the output log.
 Ask for edits/approval. Iterate on the draft in place, re-running the gate after any change that touches a claim, until the user approves. Do NOT proceed to writing the final file automatically.
 
 ### 5. Persist (after approval)
@@ -85,7 +86,7 @@ Ask for edits/approval. Iterate on the draft in place, re-running the gate after
 Write/update the source draft in `drafts/<slug>.md`:
 - If building from a stub, fill the `## Draft` section and set `**Status:** drafted`. Keep inline `[source: ...]` / `[UNVERIFIED]` / `[personal]` markers, or move cited URLs into the `## Research sources` list while leaving `[UNVERIFIED]`/`[personal]` markers inline.
 - If new, create the file with the same stub structure (title, status, source notes, then the draft).
-- Re-run the gate one final time on the persisted file to confirm it is still clean.
+- Re-run the gate one final time on the persisted file to confirm it is still clean. Use `--section Draft` when linting a stub file (the persisted content is under `## Draft`); use `--whole-file` when the entire file is the draft.
 
 Confirm the file path to the user.
 

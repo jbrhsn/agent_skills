@@ -72,6 +72,8 @@ Each type exploits a different psychological trigger. Rotate them — audiences 
 
 **Rotation rule:** if the user's last 2–3 posts used the same hook type, force a different type for this piece. Predictable opening formats lose pull even with readers who like your content.
 
+**Third-person Story-in-motion note:** when the author writes in third-person voice (no "I/we/our"), Story-in-motion hooks must be grounded in a documented source (attributed case study, official blog post, public report) and cited accordingly, or constructed as a clearly illustrative scenario and flagged `[UNVERIFIED]` before being handed to the draft-builder step. An uncited third-person scenario ("A team saw costs drop by 70%…") is a factual claim — treat it as such.
+
 ---
 
 ## Platform-specific mechanics

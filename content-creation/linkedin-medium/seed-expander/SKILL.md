@@ -34,6 +34,8 @@ Do THOROUGH research (not a quick 2-3 fetch skim):
 - Capture the URL + a one-line takeaway for each source you actually used.
 - If fetches fail or hit login walls, state which sources were unreachable and either retry with alternates or tell the user the research is thin before presenting angles. Never present placeholder or invented sources as if researched.
 
+Minimum: at least 4 distinct sources across at least 2 source types (e.g. academic/research paper, practitioner blog, primary documentation, community discussion like HN/Reddit). Fewer than 4 sources is only acceptable if legitimate sources are unreachable — state this explicitly before presenting angles.
+
 ### 3. Expand into angles
 Produce **8-10 unique angles** from the seed. Each angle must include:
 - **Hook** - one punchy line.
@@ -42,7 +44,7 @@ Produce **8-10 unique angles** from the seed. Each angle must include:
 - **Why now** - the trending/research hook that makes it timely.
 - **Sources** - the 1-3 research URLs backing it.
 
-Make the angles genuinely distinct (different lens, audience, or format) - not 10 rewrites of one take.
+Make the angles genuinely distinct (different lens, audience, or format) - not 10 rewrites of one take. To enforce distribution: aim for at least 3 different conceptual lenses (e.g. personal story, research/data, contrarian take, systemic/structural, analogy, how-to), and ensure at least 4 different platform/type combinations from the matrix are represented across the 8-10 angles.
 
 #### Content-type matrix (pick per angle)
 | Platform | Type | Length | Notes |
@@ -58,10 +60,13 @@ Make the angles genuinely distinct (different lens, audience, or format) - not 1
 
 ### 4. Review-first (mandatory stop)
 Present all 8-10 angles to the user in a scannable list. STOP. Do not write anything yet.
+If running non-interactively (e.g. in a batch pipeline or scripted run), document this gate as "skipped — auto-proceeding with output as drafted" and continue; do not silently omit the gate from the output log.
 Ask the user which angles to keep (all / a subset / none). Let them edit hooks or retag.
 
 ### 5. Write approved stubs (only after confirmation)
 **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the hooks and any generated copy against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment calls (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
+
+Before writing each stub, check whether a file with the same slug already exists in `drafts/`. If it does, follow the overwrite policy in Conventions below: ask the user — overwrite, write as `-v2`, or pick a new name. Never silently overwrite.
 
 For each APPROVED angle, write a stub file to `drafts/` (after confirming the folder per the rules above).
 

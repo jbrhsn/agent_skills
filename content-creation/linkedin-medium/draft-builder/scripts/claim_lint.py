@@ -25,6 +25,11 @@ tutorial-verifier's dangerous-command scan, it is a safety net, not a proof.
 It can miss a laundered claim and can occasionally over-flag. Over-flagging is
 the safe direction: the author resolves it by citing, flagging, or rewording.
 
+NOTE: marker accounting is line-level, not sentence-level. A single
+[UNVERIFIED]/[personal] marker anywhere on a line accounts for all risky
+claims on that line. Multi-sentence lines with two independent claims may
+be under-flagged.
+
 SCOPE
 =====
 By default only the drafting prose is linted. Fenced code blocks, blockquotes,
@@ -173,13 +178,31 @@ def find_risks(line: str):
                 subject = m.group(1).split()[0].lower()
                 if subject in ATTRIBUTION_STOPWORDS:
                     continue
+            if name == "study":
+                # Skip lines where the word immediately before the match phrase
+                # is a stopword subject ("This shows that", "It found that").
+                pre = line[:m.start()].rstrip()
+                preceding_word = pre.split()[-1].lower() if pre.split() else ""
+                if preceding_word in ATTRIBUTION_STOPWORDS:
+                    continue
             hits.append((name, hint, m.group(0).strip()))
     # Bare numbers only if no richer numeric detector already fired.
     if not any(n in {"percentage", "money", "multiplier", "big_number", "year"}
                for n, _, _ in hits):
-        m = BARE_NUMBER_RE.search(line)
+        # B3: strip inline code spans before bare-number matching so that
+        # version strings and technical values like `30s` or `v1.4.7` don't
+        # trigger the detector.
+        stripped_line = re.sub(r"`[^`]*`", "", line)
+        m = BARE_NUMBER_RE.search(stripped_line)
         if m:
-            hits.append(("number", "a bare number — cite it or flag it", m.group(0)))
+            # B2: skip structural counts ≤ 10 (e.g. "5 steps", "3 options").
+            try:
+                if int(m.group()) <= 10:
+                    pass  # suppressed — structural count, not a factual claim
+                else:
+                    hits.append(("number", "a bare number — cite it or flag it", m.group(0)))
+            except ValueError:
+                hits.append(("number", "a bare number — cite it or flag it", m.group(0)))
     return hits
 
 

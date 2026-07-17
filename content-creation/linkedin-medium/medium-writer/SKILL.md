@@ -41,7 +41,7 @@ If the user has not specified a type, detect the best fit from the input substan
 Before writing anything:
 - If `voice-tone/profile.md` exists, read it. Use the `### Medium` subsection of `## Per-Platform Notes` if present — this is the most specific voice signal.
 - If only raw samples exist in `voice-tone/`, read them and infer rhythm, vocabulary, and structural habits.
-- If `voice-tone/` does NOT exist, STOP and ask: point to samples, paste style rules, or explicitly proceed with a neutral professional voice.
+- If `voice-tone/` does NOT exist, note this to the user in one line ("No voice-tone/ found — proceeding with neutral professional voice") and continue. Do not block the skill.
 
 Voice adapts to the content type: Short Articles are more personal and punchy; Long Articles allow a more essayistic, considered tone; Tutorials are instructional but still human; Listicles are direct with real depth per item.
 
@@ -56,7 +56,7 @@ These are the non-negotiable mechanics of writing well for Medium. Apply every r
 Medium shows the title to browsers and search before anything else. A reader spends about 5 seconds deciding whether to click — this is the single biggest lever.
 
 **Title mechanics:**
-- **Lead with "I" and a stake.** First-person titles with a specific, lived outcome consistently outperform generic advice titles. "How to Be More Productive" is forgettable. "I Deleted Every App on My Phone for 30 Days — Here's What Actually Changed" earns a click.
+- **Lead with "I" and a stake (first-person) or a named role and a stake (third-person).** First-person titles with a specific, lived outcome consistently outperform generic advice titles: "I Deleted Every App on My Phone for 30 Days — Here's What Actually Changed" earns a click while "How to Be More Productive" is forgettable. For third-person voice profiles, the equivalent is leading with a named role, team, or organization plus a concrete outcome: "How Engineers Cut Databricks Costs by 60% Without Sacrificing Performance" applies the same specificity lever without first-person framing. Either way: specific outcome > vague promise.
 - **One promise, not three.** Pick the single strongest idea and put only that in the title. If you're tempted to use "and," you have two titles fighting each other — cut to the better one.
 - **Specific numbers, timeframes, and outcomes build trust.** "3 Habits That Fixed My Sleep in 2 Weeks" beats "The Secret to Sweet Dreams." Specificity is a credibility signal.
 - **Write 10 title variants before choosing.** Your first instinct is the most generic one everyone else already wrote. Force past the obvious options — the interesting angle is usually title #7 or #8.
@@ -66,6 +66,7 @@ Medium shows the title to browsers and search before anything else. A reader spe
 **Weak → strong example:**
 - Weak: *"Lessons From My First Startup"*
 - Strong: *"My Startup Failed in 11 Months. Here's the One Decision That Killed It."*
+- Strong (third-person): *"Startups That Failed in Year One Share This One Decision. Here's What It Was."*
 
 The second version has a timeframe, a stake (failure), and a single specific promise — not a grab-bag of lessons.
 
@@ -102,6 +103,8 @@ Medium does not count a "read" unless someone stays past roughly 3 seconds. The 
 
 4. **Authority hook** — open with a claim or number that positions you as worth listening to, then immediately back it with a specific detail (not a vague credential).
    > *"I've read over 200 rejection emails. Only one of them changed how I write."*
+
+These four types are medium-writer's article-opening hooks. For a scored, rubric-graded approach with LinkedIn-style variant engineering, use the `hooks-drafter` skill (select Medium platform) before this step and paste the result into Step 3.
 
 **How to pick:** write one variant per type, read all four aloud, cut the three you didn't reach for instinctively.
 
@@ -210,7 +213,7 @@ Before showing the draft to the user, run these checks internally and report the
 | Paragraph density | No paragraph over 5 sentences; blank line between every paragraph |
 | Emotion anchor | Closing paragraph delivers the named target emotion, not just information |
 | Title-to-content honesty | Ending delivers what the title promised; no oversell |
-| Pull quote presence | At least 1 pull quote per 400–500 words (Long Article, Tutorial, Listicle) |
+| Pull quote presence (Long/Tutorial/Listicle only) | At least 1 pull quote per 400–500 words. Skip this check for Short Articles. |
 
 Report each check as PASS or FLAGGED with a one-line note. Fix all FLAGGED items before presenting to the user. If a check still fails after one fix attempt, flag it for the user rather than looping silently.
 
@@ -221,6 +224,7 @@ Present:
 3. The target emotion (one word) and a one-line note on the section structure used.
 
 STOP. Ask the user to approve, request edits, or reject. Do NOT write any file yet. Iterate on the draft in place if edits are requested, re-running the self-audit after each significant change.
+If running non-interactively (e.g. in a batch pipeline or scripted run), document this gate as "skipped — auto-proceeding with output as drafted" and continue; do not silently omit the gate from the output log.
 
 ### Step 7 — Persist (after approval)
 **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the approved text against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks" sections. Auto-fix mechanical violations (em-dashes, banned punctuation) and report what changed. Flag judgment-call violations (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.

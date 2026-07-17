@@ -39,7 +39,7 @@ Evaluate every piece against these five dimensions, and make different variants 
 1. **Hook strength**: does the opening earn the next line?
 2. **Clarity / tightness**: cut filler, tighten phrasing, sharpen the point.
 3. **Contrarian angle**: is there a sharper, more differentiated take?
-4. **Voice authenticity**: does it still sound like the user (per `voice-tone/`)? Explicitly scan each variant against the profile's "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical bans (em-dashes, banned punctuation) and flag judgment calls (hype words, AI-voice markers).
+4. **Voice authenticity**: does it still sound like the user (per `voice-tone/`)? If `voice-tone/` is absent, audit against a baseline list of known AI-voice markers instead: "delve into", "it's worth noting", "crucial", "in today's fast-paced world", "let's explore", "game-changer", "leverage" (as a verb). Flag any present. Explicitly scan each variant against the profile's "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical bans (em-dashes, banned punctuation) and flag judgment calls (hype words, AI-voice markers).
 5. **Scannability**: is it easy to skim on the target platform?
 
 ## Workflow
@@ -57,6 +57,8 @@ Give a brief diagnostic: what's strong, what's weak, per dimension. Keep it shor
 ### 3. Produce 2-3 labeled variants
 Default to 2-3 variants (honor a specific count if the user requests one). Number them clearly and give each a short editorial-angle label, e.g.:
 
+For each variant, verify it respects platform length constraints: LinkedIn posts should be 100–1,200 words (Short: 100–300, Long: 600–1,200); Medium articles should be 700–1,800 words. Flag any variant outside its platform's range with a one-line note.
+
 - **Variant 1 - Tighter hook:** rewrites the opening for immediate pull.
 - **Variant 2 - More contrarian:** pushes a sharper, differentiated take.
 - **Variant 3 - Safer / more polished:** cleaner, lower-risk, broadly shareable.
@@ -71,10 +73,12 @@ Apply the appropriate pass to each variant so they're platform-ready.
 
 ### 5. Mandatory review-first STOP
 Present all variants and diagnostics, then STOP and ask the user to choose, mix, or reject. Do **not** pick for them. Do **not** write anything yet.
+If running non-interactively (e.g. in a batch pipeline or scripted run), document this gate as "skipped — auto-proceeding with output as drafted" and continue; do not silently omit the gate from the output log.
 
 ### 6. Write the chosen version
 Only after the user picks:
 - **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the chosen text against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment-call violations for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
+- Preserve any `[source: ...]`, `[UNVERIFIED]`, and `[personal]` claim markers from the source text through to the written file. Do not strip them during editing.
 - Confirm the target: `linkedin/` or `medium/` (cwd-relative).
 - If the folder is missing, ASK how to proceed. Never silently create it.
 - Write the chosen (or mixed) version and confirm the exact path back to the user.

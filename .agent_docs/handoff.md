@@ -2,75 +2,101 @@
 
 ## Project Progress (rolling summary)
 
-_Last updated: 2026-07-11_
+_Last updated: 2026-07-17_
 
-**Current phase:** New `content-creation/linkedin-medium/` skill category — evaluation, fixes, documentation, and commit — **Status:** phase complete, committed
-**Now:** `HEAD` = `7e21e80` on `main` (not yet pushed). The `content-creation/linkedin-medium/` category is committed: 8 skills (`seed-expander`, `draft-builder`, `platform-adapter`, `carousel-builder`, `tutorial-verifier`, `editorial-reviewer`, `voice-profiler`, `content-tracker`), each with `SKILL.md` + `README.md`, plus stdlib-only `scripts/` and (for `carousel-builder`) 7 HTML `templates/`. This session evaluated the suite (88/100), fixed two scripts, wrote the 8 missing READMEs, registered the category in `AGENTS.md`, removed `__pycache__` cruft, and committed everything except the gitignored `AGENTS.md`.
+**Current phase:** `content-creation/linkedin-medium/` skill suite — deep evaluation cycle (3 test runs), bug fixes, and SKILL.md design-gap fixes — **Status:** all fixes applied, NOT yet committed.
 
-**Project summary:** `agent_skills` is a curated collection of portable AI-agent skill files (`SKILL.md`) for OpenCode and other assistants. No build system, tests, or CI — pure Markdown plus a few stdlib-only Python helpers. Four live categories: `learning/`, `agent_session_management/`, `development/`, and `content-creation/`. Convention: one skill = `SKILL.md` (agent-facing) + `README.md` (human guide) + optional support dir. Learning/session skills use `reference/` (singular); development skills use `references/` (plural); `content-creation/linkedin-medium/` skills use `scripts/` (and `templates/` for `carousel-builder`) instead. Handoff is the cross-session memory layer (`.agent_docs/handoff.md`), rolling 2-session window.
+**Now:** `HEAD` = `7be9ca6` on `main`. Working tree has **20 modified files** (staged as M) — all changes from this session are uncommitted. The `content-creation/linkedin-medium/` category now has 11 skills (original 8 + `hooks-drafter`, `linkedin-writer`, `medium-writer` added in a prior session). This session ran three full evaluation passes with parallel subagents, identified and fixed 8 script bugs + 15 SKILL.md design gaps (v1 report), verified all fixes via re-test (v2 report, Databricks DLT anchor), ran a full end-to-end pipeline test in third-person voice (v3 test, Databricks cost optimization), and fixed 5 additional issues surfaced by that test.
+
+**Project summary:** `agent_skills` is a curated collection of portable AI-agent skill files (`SKILL.md`) for OpenCode and other assistants. No build system, tests, or CI — pure Markdown plus stdlib-only Python helpers. Four live categories: `learning/`, `agent_session_management/`, `development/`, `content-creation/`. Convention: one skill = `SKILL.md` + `README.md` + optional support dir. `content-creation/linkedin-medium/` uses `scripts/` (and `templates/` for `carousel-builder`) instead of `reference/`. Handoff is the cross-session memory layer, rolling 2-session window. `AGENTS.md` at repo root is gitignored.
 
 **Critical constants:**
-- `AGENTS.md` is **gitignored** — it exists on disk, is edited/read normally, but never appears in `git status` and **cannot be committed** without first removing it from `.gitignore`. Do not attempt to `git add AGENTS.md` and expect it to stage.
-- Support-dir naming differs by category: `reference/` (learning + session), `references/` (development), `scripts/`+`templates/` (content-creation). Match whichever the skill already uses.
-- `content-creation` scripts are standard-library Python only; `cairosvg` and a headless browser are OPTIONAL PNG-only add-ons that degrade gracefully.
-- "Tested skills only" rule: skills must be exercised in a real session before commit.
+- `AGENTS.md` is **gitignored** — exists on disk, never stages. `git check-ignore AGENTS.md` confirms.
+- Support-dir naming: `reference/` (learning + session), `references/` (development), `scripts/`+`templates/` (content-creation).
+- Scripts are stdlib-only Python. `cairosvg` + headless browser are optional PNG add-ons (degrade gracefully).
+- `track.py` flag placement: `--json` is a **subparser flag**, not global — use `track.py list --json`, not `--json list` (fixed this session).
+- `verify.py` exit codes: 0 pass, 1 fail/refused, 2 usage error, 3 unknown (cluster-only module or no runtime).
+- "Tested skills only" rule: skills must be exercised before commit.
 
 **Progress so far:**
-- Sessions 1–5 — Repo initialized; skills scaffolded/rearranged into `learning/` + `agent_session_management/`. Commits `7773121`–`41799a1`.
-- Session 6–7 (2026-07-09) — Gitignored `AGENTS.md`; quality audit + per-skill READMEs + phase gates + `end-session` Linux fallback. Folded into `26dbb95`.
-- Session 8 (2026-07-11) — `development/` category evaluated, fixed, documented, committed (`8cdaad0`).
-- Session 9 (2026-07-11) — `content-creation/linkedin-medium/` evaluated, fixed, documented, committed (`7e21e80`) (this session).
+- Sessions 1–5 — Repo initialized; `learning/` + `agent_session_management/` scaffolded. Commits `7773121`–`41799a1`.
+- Sessions 6–7 (2026-07-09) — Gitignored `AGENTS.md`; quality audit + READMEs + phase gates. `26dbb95`.
+- Session 8 (2026-07-11) — `development/` evaluated, fixed, committed (`8cdaad0`).
+- Session 9 (2026-07-11) — `content-creation/linkedin-medium/` (8 skills) evaluated + fixed + committed (`7e21e80`).
+- Prior to this session — `hooks-drafter`, `linkedin-writer`, `medium-writer` added (commits up to `7be9ca6`).
+- **Session 10 (2026-07-17, this session)** — Full evaluation cycle on all 11 skills; 8 script bugs + 15+5 SKILL.md gaps fixed; three test repos produced under `tests/`. All changes uncommitted.
 
-**Next up:** Optionally `git push` (commit `7e21e80` is local-only). No other open work from this session.
+**Next up:** Commit all 20 modified files. Suggested message: `"fix(content-creation): evaluation-driven bug fixes and design-gap patches across 11 skills"`. Then optionally `git push`.
 
 ---
 
 ## Session Log
 
-### Session: 2026-07-11 (current) — Evaluate + fix + commit `content-creation/linkedin-medium` skills
+### Session: 2026-07-17 (current) — Full evaluation + fix cycle for all 11 content-creation skills
+
+**Files touched:**
+- `content-creation/linkedin-medium/draft-builder/scripts/claim_lint.py` — B1 (study stopword guard), B2 (bare-number ≤10 suppression), B3 (inline backtick span stripping), B4 (line-level limitation documented)
+- `content-creation/linkedin-medium/carousel-builder/scripts/spec.py` — B5 (`--json` path now exits 3 on overflow)
+- `content-creation/linkedin-medium/carousel-builder/templates/slide-{glassmorphism,linkedin,mario,minimal-light,neomorphism,neon}.html` — B6 (CSS comment placeholder pollution removed from 6/7 templates)
+- `content-creation/linkedin-medium/content-tracker/scripts/track.py` — B7 (`--json` moved to subparsers), G14 (`archive` subcommand added)
+- `content-creation/linkedin-medium/tutorial-verifier/scripts/verify.py` — B8 (`eval` denylist tightened; NI-7 cluster-only `ModuleNotFoundError` reclassified as UNKNOWN not FAIL)
+- `content-creation/linkedin-medium/voice-profiler/SKILL.md` — G1 (contradictory-sample guidance), G2 (ISO date format), G3 (min sample count)
+- `content-creation/linkedin-medium/seed-expander/SKILL.md` — G4 (angle distribution), G5 (overwrite in Step 5), G6 (research minimum 4 sources)
+- `content-creation/linkedin-medium/draft-builder/SKILL.md` — G7 (`--section` vs `--whole-file` guidance)
+- `content-creation/linkedin-medium/editorial-reviewer/SKILL.md` — G8 (AI-voice fallback), G9 (length check), G10 (preserve claim markers); B4 (non-interactive note)
+- `content-creation/linkedin-medium/carousel-builder/SKILL.md` — G15 (JSON field validation)
+- `content-creation/linkedin-medium/hooks-drafter/SKILL.md` — G12 cross-ref to linkedin/medium-writer; B5 (third-person Story-in-motion claim note)
+- `content-creation/linkedin-medium/linkedin-writer/SKILL.md` — G11 (voice-tone soft gate), G12 (hooks-drafter cross-ref), B3 (pre-publish marker cleanup), B4 (non-interactive note)
+- `content-creation/linkedin-medium/platform-adapter/SKILL.md` — B3 (pre-publish marker cleanup), B4 (non-interactive note)
+- `content-creation/linkedin-medium/medium-writer/SKILL.md` — G11, G12, G13 (pull-quote Short Article exclusion), B1 (third-person title rule), B4 (non-interactive note)
+- `content-creation/linkedin-medium/tutorial-verifier/SKILL.md` — B2 (HTTP API snippet guidance)
+- `tests/EVALUATION-REPORT.md` — v1 evaluation report (8 bugs + 15 gaps, collection 8.5/10)
+- `tests/EVALUATION-REPORT-V2.md` — v2 re-evaluation report (Databricks DLT anchor, collection 8.7/10, all fixes confirmed)
+- `tests/content-creation-test/` — v1 test repo (22 files, code-review-bullets anchor)
+- `tests/content-creation-test-v2/` — v2 test repo (26 files, DLT data quality anchor)
+- `tests/content-creation-test-v3/` — v3 test repo (22 files, Databricks cost optimization, third-person voice)
+
+**Summary:** Ran three sequential evaluation passes on all 11 `content-creation/linkedin-medium/` skills using parallel subagents. V1 test (code-review-bullets anchor) identified 8 confirmed script bugs and 15 SKILL.md design gaps. All 23 issues were fixed via 9 targeted subagents. V2 re-test (Databricks DLT anchor) confirmed all 8 script bugs and 15 gaps resolved; scored the collection 8.7/10 (+0.2 from v1); surfaced 9 new lower-priority issues including NI-7 (cluster-only `ModuleNotFoundError`). NI-7 was fixed immediately (verify.py `CLUSTER_ONLY_MODULES` set + reclassification to UNKNOWN). V3 full end-to-end pipeline test (Databricks cost optimization, third-person voice, all 11 skills sequential) scored 8.5/10 and surfaced 5 more issues (B1–B5); all 5 fixed via 3 parallel subagents.
+
+**Outcome:** 20 files modified, all verified working. All fixes committed-ready but **NOT yet committed**. Working tree is clean except for the 20 modified tracked files.
+
+---
+
+### Session: 2026-07-11 (previous) — Evaluate + fix + commit `content-creation/linkedin-medium` skills
 
 **Files touched:**
 - `AGENTS.md` (gitignored — structure diagram, live-categories line, `scripts/`/`templates/` note, skill inventory table +8 rows, "One skill =" convention, install commands all extended for `content-creation/`)
 - `content-creation/linkedin-medium/*/README.md` — 8 new READMEs (seed-expander, draft-builder, platform-adapter, carousel-builder, tutorial-verifier, editorial-reviewer, voice-profiler, content-tracker)
-- `content-creation/linkedin-medium/draft-builder/scripts/claim_lint.py` — attribution detector now captures the subject and skips common sentence openers via `ATTRIBUTION_STOPWORDS` (fewer false positives; still catches named sources like "Gartner estimates")
-- `content-creation/linkedin-medium/tutorial-verifier/scripts/verify.py` — failed/unavailable dependency installs (Python + JS) now surface "DEPENDENCY INSTALL FAILED (deps NOT installed) — snippet was NOT executed" instead of silently degrading to static
-- Removed `carousel-builder/scripts/__pycache__/` cruft (already gitignored)
+- `content-creation/linkedin-medium/draft-builder/scripts/claim_lint.py` — attribution detector now captures the subject and skips common sentence openers via `ATTRIBUTION_STOPWORDS`
+- `content-creation/linkedin-medium/tutorial-verifier/scripts/verify.py` — failed/unavailable dependency installs now surface "DEPENDENCY INSTALL FAILED" instead of silently degrading to static
 
-**Summary:** Evaluated the 8-skill LinkedIn/Medium content pipeline and rated it 88/100. Fixed all identified gaps: wrote the 8 missing per-skill READMEs (delegated to 3 parallel `general` subagents, matching the `lean-coder` house style, with correct `content-creation/linkedin-medium/<skill>` install paths); refined `claim_lint.py` to reduce attribution over-flagging; made `verify.py` surface failed dependency installs honestly; registered the whole category in `AGENTS.md`; and cleaned up the committed `.pyc`. All scripts byte-compile and pass a functional smoke test (claim_lint FAIL/PASS, verify python PASS + shell REFUSED, spec, tracker).
+**Summary:** Evaluated the 8-skill LinkedIn/Medium content pipeline and rated it 88/100. Fixed all identified gaps: wrote 8 missing per-skill READMEs; refined `claim_lint.py`; made `verify.py` surface failed dependency installs honestly; registered the whole category in `AGENTS.md`; cleaned up `.pyc`.
 
-**Outcome:** All fixes complete, verified, and **committed** as `7e21e80` (30 files, 4317 insertions). `AGENTS.md` edits are on disk but excluded from the commit (gitignored). Commit is local-only — not yet pushed.
-
-### Session: 2026-07-11 (previous) — Evaluate + fix `development/` skills
-
-**Files touched:**
-- `AGENTS.md` (gitignored — structure diagram, live-categories line, skill inventory table, install commands all extended for `development/`)
-- `development/lean-coder/` — `SKILL.md` (Python section de-duplicated to point at `references/python-uv.md`), new `README.md`
-- `development/project-planner/` — new `README.md`
-- `development/repo-docs-publisher/` — `references/secrets-scan-checklist.md` (refreshed secret regexes), new `README.md`
-- `development/ui-ux-designer/` — new `README.md`
-
-**Summary:** Evaluated the 4 `development/` skills against repo conventions and rated them (91/100). Fixed all identified issues: wrote the 4 missing per-skill READMEs (4 parallel `general` subagents); de-duplicated the inline Python/`uv` content in `lean-coder/SKILL.md` so it points to `references/python-uv.md`; refreshed the secret-detection regexes in `repo-docs-publisher/references/secrets-scan-checklist.md` (added `sk-proj-`, Google `AIza…`, AWS secret-key patterns); registered the `development/` category in `AGENTS.md`.
-
-**Outcome:** All fixes complete and verified; committed in the following session as `8cdaad0` ("development skills added"). `AGENTS.md` excluded (gitignored).
+**Outcome:** All fixes complete, verified, and committed as `7e21e80` (30 files, 4317 insertions). `AGENTS.md` edits on disk but excluded (gitignored). Commit was local-only at that point.
 
 ---
 
 ## Open Items / Next Steps
 
-No open items from this session. (Optional, not a coding task: `git push` to publish local commit `7e21e80`.)
+- [ ] `content-creation/linkedin-medium/` — commit the 20 modified files: `git add content-creation/linkedin-medium/ tests/EVALUATION-REPORT.md tests/EVALUATION-REPORT-V2.md && git commit -m "fix(content-creation): evaluation-driven bug fixes and design-gap patches across 11 skills"`
+- [ ] After commit — optionally `git push` to publish
 
 ---
 
 ## Quick Reference
 
-- **No build/test/lint pipeline** — git operations are the only meaningful commands; scripts are stdlib-only Python.
-- **`AGENTS.md` is gitignored** — edit/read it normally, but it never stages or commits. `git check-ignore AGENTS.md` returns it.
-- **Repo layout:** `learning/`, `agent_session_management/`, `development/`, `content-creation/` categories at root; `.agent_docs/handoff.md` = session memory.
+- **No build/test/lint pipeline** — git operations are the only meaningful commands.
+- **`AGENTS.md` is gitignored** — edit/read normally, never stages. `git check-ignore AGENTS.md` confirms.
+- **Repo layout:** `learning/`, `agent_session_management/`, `development/`, `content-creation/` at root; `.agent_docs/handoff.md` = session memory; `tests/` = evaluation test repos.
 - **Skill structure:** `SKILL.md` + `README.md` + optional support dir. `reference/` (learning/session), `references/` (development), `scripts/`+`templates/` (content-creation).
-- **`content-creation/linkedin-medium/` pipeline:** `seed-expander` → `draft-builder` → `platform-adapter` → {`carousel-builder`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` + `content-tracker` as cross-cutting support.
-- **Key scripts:** `draft-builder/scripts/claim_lint.py` (claim-integrity gate; exit 0/1/2), `tutorial-verifier/scripts/verify.py` (isolated code verify; exit 0/1/2/3; NOT a security sandbox), `content-tracker/scripts/track.py` (add/update/list/render), `carousel-builder/scripts/{spec,render_svg,render_html,svg_to_png}.py`.
-- **Verify scripts:** `python3 -m py_compile <script>` to syntax-check; they run with plain `python3`. Clean up any `__pycache__/` before committing (gitignored, but `spec.py` imports `render_svg` and regenerates it).
-- **Install a skill (from repo root):** `cp -r content-creation/linkedin-medium/<skill> ~/.config/opencode/skills/` (global) or `.opencode/skills/` (per-project); Windows: `Copy-Item -Recurse content-creation\linkedin-medium\<skill> "$env:USERPROFILE\.config\opencode\skills\"`.
+- **11 live content-creation skills:** `seed-expander`, `draft-builder`, `platform-adapter`, `carousel-builder`, `tutorial-verifier`, `editorial-reviewer`, `voice-profiler`, `content-tracker`, `hooks-drafter`, `linkedin-writer`, `medium-writer`.
+- **Pipeline order:** `voice-profiler` → `seed-expander` → `draft-builder` → [`hooks-drafter`] → `linkedin-writer` / `medium-writer` / `platform-adapter` → [`carousel-builder`, `tutorial-verifier`] → `editorial-reviewer`; `content-tracker` cross-cutting.
+- **Key scripts:** `claim_lint.py` (exit 0/1/2), `verify.py` (exit 0/1/2/3; 3 = UNKNOWN/cluster-only), `track.py` (add/update/list/archive/render), `spec.py`+`render_svg.py`+`render_html.py`+`svg_to_png.py`.
+- **`track.py` flag placement:** `--json` is per-subparser — `track.py list --json` ✓, NOT `--json list`.
+- **`verify.py` cluster-only packages:** `pyspark`, `delta`, `databricks`, `dlt`, `mlflow`, `torch`, `jax` → `STATUS: UNKNOWN (exit 3)`, not FAIL.
+- **Lint a draft stub section only:** `python3 .../claim_lint.py drafts/<slug>.md --section Draft`
+- **Verify scripts:** `python3 -m py_compile <script>` to syntax-check. Clean `__pycache__/` before committing.
+- **Install a skill:** `cp -r content-creation/linkedin-medium/<skill> ~/.config/opencode/skills/` (global) or `.opencode/skills/` (per-project).
 - **"Tested skills only" rule** — exercise a skill in a real session before committing it.
-- **Current `HEAD`:** `7e21e80` (local-only, unpushed). Working tree clean.
+- **Current `HEAD`:** `7be9ca6`. Working tree: 20 modified files, uncommitted.
 - **Restore this context next session with `/init-session`.**
