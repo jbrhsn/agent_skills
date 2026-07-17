@@ -5,16 +5,16 @@ description: Use when the user wants to analyze their writing samples and distil
 
 # Voice Profiler
 
-Analyze the user's existing writing samples in the CWD-relative `voice-tone/` folder ONCE and distill them into a single reusable summary file: `voice-tone/profile.md`. Other skills (`draft-builder`, `platform-adapter`, `editorial-reviewer`, `tutorial-verifier`, `carousel-builder`) can then read this one profile so the user's voice stays consistent, instead of each skill independently re-deriving voice from raw samples and drifting apart over time.
+Analyze the user's existing writing samples in the CWD-relative `voice-tone/` folder ONCE and distill them into a single reusable summary file: `voice-tone/profile.md`. Any content skill that reads `voice-tone/profile.md` will find a consistent, up-to-date voice reference instead of re-deriving voice from raw samples each time.
 
 The profile is **adaptive guidance to adapt from**, never a rigid template to copy verbatim.
 
 ## Standalone by design
 This skill works entirely on its own. It does not require any other skill to be present or run.
 
-The `voice-tone/profile.md` it produces is **OPTIONAL** for every other skill:
-- Skills that consume it use `profile.md` **if present** for a fast, consistent read of the voice.
-- If `profile.md` is **absent**, those skills must still work. They degrade gracefully to reading the raw samples in `voice-tone/` directly.
+The `voice-tone/profile.md` it produces is **OPTIONAL** for any writing workflow:
+- Writing work that reads it gets a fast, consistent voice reference.
+- If `profile.md` is **absent**, writing work degrades gracefully to reading the raw samples in `voice-tone/` directly.
 
 So running voice-profiler is a convenience/consistency optimization, not a dependency. Nothing breaks if it never runs.
 
@@ -89,4 +89,4 @@ _Sources analyzed: <files in voice-tone/>. Last updated: <date>._
 Keep each section concise and actionable: bullet guidance a downstream skill can apply, not prose essays. Under **Notes & Uncertainties**, flag anything thin (e.g. "only 2 samples", "no Medium samples, LinkedIn notes only") so consumers know the confidence level.
 
 ## Handoff
-Once approved and written, `voice-tone/profile.md` becomes the shared voice reference. Downstream skills read it when present and fall back to raw `voice-tone/` samples when it is absent, so this skill improves consistency without ever becoming a hard dependency.
+Once approved and written, `voice-tone/profile.md` becomes the shared voice reference. Any writing workflow reads it when present and falls back to raw `voice-tone/` samples when it is absent, so this skill improves consistency without ever becoming a hard dependency.

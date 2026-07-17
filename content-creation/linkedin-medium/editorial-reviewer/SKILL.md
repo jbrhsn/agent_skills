@@ -11,9 +11,8 @@ Run a finished piece, a LinkedIn post/article or a Medium article, through a str
 
 - User pastes finished text or points to a file and wants it reviewed, edited, polished, tightened, or sharpened.
 - User wants alternate angles ("make it more contrarian", "tighter hook", "give me variants").
-- Runs standalone on any pasted text or file, or naturally receives output handed off from a `platform-adapter` skill.
 
-It works with or without the other skills in the toolkit.
+It works standalone on any pasted text or file.
 
 ## Folder conventions (cwd-relative)
 

@@ -68,8 +68,8 @@ and validate statically instead.
 3. **Build the verification plan.** For each block decide: execute or static?
    which isolated env? which dependencies? Flag any shell snippet containing
    dangerous operations for refusal. **STOP. Show blocks + plan, get approval.**
-4. **Verify each block** using `scripts/verify.py` (see below). Capture
-   stdout/stderr/exit code and whether it was executed or statically validated.
+4. **Verify each block** using `$SKILL_DIR/scripts/verify.py` (see below). Capture
+    stdout/stderr/exit code and whether it was executed or statically validated.
 5. **Review results. STOP. Show results, get approval.**
 6. **Format the Medium article.** Write numbered steps with fenced,
     language-tagged code blocks, each labeled `verified ✓` or
@@ -128,26 +128,28 @@ guess that code works. Validate what you can:
 Label all such output **`statically validated ⚠ (not executed)`** in the final
 article. Never claim code ran if it did not.
 
-## Using `scripts/verify.py`
+## Using `$SKILL_DIR/scripts/verify.py`
 
-`scripts/verify.py` handles env setup, execution, safety scanning, and static
-fallback. It is standard-library Python.
+`$SKILL_DIR/scripts/verify.py` handles env setup, execution, safety scanning, and static
+fallback. It is standard-library Python. Resolve `$SKILL_DIR` to the skill's directory
+(project-local `.opencode/skills/tutorial-verifier` or global
+`~/.config/opencode/skills/tutorial-verifier`).
 
 ```bash
-python3 scripts/verify.py --help
+python3 $SKILL_DIR/scripts/verify.py --help
 
 # execute a python snippet in an isolated uv/venv (with deps)
-python3 scripts/verify.py --lang python --file block1.py --requirement requests
+python3 $SKILL_DIR/scripts/verify.py --lang python --file block1.py --requirement requests
 
 # node snippet in a temp project
-python3 scripts/verify.py --lang js --file block2.js --requirement left-pad
+python3 $SKILL_DIR/scripts/verify.py --lang js --file block2.js --requirement left-pad
 
 # shell snippet (auto-refuses dangerous commands, does bash -n instead)
-python3 scripts/verify.py --lang shell --file block3.sh
+python3 $SKILL_DIR/scripts/verify.py --lang shell --file block3.sh
 
 # force static-only, or get machine-readable output
-python3 scripts/verify.py --lang python --file block1.py --static-only
-python3 scripts/verify.py --lang shell --file block3.sh --json
+python3 $SKILL_DIR/scripts/verify.py --lang python --file block1.py --static-only
+python3 $SKILL_DIR/scripts/verify.py --lang shell --file block3.sh --json
 ```
 
 It prints `STATUS: PASS|FAIL|UNKNOWN` and a mode of `verified` (executed),

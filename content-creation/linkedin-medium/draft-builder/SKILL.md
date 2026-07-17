@@ -5,7 +5,7 @@ description: Use when the user has rough bullets, a messy paragraph, a half-fini
 
 # Draft Builder
 
-Take messy input and produce ONE clean, platform-neutral **source draft**, a complete, well-structured piece of thinking before any platform formatting. This is the single source of truth that `platform-adapter` later reshapes for LinkedIn and Medium, and that `tutorial-verifier` runs code from.
+Take messy input and produce ONE clean, platform-neutral **source draft**, a complete, well-structured piece of thinking before any platform formatting.
 
 Because everything downstream trusts this draft as the source of truth, this skill is the pipeline's **fact-origination point**. Its most important guarantee is therefore not style. It is **claim integrity: never fabricate a fact, statistic, quote, or study.** That guarantee is *enforced by a linter*, not left to good intentions.
 
@@ -59,7 +59,7 @@ Structure every source draft as: **hook → point → evidence/story → takeawa
 - Length: whatever the idea genuinely needs. This is the raw material, not the final cut.
 
 ### 3. Claim-integrity gate (MANDATORY, run before review)
-This is a hard gate, analogous to `tutorial-verifier` refusing to claim code works without running it. Before showing the draft to the user, run the linter on the drafting prose:
+This is a hard gate: before showing the draft to the user, every risky claim must be accounted for. Run the linter on the drafting prose:
 
 Resolve `SKILL_DIR` to this skill's directory (project-local `.opencode/skills/draft-builder` or global `~/.config/opencode/skills/draft-builder`).
 
@@ -77,7 +77,7 @@ Report the lint result (PASS, or the FAIL list and how you resolved each item) a
 
 ### 4. Review-first (mandatory stop)
 Present the source draft (now lint-clean) to the user, plus a one-line claim audit ("N risky claims: X cited, Y flagged UNVERIFIED, Z personal"). STOP.
-Ask for edits/approval. Iterate on the draft in place, re-running the gate after any change that touches a claim, until the user approves. Do NOT hand off to platform-adapter automatically.
+Ask for edits/approval. Iterate on the draft in place, re-running the gate after any change that touches a claim, until the user approves. Do NOT proceed to writing the final file automatically.
 
 ### 5. Persist (after approval)
 - **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the draft against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment calls (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
@@ -93,7 +93,7 @@ Confirm the file path to the user.
 - `scripts/claim_lint.py`: scans a draft for risky claims (numbers, %, money, multipliers, dated stats, research appeals, named attributions, factual superlatives) that are NOT accounted for by `[source: ...]`, `[UNVERIFIED]`, or `[personal]`. Skips code blocks, headings, blockquotes, and stub scaffolding by default. Flags: `--section <heading>` (lint only that section body), `--whole-file`, `--json`. Exit `0` clean, `1` unaccounted claims found, `2` usage error. Standard-library Python only.
 
 ## Handoff
-An approved, claim-clean source draft is the input to `platform-adapter` (LinkedIn/Medium versions) and, for tutorials, `tutorial-verifier`. Because the draft's claims are already cited or flagged, downstream skills inherit that provenance instead of guessing. This skill stops at the platform-neutral draft on purpose.
+An approved, claim-clean source draft at `drafts/<slug>.md` is the complete deliverable of this skill. The draft's claims are already cited or explicitly flagged, making the provenance clear for any subsequent use.
 
 ## Conventions
 

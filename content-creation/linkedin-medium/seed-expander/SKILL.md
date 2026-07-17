@@ -50,7 +50,7 @@ Make the angles genuinely distinct (different lens, audience, or format) - not 1
 | LinkedIn | Short Post | 100-300 w | Hook-heavy, line-break formatted |
 | LinkedIn | Long Post | 600-1200 w | Narrative, native feed |
 | LinkedIn | Article | 1000+ w | Native publishing, headers/images |
-| LinkedIn | Carousel | 8-12 slides | Image files (see carousel-builder) |
+| LinkedIn | Carousel | 8-12 slides | Image slide format |
 | Medium | Short Article | 3-5 min | Punchy, single-insight |
 | Medium | Long Article | 8-12 min | Deep dive, multiple sections |
 | Medium | Tutorial | varies | Code blocks, step-by-step |
@@ -85,13 +85,13 @@ Stub filename: `drafts/<short-slug>.md`. Stub contents:
 <the user's original seed + any expansion notes>
 
 ## Draft
-<!-- empty. hand off to draft-builder -->
+<!-- empty. fill in the full draft here -->
 ```
 
 Confirm to the user which files were written and their paths.
 
 ## Handoff
-Approved stubs are consumed by `draft-builder`, which turns a chosen stub into a full source draft. This skill does NOT write the draft itself.
+Approved stubs in `drafts/` are complete deliverables. Each stub contains the hook, platform/type tag, angle, research sources, and a blank `## Draft` section ready to be filled in.
 
 ## Conventions
 

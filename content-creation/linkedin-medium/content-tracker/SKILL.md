@@ -112,18 +112,20 @@ documented heuristic, not a scheduler.
 
 ## Invoking the script
 
-`scripts/track.py` is standard-library Python. Default log path is `content-log.json`
+`$SKILL_DIR/scripts/track.py` is standard-library Python. Resolve `$SKILL_DIR` to the
+skill's directory (project-local `.opencode/skills/content-tracker` or global
+`~/.config/opencode/skills/content-tracker`). Default log path is `content-log.json`
 in the cwd; override with `--file`.
 
 ```
-python3 scripts/track.py --help
-python3 scripts/track.py add --slug my-post --title "My Post" \
+python3 $SKILL_DIR/scripts/track.py --help
+python3 $SKILL_DIR/scripts/track.py add --slug my-post --title "My Post" \
     --status idea --platform LinkedIn --type howto --source https://example.com
-python3 scripts/track.py update --slug my-post --status posted
-python3 scripts/track.py list --unposted
-python3 scripts/track.py list --platform Medium
-python3 scripts/track.py list --overdue
-python3 scripts/track.py render
+python3 $SKILL_DIR/scripts/track.py update --slug my-post --status posted
+python3 $SKILL_DIR/scripts/track.py list --unposted
+python3 $SKILL_DIR/scripts/track.py list --platform Medium
+python3 $SKILL_DIR/scripts/track.py list --overdue
+python3 $SKILL_DIR/scripts/track.py render
 ```
 
 Add `--json` to any command for machine-readable output. Every mutation re-renders

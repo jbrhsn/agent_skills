@@ -28,10 +28,10 @@ Read `voice-tone/` if present and adapt. If a needed voice-tone folder is expect
 | LinkedIn | Short Post | 100-300 w | Hook-heavy, line-break formatted |
 | LinkedIn | Long Post | 600-1200 w | Narrative, native feed, no images |
 | LinkedIn | Article | 1000+ w | Native publishing, headers/images |
-| LinkedIn | Carousel | 8-12 slides | Slide COPY only here; images via carousel-builder |
+| LinkedIn | Carousel | 8-12 slides | Slide copy + JSON schema output |
 | Medium | Short Article | 3-5 min | Punchy, single-insight |
 | Medium | Long Article | 8-12 min | Deep dive, multiple sections |
-| Medium | Tutorial | varies | Code blocks, step-by-step |
+| Medium | Tutorial | varies | Code blocks, step-by-step (blocks labeled unverified) |
 | Medium | Listicle | varies | Numbered/structured list |
 
 ## Platform tone rules
@@ -45,8 +45,6 @@ Read the source draft. Before generating anything, ASK the user what outputs the
 - **LinkedIn**: Short Post, Long Post, Article, and/or Carousel copy (any mix).
 - **Medium**: Short Article, Long Article, Tutorial, and/or Listicle (any mix).
 - **Both platforms**, or just one.
-- **Carousel copy** to hand off to `carousel-builder` for rendered images.
-- **Tutorial** copy to hand off to `tutorial-verifier` for code execution.
 
 For each chosen target, determine the content-type:
 - Detect the best-fit type from the draft's substance (a step-by-step with code → Tutorial; a numbered structure → Listicle; a single sharp insight → Short; a layered argument → Long/Article).
@@ -58,11 +56,12 @@ For each chosen target, determine the content-type:
 - Apply the platform tone rules and the matrix constraints (length, formatting).
 - **LinkedIn Short/Long**: apply line-break/scannability formatting.
 - **LinkedIn Article / Medium Long**: add headers/subheadings.
-- **LinkedIn Carousel**: output slide COPY as structured slides (title + body + optional footer per slide, 8-12 slides). Do NOT render images. Hand off to `carousel-builder`. Emit the slides as the JSON schema carousel-builder expects:
+- **LinkedIn Carousel**: output slide COPY as structured slides (title + body + optional footer per slide, 8-12 slides). Also emit the slides as JSON to `linkedin/carousels/<slug>/slides.json` so they can be rendered separately:
   ```json
   {"slug":"<slug>","slides":[{"title":"...","body":"...","footer":"@handle"}]}
   ```
-- **Medium Tutorial**: structure with steps + fenced code blocks, but do NOT claim code is verified. Hand off to `tutorial-verifier` for actual execution.
+  The JSON is the complete carousel deliverable from this skill. Image rendering is out of scope.
+- **Medium Tutorial**: structure with steps + fenced code blocks. Label every code block `# unverified` in a comment — do NOT claim code is verified. Code execution is out of scope for this skill.
 
 ### 3. Review-first (mandatory stop)
 Present all generated versions/options. STOP. Let the user pick, tweak, or reject before anything is written.
@@ -72,14 +71,9 @@ Present all generated versions/options. STOP. Let the user pick, tweak, or rejec
 
 - LinkedIn versions → `linkedin/<slug>-<type>.md`
 - Medium versions → `medium/<slug>-<type>.md`
-- Carousel slide JSON → `linkedin/carousels/<slug>/slides.json` (input for carousel-builder)
+- Carousel slide JSON → `linkedin/carousels/<slug>/slides.json`
 
 Confirm the written paths.
-
-## Handoff
-- Carousel copy → `carousel-builder` (renders SVG/HTML/PNG slides).
-- Tutorial code → `tutorial-verifier` (runs/verifies code).
-- Any version → `editorial-reviewer` (2-3 edited variants to choose from).
 
 ## Conventions
 

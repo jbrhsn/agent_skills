@@ -11,9 +11,7 @@ local rendering. No external image APIs, no image-generation models.
 
 ## When to use
 - The user has carousel slide copy and wants postable slide images.
-- Copy is handed off from the `platform-adapter` skill, OR provided directly as
-  a plain list of slides. This skill is **standalone**: a list of slide copy is
-  enough to run it.
+- Slide copy can be provided as a plain list of slides, or read from `linkedin/carousels/<slug>/slides.json` if that file already exists. This skill is **standalone**: a list of slide copy is enough to run it.
 
 ## Rendering paths (user chooses)
 1. **SVG**: `scripts/render_svg.py` writes one `.svg` per slide. Optional PNG
@@ -112,9 +110,8 @@ Probe export tooling up front: check whether `cairosvg` (SVG to PNG) and a headl
 **Voice compliance gate (before writing slide copy).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the slide titles and bodies against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment calls (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
 
 Write the slide copy into a JSON file at the canonical path
-`linkedin/carousels/<slug>/slides.json`, following the schema above. If the
-`platform-adapter` skill produced the copy it will have written it to this same
-path, so check there first.
+`linkedin/carousels/<slug>/slides.json`, following the schema above. If a
+`slides.json` already exists at that path, check there first before asking the user to re-enter the copy.
 
 ### 2. Emit spec + preview slide 1 (review-first)
 Design spec:
