@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- THEME: Neomorphism (soft UI) — monochrome surface with extruded, soft
+     dual-shadow elements. Canvas 1080x1350, MARGIN 100, FOOTER_BAND 140.
+     Placeholders: TITLE_BLOCK, BODY_BLOCK, FOOTER, COUNTER, INDEX, TOTAL. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <filter id="neo-shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="8" dy="8" result="dark-offset"/>
+      <feFlood flood-color="#b8bec7"/>
+      <feComposite in2="dark-offset" operator="in" result="dark"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="-8" dy="-8" result="light-offset"/>
+      <feFlood flood-color="#ffffff"/>
+      <feComposite in2="light-offset" operator="in" result="light"/>
+      <feMerge>
+        <feMergeNode in="dark"/>
+        <feMergeNode in="light"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    .title { fill: #374151; font-weight: 800; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .body  { fill: #6b7280; font-weight: 500; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .footer { fill: #9ca3af; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; font-size: 28px; }
+    .counter { fill: #6b7280; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; font-size: 28px; }
+  </style>
+  <rect width="1080" height="1350" fill="#e0e5ec"/>
+  <rect x="100" y="100" width="140" height="22" rx="11" ry="11" fill="#e0e5ec" filter="url(#neo-shadow)"/>
+  {{TITLE_BLOCK}}
+  {{BODY_BLOCK}}
+  <text x="100" y="1270" class="footer">{{FOOTER}}</text>
+  <!-- Inset counter chip. -->
+  <rect x="860" y="1240" width="120" height="44" rx="16" ry="16" fill="#d5dae1" stroke="#c9ced5" stroke-width="1"/>
+  <text x="920" y="1270" text-anchor="middle" class="counter">{{COUNTER}}</text>
+</svg>

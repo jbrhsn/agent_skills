@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render carousel slides to individual SVG files.
+"""Render carousel slides to individual SVG files from a template.
 
 Reads a JSON file describing carousel slides and writes one portrait
 (1080x1350) SVG per slide into an output directory. Pure standard library:
@@ -7,9 +7,21 @@ no pip installs required to produce SVGs.
 
 Layout is auto-fit: if a slide's title+body would overflow the safe area or
 collide with the footer band, font sizes are stepped down (and, past a floor,
-the script WARNS that the slide is over budget so you can split it). The same
-canvas/palette/spacing constants are shared with the HTML template so the
-slide-1 preview matches the final render.
+the script WARNS that the slide is over budget so you can split it).
+
+Templates live under templates/ and use these placeholders (filled in by
+this script):
+
+    {{TITLE_BLOCK}}   -> <text class="title">... tspans ...</text>
+    {{BODY_BLOCK}}    -> <text class="body">... tspans ...</text>
+    {{FOOTER}}        -> escaped footer string (may be empty)
+    {{COUNTER}}       -> "N/M"
+    {{INDEX}}         -> raw slide index
+    {{TOTAL}}         -> raw slide total
+
+Templates control everything else: background, accent shape, footer band,
+and per-class fill/font-family/weight via inline <style>. They MUST keep the
+1080x1350 canvas and reserve the FOOTER_BAND at the bottom.
 
 JSON schema (index/total auto-filled from array position):
 
@@ -23,6 +35,7 @@ JSON schema (index/total auto-filled from array position):
 
 Example:
     python3 render_svg.py slides.json --out linkedin/carousels/my-carousel
+    python3 render_svg.py slides.json --out out/ --template templates/slide-neon.svg
 """
 import argparse
 import json
@@ -30,26 +43,19 @@ import os
 import sys
 from xml.sax.saxutils import escape
 
-# --- Shared layout constants (keep in sync with templates/slide.html) -------
+# --- Shared layout constants (keep in sync with every templates/slide*.svg) --
 CANVAS_W = 1080
 CANVAS_H = 1350
 MARGIN = 100
 FOOTER_BAND = 140  # reserved vertical space at the bottom for the footer row
 
-# Font stack: list real fallbacks so PNG rasterizers (e.g. cairosvg) find a
-# font even when Helvetica is absent (common on Linux).
-FONT_STACK = "Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif"
-
-BG = "#0f172a"
-ACCENT = "#38bdf8"
-TITLE_COLOR = "#f8fafc"
-BODY_COLOR = "#cbd5e1"
-FOOTER_COLOR = "#64748b"
-
 # Auto-fit: try these (title, body) size pairs largest-first until it fits.
 FIT_STEPS = [(68, 40), (60, 36), (54, 32), (48, 30), (44, 28)]
 # Approx glyph-width factor for character-per-line estimation.
 CHAR_W_FACTOR = 0.55
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_TEMPLATE = os.path.normpath(os.path.join(HERE, "..", "templates", "slide.svg"))
 
 
 def chars_per_line(font_size, width):
@@ -109,13 +115,15 @@ def fit_slide(title, body):
     return t_size, b_size, t_lines, b_lines, True
 
 
-def tspans(lines, x, start_y, line_height, size, color, weight="normal"):
+def text_block(cls, lines, x, start_y, line_height, size):
+    """Emit a <text class="..."> element with one <tspan> per wrapped line.
+
+    Themes control fill/font-family/weight via the <style> block in the
+    template; this function only sets geometry (x, y, dy, font-size).
+    """
     if not lines:
-        return ""
-    parts = [
-        f'<text x="{x}" y="{start_y}" font-family="{FONT_STACK}" '
-        f'font-size="{size}" font-weight="{weight}" fill="{color}">'
-    ]
+        return f'<text class="{cls}" x="{x}" y="{start_y}" font-size="{size}"></text>'
+    parts = [f'<text class="{cls}" x="{x}" y="{start_y}" font-size="{size}">']
     for i, line in enumerate(lines):
         dy = 0 if i == 0 else line_height
         parts.append(f'<tspan x="{x}" dy="{dy}">{escape(line)}</tspan>')
@@ -123,8 +131,8 @@ def tspans(lines, x, start_y, line_height, size, color, weight="normal"):
     return "".join(parts)
 
 
-def render_slide_svg(slide, index, total):
-    """Render one slide. Returns (svg_string, overflow: bool)."""
+def render_slide_svg(template, slide, index, total):
+    """Fill the template for one slide. Returns (svg_string, overflow: bool)."""
     t_size, b_size, title_lines, body_lines, overflow = fit_slide(
         slide.get("title", ""), slide.get("body", "")
     )
@@ -136,30 +144,22 @@ def render_slide_svg(slide, index, total):
     body_y = title_y + len(title_lines) * title_lh + 60 + b_size
     body_lh = int(b_size * 1.4)
 
-    footer_y = CANVAS_H - MARGIN + 20
-    footer_size = 28
-
-    svg = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{CANVAS_W}" '
-        f'height="{CANVAS_H}" viewBox="0 0 {CANVAS_W} {CANVAS_H}">',
-        f'<rect width="{CANVAS_W}" height="{CANVAS_H}" fill="{BG}"/>',
-        f'<rect x="{MARGIN}" y="{accent_y}" width="120" height="10" fill="{ACCENT}"/>',
-        tspans(title_lines, MARGIN, title_y, title_lh, t_size, TITLE_COLOR, "bold"),
-        tspans(body_lines, MARGIN, body_y, body_lh, b_size, BODY_COLOR),
-    ]
-    if footer:
-        svg.append(
-            f'<text x="{MARGIN}" y="{footer_y}" font-family="{FONT_STACK}" '
-            f'font-size="{footer_size}" fill="{FOOTER_COLOR}">{escape(footer)}</text>'
-        )
+    title_block = text_block("title", title_lines, MARGIN, title_y, title_lh, t_size)
+    body_block = text_block("body", body_lines, MARGIN, body_y, body_lh, b_size)
     counter = f"{index}/{total}"
-    svg.append(
-        f'<text x="{CANVAS_W - MARGIN}" y="{footer_y}" text-anchor="end" '
-        f'font-family="{FONT_STACK}" font-size="{footer_size}" '
-        f'fill="{FOOTER_COLOR}">{escape(counter)}</text>'
-    )
-    svg.append("</svg>")
-    return "\n".join(svg), overflow
+
+    replacements = {
+        "{{TITLE_BLOCK}}": title_block,
+        "{{BODY_BLOCK}}": body_block,
+        "{{FOOTER}}": escape(footer),
+        "{{COUNTER}}": escape(counter),
+        "{{INDEX}}": str(index),
+        "{{TOTAL}}": str(total),
+    }
+    out = template
+    for key, val in replacements.items():
+        out = out.replace(key, val)
+    return out, overflow
 
 
 def load_slides(path):
@@ -174,16 +174,25 @@ def load_slides(path):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Render carousel slides to individual SVG files (1080x1350, auto-fit).",
+        description="Render carousel slides to SVG files (1080x1350, auto-fit, themed).",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument("slides_json", help="Path to slides JSON file.")
     parser.add_argument("--out", required=True,
                         help="Output directory for .svg files (cwd-relative recommended).")
+    parser.add_argument("--template", default=DEFAULT_TEMPLATE,
+                        help=f"Path to SVG template (default: {DEFAULT_TEMPLATE}).")
     parser.add_argument("--only", type=int, default=None,
                         help="Render only the given 1-based slide number (for previews).")
     args = parser.parse_args(argv)
+
+    if not os.path.isfile(args.template):
+        print(f"error: template not found: {args.template}", file=sys.stderr)
+        return 2
+
+    with open(args.template, "r", encoding="utf-8") as fh:
+        template = fh.read()
 
     slug, slides = load_slides(args.slides_json)
     total = len(slides)
@@ -194,7 +203,7 @@ def main(argv=None):
     for i, slide in enumerate(slides, start=1):
         if args.only is not None and i != args.only:
             continue
-        svg, overflow = render_slide_svg(slide, i, total)
+        svg, overflow = render_slide_svg(template, slide, i, total)
         fname = os.path.join(args.out, f"{slug}-{i:02d}.svg")
         with open(fname, "w", encoding="utf-8") as fh:
             fh.write(svg)

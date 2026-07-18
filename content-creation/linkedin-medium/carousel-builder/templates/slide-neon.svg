@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- THEME: Neon / cyberpunk — near-black background with glowing pink/cyan
+     text and a faint grid. Canvas 1080x1350, MARGIN 100, FOOTER_BAND 140.
+     Placeholders: TITLE_BLOCK, BODY_BLOCK, FOOTER, COUNTER, INDEX, TOTAL. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <radialGradient id="neon-top" cx="0.5" cy="0" r="0.6">
+      <stop offset="0" stop-color="#ff00c8" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#ff00c8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="neon-bot" cx="0.5" cy="1" r="0.6">
+      <stop offset="0" stop-color="#00e1ff" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#00e1ff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="neon-grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#00e1ff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+    <filter id="neon-glow-pink" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="neon-glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+  <style>
+    .title { fill: #ff2fd0; font-weight: 800; letter-spacing: 0.5px; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .body  { fill: #9df9ff; font-weight: 400; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .footer { fill: #7af7ff; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; font-size: 28px; }
+  </style>
+  <rect width="1080" height="1350" fill="#050014"/>
+  <rect width="1080" height="1350" fill="url(#neon-top)"/>
+  <rect width="1080" height="1350" fill="url(#neon-bot)"/>
+  <rect width="1080" height="1350" fill="url(#neon-grid)"/>
+  <rect x="100" y="100" width="160" height="8" rx="4" ry="4" fill="#00e1ff" filter="url(#neon-glow-cyan)" opacity="0.9"/>
+  <rect x="100" y="100" width="160" height="8" rx="4" ry="4" fill="#00e1ff"/>
+  {{TITLE_BLOCK}}
+  {{BODY_BLOCK}}
+  <text x="100" y="1270" class="footer">{{FOOTER}}</text>
+  <text x="980" y="1270" text-anchor="end" class="footer">{{COUNTER}}</text>
+</svg>

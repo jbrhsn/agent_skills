@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- THEME: Clean minimal (default). Flat off-white background, single
+     accent color block, geometric sans. Canvas 1500x750, MARGIN 90,
+     FOOTER_BAND 90. Placeholders: TITLE_BLOCK, SUBTITLE_BLOCK, FOOTER. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="750" viewBox="0 0 1500 750">
+  <style>
+    .title { fill: #1a1a1a; font-weight: 700; letter-spacing: -0.5px; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .subtitle { fill: #5a5a5a; font-weight: 400; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .footer { fill: #9a9a9a; font-family: Helvetica, Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; font-size: 26px; letter-spacing: 0.5px; }
+  </style>
+  <rect width="1500" height="750" fill="#f7f7f5"/>
+  <rect x="90" y="90" width="140" height="10" fill="#2563eb"/>
+  {{TITLE_BLOCK}}
+  {{SUBTITLE_BLOCK}}
+  <text x="90" y="682" class="footer">{{FOOTER}}</text>
+</svg>

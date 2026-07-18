@@ -1,102 +1,55 @@
 # Handoff Log
 
-## Project Progress (rolling summary)
+## Project Summary
 
-_Last updated: 2026-07-17_
+`agent_skills` is a curated collection of portable AI-agent skill files (`SKILL.md`) for OpenCode and other coding/content assistants. The repo has no build system, dependencies, CI, or formal test suite; it is mostly Markdown content plus small standard-library Python helper scripts for skills that need executable behavior. The live categories are `learning/`, `agent_session_management/`, `development/`, and `content-creation/`. Key artifacts are each skill's `SKILL.md`, human-facing `README.md`, optional support folders (`reference/`, `references/`, `scripts/`, `templates/`), root `AGENTS.md` for authoritative local rules, and `.agent_docs/handoff.md` for session continuity.
 
-**Current phase:** `content-creation/linkedin-medium/` skill suite — deep evaluation cycle (3 test runs), bug fixes, and SKILL.md design-gap fixes — **Status:** all fixes applied, NOT yet committed.
-
-**Now:** `HEAD` = `7be9ca6` on `main`. Working tree has **20 modified files** (staged as M) — all changes from this session are uncommitted. The `content-creation/linkedin-medium/` category now has 11 skills (original 8 + `hooks-drafter`, `linkedin-writer`, `medium-writer` added in a prior session). This session ran three full evaluation passes with parallel subagents, identified and fixed 8 script bugs + 15 SKILL.md design gaps (v1 report), verified all fixes via re-test (v2 report, Databricks DLT anchor), ran a full end-to-end pipeline test in third-person voice (v3 test, Databricks cost optimization), and fixed 5 additional issues surfaced by that test.
-
-**Project summary:** `agent_skills` is a curated collection of portable AI-agent skill files (`SKILL.md`) for OpenCode and other assistants. No build system, tests, or CI — pure Markdown plus stdlib-only Python helpers. Four live categories: `learning/`, `agent_session_management/`, `development/`, `content-creation/`. Convention: one skill = `SKILL.md` + `README.md` + optional support dir. `content-creation/linkedin-medium/` uses `scripts/` (and `templates/` for `carousel-builder`) instead of `reference/`. Handoff is the cross-session memory layer, rolling 2-session window. `AGENTS.md` at repo root is gitignored.
-
-**Critical constants:**
-- `AGENTS.md` is **gitignored** — exists on disk, never stages. `git check-ignore AGENTS.md` confirms.
-- Support-dir naming: `reference/` (learning + session), `references/` (development), `scripts/`+`templates/` (content-creation).
-- Scripts are stdlib-only Python. `cairosvg` + headless browser are optional PNG add-ons (degrade gracefully).
-- `track.py` flag placement: `--json` is a **subparser flag**, not global — use `track.py list --json`, not `--json list` (fixed this session).
-- `verify.py` exit codes: 0 pass, 1 fail/refused, 2 usage error, 3 unknown (cluster-only module or no runtime).
-- "Tested skills only" rule: skills must be exercised before commit.
-
-**Progress so far:**
-- Sessions 1–5 — Repo initialized; `learning/` + `agent_session_management/` scaffolded. Commits `7773121`–`41799a1`.
-- Sessions 6–7 (2026-07-09) — Gitignored `AGENTS.md`; quality audit + READMEs + phase gates. `26dbb95`.
-- Session 8 (2026-07-11) — `development/` evaluated, fixed, committed (`8cdaad0`).
-- Session 9 (2026-07-11) — `content-creation/linkedin-medium/` (8 skills) evaluated + fixed + committed (`7e21e80`).
-- Prior to this session — `hooks-drafter`, `linkedin-writer`, `medium-writer` added (commits up to `7be9ca6`).
-- **Session 10 (2026-07-17, this session)** — Full evaluation cycle on all 11 skills; 8 script bugs + 15+5 SKILL.md gaps fixed; three test repos produced under `tests/`. All changes uncommitted.
-
-**Next up:** Commit all 20 modified files. Suggested message: `"fix(content-creation): evaluation-driven bug fixes and design-gap patches across 11 skills"`. Then optionally `git push`.
-
----
+Architecture is file-oriented: every skill is independently installable by copying its folder into `~/.config/opencode/skills/` or `.opencode/skills/`. Learning/session skills use `reference/`; development skills use `references/`; content-creation skills use `scripts/`, and `carousel-builder`/`medium-imager` also use SVG `templates/`. Critical constants: every skill requires `SKILL.md` + `README.md`; never add untested stubs; every phase of a multi-phase skill ends with an explicit confirmation gate; `AGENTS.md` is gitignored but authoritative; `medium-imager` treats `cairosvg` as required because PNG output is the Medium deliverable, while `carousel-builder` uses `cairosvg`/`Pillow` as optional PDF add-ons installed through `uv` after user confirmation.
 
 ## Session Log
 
-### Session: 2026-07-17 (current) — Full evaluation + fix cycle for all 11 content-creation skills
-
+### Session: 2026-07-18 (current)
 **Files touched:**
-- `content-creation/linkedin-medium/draft-builder/scripts/claim_lint.py` — B1 (study stopword guard), B2 (bare-number ≤10 suppression), B3 (inline backtick span stripping), B4 (line-level limitation documented)
-- `content-creation/linkedin-medium/carousel-builder/scripts/spec.py` — B5 (`--json` path now exits 3 on overflow)
-- `content-creation/linkedin-medium/carousel-builder/templates/slide-{glassmorphism,linkedin,mario,minimal-light,neomorphism,neon}.html` — B6 (CSS comment placeholder pollution removed from 6/7 templates)
-- `content-creation/linkedin-medium/content-tracker/scripts/track.py` — B7 (`--json` moved to subparsers), G14 (`archive` subcommand added)
-- `content-creation/linkedin-medium/tutorial-verifier/scripts/verify.py` — B8 (`eval` denylist tightened; NI-7 cluster-only `ModuleNotFoundError` reclassified as UNKNOWN not FAIL)
-- `content-creation/linkedin-medium/voice-profiler/SKILL.md` — G1 (contradictory-sample guidance), G2 (ISO date format), G3 (min sample count)
-- `content-creation/linkedin-medium/seed-expander/SKILL.md` — G4 (angle distribution), G5 (overwrite in Step 5), G6 (research minimum 4 sources)
-- `content-creation/linkedin-medium/draft-builder/SKILL.md` — G7 (`--section` vs `--whole-file` guidance)
-- `content-creation/linkedin-medium/editorial-reviewer/SKILL.md` — G8 (AI-voice fallback), G9 (length check), G10 (preserve claim markers); B4 (non-interactive note)
-- `content-creation/linkedin-medium/carousel-builder/SKILL.md` — G15 (JSON field validation)
-- `content-creation/linkedin-medium/hooks-drafter/SKILL.md` — G12 cross-ref to linkedin/medium-writer; B5 (third-person Story-in-motion claim note)
-- `content-creation/linkedin-medium/linkedin-writer/SKILL.md` — G11 (voice-tone soft gate), G12 (hooks-drafter cross-ref), B3 (pre-publish marker cleanup), B4 (non-interactive note)
-- `content-creation/linkedin-medium/platform-adapter/SKILL.md` — B3 (pre-publish marker cleanup), B4 (non-interactive note)
-- `content-creation/linkedin-medium/medium-writer/SKILL.md` — G11, G12, G13 (pull-quote Short Article exclusion), B1 (third-person title rule), B4 (non-interactive note)
-- `content-creation/linkedin-medium/tutorial-verifier/SKILL.md` — B2 (HTTP API snippet guidance)
-- `tests/EVALUATION-REPORT.md` — v1 evaluation report (8 bugs + 15 gaps, collection 8.5/10)
-- `tests/EVALUATION-REPORT-V2.md` — v2 re-evaluation report (Databricks DLT anchor, collection 8.7/10, all fixes confirmed)
-- `tests/content-creation-test/` — v1 test repo (22 files, code-review-bullets anchor)
-- `tests/content-creation-test-v2/` — v2 test repo (26 files, DLT data quality anchor)
-- `tests/content-creation-test-v3/` — v3 test repo (22 files, Databricks cost optimization, third-person voice)
+- `content-creation/linkedin-medium/carousel-builder/` — updated `scripts/combine_pdf.py`, `SKILL.md`, and `README.md` so missing `cairosvg`/`Pillow` dependencies are handled through a user-confirmed `uv` `.venv` setup path; existing SVG/PDF migration files remain in the working tree.
+- `tests/content-creation-e2e-broadcast-joins/` — created `.venv` with `uv`, installed `cairosvg` and `pillow`, and generated `carousel/broadcast-joins-vs-shuffle-joins.pdf` from the existing 8 SVG slides.
+- `~/.config/opencode/skills/` — replaced/synced all 11 global `content-creation/linkedin-medium` skills from the repo using `rsync -a --delete --exclude '__pycache__/'`; checksum dry-run showed no remaining differences.
+- `.agent_docs/handoff.md` — refreshed by this end-session run.
 
-**Summary:** Ran three sequential evaluation passes on all 11 `content-creation/linkedin-medium/` skills using parallel subagents. V1 test (code-review-bullets anchor) identified 8 confirmed script bugs and 15 SKILL.md design gaps. All 23 issues were fixed via 9 targeted subagents. V2 re-test (Databricks DLT anchor) confirmed all 8 script bugs and 15 gaps resolved; scored the collection 8.7/10 (+0.2 from v1); surfaced 9 new lower-priority issues including NI-7 (cluster-only `ModuleNotFoundError`). NI-7 was fixed immediately (verify.py `CLUSTER_ONLY_MODULES` set + reclassification to UNKNOWN). V3 full end-to-end pipeline test (Databricks cost optimization, third-person voice, all 11 skills sequential) scored 8.5/10 and surfaced 5 more issues (B1–B5); all 5 fixed via 3 parallel subagents.
+**Summary:** Created the requested carousel PDF with `uv` dependency management and updated `carousel-builder` so agents can ask for confirmation, then run `combine_pdf.py --install-missing` to create/reuse `.venv`, install `cairosvg pillow` through `uv`, and rerun PDF generation. Verified the updated script with `python3 -m py_compile` and a successful `--install-missing` PDF generation run. Copied/replaced the global content-creation skills and then verified global contents match the latest repo copies by checksum, excluding generated `__pycache__/` directories.
 
-**Outcome:** 20 files modified, all verified working. All fixes committed-ready but **NOT yet committed**. Working tree is clean except for the 20 modified tracked files.
+**Outcome:** Carousel PDF generation now works in the test workspace, the global OpenCode content skills are current with this repo, and the updated `carousel-builder` dependency behavior remains uncommitted in the repo working tree.
 
----
-
-### Session: 2026-07-11 (previous) — Evaluate + fix + commit `content-creation/linkedin-medium` skills
-
+### Session: 2026-07-18 (previous)
 **Files touched:**
-- `AGENTS.md` (gitignored — structure diagram, live-categories line, `scripts/`/`templates/` note, skill inventory table +8 rows, "One skill =" convention, install commands all extended for `content-creation/`)
-- `content-creation/linkedin-medium/*/README.md` — 8 new READMEs (seed-expander, draft-builder, platform-adapter, carousel-builder, tutorial-verifier, editorial-reviewer, voice-profiler, content-tracker)
-- `content-creation/linkedin-medium/draft-builder/scripts/claim_lint.py` — attribution detector now captures the subject and skips common sentence openers via `ATTRIBUTION_STOPWORDS`
-- `content-creation/linkedin-medium/tutorial-verifier/scripts/verify.py` — failed/unavailable dependency installs now surface "DEPENDENCY INSTALL FAILED" instead of silently degrading to static
+- `tests/content-creation-e2e-broadcast-joins/` — added the user-provided Spark broadcast-vs-shuffle source sample, generated E2E outputs across drafts, LinkedIn, Medium, reviews, voice-tone, tracker log, tutorial verification blocks, carousel SVGs, Medium image SVGs, and wrote `FULL-E2E-EVALUATION.md`.
+- `content-creation/linkedin-medium/carousel-builder/` — existing uncommitted SVG/PDF migration files remained in the working tree and were exercised by the E2E test; `spec.py`, `render_svg.py`, `combine_pdf.py`, and SVG templates were used.
+- `content-creation/linkedin-medium/medium-imager/` — existing uncommitted new skill files remained in the working tree and were exercised by the E2E test; `spec.py`, `render_svg.py`, `svg_to_png.py`, and `suggest_from_draft.py` were used.
+- `.agent_docs/handoff.md` — refreshed by this end-session run.
 
-**Summary:** Evaluated the 8-skill LinkedIn/Medium content pipeline and rated it 88/100. Fixed all identified gaps: wrote 8 missing per-skill READMEs; refined `claim_lint.py`; made `verify.py` surface failed dependency installs honestly; registered the whole category in `AGENTS.md`; cleaned up `.pyc`.
+**Summary:** Ran a subagent-based end-to-end evaluation of all 11 skills under `content-creation/linkedin-medium/` using the supplied Spark broadcast-joins vs shuffle-joins article. The workflow generated a voice profile, 8 idea/draft stubs, claim-linted draft content, content tracker state, LinkedIn and Medium outputs, editorial review artifacts, statically validated tutorial snippets, carousel SVGs, Medium image SVGs, and a consolidated evaluation report. Verification included `claim_lint.py`, `track.py`, `carousel-builder` spec/render checks, `medium-imager` spec/render checks, and `python3 -m py_compile` for helper scripts; PNG export failed as designed because `cairosvg` is not installed.
 
-**Outcome:** All fixes complete, verified, and committed as `7e21e80` (30 files, 4317 insertions). `AGENTS.md` edits on disk but excluded (gitignored). Commit was local-only at that point.
-
----
+**Outcome:** E2E evaluation artifacts and findings are captured in `tests/content-creation-e2e-broadcast-joins/FULL-E2E-EVALUATION.md`; no skill source fixes were applied during this evaluation pass, and the prior uncommitted `carousel-builder` plus `medium-imager` work remains in the working tree.
 
 ## Open Items / Next Steps
-
-- [ ] `content-creation/linkedin-medium/` — commit the 20 modified files: `git add content-creation/linkedin-medium/ tests/EVALUATION-REPORT.md tests/EVALUATION-REPORT-V2.md && git commit -m "fix(content-creation): evaluation-driven bug fixes and design-gap patches across 11 skills"`
-- [ ] After commit — optionally `git push` to publish
-
----
+- [ ] `content-creation/linkedin-medium/medium-writer/SKILL.md` and `content-creation/linkedin-medium/medium-writer/README.md` — define language-specific unverified-code labeling for SQL/text blocks and fix the README typo that says the skill is LinkedIn-only.
+- [ ] `content-creation/linkedin-medium/tutorial-verifier/scripts/verify.py` and `content-creation/linkedin-medium/tutorial-verifier/SKILL.md` — add SQL static-validation support and explicit Spark physical-plan/text-block handling.
+- [ ] `content-creation/linkedin-medium/medium-imager/scripts/suggest_from_draft.py` — improve stat extraction for plain numeric phrases like `40 minutes instead of 4`, `400 GB`, `50 GB`, `6 MB`, `8 GB`, and `100-500MB`.
+- [ ] `content-creation/linkedin-medium/content-tracker/scripts/track.py` and `content-creation/linkedin-medium/content-tracker/README.md` — make active/archive listing semantics explicit, enforce `posted -> archived` unless forced, and escape Markdown table cells.
+- [ ] `content-creation/linkedin-medium/draft-builder/scripts/claim_lint.py` — add optional support for `<cite ...>` markers or document marker-contract-only behavior more explicitly.
+- [ ] `content-creation/linkedin-medium/linkedin-writer/README.md`, `content-creation/linkedin-medium/linkedin-writer/SKILL.md`, `content-creation/linkedin-medium/medium-writer/README.md`, and `content-creation/linkedin-medium/medium-writer/SKILL.md` — align missing `voice-tone/` behavior between README and skill instructions.
 
 ## Quick Reference
-
-- **No build/test/lint pipeline** — git operations are the only meaningful commands.
-- **`AGENTS.md` is gitignored** — edit/read normally, never stages. `git check-ignore AGENTS.md` confirms.
-- **Repo layout:** `learning/`, `agent_session_management/`, `development/`, `content-creation/` at root; `.agent_docs/handoff.md` = session memory; `tests/` = evaluation test repos.
-- **Skill structure:** `SKILL.md` + `README.md` + optional support dir. `reference/` (learning/session), `references/` (development), `scripts/`+`templates/` (content-creation).
-- **11 live content-creation skills:** `seed-expander`, `draft-builder`, `platform-adapter`, `carousel-builder`, `tutorial-verifier`, `editorial-reviewer`, `voice-profiler`, `content-tracker`, `hooks-drafter`, `linkedin-writer`, `medium-writer`.
-- **Pipeline order:** `voice-profiler` → `seed-expander` → `draft-builder` → [`hooks-drafter`] → `linkedin-writer` / `medium-writer` / `platform-adapter` → [`carousel-builder`, `tutorial-verifier`] → `editorial-reviewer`; `content-tracker` cross-cutting.
-- **Key scripts:** `claim_lint.py` (exit 0/1/2), `verify.py` (exit 0/1/2/3; 3 = UNKNOWN/cluster-only), `track.py` (add/update/list/archive/render), `spec.py`+`render_svg.py`+`render_html.py`+`svg_to_png.py`.
-- **`track.py` flag placement:** `--json` is per-subparser — `track.py list --json` ✓, NOT `--json list`.
-- **`verify.py` cluster-only packages:** `pyspark`, `delta`, `databricks`, `dlt`, `mlflow`, `torch`, `jax` → `STATUS: UNKNOWN (exit 3)`, not FAIL.
-- **Lint a draft stub section only:** `python3 .../claim_lint.py drafts/<slug>.md --section Draft`
-- **Verify scripts:** `python3 -m py_compile <script>` to syntax-check. Clean `__pycache__/` before committing.
-- **Install a skill:** `cp -r content-creation/linkedin-medium/<skill> ~/.config/opencode/skills/` (global) or `.opencode/skills/` (per-project).
-- **"Tested skills only" rule** — exercise a skill in a real session before committing it.
-- **Current `HEAD`:** `7be9ca6`. Working tree: 20 modified files, uncommitted.
-- **Restore this context next session with `/init-session`.**
+- No build/test/lint pipeline; git operations are the only formal developer commands.
+- `AGENTS.md` is gitignored but authoritative for local agent behavior; read it at session start and do not expect it to stage.
+- `.agent_docs/handoff.md` is the rolling session memory file; start next session with `/init-session`.
+- Root categories: `agent_session_management/`, `learning/`, `development/`, `content-creation/`.
+- Skill convention: every skill must have `SKILL.md` + `README.md`; support folders vary by category.
+- Support folder names: `reference/` for learning/session skills, `references/` for development skills, `scripts/` and sometimes `templates/` for content-creation skills.
+- `content-creation/linkedin-medium/` currently contains 11 skills: `seed-expander`, `draft-builder`, `platform-adapter`, `carousel-builder`, `medium-imager`, `tutorial-verifier`, `editorial-reviewer`, `voice-profiler`, `content-tracker`, `linkedin-writer`, `medium-writer`.
+- Install/sync content skills globally with `rsync -a --delete --exclude '__pycache__/' content-creation/linkedin-medium/<skill-name>/ ~/.config/opencode/skills/<skill-name>/`.
+- `carousel-builder` outputs LinkedIn carousel SVG files and combines to PDF with `cairosvg` + `Pillow`; if missing, ask the user before running `combine_pdf.py --install-missing` to create/reuse `.venv` with `uv`.
+- `medium-imager` outputs Medium cover/card SVG source plus required PNG files; `cairosvg` is required for completion.
+- `medium-imager` commands center on `scripts/spec.py`, `scripts/render_svg.py`, `scripts/svg_to_png.py`, and `scripts/suggest_from_draft.py`.
+- E2E evaluation artifacts for the Spark broadcast/shuffle sample live under `tests/content-creation-e2e-broadcast-joins/`, with the consolidated report at `FULL-E2E-EVALUATION.md` and carousel PDF at `carousel/broadcast-joins-vs-shuffle-joins.pdf`.
+- Use `python3 -m py_compile <script>` to syntax-check Python helpers and remove `__pycache__/` before committing.
+- "Tested skills only" rule: never add or commit a skill stub that has not been exercised in a real session.

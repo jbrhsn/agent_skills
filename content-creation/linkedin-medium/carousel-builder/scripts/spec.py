@@ -2,21 +2,24 @@
 """Emit a carousel design spec for the review-first preview step.
 
 Reads a slides JSON file and prints a human-readable design spec plus a
-machine-readable JSON block: canvas size, palette, font stack, slide count,
-per-slide fit result (chosen font sizes / line counts / overflow flag). Use
-this to show the user WHAT will be rendered before rendering everything.
+machine-readable JSON block: canvas size, slide count, per-slide fit result
+(chosen font sizes / line counts / overflow flag), and the template being
+used. Use this to show the user WHAT will be rendered before rendering
+everything.
 
 Example:
-    python3 spec.py linkedin/carousels/my-carousel/slides.json --path linkedin/carousels/my-carousel --render svg
+    python3 spec.py linkedin/carousels/my-carousel/slides.json --path linkedin/carousels/my-carousel
+    python3 spec.py slides.json --template templates/slide-neon.svg --json
 """
 import argparse
 import json
+import os
 import sys
 
 import render_svg as R  # shared layout constants + fit logic
 
 
-def build_spec(slides_json_path, out_path, render_path):
+def build_spec(slides_json_path, out_path, template_path):
     slug, slides = R.load_slides(slides_json_path)
     total = len(slides)
     per_slide = []
@@ -38,13 +41,13 @@ def build_spec(slides_json_path, out_path, render_path):
     return {
         "slug": slug,
         "slide_count": total,
-        "render_path": render_path,
+        "render_path": "svg",
         "output_dir": out_path,
+        "template": template_path,
+        "template_name": os.path.splitext(os.path.basename(template_path))[0],
         "canvas": {"width": R.CANVAS_W, "height": R.CANVAS_H, "margin": R.MARGIN,
                    "footer_band": R.FOOTER_BAND},
-        "palette": {"bg": R.BG, "accent": R.ACCENT, "title": R.TITLE_COLOR,
-                    "body": R.BODY_COLOR, "footer": R.FOOTER_COLOR},
-        "font_stack": R.FONT_STACK,
+        "fit_steps": R.FIT_STEPS,
         "slides": per_slide,
         "overflows": overflows,
     }
@@ -58,12 +61,12 @@ def main(argv=None):
     )
     p.add_argument("slides_json", help="Path to slides JSON file.")
     p.add_argument("--path", default="(unset)", help="Planned output directory.")
-    p.add_argument("--render", default="svg", choices=["svg", "html"],
-                   help="Planned render path.")
+    p.add_argument("--template", default=R.DEFAULT_TEMPLATE,
+                   help=f"Planned SVG template (default: {R.DEFAULT_TEMPLATE}).")
     p.add_argument("--json", action="store_true", help="Emit JSON only.")
     args = p.parse_args(argv)
 
-    spec = build_spec(args.slides_json, args.path, args.render)
+    spec = build_spec(args.slides_json, args.path, args.template)
 
     if args.json:
         print(json.dumps(spec, indent=2))
@@ -74,10 +77,10 @@ def main(argv=None):
     print(f"  slides:      {spec['slide_count']}")
     print(f"  render path: {spec['render_path']}")
     print(f"  output dir:  {spec['output_dir']}")
+    print(f"  template:    {spec['template_name']} ({spec['template']})")
     print(f"  canvas:      {spec['canvas']['width']}x{spec['canvas']['height']} "
           f"(margin {spec['canvas']['margin']}, footer band {spec['canvas']['footer_band']})")
-    print(f"  palette:     {spec['palette']}")
-    print(f"  font:        {spec['font_stack']}")
+    print(f"  fit steps:   {spec['fit_steps']}")
     print("  per-slide fit:")
     for s in spec["slides"]:
         flag = "  <-- OVERFLOW" if s["overflow"] else ""

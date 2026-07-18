@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- THEME: LinkedIn-branded — official LinkedIn blue (#0A66C2) on white,
+     clean corporate feed look with an "in" mark. Canvas 1080x1350, MARGIN 100,
+     FOOTER_BAND 140. Placeholders: TITLE_BLOCK, BODY_BLOCK, FOOTER, COUNTER,
+     INDEX, TOTAL. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <style>
+    .title { fill: #0a66c2; font-weight: 700; letter-spacing: -0.5px; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .body  { fill: #333333; font-weight: 400; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; }
+    .footer { fill: #0a66c2; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; font-size: 28px; font-weight: 600; }
+    .counter { fill: #666666; font-family: Helvetica, 'Helvetica Neue', Arial, 'Liberation Sans', 'DejaVu Sans', sans-serif; font-size: 28px; }
+  </style>
+  <rect width="1080" height="1350" fill="#ffffff"/>
+  <rect x="0" y="0" width="1080" height="16" fill="#0a66c2"/>
+  <rect x="100" y="100" width="96" height="96" rx="16" ry="16" fill="#0a66c2"/>
+  <text x="148" y="182" text-anchor="middle" font-family="Helvetica, 'Helvetica Neue', Arial, sans-serif" font-size="56" font-weight="800" fill="#ffffff">in</text>
+  {{TITLE_BLOCK}}
+  {{BODY_BLOCK}}
+  <line x1="100" y1="1234" x2="980" y2="1234" stroke="#e0dfdc" stroke-width="2"/>
+  <text x="100" y="1274" class="footer">{{FOOTER}}</text>
+  <text x="980" y="1274" text-anchor="end" class="counter">{{COUNTER}}</text>
+</svg>
