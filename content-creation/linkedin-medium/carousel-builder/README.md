@@ -1,6 +1,6 @@
 # carousel-builder
 
-Turns carousel slide copy (typically 8–12 slides) into **actual rendered SVG image files** for LinkedIn at 1080x1350 portrait, then **combines them into a single multi-page PDF** — using pure local rendering. No external image APIs, no image-generation models. Core generation is Python stdlib-only; the PDF combine step needs `cairosvg` + `Pillow` and, with user approval, can install them into a local `.venv` using `uv`.
+Authors carousel slide copy (typically 8–12 slides) from a source draft or a rough idea when none is provided, then turns that copy into **actual rendered SVG image files** for LinkedIn at 1080x1350 portrait, then **combines them into a single multi-page PDF** — using pure local rendering. Ready slide copy can also be passed in directly and rendered as-is. No external image APIs, no image-generation models. Core generation is Python stdlib-only; the PDF combine step needs `cairosvg` + `Pillow` and, with user approval, can install them into a local `.venv` using `uv`.
 
 ---
 
@@ -8,19 +8,21 @@ Turns carousel slide copy (typically 8–12 slides) into **actual rendered SVG i
 
 | Input | Example |
 |---|---|
+| Author from a draft/idea | "turn this draft into a carousel", "make a LinkedIn carousel from this idea" |
 | Render carousel copy | "turn this carousel into slide images", "make LinkedIn carousel images from this" |
 | Themed look | "render these slides in neon / glassmorphism / LinkedIn brand style" |
 | PDF deck | "combine my carousel into a PDF", "give me one PDF of the slides" |
-| Handoff from copy | slides passed in from `platform-adapter`, or a plain list of slide copy provided directly |
+| Handoff from copy | slides authored by this skill from a draft/idea, or provided directly / read from an existing `slides.json` |
 
-This skill is **standalone**. A list of slide copy is enough to run it; it does not require `platform-adapter` to have run first.
+This skill is **standalone**. A source draft, a rough idea, or a plain list of slide copy is enough to run it.
 
-Do **not** use it to write or adapt the slide copy itself (use `platform-adapter`, or `draft-builder`/`seed-expander` upstream), to verify tutorial code (use `tutorial-verifier`), or for a final editorial pass on wording (use `editorial-reviewer`).
+carousel-builder authors the slide copy itself when none is provided. Do **not** use it for full article drafting (use `draft-builder`) or idea expansion (use `seed-expander`), to verify tutorial code (use `tutorial-verifier`), or for a final editorial pass on wording (use `editorial-reviewer`).
 
 ---
 
 ## What it does
 
+- **Authors slide copy when none is provided.** From a source draft (`drafts/<slug>.md`) or a rough idea/notes, it writes 8–12 slides — a strong hook slide first, one clear idea per slide, a closing/CTA slide, and optional footer/handle — then renders them. Ready slide copy or an existing `slides.json` is used as-is.
 - **SVG-only rendering with seven themes.** Every slide is a self-contained portrait SVG at 1080x1350. Themes cover default dark, glassmorphism, neomorphism, neon, Super Mario, LinkedIn brand, and minimal light.
 - **Automatic combined PDF.** After the full render, the skill combines every SVG into one multi-page PDF at `linkedin/carousels/<slug>/<slug>.pdf`. Requires `cairosvg` + `Pillow`; without them the SVGs stay valid, and the agent asks before creating `.venv` with `uv` and installing dependencies.
 - **Review-first, never end-to-end.** Emits a design spec, renders only slide 1 as a preview, then STOPS for approval before rendering all slides + PDF.
@@ -89,7 +91,7 @@ Canonical path: `linkedin/carousels/<slug>/slides.json`. `index`/`total` are aut
 - `footer` (string, optional, e.g. handle/CTA)
 - `slug` names the output folder, per-slide file prefix, and the combined PDF name.
 
-Use real per-slide content, no lorem ipsum. If `platform-adapter` produced the copy it will have written it to this same path, so check there first.
+Use real per-slide content, no lorem ipsum. If a `slides.json` already exists at this path, check there first before re-authoring.
 
 ---
 
@@ -110,7 +112,8 @@ Script and template paths resolve under `$SKILL_DIR`, the skill's own directory 
 
 | Input | Required | Description |
 |---|---|---|
-| Slide copy | Yes | 8–12 slides as a plain list or handed off from `platform-adapter`; written into `linkedin/carousels/<slug>/slides.json` |
+| Slide copy | Optional | 8–12 slides as a plain list, or an existing `slides.json`; if only a source draft/idea is provided, the skill authors the copy. Written into `linkedin/carousels/<slug>/slides.json` |
+| Source draft / idea | Optional | A `drafts/<slug>.md` draft or rough idea/notes the skill authors slide copy from when no ready copy is provided |
 | Theme (`--template`) | Optional | One of the seven theme templates; defaults to `slide.svg` (dark) |
 | `linkedin/` folder | Yes | Must already exist (cwd-relative); the skill asks rather than creating it |
 | `voice-tone/` folder | Optional | Read for wording/style consistency if present; asked about if expected but missing |
@@ -179,11 +182,11 @@ python3 content-creation/linkedin-medium/carousel-builder/scripts/combine_pdf.py
 
 ## Companion skills
 
-Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → `platform-adapter` → {`carousel-builder`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
+Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → {`linkedin-writer`, `medium-writer`} → {`carousel-builder`, `medium-imager`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: expands a raw idea into an outline/angle
 - **`draft-builder`**: turns the outline into a full draft
-- **`platform-adapter`**: adapts the draft into platform formats, including the carousel slide copy this skill renders
+- **`linkedin-writer`**: writes LinkedIn post copy from a draft (carousel-builder authors its own slide copy; upstream drafting is `draft-builder` / `seed-expander`)
 - **`tutorial-verifier`**: sibling downstream step; runs and verifies tutorial code blocks
 - **`editorial-reviewer`**: final editorial pass on wording/structure
 - **`voice-profiler`**: builds the `voice-tone/` guidance this skill reads for style consistency

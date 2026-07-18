@@ -7,7 +7,7 @@ description: Use when the user wants to write, format, or sharpen a LinkedIn pos
 
 Take a source draft, a rough idea, or raw notes and produce a posting-ready LinkedIn piece, applying deep platform craft: hook engineering, body structure for scrolling readers, voice alignment, and a sharp closing question. Output is formatted specifically for LinkedIn's rendering, fold mechanics, and algorithm behavior.
 
-This skill handles three LinkedIn content types: **Short Post**, **Long Post**, and **Article**. Carousel copy and carousel image rendering are outside this skill's scope.
+This skill handles three LinkedIn content types: **Short Post**, **Long Post**, and **Article**. Carousel copy and carousel image rendering are outside this skill's scope — use `carousel-builder`, which authors and renders carousel slides.
 
 ## When to use
 
@@ -15,7 +15,7 @@ This skill handles three LinkedIn content types: **Short Post**, **Long Post**, 
 - User pastes raw notes, bullets, or a rough idea and says "make this a LinkedIn post".
 - User wants to sharpen or rewrite an existing LinkedIn post with better craft.
 - This skill is for LinkedIn only. For Medium content, use a Medium-specific skill.
-- Carousel copy and carousel image rendering are not in scope for this skill.
+- Carousel copy and carousel image rendering are not in scope for this skill — use `carousel-builder`, which authors and renders carousel slides.
 
 ## Folder conventions (cwd-relative)
 

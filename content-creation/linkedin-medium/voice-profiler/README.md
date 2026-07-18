@@ -14,7 +14,7 @@ Analyzes the user's writing samples in the cwd-relative `voice-tone/` folder **o
 
 Run it **once** to establish the profile before a lot of content work, then refresh it whenever samples or voice change.
 
-Do **not** use it to author content; it only profiles voice. Expanding an idea is `seed-expander`, drafting is `draft-builder`, platform reshaping is `platform-adapter`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, and step verification is `tutorial-verifier`. Those skills *consume* the profile; they do not produce it.
+Do **not** use it to author content; it only profiles voice. Expanding an idea is `seed-expander`, drafting is `draft-builder`, LinkedIn writing is `linkedin-writer` and Medium writing is `medium-writer`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, and step verification is `tutorial-verifier`. Those skills *consume* the profile; they do not produce it.
 
 ---
 
@@ -128,9 +128,9 @@ Copy-Item -Recurse content-creation\linkedin-medium\voice-profiler "$env:USERPRO
 
 ## Companion skills
 
-A cross-cutting support skill for the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> `platform-adapter` -> {`carousel-builder`, `tutorial-verifier`} -> `editorial-reviewer`, with **`voice-profiler`** and `content-tracker` as cross-cutting support.
+A cross-cutting support skill for the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> {`linkedin-writer`, `medium-writer`} -> {`carousel-builder`, `medium-imager`, `tutorial-verifier`} -> `editorial-reviewer`, with **`voice-profiler`** and `content-tracker` as cross-cutting support.
 
-- **`draft-builder`**, **`platform-adapter`**, **`editorial-reviewer`**, **`carousel-builder`**, **`tutorial-verifier`**: all read `voice-tone/profile.md` when present, and fall back to raw samples when absent
+- **`draft-builder`**, **`linkedin-writer`**, **`medium-writer`**, **`editorial-reviewer`**, **`carousel-builder`**, **`tutorial-verifier`**: all read `voice-tone/profile.md` when present, and fall back to raw samples when absent
 - **`seed-expander`**: expands a raw idea into structured angles/outline
 - **`content-tracker`**: the other cross-cutting support skill; an optional pipeline tracker
 

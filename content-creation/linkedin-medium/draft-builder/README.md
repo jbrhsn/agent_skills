@@ -1,6 +1,6 @@
 # draft-builder
 
-Takes messy input (rough bullets, a half-finished paragraph, or a `drafts/` stub) and produces ONE clean, platform-neutral **source draft**: a complete, well-structured piece of thinking before any platform formatting. This is the single source of truth that `platform-adapter` later reshapes and that `tutorial-verifier` runs code from. As the pipeline's fact-origination point, its most important guarantee is not style but **claim integrity: never fabricate a fact, statistic, quote, or study**, enforced by a linter, not left to good intentions.
+Takes messy input (rough bullets, a half-finished paragraph, or a `drafts/` stub) and produces ONE clean, platform-neutral **source draft**: a complete, well-structured piece of thinking before any platform formatting. This is the single source of truth that `linkedin-writer` and `medium-writer` later reshape into platform versions and that `tutorial-verifier` runs code from. As the pipeline's fact-origination point, its most important guarantee is not style but **claim integrity: never fabricate a fact, statistic, quote, or study**, enforced by a linter, not left to good intentions.
 
 ---
 
@@ -12,7 +12,7 @@ Takes messy input (rough bullets, a half-finished paragraph, or a `drafts/` stub
 | Clean up notes | "clean up these notes" |
 | Build out a stub | "build this out" while pointing at a `drafts/<slug>.md` stub from `seed-expander` |
 
-Do **not** use it to generate the ideas themselves (use `seed-expander`), to reshape the finished draft into LinkedIn/Medium versions (use `platform-adapter`), or to verify tutorial code (use `tutorial-verifier`). This skill stops at the platform-neutral source draft on purpose.
+Do **not** use it to generate the ideas themselves (use `seed-expander`), to reshape the finished draft into LinkedIn/Medium versions (use `linkedin-writer` or `medium-writer`), or to verify tutorial code (use `tutorial-verifier`). This skill stops at the platform-neutral source draft on purpose.
 
 ---
 
@@ -25,7 +25,7 @@ Do **not** use it to generate the ideas themselves (use `seed-expander`), to res
 - **Matches voice (mandatory).** Before drafting, looks for `voice-tone/`. If `voice-tone/profile.md` exists it reads that first; otherwise it reads the raw samples plus any instruction files, and adapts sentence rhythm, vocabulary, and structural habits to the content. If `voice-tone/` does not exist, it stops and asks how to proceed (point to samples, paste style rules, or explicitly proceed with a neutral professional voice).
 - **Builds a platform-neutral source draft.** Structures every draft as **hook → point → evidence/story → takeaway**, with no LinkedIn line-break formatting or Medium subheadings yet, just clean, complete prose with a clear spine. Length is whatever the idea genuinely needs.
 - **Enforces claim integrity with a linter.** Runs `scripts/claim_lint.py` as a hard gate before review; every risky claim must be accounted for by an inline marker (see Claim-integrity contract below).
-- **Review-first (mandatory stop).** Presents the lint-clean draft plus a one-line claim audit, then stops for edits/approval. Iterates in place, re-running the gate after any change that touches a claim, and never hands off to `platform-adapter` automatically.
+- **Review-first (mandatory stop).** Presents the lint-clean draft plus a one-line claim audit, then stops for edits/approval. Iterates in place, re-running the gate after any change that touches a claim, and never hands off to the writer skills automatically.
 - **Persists after approval.** Fills the stub's `## Draft` section (or creates a new file with the same structure), sets `**Status:** drafted`, keeps or consolidates claim markers, and re-runs the gate one final time on the persisted file. It also runs a voice-compliance gate before writing: scans the draft against the voice-tone profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls (distinct from the claim-integrity linter).
 
 ---
@@ -147,10 +147,10 @@ Note: on non-opencode platforms the `claim_lint.py` gate must be run manually (`
 
 ## Companion skills
 
-`draft-builder` is the second stage of the LinkedIn/Medium content pipeline: **seed-expander → draft-builder → platform-adapter → {carousel-builder, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
+`draft-builder` is the second stage of the LinkedIn/Medium content pipeline: **seed-expander → draft-builder → {linkedin-writer, medium-writer} → {carousel-builder, medium-imager, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: produces the approved stubs this skill builds out (the previous stage)
-- **`platform-adapter`**: reshapes this skill's source draft into LinkedIn/Medium versions (the next stage)
+- **`linkedin-writer`** / **`medium-writer`**: reshape this skill's source draft into platform-specific versions (the next stage)
 - **`tutorial-verifier`**: runs and verifies code from tutorial drafts
 - **`carousel-builder`**: renders carousel slide copy into image files
 - **`editorial-reviewer`**: produces edited variants of a version

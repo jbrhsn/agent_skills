@@ -118,11 +118,11 @@ Copy-Item -Recurse content-creation\linkedin-medium\medium-writer "$env:USERPROF
 
 ## Companion skills
 
-`medium-writer` sits between `draft-builder` and `editorial-reviewer` in the Medium branch of the pipeline: **seed-expander → draft-builder → medium-writer → (tutorial-verifier for tutorials) → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
+`medium-writer` sits between `draft-builder` and `editorial-reviewer` in the Medium branch of the pipeline: **seed-expander → draft-builder → {linkedin-writer, medium-writer} → {carousel-builder, medium-imager, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: generates approved angle stubs; `draft-builder` builds them into source drafts
 - **`draft-builder`**: produces the platform-neutral source draft this skill reads
-- **`platform-adapter`**: use instead of this skill when you need both LinkedIn and Medium outputs in one pass
+- **`linkedin-writer`**: the LinkedIn counterpart to this skill; for both LinkedIn and Medium, run this skill and `linkedin-writer`
 - **`tutorial-verifier`**: runs and verifies code blocks from Tutorial-type output before publishing
 - **`editorial-reviewer`**: produces 2–3 edited variants of the finished article for a final polish pass
 - **`voice-profiler`**: builds the `voice-tone/` profile this skill reads for voice matching

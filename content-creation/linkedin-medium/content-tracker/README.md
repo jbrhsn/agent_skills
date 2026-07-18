@@ -13,7 +13,7 @@ A lightweight, cross-session tracker for a LinkedIn/Medium content pipeline. It 
 | Query the pipeline | "what haven't I posted yet", "show my backlog", "what's overdue this week", "show everything for LinkedIn" |
 | Archive published work | "archive the ones I've posted" |
 
-Do **not** use it to write or draft content. That belongs to the authoring skills. Expanding an idea is `seed-expander`, drafting is `draft-builder`, platform reshaping is `platform-adapter`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, step verification is `tutorial-verifier`, and voice capture is `voice-profiler`. This skill only tracks state; it never produces content.
+Do **not** use it to write or draft content. That belongs to the authoring skills. Expanding an idea is `seed-expander`, drafting is `draft-builder`, LinkedIn writing is `linkedin-writer` and Medium writing is `medium-writer`, editing/variants is `editorial-reviewer`, carousels are `carousel-builder`, step verification is `tutorial-verifier`, and voice capture is `voice-profiler`. This skill only tracks state; it never produces content.
 
 ---
 
@@ -174,9 +174,9 @@ For any platform, `scripts/track.py` is standard-library Python and can be run d
 
 ## Companion skills
 
-A cross-cutting support skill for the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> `platform-adapter` -> {`carousel-builder`, `tutorial-verifier`} -> `editorial-reviewer`, with `voice-profiler` and **`content-tracker`** as cross-cutting support.
+A cross-cutting support skill for the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> {`linkedin-writer`, `medium-writer`} -> {`carousel-builder`, `medium-imager`, `tutorial-verifier`} -> `editorial-reviewer`, with `voice-profiler` and **`content-tracker`** as cross-cutting support.
 
-- **`seed-expander`**, **`draft-builder`**, **`platform-adapter`**, **`carousel-builder`**, **`tutorial-verifier`**, **`editorial-reviewer`**: the authoring/publishing pipeline; each MAY record status here but never requires it
+- **`seed-expander`**, **`draft-builder`**, **`linkedin-writer`**, **`medium-writer`**, **`carousel-builder`**, **`tutorial-verifier`**, **`editorial-reviewer`**: the authoring/publishing pipeline; each MAY record status here but never requires it
 - **`voice-profiler`**: the other cross-cutting support skill; captures voice into `voice-tone/profile.md`
 
 `content-tracker` is the optional memory layer that keeps the pipeline's state visible across sessions.

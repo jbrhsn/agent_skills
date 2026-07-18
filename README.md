@@ -46,13 +46,14 @@ Give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality beha
 
 ### Content Creation
 
-> A LinkedIn/Medium content pipeline — from raw idea to posting-ready output. Each skill is standalone; together they chain **seed → draft → adapt → {carousel, verify} → review**, with voice and tracking as cross-cutting support.
+> A LinkedIn/Medium content pipeline — from raw idea to posting-ready output. Each skill is standalone; together they chain **seed → draft → write → {carousel, image, verify} → review**, with voice and tracking as cross-cutting support.
 
 | Skill | What it does |
 |---|---|
 | [**seed-expander**](./content-creation/linkedin-medium/seed-expander/README.md) | Turn one seed idea into 8-10 researched, tagged content angles, then write approved ones as `drafts/` stubs |
 | [**draft-builder**](./content-creation/linkedin-medium/draft-builder/README.md) | Turn messy notes or a stub into one clean, platform-neutral source draft — voice-matched, with claim integrity enforced by a linter (no invented facts) |
-| [**platform-adapter**](./content-creation/linkedin-medium/platform-adapter/README.md) | Reshape a source draft into platform-specific LinkedIn/Medium versions using the content-type matrix, adapting voice per platform |
+| [**linkedin-writer**](./content-creation/linkedin-medium/linkedin-writer/README.md) | Turn a source draft or raw idea into a posting-ready LinkedIn Short Post, Long Post, or Article — hook engineering, scannability, CTA, with a mandatory review gate |
+| [**medium-writer**](./content-creation/linkedin-medium/medium-writer/README.md) | Turn a source draft or raw idea into a posting-ready Medium Short/Long Article, Tutorial, or Listicle — title/subtitle engineering, read-ratio pacing, emotional arc, with review gates |
 | [**carousel-builder**](./content-creation/linkedin-medium/carousel-builder/README.md) | Render carousel slide copy into actual 1080x1350 slide image files (SVG or themed HTML/CSS), locally, with optional PNG export — no image APIs |
 | [**tutorial-verifier**](./content-creation/linkedin-medium/tutorial-verifier/README.md) | Extract, run, and verify a tutorial's Python/JS/shell code blocks in isolation (static fallback when no runtime), then format Medium-ready blocks labeled verified or statically-validated |
 | [**editorial-reviewer**](./content-creation/linkedin-medium/editorial-reviewer/README.md) | Run a finished post/article through a structured editorial pass and return 2-3 labeled variants to choose, mix, or reject — never auto-replaces your text |
@@ -88,7 +89,8 @@ cp -r development/ui-ux-designer ~/.config/opencode/skills/
 # Content creation skills (LinkedIn/Medium pipeline)
 cp -r content-creation/linkedin-medium/seed-expander ~/.config/opencode/skills/
 cp -r content-creation/linkedin-medium/draft-builder ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/platform-adapter ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/linkedin-writer ~/.config/opencode/skills/
+cp -r content-creation/linkedin-medium/medium-writer ~/.config/opencode/skills/
 cp -r content-creation/linkedin-medium/carousel-builder ~/.config/opencode/skills/
 cp -r content-creation/linkedin-medium/tutorial-verifier ~/.config/opencode/skills/
 cp -r content-creation/linkedin-medium/editorial-reviewer ~/.config/opencode/skills/

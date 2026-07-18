@@ -15,7 +15,7 @@ Turns Medium article copy into **actual rendered image files**: one wide feature
 
 This skill is **standalone**. A title plus a few image entries is enough to run it; it does not require any other skill to have run first, though it can read from an existing `medium/<slug>.md` draft to suggest copy.
 
-Do **not** use it to write or adapt the article copy itself (use `draft-builder`, `platform-adapter`, or `medium-writer` upstream), to verify tutorial code (use `tutorial-verifier`), or for a final editorial pass on wording (use `editorial-reviewer`).
+Do **not** use it to write or adapt the article copy itself (use `draft-builder` or `medium-writer` upstream), to verify tutorial code (use `tutorial-verifier`), or for a final editorial pass on wording (use `editorial-reviewer`).
 
 ---
 
@@ -23,7 +23,7 @@ Do **not** use it to write or adapt the article copy itself (use `draft-builder`
 
 - **Two canvases, five image types.** A wide cover (1500x750) plus a shared 1600x900 slide canvas rendered as quote / callout / stat / code cards depending on each item's `type`.
 - **Five built-in themes.** `clean-minimal` (default), `editorial-serif`, `dark-code`, `bold-magazine`, `warm-sepia` — each theme ships one cover template + one slide template, shared across all four inner types.
-- **Required PNG rasterization, not optional.** Unlike a "best-effort" PDF combine step, this skill treats `cairosvg` as required: Medium won't accept SVG uploads, so a run isn't considered done until PNGs exist. Missing `cairosvg` is a hard stop with install instructions.
+- **Required PNG rasterization, not optional.** Unlike a "best-effort" PDF combine step, this skill treats `cairosvg` as required: Medium won't accept SVG uploads, so a run isn't considered done until PNGs exist. Missing `cairosvg` is a hard stop with install instructions — but on user approval it can be auto-installed via `uv` into a local `.venv` (the `--install-missing` path).
 - **Review-first, never end-to-end.** Emits a design spec, renders + rasterizes only the cover and the first inner image as a preview, then STOPS for approval before rendering/rasterizing everything.
 - **Auto-fits every image.** Steps font sizes down until title/quote/callout/stat/code content fits the safe area above the reserved footer band; warns and exits non-fatally when an item still overflows so the copy can be shortened or split.
 - **Draft-aware.** If `medium/<slug>.md` exists, a helper script suggests cover title/subtitle, pull-quote, callout, and stat candidates parsed from the draft — but always surfaces them for the user to confirm/edit before anything is written.
@@ -62,7 +62,7 @@ Theme choice affects only the visual chrome; the design spec and auto-fit are th
 
 Never runs end-to-end automatically. The mandatory stop point is:
 
-1. During the folder-confirm step, probe `cairosvg` up front. It is **required** (not best-effort) — if missing, report the install command and stop.
+1. During the folder-confirm step, probe `cairosvg` up front. It is **required** (not best-effort) — if missing, report the install command and ask the user whether to auto-install it via `uv` into a local `.venv` (`--install-missing`); if declined, stop.
 2. Emit a **design spec** with `scripts/spec.py` (canvases, theme, image count, per-image auto-fit result incl. overflow warnings).
 3. Render + rasterize **only the cover and the first inner image** as a preview (`--only cover`, `--only 1`).
 4. **STOP.** Show the spec + preview PNG paths and let the user review/approve. If the spec reports overflow on any item, recommend shortening/splitting that item's copy first.
@@ -110,7 +110,7 @@ Up to 10 entries in `images`. An entry missing a required field, or with an unre
 - `scripts/images.py`: shared schema loader/validator for `images.json` (not a CLI entry point; imported by spec.py and render_svg.py).
 - `scripts/spec.py`: reads images.json, prints design spec + per-image auto-fit result (font sizes, line counts, overflow flags) for the cover and every inner image. Flags: `--path`, `--theme`, `--json`, `--help`. Exit `3` if any item overflows.
 - `scripts/render_svg.py`: images.json → SVG files. Cover 1500x750, slides 1600x900, auto-fit font sizing per type with overflow warning (exit `3`). Flags: `--out`, `--theme`, `--only cover|N`, `--help`.
-- `scripts/svg_to_png.py`: SVG → PNG via `cairosvg` (**required**, hard error with install hint if missing — no graceful degrade). Flags: `--only cover|N`, `--scale` (default `2.0`), `--help`.
+- `scripts/svg_to_png.py`: SVG → PNG via `cairosvg` (**required**, hard error with install hint if missing — no graceful degrade). Flags: `--only cover|N`, `--scale` (default `2.0`), `--install-missing` (uv creates `.venv` and installs `cairosvg` on user approval, then re-runs), `--help`.
 - `scripts/suggest_from_draft.py`: parses an existing `medium/<slug>.md` for candidate cover title/subtitle, pull-quotes, callout sections, and bolded stats. Prints suggestions only, never writes files. Flags: `--json`, `--help`.
 - `templates/cover-*.svg` / `templates/slide-*.svg`: self-contained 1500x750 / 1600x900 templates per theme (see theme catalog).
 
@@ -128,7 +128,7 @@ Script and template paths resolve under `$SKILL_DIR`, the skill's own directory 
 | Theme (`--theme`) | Optional | One of the five theme names; defaults to `clean-minimal` |
 | `medium/` folder | Yes | Must already exist (cwd-relative); the skill asks rather than creating it |
 | `voice-tone/` folder | Optional | Read for wording/style consistency if present; asked about if expected but missing |
-| `cairosvg` | **Required** | Needed to produce the PNG deliverable; the skill probes for it up front and stops with install instructions if missing |
+| `cairosvg` | **Required** | Needed to produce the PNG deliverable; the skill probes for it up front and stops with install instructions if missing, or auto-installs it via `uv` into a local `.venv` on user approval (`--install-missing`) |
 
 ---
 
@@ -143,7 +143,7 @@ Script and template paths resolve under `$SKILL_DIR`, the skill's own directory 
 ## Limitations
 
 - **Not fully automatic.** Always stops after the spec + cover/image-1 preview for approval before rendering everything.
-- **PNG rasterization is required, not optional.** Without `cairosvg`, no PNGs are produced and the script hard-fails with install instructions — unlike carousel-builder's best-effort PDF combine, this is a genuine blocker since Medium needs PNG.
+- **PNG rasterization is required, not optional.** Without `cairosvg`, no PNGs are produced and the script hard-fails with install instructions — unlike carousel-builder's best-effort PDF combine, this is a genuine blocker since Medium needs PNG. On user approval, `cairosvg` can be auto-installed via `uv` into a local `.venv` (the `--install-missing` path) rather than installed by hand.
 - **Overflowing items are warned, not auto-fixed.** If copy is too long at the smallest font size, the skill flags the item (exit `3`) and recommends shortening/splitting rather than spilling over the footer band.
 - **No syntax highlighting for code cards.** Code snippets render as plain monospace text with an optional language badge; no keyword coloring.
 - **Draft auto-suggestion is best-effort.** `suggest_from_draft.py` uses simple heuristics (H1/H2 headings, blockquotes, bolded numeric patterns) and may miss or mis-tag content; suggestions always require explicit user confirmation before being written.
@@ -186,11 +186,11 @@ uv pip install cairosvg   # or: pip install cairosvg
 
 ## Companion skills
 
-Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → `platform-adapter` → {`medium-imager`, `carousel-builder`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
+Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → {`linkedin-writer`, `medium-writer`} → {`medium-imager`, `carousel-builder`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: expands a raw idea into an outline/angle
 - **`draft-builder`**: turns the outline into a full draft
-- **`medium-writer`** / **`platform-adapter`**: produce the Medium article copy this skill sources cover/image text from
+- **`medium-writer`**: produces the Medium article copy this skill sources cover/image text from
 - **`carousel-builder`**: sibling skill producing LinkedIn carousel images instead of Medium article images
 - **`tutorial-verifier`**: sibling downstream step; runs and verifies tutorial code blocks
 - **`editorial-reviewer`**: final editorial pass on wording/structure

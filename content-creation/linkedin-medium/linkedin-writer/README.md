@@ -12,7 +12,7 @@ Takes a source draft, rough notes, or a raw idea and produces a posting-ready Li
 | LinkedIn version of a draft | "LinkedIn version", "make this shareable on LinkedIn" |
 | Sharpen an existing post | "improve this LinkedIn post", "make this hook stronger" |
 
-Do **not** use it for Medium articles (use `medium-writer` or `platform-adapter`), carousel image rendering (use `carousel-builder`), or generating raw ideas (use `seed-expander`).
+Do **not** use it for Medium articles (use `medium-writer`), carousel copy or image rendering (use `carousel-builder`), or generating raw ideas (use `seed-expander`).
 
 ---
 
@@ -79,8 +79,8 @@ Do **not** use it for Medium articles (use `medium-writer` or `platform-adapter`
 
 ## Limitations
 
-- **Short Posts, Long Posts, Articles only.** Carousel copy is out of scope — use `platform-adapter` → `carousel-builder`.
-- **Not a Medium skill.** Use `medium-writer` (when available) or `platform-adapter` for Medium.
+- **Short Posts, Long Posts, Articles only.** Carousel copy is out of scope — use `carousel-builder` (it authors and renders carousel slides).
+- **Not a Medium skill.** Use `medium-writer` for Medium.
 - **Requires a voice signal.** If `voice-tone/` is absent, the skill stops and asks rather than inventing a voice.
 - **Hook step is mandatory.** The body is not drafted until a hook variant is selected — this is by design, not skippable.
 - **Never silently creates folders or overwrites files.** Asks how to proceed in both cases.
@@ -117,12 +117,12 @@ Copy-Item -Recurse content-creation\linkedin-medium\linkedin-writer "$env:USERPR
 
 ## Companion skills
 
-`linkedin-writer` sits between `draft-builder` and `editorial-reviewer` in the LinkedIn branch of the pipeline: **seed-expander → draft-builder → linkedin-writer → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
+`linkedin-writer` sits between `draft-builder` and `editorial-reviewer` in the LinkedIn branch of the pipeline: **seed-expander → draft-builder → {linkedin-writer, medium-writer} → {carousel-builder, medium-imager, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: generates approved angle stubs; `draft-builder` builds them into source drafts
 - **`draft-builder`**: produces the platform-neutral source draft this skill reads
-- **`platform-adapter`**: use instead of this skill when you need both LinkedIn and Medium outputs in one pass, or when you need carousel copy
-- **`carousel-builder`**: renders carousel slide copy into image files (this skill does not produce carousel copy)
+- **`carousel-builder`**: authors and renders carousel slide copy into image files (this skill does not produce carousel copy)
 - **`editorial-reviewer`**: produces 2–3 edited variants of the finished post for a final polish pass
+- **`medium-writer`**: the Medium counterpart to this skill; for both LinkedIn and Medium, run this skill and `medium-writer`
 - **`voice-profiler`**: builds the `voice-tone/` profile this skill reads for voice matching
 - **`content-tracker`**: tracks each piece's status (`idea` → `drafted` → `reviewed` → `posted` → `archived`) across the pipeline

@@ -143,9 +143,13 @@ If it's missing, report:
 ```
 uv pip install cairosvg   # or: pip install cairosvg
 ```
-and STOP — do not proceed past this point until resolved, since PNG is the
-deliverable this skill considers "done" (unlike carousel-builder's optional
-PDF step).
+Then, instead of only stopping, ASK the user whether to create a local
+`.venv` with `uv` and install `cairosvg` now. Only on approval, run
+`scripts/svg_to_png.py` with `--install-missing` (which creates `.venv` via
+`uv`, installs `cairosvg`, then re-runs itself with the venv Python). If the
+user declines, STOP — do not proceed past this point until resolved, since
+PNG is the deliverable this skill considers "done" (unlike carousel-builder's
+optional PDF step).
 
 ### 1. Assemble image copy
 If `medium/<slug>.md` already exists, run the draft-suggestion helper and
@@ -216,9 +220,14 @@ Immediately after Step 3 completes successfully, rasterize every SVG to PNG:
 python3 $SKILL_DIR/scripts/svg_to_png.py medium/images/<slug>
 ```
 Default scale is `2.0` (retina-sharp: cover renders at 3000x1500, slides at
-3200x1800). If `cairosvg` is missing at this point, the script exits `1`
-with install instructions — this is a hard stop, not a soft degrade, since
-PNG is the deliverable.
+3200x1800). If `cairosvg` is missing at this point, ASK the user for approval
+and, if granted, rerun with `--install-missing` (which creates `.venv` via
+`uv`, installs `cairosvg`, then re-runs itself):
+```
+python3 $SKILL_DIR/scripts/svg_to_png.py medium/images/<slug> --install-missing
+```
+If the user declines, the script exits `1` with install instructions — a hard
+stop, not a soft degrade, since PNG is the deliverable.
 
 ## Scripts reference
 - `scripts/images.py`: shared schema loader/validator for `images.json`
@@ -232,7 +241,8 @@ PNG is the deliverable.
   `--out`, `--theme`, `--only cover|N`, `--help`.
 - `scripts/svg_to_png.py`: SVG -> PNG via `cairosvg` (**required**, not
   optional — hard error with install hint if missing). `--only cover|N`,
-  `--scale` (default `2.0`), `--help`.
+  `--scale` (default `2.0`), `--install-missing` (uv creates `.venv` and
+  installs `cairosvg` on user approval, then re-runs), `--help`.
 - `scripts/suggest_from_draft.py`: parses an existing `medium/<slug>.md` for
   candidate cover title/subtitle, pull-quotes, callout sections, and bolded
   stats. Prints suggestions only — never writes files. `--json`, `--help`.

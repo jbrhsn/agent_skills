@@ -1,6 +1,6 @@
 ---
 name: carousel-builder
-description: Use when the user wants to turn carousel slide copy into actual rendered LinkedIn carousel image files: generates per-slide SVG files (1080x1350 portrait) locally with multiple themes, and automatically combines them into a single multi-page PDF. No image APIs or models.
+description: Use when the user wants to turn carousel slide copy into actual rendered LinkedIn carousel image files, or wants carousel slide copy written from a source draft or rough idea: accepts EITHER ready slide copy OR a draft/idea, authors the 8-12 slides when copy is not provided, then generates per-slide SVG files (1080x1350 portrait) locally with multiple themes and automatically combines them into a single multi-page PDF. No image APIs or models.
 ---
 
 # Carousel Builder
@@ -12,7 +12,8 @@ no image-generation models.
 
 ## When to use
 - The user has carousel slide copy and wants postable slide images plus a single PDF deck.
-- Slide copy can be provided as a plain list of slides, or read from `linkedin/carousels/<slug>/slides.json` if that file already exists. This skill is **standalone**: a list of slide copy is enough to run it.
+- The user has a source draft or a rough idea/notes and wants a carousel built from it — this skill authors the slide copy itself when none is provided.
+- Input can be a source draft at `drafts/<slug>.md`, a rough idea/notes, an existing `linkedin/carousels/<slug>/slides.json`, or a plain list of slide copy. If ready slide copy is not provided and no `slides.json` exists, the skill authors the copy before rendering. This skill is **standalone**: a source draft, a rough idea, or a plain list of slide copy is enough to run it.
 
 ## Output
 1. **Per-slide SVG files** at `linkedin/carousels/<slug>/<slug>-NN.svg` — the primary output.
@@ -94,12 +95,27 @@ tone consistency is expected; if missing, ask.
 Resolve `SKILL_DIR` to this skill's own directory: project-local `.opencode/skills/carousel-builder` or global `~/.config/opencode/skills/carousel-builder`. Prefix all script and template paths below with `$SKILL_DIR`.
 Probe PDF tooling up front: check whether `cairosvg` and `Pillow` are available. Report whether the final PDF step will succeed BEFORE rendering, so the limit is known now rather than discovered after all SVGs are written.
 
-### 1. Assemble slides JSON
+### 1. Author or assemble slides JSON
+**Author the copy if it wasn't provided.** If the user did NOT provide ready
+slide copy and no `slides.json` exists at
+`linkedin/carousels/<slug>/slides.json`, author the slide copy yourself from the
+source draft (`drafts/<slug>.md`) or the rough idea/notes the user gave:
+- Produce **8-12 slides**, one clear idea per slide.
+- Lead with a strong **hook slide** first.
+- End with a **closing/CTA slide**.
+- Add an optional `footer` (handle/CTA) where it fits.
+If ready slide copy or an existing `slides.json` was provided, use it directly
+and skip authoring.
+
 **Voice compliance gate (before writing slide copy).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the slide titles and bodies against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment calls (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
+
+If you authored the copy, **present the authored slides for review and get
+approval before proceeding** (this is the same review-first gate as Step 2 —
+the user must be able to review, tweak, or reject the copy before rendering).
 
 Write the slide copy into a JSON file at the canonical path
 `linkedin/carousels/<slug>/slides.json`, following the schema above. If a
-`slides.json` already exists at that path, check there first before asking the user to re-enter the copy.
+`slides.json` already exists at that path, check there first before authoring or asking the user to re-enter the copy.
 
 ### 2. Emit spec + preview slide 1 (review-first)
 Design spec (add `--template $SKILL_DIR/templates/slide-<theme>.svg` if a non-default theme is chosen):

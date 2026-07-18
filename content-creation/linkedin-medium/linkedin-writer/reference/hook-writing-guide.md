@@ -1,3 +1,7 @@
+<!-- Intentional duplication: this guide is copied verbatim in linkedin-writer/reference/
+     and medium-writer/reference/ so each skill stays standalone and independently
+     installable. Keep both copies in sync when editing either one. -->
+
 # Hook Writing Guide
 
 A self-contained reference for writing high-performing opening hooks for LinkedIn posts

@@ -10,14 +10,23 @@ Rasterizes every <slug>-cover.svg and <slug>-NN-<type>.svg file found in the
 input directory (or a single file / filtered subset via --only) to PNG at
 the given scale (default 2.0x for retina-sharp images).
 
+If cairosvg is missing, the script prints an install hint and exits non-zero
+(PNG is the required deliverable — it does NOT degrade to success). With
+--install-missing, it instead creates a local .venv with uv, installs
+cairosvg into it, then re-runs this script with the venv Python. An env-var
+guard (MEDIUM_IMAGER_UV_BOOTSTRAPPED) prevents infinite re-exec loops.
+
 Example:
     python3 svg_to_png.py medium/images/my-article
     python3 svg_to_png.py medium/images/my-article --only cover
     python3 svg_to_png.py medium/images/my-article --only 1 --scale 2.0
+    python3 svg_to_png.py medium/images/my-article --install-missing
 """
 import argparse
 import glob
 import os
+import shutil
+import subprocess
 import sys
 
 INSTALL_HINT = (
@@ -44,6 +53,36 @@ def find_svgs(svg_dir, only):
     return [f for f in all_svgs if target in os.path.basename(f)]
 
 
+def venv_python():
+    return os.path.join(os.getcwd(), ".venv", "Scripts" if os.name == "nt" else "bin", "python")
+
+
+def install_with_uv():
+    if shutil.which("uv") is None:
+        print("error: uv is not installed or not on PATH", file=sys.stderr)
+        return 1
+    python = venv_python()
+    commands = []
+    if not os.path.exists(python):
+        commands.append(["uv", "venv", ".venv"])
+    commands.append(["uv", "pip", "install", "--python", python, "cairosvg"])
+    for command in commands:
+        result = subprocess.run(command)
+        if result.returncode:
+            return result.returncode
+    return 0
+
+
+def rerun_with_venv(argv):
+    python = venv_python()
+    if not os.path.exists(python):
+        print(f"error: expected venv Python at {python}", file=sys.stderr)
+        return 1
+    env = os.environ.copy()
+    env["MEDIUM_IMAGER_UV_BOOTSTRAPPED"] = "1"
+    return subprocess.run([python, os.path.abspath(__file__), *argv], env=env).returncode
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Rasterize medium-imager SVGs to PNG via cairosvg (required dependency).",
@@ -55,6 +94,8 @@ def main(argv=None):
                          help="Rasterize only 'cover' or a 1-based inner image number.")
     parser.add_argument("--scale", type=float, default=2.0,
                          help="Rasterization scale (default 2.0 -> retina-sharp PNGs).")
+    parser.add_argument("--install-missing", action="store_true",
+                         help="Use uv to create .venv and install cairosvg if missing. Ask the user before using this flag.")
     args = parser.parse_args(argv)
 
     if not os.path.isdir(args.svg_dir):
@@ -73,6 +114,14 @@ def main(argv=None):
     try:
         import cairosvg  # type: ignore  # noqa: F401
     except ImportError:
+        if args.install_missing and not os.environ.get("MEDIUM_IMAGER_UV_BOOTSTRAPPED"):
+            print("cairosvg missing; creating .venv with uv and installing cairosvg...")
+            sys.stdout.flush()
+            rc = install_with_uv()
+            if rc:
+                return rc
+            rerun_args = [a for a in (argv or sys.argv[1:]) if a != "--install-missing"]
+            return rerun_with_venv(rerun_args)
         print(INSTALL_HINT, file=sys.stderr)
         return 1
 

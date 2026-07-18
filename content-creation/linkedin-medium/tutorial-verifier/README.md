@@ -12,7 +12,7 @@ Turns a tutorial draft that contains code into a Medium-ready article whose code
 | Format for Medium | "format this tutorial for Medium", "turn this draft into a Medium article with verified code" |
 | Point at a draft | a draft under `drafts/` containing Python, JS/Node, or shell code |
 
-Do **not** use it for pure prose articles with no executable code, for editing/formatting that does not involve running code (use `editorial-reviewer`), or for rendering carousel images (use `carousel-builder`). Upstream drafting is `seed-expander` → `draft-builder` → `platform-adapter`.
+Do **not** use it for pure prose articles with no executable code, for editing/formatting that does not involve running code (use `editorial-reviewer`), or for rendering carousel images (use `carousel-builder`). Upstream drafting is `seed-expander` → `draft-builder` → {`linkedin-writer`, `medium-writer`}.
 
 ---
 
@@ -184,11 +184,11 @@ Copy-Item -Recurse content-creation\linkedin-medium\tutorial-verifier "$env:USER
 
 ## Companion skills
 
-Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → `platform-adapter` → {`carousel-builder`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
+Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → {`linkedin-writer`, `medium-writer`} → {`carousel-builder`, `medium-imager`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: expands a raw idea into an outline/angle
 - **`draft-builder`**: turns the outline into the full tutorial draft this skill verifies
-- **`platform-adapter`**: adapts the draft into platform formats upstream
+- **`linkedin-writer`** / **`medium-writer`**: turn the draft into platform-specific posts/articles upstream
 - **`carousel-builder`**: sibling downstream step; renders carousel slide images
 - **`editorial-reviewer`**: final editorial pass on the surrounding prose
 - **`voice-profiler`**: builds the `voice-tone/` guidance used for prose around code

@@ -13,7 +13,7 @@ Turns ONE user-provided seed idea into 8-10 distinct, post-worthy content angles
 | Ideas from notes | "content ideas from these notes", "seed idea" |
 | A raw thought or link | A dropped paragraph, project note, or URL to riff on |
 
-Do **not** use it to write the actual draft (use `draft-builder`), to reshape a draft into LinkedIn/Medium versions (use `platform-adapter`), or to render carousel images (use `carousel-builder`). This skill stops at approved idea stubs and hands off to `draft-builder`.
+Do **not** use it to write the actual draft (use `draft-builder`), to reshape a draft into LinkedIn/Medium versions (use `linkedin-writer` or `medium-writer`), or to render carousel images (use `carousel-builder`). This skill stops at approved idea stubs and hands off to `draft-builder`.
 
 ---
 
@@ -117,10 +117,10 @@ Copy-Item -Recurse content-creation\linkedin-medium\seed-expander "$env:USERPROF
 
 ## Companion skills
 
-`seed-expander` is the first stage of the LinkedIn/Medium content pipeline: **seed-expander → draft-builder → platform-adapter → {carousel-builder, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
+`seed-expander` is the first stage of the LinkedIn/Medium content pipeline: **seed-expander → draft-builder → {linkedin-writer, medium-writer} → {carousel-builder, medium-imager, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`draft-builder`**: consumes an approved stub and turns it into a full source draft (the next stage)
-- **`platform-adapter`**: reshapes a source draft into LinkedIn/Medium versions
+- **`linkedin-writer`** / **`medium-writer`**: reshape a source draft into platform-specific versions
 - **`carousel-builder`**: renders carousel slide copy into image files
 - **`tutorial-verifier`**: runs and verifies code in tutorial drafts
 - **`editorial-reviewer`**: produces edited variants of a version

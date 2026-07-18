@@ -12,9 +12,9 @@ Runs a finished LinkedIn post/article or Medium article through a structured edi
 | Ask for alternate angles | "make it more contrarian", "give me a tighter hook", "give me variants", "give me 4 versions" |
 | Pasted text or a file | Paste the piece directly, or point to a file in `drafts/`, `linkedin/`, or `medium/` |
 
-Runs standalone on any pasted text or file, and also naturally receives output handed off from `platform-adapter`.
+Runs standalone on any pasted text or file, and also naturally receives output handed off from `linkedin-writer` or `medium-writer`.
 
-Do **not** use it to expand a raw idea into an outline (that is `seed-expander`), build a full draft from scratch (that is `draft-builder`), reshape a draft for a specific platform (that is `platform-adapter`), build carousels (that is `carousel-builder`), or verify tutorial/code steps (that is `tutorial-verifier`).
+Do **not** use it to expand a raw idea into an outline (that is `seed-expander`), build a full draft from scratch (that is `draft-builder`), reshape a draft for a specific platform (that is `linkedin-writer` or `medium-writer`), build carousels (that is `carousel-builder`), or verify tutorial/code steps (that is `tutorial-verifier`).
 
 ---
 
@@ -126,11 +126,11 @@ Copy-Item -Recurse content-creation\linkedin-medium\editorial-reviewer "$env:USE
 
 ## Companion skills
 
-Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> `platform-adapter` -> {`carousel-builder`, `tutorial-verifier`} -> **`editorial-reviewer`**.
+Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` -> `draft-builder` -> {`linkedin-writer`, `medium-writer`} -> {`carousel-builder`, `medium-imager`, `tutorial-verifier`} -> **`editorial-reviewer`**.
 
 - **`seed-expander`**: expands a raw idea into structured angles/outline
 - **`draft-builder`**: turns an expanded seed into a full draft
-- **`platform-adapter`**: reshapes a draft for LinkedIn or Medium
+- **`linkedin-writer`** / **`medium-writer`**: reshape a draft for LinkedIn or Medium
 - **`carousel-builder`**: builds LinkedIn carousels
 - **`tutorial-verifier`**: verifies tutorial/code steps before publishing
 - **`voice-profiler`**: produces the optional `voice-tone/profile.md` this skill reads for voice authenticity
