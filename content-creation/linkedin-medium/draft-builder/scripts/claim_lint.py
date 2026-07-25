@@ -50,17 +50,32 @@ headers (Status, Platform, Hook, Why now, Research sources, Raw notes) are
 skipped so the linter judges the NEW prose, not the seed-expander scaffolding.
 Pass --whole-file to lint everything.
 
+STRIPPING MARKERS (--strip mode)
+================================
+The --strip mode removes inline markers from prose and creates a structured
+## Claim ledger section to preserve provenance without polluting the draft text.
+
+After a draft has passed the claim-integrity gate (exit 0), --strip:
+  1. Removes all inline markers ([source: ...], [UNVERIFIED], [personal])
+  2. Records each claim's status in a ## Claim ledger at the end of the file
+  3. Emits cleaned prose to stdout (or to --in-place file if specified)
+
+This allows downstream skills to read clean, marker-free prose while maintaining
+full provenance traceability.
+
 USAGE
 =====
     python3 claim_lint.py drafts/my-post.md
     python3 claim_lint.py drafts/my-post.md --json
     python3 claim_lint.py drafts/my-post.md --section Draft   # only the ## Draft body
     python3 claim_lint.py drafts/my-post.md --whole-file
+    python3 claim_lint.py drafts/my-post.md --strip --section Draft
+    python3 claim_lint.py drafts/my-post.md --strip --in-place --section Draft
 
-EXIT CODES
-==========
-    0  clean  — no unaccounted risky claims
-    1  fail   — one or more unaccounted risky claims (details printed)
+EXIT CODES (all modes)
+======================
+    0  clean  — no unaccounted risky claims (or stripping succeeded)
+    1  fail   — one or more unaccounted risky claims (or strip failed)
     2  usage  — bad arguments / file not found
 """
 from __future__ import annotations
@@ -180,6 +195,116 @@ def line_is_accounted(line: str) -> bool:
                 or ANECDOTE_RE.search(line))
 
 
+def extract_claim_status(line: str) -> dict | None:
+    """Extract claim status from a line with markers. Returns dict or None."""
+    cited = CITED_RE.search(line)
+    if cited:
+        source = cited.group(0)  # e.g. "[source: https://example.com]"
+        # Extract URL/ref from [source: ...]
+        match_text = re.search(r"\[source:\s*([^\]]+)\]", source, re.IGNORECASE)
+        if match_text:
+            url = match_text.group(1).strip()
+            return {"status": "cited", "source": url}
+    
+    if UNVERIFIED_RE.search(line):
+        return {"status": "unverified"}
+    
+    if ANECDOTE_RE.search(line):
+        return {"status": "personal"}
+    
+    return None
+
+
+def strip_markers_from_line(line: str) -> str:
+    """Remove all claim markers from a line."""
+    line = CITED_RE.sub("", line)
+    line = UNVERIFIED_RE.sub("", line)
+    line = ANECDOTE_RE.sub("", line)
+    # Clean up leftover whitespace (double spaces, trailing spaces)
+    line = re.sub(r"\s+", " ", line).strip()
+    return line
+
+
+def strip_draft(raw: str, whole_file: bool, section: str | None) -> tuple[str, list]:
+    """Remove markers from draft and return (cleaned_text, ledger_entries).
+    
+    ledger_entries is a list of {"cleaned_text": ..., "status": "cited|unverified|personal", "source": ...}
+    """
+    lines = raw.splitlines(keepends=True)
+    result_lines = []
+    ledger = []
+    in_code = False
+    active_section = None
+    want_section = section.strip().lower() if section else None
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+
+        # Toggle fenced code blocks.
+        if stripped.startswith("```"):
+            in_code = not in_code
+            result_lines.append(line)
+            continue
+        if in_code:
+            result_lines.append(line)
+            continue
+
+        # Track current ## section heading.
+        m = re.match(r"^#{1,6}\s+(.*)$", stripped)
+        if m:
+            active_section = m.group(1).strip().lower()
+            result_lines.append(line)
+            continue
+
+        # Determine if this line should be processed for stripping.
+        should_strip = False
+        if whole_file:
+            should_strip = True
+        elif want_section is not None:
+            should_strip = (active_section == want_section)
+        else:
+            # Default: skip known scaffolding sections and stub metadata lines.
+            if active_section not in SKIP_HEADINGS and not STUB_META_RE.match(line):
+                if not stripped.startswith(">"):  # not a blockquote
+                    should_strip = True
+
+        if should_strip and line_is_accounted(line):
+            # Extract status before stripping
+            claim_status = extract_claim_status(line)
+            # Strip the markers
+            cleaned = strip_markers_from_line(line.rstrip())
+            # Record in ledger
+            if claim_status:
+                ledger_entry = {"cleaned_text": cleaned, **claim_status}
+                ledger.append(ledger_entry)
+            # Write cleaned line
+            result_lines.append(cleaned + "\n")
+        else:
+            result_lines.append(line)
+
+    return "".join(result_lines), ledger
+
+
+def build_claim_ledger(ledger: list) -> str:
+    """Build a ## Claim ledger section from ledger entries."""
+    if not ledger:
+        return ""
+    
+    lines = ["\n## Claim ledger\n"]
+    for entry in ledger:
+        text = entry["cleaned_text"]
+        status = entry["status"]
+        if status == "cited":
+            source = entry.get("source", "")
+            lines.append(f"- **cited** — {text}\n  Source: {source}\n")
+        elif status == "unverified":
+            lines.append(f"- **unverified** — {text}\n")
+        elif status == "personal":
+            lines.append(f"- **personal** — {text}\n")
+    
+    return "".join(lines)
+
+
 def find_risks(line: str):
     """Return a list of (risk_name, hint, matched_text) for a single line."""
     hits = []
@@ -251,6 +376,11 @@ def main(argv=None):
     p.add_argument("--whole-file", action="store_true",
                    help="Lint everything, including code blocks and scaffolding.")
     p.add_argument("--json", action="store_true", help="Emit machine-readable JSON.")
+    p.add_argument("--strip", action="store_true",
+                   help="Remove inline markers and build a ## Claim ledger. "
+                   "Draft must already be lint-clean for best results.")
+    p.add_argument("--in-place", action="store_true",
+                   help="With --strip, write to the file instead of stdout.")
     args = p.parse_args(argv)
 
     if not os.path.isfile(args.draft):
@@ -260,6 +390,24 @@ def main(argv=None):
     with open(args.draft, "r", encoding="utf-8") as fh:
         raw = fh.read()
 
+    # Strip mode: remove markers and build ledger
+    if args.strip:
+        cleaned, ledger = strip_draft(raw, args.whole_file, args.section)
+        ledger_text = build_claim_ledger(ledger)
+        output = cleaned + ledger_text
+
+        if args.in_place:
+            with open(args.draft, "w", encoding="utf-8") as fh:
+                fh.write(output)
+            print(f"CLAIM STRIP: stripped markers and wrote ledger to {args.draft}")
+            if ledger:
+                print(f"  ({len(ledger)} claim(s) recorded in ## Claim ledger)")
+            return 0
+        else:
+            print(output, end="")
+            return 0
+
+    # Default mode: lint for claim integrity
     findings = lint(raw, args.whole_file, args.section)
 
     if args.json:

@@ -22,17 +22,18 @@ Do **not** use it to generate the ideas themselves (use `seed-expander`), to res
   - **Cleanup mode**: input is a near-complete draft. Tighten, restructure, fix flow, preserve the user's words where they work.
   - **Expansion mode**: input is bullets/sparse notes. Develop the thinking and add connective tissue, but invent no facts or anecdotes.
   - **Mixed**: some sections solid, others thin; handle each accordingly.
+- **Clarifying-questions gate (Expansion/Mixed only).** Before drafting sparse input, pause and ask 5–8 focused clarifying questions to gather missing facts, numbers, sources, and anecdotes. Purpose: convert guesses into real cited facts or explicit `[personal]` anecdotes, reducing `[UNVERIFIED]` claims and producing a fuller draft. Cleanup mode skips this.
 - **Matches voice (mandatory).** Before drafting, looks for `voice-tone/`. If `voice-tone/profile.md` exists it reads that first; otherwise it reads the raw samples plus any instruction files, and adapts sentence rhythm, vocabulary, and structural habits to the content. If `voice-tone/` does not exist, it stops and asks how to proceed (point to samples, paste style rules, or explicitly proceed with a neutral professional voice).
 - **Builds a platform-neutral source draft.** Structures every draft as **hook → point → evidence/story → takeaway**, with no LinkedIn line-break formatting or Medium subheadings yet, just clean, complete prose with a clear spine. Length is whatever the idea genuinely needs.
 - **Enforces claim integrity with a linter.** Runs `scripts/claim_lint.py` as a hard gate before review; every risky claim must be accounted for by an inline marker (see Claim-integrity contract below).
 - **Review-first (mandatory stop).** Presents the lint-clean draft plus a one-line claim audit, then stops for edits/approval. Iterates in place, re-running the gate after any change that touches a claim, and never hands off to the writer skills automatically.
-- **Persists after approval.** Fills the stub's `## Draft` section (or creates a new file with the same structure), sets `**Status:** drafted`, keeps or consolidates claim markers, and re-runs the gate one final time on the persisted file. It also runs a voice-compliance gate before writing: scans the draft against the voice-tone profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls (distinct from the claim-integrity linter).
+- **Persists after approval.** Runs a voice-compliance gate, then runs the final claim-integrity gate on the marked draft, then strips all markers and builds a `## Claim ledger` for clean, marker-free prose. Fills the stub's `## Draft` section (or creates a new file with the same structure), sets `**Status:** drafted`. Downstream skills consume clean prose with provenance recorded in the ledger.
 
 ---
 
 ## Claim-integrity contract
 
-Because everything downstream trusts this draft, "don't fabricate" is made enforceable. Every **risky claim** in the drafting prose must be explicitly accounted for by one of three inline markers:
+Because everything downstream trusts this draft, "don't fabricate" is made enforceable. Every **risky claim** in the drafting prose must be explicitly accounted for during authoring and review by one of three inline markers:
 
 | Marker | Meaning | Use when |
 |---|---|---|
@@ -44,6 +45,8 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 
 **Absolute rule: never invent a citation to satisfy the linter.** If a claim cannot be sourced, flag it `[UNVERIFIED]` or cut it. Fabricating a URL is worse than an unbacked claim. Expansion and Mixed modes carry the highest fabrication risk. The contract is applied most strictly there.
 
+**Markers exist only during authoring.** On persist, all markers are stripped from the prose and consolidated into a structured `## Claim ledger` section. This keeps the final draft clean and readable while preserving full provenance. Downstream skills see marker-free prose and can reference the ledger for claim context.
+
 ---
 
 ## Scripts
@@ -52,9 +55,19 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 
   Resolve `$SKILL_DIR` to the skill's directory (project-local `.opencode/skills/draft-builder` or global `~/.config/opencode/skills/draft-builder`).
 
-  Run as the mandatory gate before review:
-  ```
+  **Modes and usage:**
+
+  *Gate before review (step 3):*
+  ```bash
   python3 $SKILL_DIR/scripts/claim_lint.py drafts/<slug>.md --section Draft
+  ```
+
+  *Final gate + strip (step 5):*
+  ```bash
+  # Confirm draft is still clean
+  python3 $SKILL_DIR/scripts/claim_lint.py drafts/<slug>.md --section Draft
+  # Then strip markers and build ledger
+  python3 $SKILL_DIR/scripts/claim_lint.py drafts/<slug>.md --section Draft --strip --in-place
   ```
 
   **Flags:**
@@ -63,11 +76,13 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
   | `--section <heading>` | Lint only that section body (use `--section Draft` when the new prose lives under `## Draft`) |
   | `--whole-file` | Lint the entire file including scaffolding |
   | `--json` | Emit machine-readable output |
+  | `--strip` | Remove all markers and build a `## Claim ledger`. Draft must be lint-clean (exit 0) for best results. |
+  | `--in-place` | With `--strip`, write to the file instead of stdout. |
 
   **Exit codes:**
   | Code | Meaning | Action |
   |---|---|---|
-  | `0` | PASS: clean | Proceed to review |
+  | `0` | PASS: clean | Proceed to review (or strip succeeded) |
   | `1` | FAIL: unaccounted risky claims found | For each one, cite, flag `[UNVERIFIED]`, or reword/cut (never invent a source), then re-run until clean |
   | `2` | Usage error | Fix the invocation |
 
@@ -80,10 +95,11 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 | Step | What happens |
 |---|---|
 | **1. Intake + detect mode** | Read the input; detect Cleanup / Expansion / Mixed and state which and why (one line) |
-| **2. Build the source draft** | Write hook → point → evidence/story → takeaway, platform-neutral, voice-matched, applying the claim contract inline |
+| **1a. Clarifying-questions gate (Expansion/Mixed only)** | If Expansion or Mixed, ask 5–8 focused questions to gather missing facts, numbers, sources, anecdotes. Cleanup mode skips this. Non-interactive runs skip silently. |
+| **2. Build the source draft** | Write hook → point → evidence/story → takeaway, platform-neutral, voice-matched, applying the claim contract inline with markers |
 | **3. Claim-integrity gate** | Run `claim_lint.py`; resolve every FAIL by citing/flagging/rewording; re-run until exit 0 |
 | **4. Review-first (stop)** | Present the lint-clean draft + one-line claim audit; iterate in place until approved; no auto-handoff |
-| **5. Persist** | Fill/create `drafts/<slug>.md`, set `**Status:** drafted`, keep/consolidate markers, re-run the gate once more; confirm the path; runs the voice-compliance gate before writing |
+| **5. Persist** | Run voice-compliance gate → run final claim-integrity gate (confirm clean) → strip markers and build `## Claim ledger` → write to `drafts/<slug>.md`, set `**Status:** drafted`; confirm the path |
 
 ---
 
@@ -100,9 +116,9 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 
 ## Outputs
 
-- **A clean, platform-neutral source draft** structured hook → point → evidence/story → takeaway, voice-matched, with every risky claim cited or explicitly flagged.
+- **A clean, platform-neutral source draft** structured hook → point → evidence/story → takeaway, voice-matched, with all inline markers stripped and provenance recorded in a `## Claim ledger` section.
 - **A one-line claim audit** ("N risky claims: X cited, Y flagged UNVERIFIED, Z personal") plus the lint result (PASS, or the FAIL list and how each item was resolved).
-- **The persisted draft** at `drafts/<slug>.md` with `**Status:** drafted`, re-linted clean on save, and a confirmed path.
+- **The persisted draft** at `drafts/<slug>.md` with `**Status:** drafted`, marker-free prose, a `## Claim ledger` recording all claim sources and statuses, and a confirmed path. Downstream skills receive clean, readable prose with full provenance traceable.
 
 ---
 
@@ -150,7 +166,7 @@ Note: on non-opencode platforms the `claim_lint.py` gate must be run manually (`
 `draft-builder` is the second stage of the LinkedIn/Medium content pipeline: **seed-expander → draft-builder → {linkedin-writer, medium-writer} → {carousel-builder, medium-imager, tutorial-verifier} → editorial-reviewer**, with `voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: produces the approved stubs this skill builds out (the previous stage)
-- **`linkedin-writer`** / **`medium-writer`**: reshape this skill's source draft into platform-specific versions (the next stage)
+- **`linkedin-writer`** / **`medium-writer`**: reshape this skill's marker-free source draft into platform-specific versions (the next stage). They consume clean prose and can reference the `## Claim ledger` for context.
 - **`tutorial-verifier`**: runs and verifies code from tutorial drafts
 - **`carousel-builder`**: renders carousel slide copy into image files
 - **`editorial-reviewer`**: produces edited variants of a version

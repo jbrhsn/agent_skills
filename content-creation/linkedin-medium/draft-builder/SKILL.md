@@ -27,7 +27,7 @@ Before drafting, look for `voice-tone/`:
 
 ## Claim-integrity contract (the core rule)
 
-In **Expansion mode** especially, the model develops sparse notes into full prose, which is exactly where invented statistics, fake studies, and made-up attributions creep in. To make "don't fabricate" enforceable rather than aspirational, every **risky claim** in the drafting prose MUST be explicitly accounted for by one of three inline markers:
+In **Expansion mode** especially, the model develops sparse notes into full prose, which is exactly where invented statistics, fake studies, and made-up attributions creep in. To make "don't fabricate" enforceable rather than aspirational, every **risky claim** in the drafting prose MUST be explicitly accounted for by one of three inline markers during authoring and review:
 
 | Marker | Meaning | Use when |
 |---|---|---|
@@ -39,7 +39,7 @@ A **risky claim** is any sentence containing a number, percentage, money figure,
 
 **Absolute rule: never invent a citation to satisfy the linter.** If a claim cannot be sourced, flag it `[UNVERIFIED]` or cut it. Fabricating a URL is worse than an unbacked claim.
 
-Markers live inline in the draft body during authoring. On persistence you may either keep inline `[source: ...]` markers or consolidate them into the stub's `## Research sources` list (see step 5), but every risky claim must remain traceable to a source or an explicit `[UNVERIFIED]` / `[personal]` label.
+**On persist (final step 5), all markers are stripped.** The inline markers exist only during authoring and review to enforce integrity at the source. When the draft is finalized, markers are removed from the prose and consolidated into a structured `## Claim ledger` section, so downstream skills receive clean prose with full provenance recorded separately. This ensures the draft is readable while maintaining complete claim traceability.
 
 ## Workflow
 
@@ -50,6 +50,8 @@ Read the input. Auto-detect how much work it needs:
 - **Mixed**: some sections solid, others thin. Handle each accordingly.
 
 State which mode you detected and why (one line). Expansion and Mixed modes carry the highest fabrication risk. Apply the claim contract most strictly there.
+
+**For Expansion and Mixed modes: clarifying-questions gate.** Before building the draft, pause and ask the user a focused batch of clarifying questions (5–8 questions max, not an endless round) to gather missing facts, numbers, sources, anecdotes, and context. Purpose: fill sparse areas with real information rather than placeholders, and reduce the number of `[UNVERIFIED]` claims by converting guesses into either real cited facts or explicit `[personal]` anecdotes. Cleanup mode skips this. If running non-interactively, skip the questions, note "clarifying-questions gate skipped — non-interactive mode," and proceed.
 
 ### 2. Build the source draft
 Structure every source draft as: **hook → point → evidence/story → takeaway.**
@@ -81,20 +83,52 @@ If running non-interactively (e.g. in a batch pipeline or scripted run), documen
 Ask for edits/approval. Iterate on the draft in place, re-running the gate after any change that touches a claim, until the user approves. Do NOT proceed to writing the final file automatically.
 
 ### 5. Persist (after approval)
-- **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the draft against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment calls (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
+After the user approves the draft, persist it in the following order:
 
-Write/update the source draft in `drafts/<slug>.md`:
-- If building from a stub, fill the `## Draft` section and set `**Status:** drafted`. Keep inline `[source: ...]` / `[UNVERIFIED]` / `[personal]` markers, or move cited URLs into the `## Research sources` list while leaving `[UNVERIFIED]`/`[personal]` markers inline.
-- If new, create the file with the same stub structure (title, status, source notes, then the draft).
-- Re-run the gate one final time on the persisted file to confirm it is still clean. Use `--section Draft` when linting a stub file (the persisted content is under `## Draft`); use `--whole-file` when the entire file is the draft.
+1. **Voice compliance gate (before write).** If `voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the draft against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks". Auto-fix mechanical violations (em-dashes to periods or commas, banned punctuation) and report what changed. Flag judgment calls (hype words, AI-voice markers) for the user. Never emit a banned pattern. If no voice-tone exists, skip silently.
 
-Confirm the file path to the user.
+2. **Final claim-integrity gate (before strip).** Run `claim_lint.py` on the **marked** draft to confirm it still passes (exit 0). This gate ensures no claim drift occurred since review. This is the last time the markers are validated.
+
+3. **Strip markers and build ledger (write step).** Run `claim_lint.py --strip` to remove all inline markers (`[source:]`, `[UNVERIFIED]`, `[personal]`) from the prose and generate a structured `## Claim ledger` section at the end of the file. This produces clean, marker-free prose while recording every claim's provenance.
+
+4. **Write/update the source draft** in `drafts/<slug>.md`:
+   - If building from a stub, fill the `## Draft` section with the stripped prose and set `**Status:** drafted`. Keep the `## Claim ledger` at the end.
+   - If new, create the file with the same stub structure (title, status, source notes, then the stripped draft, then the ledger).
+   - The `## Claim ledger` section provides full provenance without polluting the prose: each entry records the claim text and its status (cited + source URL, unverified, or personal).
+
+5. **Confirm the file path** to the user.
+
+The stripped draft at `drafts/<slug>.md` is now ready for downstream skills. The prose contains no marker annotations, but the `## Claim ledger` preserves complete claim traceability.
 
 ## Scripts reference
-- `scripts/claim_lint.py`: scans a draft for risky claims (numbers, %, money, multipliers, dated stats, research appeals, named attributions, factual superlatives) that are NOT accounted for by `[source: ...]`, `[UNVERIFIED]`, or `[personal]`. Skips code blocks, headings, blockquotes, and stub scaffolding by default. Flags: `--section <heading>` (lint only that section body), `--whole-file`, `--json`. Exit `0` clean, `1` unaccounted claims found, `2` usage error. Standard-library Python only.
+- `scripts/claim_lint.py`: scans a draft for risky claims (numbers, %, money, multipliers, dated stats, research appeals, named attributions, factual superlatives) that are NOT accounted for by `[source: ...]`, `[UNVERIFIED]`, or `[personal]`. Skips code blocks, headings, blockquotes, and stub scaffolding by default. 
+
+  **Flags:**
+  | Flag | Effect |
+  |---|---|
+  | `--section <heading>` | Lint only that section body (e.g. `--section Draft`) |
+  | `--whole-file` | Lint everything, including code blocks and scaffolding |
+  | `--json` | Emit machine-readable JSON output |
+  | `--strip` | Remove markers and build a `## Claim ledger`. Draft must be lint-clean (exit 0) for best results. |
+  | `--in-place` | With `--strip`, write to the file instead of stdout |
+
+  **Exit codes:**
+  | Code | Meaning |
+  |---|---|
+  | `0` | PASS: no unaccounted claims (or strip succeeded) |
+  | `1` | FAIL: unaccounted risky claims found (or strip failed) |
+  | `2` | Usage error |
+
+  **Typical usage (step 5: final gate, then strip):**
+  ```bash
+  # First, confirm draft is clean (final gate)
+  python3 $SKILL_DIR/scripts/claim_lint.py drafts/<slug>.md --section Draft
+  # Then strip markers and build ledger (final write)
+  python3 $SKILL_DIR/scripts/claim_lint.py drafts/<slug>.md --section Draft --strip --in-place
+  ```
 
 ## Handoff
-An approved, claim-clean source draft at `drafts/<slug>.md` is the complete deliverable of this skill. The draft's claims are already cited or explicitly flagged, making the provenance clear for any subsequent use.
+An approved, claim-clean source draft at `drafts/<slug>.md` is the complete deliverable of this skill. The draft is marker-free prose with a `## Claim ledger` that records every claim's status (cited + source URL, unverified, or personal). Downstream skills (linkedin-writer, medium-writer, etc.) consume the clean prose and can reference the ledger for provenance context as needed. The claim-integrity gate was already satisfied during authoring; downstream skills do not re-run the linter.
 
 ## Conventions
 
