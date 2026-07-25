@@ -1,0 +1,32 @@
+{
+  "//": "CUSTOM THEME TEMPLATE — copy this file, rename it, edit the tokens, then set meta.theme to its path (e.g. theme: ./my-theme.json).",
+  "name": "my_custom_theme",
+
+  "//colors": "All 7 keys are REQUIRED. Values must be hex (#RGB or #RRGGBB). Run --spec-only to see the WCAG AA contrast check; aim for >=4.5:1 body text on background and >=3:1 for large headline text.",
+  "colors": {
+    "background": "#F5F5F5",
+    "surface": "#EBEBEB",
+    "text_primary": "#000000",
+    "text_secondary": "#333333",
+    "accent_positive": "#0066CC",
+    "accent_negative": "#CC0000",
+    "accent_neutral": "#666666"
+  },
+
+  "//fonts": "heading/body MUST match a bundled family folder name under assets/fonts/ (Space Grotesk, IBM Plex Sans, IBM Plex Serif, Inter, Manrope). To add your own font, drop its .woff2 files in assets/fonts/<Family Name>/ and reference that name here.",
+  "fonts": {
+    "heading": "Space Grotesk",
+    "body": "Inter",
+    "heading_weight": 700,
+    "body_weight": 400
+  },
+
+  "//decoration": "Optional presentation flags read by templates.",
+  "decoration": {
+    "corner_radius": 12,
+    "gradient_bar": false
+  },
+
+  "//pygments_style": "Pygments syntax-highlighting style for code cards. Examples: 'default', 'monokai', 'friendly', 'github-dark', 'solarized-dark', 'solarized-light'. Run `pygmentize -L styles` to see all available.",
+  "pygments_style": "default"
+}

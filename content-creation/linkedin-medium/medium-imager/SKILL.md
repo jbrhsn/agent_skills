@@ -1,276 +1,209 @@
 ---
 name: medium-imager
-description: Use when the user wants to turn Medium article copy into actual rendered cover + in-article image files: generates a wide featured cover image (1500x750) plus quote/callout/stat/code-snippet slide images (1600x900) locally as SVG, then rasterizes all of them to PNG (the actual Medium-uploadable asset) via cairosvg. No image APIs or models.
+description: Use when the user wants to turn Medium article copy into actual rendered cover + in-article image files: generates a wide featured cover image (1200×680, with optional photo-background layer) plus in-article images (1400×variable: quote/stat/callout/code-snippet cards, comparison tables, section dividers, diagram flows) rendered locally via headless Chromium (Playwright) with Jinja2 templates, Pygments syntax highlighting, and JSON theme tokens. No external image APIs or models. Manual mode (YAML/JSON spec) or auto mode (propose placement from a draft, then render on confirmation).
 ---
 
 # Medium Imager
 
-Turns Medium article copy into **actual rendered image files**: one wide
-**cover image** (1500x750, Medium's featured-image ratio) plus up to 10
-**in-article slide-style images** (1600x900) — quote cards, key-takeaway
-callouts, stat/number highlights, and code snippet cards. Pure local SVG
-rendering, then a **required** SVG->PNG rasterization pass, because Medium
-does not accept raw SVG uploads. No external image APIs, no image-generation
-models.
+Renders **actual cover + in-article images** for Medium articles from a spec or from auto-detected placement suggestions. Covers are 1200×680 (customizable ratio) with optional photo-background layer. In-article images (1400px fixed width, variable height) include: quote blocks, stat callouts, comparison tables, code cards with Pygments syntax highlighting, section dividers, and three diagram patterns (linear flow, 2-way branch, stage cycle). Renders locally via headless Chromium (Playwright) with Jinja2 templates and JSON themes — no external image APIs or AI models.
 
 ## When to use
-- The user has (or wants help drafting) cover + in-article image copy for a
-  Medium piece and wants postable PNG files.
-- Copy can be provided as a plain list, read from an existing
-  `medium/<slug>.md` draft (auto-suggested, never auto-written), or read from
-  `medium/images/<slug>/images.json` if that file already exists. This skill
-  is **standalone**: a title + a few image entries is enough to run it.
+- User has (or wants help drafting) cover + in-article image copy and wants postable PNG files.
+- Input: manual spec (YAML/JSON), or a Markdown draft for automatic placement suggestion.
+- This skill is **standalone** — a spec is enough; doesn't require other skills.
 
 ## Output
-1. **Per-image SVG files** at `medium/images/<slug>/<slug>-cover.svg` and
-   `medium/images/<slug>/<slug>-NN-<type>.svg` — kept as editable source.
-2. **Per-image PNG files** at the same paths with `.png` — the actual
-   Medium-uploadable deliverable, produced by rasterizing every SVG.
+- **Cover PNG** at `medium/images/<slug>/<slug>-cover.png` (1200×680 @ 2x = 2400×1360 pixels).
+- **In-article PNGs** at `medium/images/<slug>/<slug>-NN-<type>.png` (1400px wide, variable height @ 2x).
+- Output directory defaults to `medium/images/<slug>/` (cwd-relative); ask before creating `medium/`.
 
-Unlike carousel-builder's optional PDF step, the PNG step here is
-**required**, not best-effort: Medium does not accept SVG uploads, so a run
-without PNGs is not "done". If `cairosvg` is missing, the rasterize step
-prints install instructions and exits non-zero rather than degrading.
-
-## Theme catalog
-All themes live in `templates/` as pairs of `.svg` files: `cover-<theme>.svg`
-(1500x750) and `slide-<theme>.svg` (1600x900, shared by all four inner image
-types). Select one with `--theme` (default = `clean-minimal`).
-
-| Theme | Cover / slide files | Look |
-|---|---|---|
-| Clean minimal (default) | `cover-clean-minimal.svg` / `slide-clean-minimal.svg` | Flat off-white, single blue accent block, geometric sans. |
-| Editorial serif | `cover-editorial-serif.svg` / `slide-editorial-serif.svg` | Cream background, Georgia serif, thin black accent rule. |
-| Dark code | `cover-dark-code.svg` / `slide-dark-code.svg` | Near-black, monospace, terminal green accent. Best for code-heavy pieces. |
-| Bold magazine | `cover-bold-magazine.svg` / `slide-bold-magazine.svg` | High-contrast black/white sans, thick red accent rules. |
-| Warm sepia | `cover-warm-sepia.svg` / `slide-warm-sepia.svg` | Warm tan background, soft brown accent, serif italics. |
-
-The cover template has placeholders `{{TITLE_BLOCK}}` `{{SUBTITLE_BLOCK}}`
-`{{FOOTER}}`. The slide template has one `{{CONTENT_BLOCK}}` placeholder that
-`render_svg.py` fills differently per image `type` (quote/callout/stat/code),
-plus `{{FOOTER}}` `{{COUNTER}}` `{{INDEX}}` `{{TOTAL}}`. Themes control
-background, accent, and per-class fill/font-family/weight via inline
-`<style>`; the renderer only sets text geometry so auto-fit stays
-theme-independent. Add a new theme by copying a `cover-*.svg` +
-`slide-*.svg` pair and restyling — keep canvas, geometry, class names, and
-placeholders identical.
+## Prerequisites (one-time)
+1. Check `uv --version`. If missing, **STOP and ask the user to install it** (`curl -LsSf https://astral.sh/uv/install.sh | sh`, or `brew install uv`, or `pipx install uv`). This skill never falls back to pip/venv.
+2. From `$SKILL_DIR`, run once: `uv sync` then `uv run playwright install chromium`. After that, all rendering is fully local.
+3. Fonts are bundled under `assets/fonts/` — do not delete; headless rendering otherwise drifts between machines.
 
 ## Folder rules (cwd-relative, never absolute)
-All folders resolve relative to the **current working directory** where
-opencode was launched.
 - Output goes under `medium/images/<slug>/`.
-- **If `medium/` does NOT exist, STOP and ASK the user** how to proceed
-  (create it? use a different path?). Never silently create the `medium/`
-  folder tree.
-- Read voice/brand tone from a `voice-tone/` folder (cwd-relative) if
-  present, to keep wording/style consistent. If a `voice-tone/` folder is
-  **expected but missing**, ask the user how to proceed rather than
-  guessing.
+- **If `medium/` does NOT exist, ASK the user** how to proceed. Never silently create the `medium/` tree.
+- If tone/voice consistency is expected, check for `voice-tone/` folder (cwd-relative); if missing, ask.
+
+Resolve `SKILL_DIR` to this skill's own directory: project-local `.opencode/skills/medium-imager` or global `~/.config/opencode/skills/medium-imager`.
 
 ## Review-first (mandatory stop point)
 Never run end-to-end automatically.
-1. Probe `cairosvg` up front (Step 0). It is **required** — if missing,
-   report the install command and STOP; do not proceed to spec/render until
-   resolved. SVG-only files are editable source, not completed Medium-ready
-   output.
-2. Emit a **design spec** with `scripts/spec.py` (canvases, theme, image
-   count, and per-image auto-fit result incl. any overflow warnings).
-3. Render **only the cover** (`--only cover`) and **only image 1**
-   (`--only 1`) as SVG, then rasterize just those two to PNG.
-4. **STOP.** Show the spec + preview PNG paths and let the user
-   review/approve. If the spec reports overflow on any item, recommend
-   shortening/splitting that item's copy before proceeding.
-5. Only after approval, render all remaining images to SVG AND rasterize
-   every SVG to PNG.
 
-## Auto-fit & overflow
-`render_svg.py` auto-fits every image: it steps font sizes down until the
-content fits the safe area above the reserved footer band. If an item still
-overflows at the smallest size, the script prints a WARNING naming the item
-and exits `3` (non-fatal). Shorten the copy or split it. Fonts use a
-Linux-friendly fallback stack so PNG rasterization stays consistent when
-Helvetica/Georgia/Courier are absent.
+1. Emit a **design spec** (title, theme, image count, per-image lint warnings, WCAG contrast report).
+2. Render **only the cover** as a preview.
+3. **STOP.** Show the spec + preview PNG and let the user review/approve. If spec reports overflow on any item, recommend shortening/splitting before proceeding.
+4. Only after approval, render all remaining images.
 
-## images.json schema
-Canonical path: `medium/images/<slug>/images.json`. `index`/`total` for
-inner images are auto-filled from array position. Do not include them.
+## Operating modes
 
-```json
-{
-  "slug": "my-article",
-  "cover": {
-    "title": "How We Cut Deploy Time by 80%",
-    "subtitle": "A practical guide to CI/CD pipeline optimization",
-    "footer": "@handle"
-  },
-  "images": [
-    {"type": "quote", "quote": "...", "attribution": "Jane Doe", "footer": "@handle"},
-    {"type": "callout", "text": "...", "label": "Key takeaway", "footer": "@handle"},
-    {"type": "stat", "number": "80%", "label": "reduction in deploy time", "footer": "@handle"},
-    {"type": "code", "code": "def foo():\n    return 1", "language": "python", "footer": "@handle"}
-  ]
-}
+### Manual mode
+User provides a spec file (YAML or JSON):
+```bash
+uv run python -m engine.render --spec medium/images/my-article/spec.yaml --spec-only
+uv run python -m engine.render --spec medium/images/my-article/spec.yaml --only cover
+uv run python -m engine.render --spec medium/images/my-article/spec.yaml
 ```
 
-**Fields per type** (all `footer` fields optional; blank renders without
-attribution text — this is valid):
-- `cover`: `title` (required), `subtitle` (optional), `footer` (optional)
-- `quote`: `quote` (required), `attribution` (optional)
-- `callout`: `text` (required), `label` (optional, rendered as an uppercase kicker)
-- `stat`: `number` (required), `label` (required)
-- `code`: `code` (required, newlines preserved), `language` (optional, shown as a small badge — no syntax highlighting)
+Spec schema: canonical path `medium/images/<slug>/spec.yaml` (or `.json`).
+```yaml
+meta:
+  title: "How We Cut Latency by 80%"
+  slug: cut-latency-80            # optional; derived from title if omitted
+  theme: clean_minimal            # name in themes/, or path to custom .json
+  cover:
+    subtitle: "A practical guide to edge caching"
+    ratio: wide                   # wide (default 1200×680) | square (1200×1200) | 16:9 (1280×720)
+    photo: null                   # or path to local image for background layer
 
-**Limits:** up to 10 entries in `images`. **Field validation:** an entry
-missing a required field for its `type`, or an unrecognized `type`, causes
-`scripts/images.py` to raise and the agent should stop and ask the user to
-supply/fix the missing content before writing `images.json`.
+images:
+  - type: stat_callout
+    value: "80%"
+    label: "latency reduction"
+    context: "after edge caching"
 
-Use the **real per-item content**. No lorem ipsum.
+  - type: quote_block
+    quote: "Edge-first is how we think now."
+    attribution: "Sarah Chen, VP Infra"
+
+  - type: comparison_table
+    title_left: "Before"
+    title_right: "After"
+    rows:
+      - ["p99 latency", "800ms", "160ms"]
+      - ["Cache hit", "12%", "94%"]
+
+  - type: code_card
+    language: python
+    code: |
+      def cached_fetch(key):
+          ...
+
+  - type: section_divider
+    label: "Technical Details"
+
+  - type: linear_flow
+    steps: ["Step 1", "Step 2", "Step 3"]
+```
+
+### Auto mode (propose placement from draft)
+User provides a Markdown draft; the skill parses it, suggests image placements (with confidence tags), and waits for confirmation before rendering:
+```bash
+uv run python -m engine.render --draft article.md --auto
+```
+
+Placement detection (all tagged `high`/`low` confidence):
+- **Cover** (high): from YAML front-matter `title` or H1.
+- **Section dividers** (high): before each H2/H3.
+- **Quote blocks** (high): from Markdown blockquotes.
+- **Comparison tables** (high): from Markdown tables.
+- **Code cards** (high): from fenced code blocks (kept as Medium native by default; request image explicitly).
+- **Stat callouts** (low/high): from standalone percentage/large-number claims.
+- **Diagrams** (low): only if explicitly marked (` ```diagram ` / ` ```mermaid `) or via suggestions.
+
+The proposal is printed for the user to review/edit; user approves and the skill renders with the confirmed spec.
+
+## Image types (required/optional fields)
+
+| Type | Required | Optional | Notes |
+|---|---|---|---|
+| `cover` (generated once) | — | `subtitle`, `photo` (path), `ratio` | Safe zone centered both axes; photo + scrim layer optional. |
+| `section_divider` | — | `label` | Visual break between sections. |
+| `stat_callout` | `value`, `label` | `context` | Large number + description. |
+| `quote_block` | `quote` | `attribution` | Blockquote with optional speaker. |
+| `comparison_table` | `title_left`, `title_right`, `rows` | — | Rows are `[[feature, left, right], ...]`. |
+| `code_card` | `code` | `language` | Pygments syntax highlighting; lang detection optional. |
+| `linear_flow` | `steps` | — | 2–6 horizontal steps with arrows. |
+| `branch_2way` | `left_label`, `right_label`, `left_items`, `right_items` | — | Two-column A/B or before/after. |
+| `stage_cycle` | `stages` | — | 2–4 stages in a circular loop. |
+
+## Theme reference
+
+Themes are JSON token files in `themes/`. Built-ins:
+
+| Theme | Look |
+|---|---|
+| `clean_minimal` (default) | Off-white, Space Grotesk heading, blue accent, clean sans body. |
+| `editorial_serif` | Cream bg, IBM Plex Serif heading, brown/gold accents, editorial feel. |
+| `techdocs_mono` | Dark terminal (near-black), green/red accents, monospace-friendly. |
+
+**Create a custom theme:** copy `themes/_custom_template.json`, edit the tokens (colors, fonts, pygments_style, decoration), and set `meta.theme` to its path (e.g. `theme: ./my-theme.json`).
+
+All 7 color keys are required; fonts.heading/body must match a bundled family under `assets/fonts/` (Space Grotesk, IBM Plex Sans, IBM Plex Serif, Inter, Manrope). To add your own font, drop `.woff2` files in `assets/fonts/<Family Name>/`.
+
+`--spec-only` run prints a WCAG AA contrast report (≥4.5:1 body, ≥3:1 large text); a failing theme is warned about loudly, not blocked.
 
 ## Workflow
 
-### 0. Confirm folders + probe cairosvg
-Check `medium/` exists (cwd-relative). If not, ask. Check `voice-tone/` if
-tone consistency is expected; if missing, ask.
-Resolve `SKILL_DIR` to this skill's own directory: project-local
-`.opencode/skills/medium-imager` or global `~/.config/opencode/skills/medium-imager`.
-Prefix all script and template paths below with `$SKILL_DIR`.
-Probe `cairosvg` up front:
-```
-python3 -c "import cairosvg" 2>&1
-```
-If it's missing, report:
-```
-uv pip install cairosvg   # or: pip install cairosvg
-```
-Then, instead of only stopping, ASK the user whether to create a local
-`.venv` with `uv` and install `cairosvg` now. Only on approval, run
-`scripts/svg_to_png.py` with `--install-missing` (which creates `.venv` via
-`uv`, installs `cairosvg`, then re-runs itself with the venv Python). If the
-user declines, STOP — do not proceed past this point until resolved, since
-PNG is the deliverable this skill considers "done" (unlike carousel-builder's
-optional PDF step).
+### 0. Confirm prerequisites & folders
+Check `uv --version` (STOP + ask if missing). Ensure one-time `uv sync` + `uv run playwright install chromium` is done. Check `medium/` exists; if not, ask. Check `voice-tone/` if expected; if missing, ask.
 
-### 1. Assemble image copy
-If `medium/<slug>.md` already exists, run the draft-suggestion helper and
-present its output to the user for confirmation/edits — **never** write
-`images.json` from these suggestions without an explicit user go-ahead:
-```
-python3 $SKILL_DIR/scripts/suggest_from_draft.py medium/<slug>.md
-```
-Otherwise ask the user directly for cover title/subtitle and each inner
-image's copy.
+### 1. Assemble the spec (manual) or draft (auto)
+**Manual:** user provides a spec file or describes it to you; you write `medium/images/<slug>/spec.yaml`.
+**Auto:** user provides a draft `.md` file. You run the auto-placement engine, print the proposal, and wait for confirmation/edits.
 
-**Voice compliance gate (before writing image copy).** If
-`voice-tone/profile.md` (or raw `voice-tone/` samples) is present, scan the
-cover title/subtitle and every inner image's text field **except `code`**
-against its "Avoided Words & Phrases" and "Punctuation & Formatting Quirks".
-Auto-fix mechanical violations (em-dashes to periods or commas, banned
-punctuation) and report what changed. Flag judgment calls (hype words,
-AI-voice markers) for the user. Never emit a banned pattern. If no
-voice-tone exists, skip silently.
+### 2. Emit spec + preview cover (review-first)
+From `$SKILL_DIR`:
+```bash
+uv run python -m engine.render --spec <cwd>/medium/images/<slug>/spec.yaml --spec-only
+uv run python -m engine.render --spec <cwd>/medium/images/<slug>/spec.yaml --only cover --out <cwd>/medium/images/<slug>
+```
 
-Write the copy into a JSON file at the canonical path
-`medium/images/<slug>/images.json`, following the schema above. If an
-`images.json` already exists at that path, check there first before asking
-the user to re-enter the copy.
-
-### 2. Emit spec + preview cover + image 1 (review-first)
-Design spec (add `--theme <theme-name>` if a non-default theme is chosen):
-```
-python3 $SKILL_DIR/scripts/spec.py \
-  medium/images/<slug>/images.json \
-  --path medium/images/<slug> \
-  --theme clean-minimal
-```
-SVG preview (same `--theme` value as the spec):
-```
-python3 $SKILL_DIR/scripts/render_svg.py \
-  medium/images/<slug>/images.json \
-  --out medium/images/<slug> \
-  --theme clean-minimal \
-  --only cover
-
-python3 $SKILL_DIR/scripts/render_svg.py \
-  medium/images/<slug>/images.json \
-  --out medium/images/<slug> \
-  --theme clean-minimal \
-  --only 1
-```
-Rasterize just those two previews to PNG:
-```
-python3 $SKILL_DIR/scripts/svg_to_png.py medium/images/<slug> --only cover
-python3 $SKILL_DIR/scripts/svg_to_png.py medium/images/<slug> --only 1
-```
-**STOP and let the user review the preview PNGs + design spec before
-continuing.**
+**STOP and let the user review the preview PNG + spec before continuing.** If spec flags an overflow risk, recommend shortening/splitting.
 
 ### 3. Render all images (after approval)
-Drop `--only` to render every remaining image with the approved theme:
-```
-python3 $SKILL_DIR/scripts/render_svg.py \
-  medium/images/<slug>/images.json \
-  --out medium/images/<slug> \
-  --theme clean-minimal
+Drop `--only cover` to render every image:
+```bash
+uv run python -m engine.render --spec <cwd>/medium/images/<slug>/spec.yaml --out <cwd>/medium/images/<slug>
 ```
 
-### 4. Rasterize all to PNG (automatic, required)
-Immediately after Step 3 completes successfully, rasterize every SVG to PNG:
-```
-python3 $SKILL_DIR/scripts/svg_to_png.py medium/images/<slug>
-```
-Default scale is `2.0` (retina-sharp: cover renders at 3000x1500, slides at
-3200x1800). If `cairosvg` is missing at this point, ASK the user for approval
-and, if granted, rerun with `--install-missing` (which creates `.venv` via
-`uv`, installs `cairosvg`, then re-runs itself):
-```
-python3 $SKILL_DIR/scripts/svg_to_png.py medium/images/<slug> --install-missing
-```
-If the user declines, the script exits `1` with install instructions — a hard
-stop, not a soft degrade, since PNG is the deliverable.
+Override with `--theme`, `--scale` (default 2.0 = retina) as needed.
 
-## Scripts reference
-- `scripts/images.py`: shared schema loader/validator for `images.json`
-  (not a CLI entry point; imported by spec.py and render_svg.py).
-- `scripts/spec.py`: reads images.json, prints design spec + per-image
-  auto-fit result (font sizes, line counts, overflow flags) for the cover
-  and every inner image. `--path`, `--theme`, `--json`, `--help`. Exit `3`
-  if any item overflows.
-- `scripts/render_svg.py`: images.json -> SVG files. Cover 1500x750, slides
-  1600x900, auto-fit font sizing per type with overflow warning (exit `3`).
-  `--out`, `--theme`, `--only cover|N`, `--help`.
-- `scripts/svg_to_png.py`: SVG -> PNG via `cairosvg` (**required**, not
-  optional — hard error with install hint if missing). `--only cover|N`,
-  `--scale` (default `2.0`), `--install-missing` (uv creates `.venv` and
-  installs `cairosvg` on user approval, then re-runs), `--help`.
-- `scripts/suggest_from_draft.py`: parses an existing `medium/<slug>.md` for
-  candidate cover title/subtitle, pull-quotes, callout sections, and bolded
-  stats. Prints suggestions only — never writes files. `--json`, `--help`.
-- `templates/cover-*.svg` / `templates/slide-*.svg`: self-contained
-  1500x750 / 1600x900 templates per theme sharing the renderer's MARGIN/
-  FOOTER_BAND constants. Add a new theme by copying a pair and restyling —
-  keep canvas, geometry, `<style>` class names, and placeholders identical.
+## CLI reference (`engine/render.py`)
+`uv run python -m engine.render [options]`
 
-All scripts use only the Python standard library except `svg_to_png.py`,
-which requires `cairosvg` (the one required, non-optional dependency of this
-skill).
+| Option | Effect |
+|---|---|
+| `--spec PATH` | Manual spec (`.yaml` or `.json`). |
+| `--draft PATH --auto` | Auto-placement mode (parse draft, propose, wait for confirmation). |
+| `--theme NAME\|PATH` | Override spec's `meta.theme`. |
+| `--out DIR` | Output root (default: `medium/images/<slug>`). |
+| `--only cover\|N` | Render only cover or image N (1-based); skips later images. |
+| `--scale F` | deviceScaleFactor (default `2.0` = retina). |
+| `--spec-only` | Print design spec + contrast report and exit without rendering. |
+
+Exit codes: `0` ok, `1` spec/theme error, `2` `uv` missing, `3` rendered but with overflow-risk warnings.
+
+## Engine layout
+- `engine/render.py` — CLI orchestrator (uv check → validate → theme+contrast → Playwright screenshots).
+- `engine/layout_engine.py` — Jinja2 fill, cover ratios, font-face CSS, inline width/height, overflow lint.
+- `engine/theme_loader.py` — load/validate JSON themes; contrast check.
+- `engine/contrast_check.py` — WCAG AA contrast ratios.
+- `engine/draft_parser.py` — Markdown parsing + optional YAML front-matter extraction.
+- `engine/placement_engine.py` — confidence-tagged placement proposal generation.
+- `engine/code_highlight.py` — Pygments wrapper for syntax highlighting.
+- `engine/spec_schema.json` — JSON schema for the spec.
+- `templates/_base.html` + one per image type — Jinja2/HTML/CSS templates (in `templates/`).
+- `themes/*.json` — 3 built-in themes + `_custom_template.json`.
+- `assets/fonts/` — bundled OFL/Apache WOFF2 fonts. `assets/icons/` — flat/line SVG icons.
+- `examples/example_article.md` — worked example with front-matter and mixed image types.
+
+## Known limitations
+- **Pattern-based diagrams only.** Diagrams are 3 simple patterns (linear flow, 2-way branch, stage cycle); not a general-purpose diagram engine. Anything more complex must be manually specified or flagged for custom design.
+- **Auto-placement is heuristic.** Stat/diagram detection uses simple regex patterns; edge cases and complex prose structures may not be detected. All auto-mode suggestions are shown to the user for confirmation before rendering — nothing is silently placed wrong.
+- **Code cards default to Medium native.** Code fences are detected but kept as Medium's native block by default (copy-paste-friendly). Explicit `code_card` images are generated only when requested.
+- **Pygments quality depends on language tags.** If a fenced code block lacks a language tag or tags an unsupported language, Pygments falls back to plain text rendering (still styled, just no syntax coloring).
+- **Font determinism depends on `assets/fonts/`.**  Never delete it; headless Chromium otherwise substitutes system fonts and rendering drifts between machines.
+- **Requires `uv` + one-time Chromium download** (~150MB). Hard-stops if `uv` is missing rather than falling back to pip.
+- **Overflow is warned, not auto-fixed.** Long copy is flagged (exit `3`); shorten or split the image.
+- **Never auto-creates folders or overwrites files.** Asks if `medium/` is missing; offers overwrite / `-v2` / new name when a target exists.
 
 ## Conventions
-
-These are shared assumptions so the content skills interoperate. Each skill
-still works standalone; none of these require another skill to be present.
-- **Folders** (all cwd-relative): `drafts/`, `linkedin/`, `medium/`,
-  `archive/`, `voice-tone/`. Never auto-create; ask the user if missing.
-- **Slug**: lowercase, hyphenated, derived from the working title. Reused as
-  the filename stem across skills so a piece is traceable.
-- **Filenames**: `medium/<slug>-<type>.md` for the draft/article, images at
-  `medium/images/<slug>/` with `<slug>-cover.{svg,png}` and
-  `<slug>-NN-<type>.{svg,png}` per inner image.
-- **Overwrite policy**: never silently overwrite an existing file. If the
-  target exists, ask the user: overwrite, write a `-v2` (then `-v3`...)
-  variant, or pick a new name.
-- **Status values** (if a tracker file like `content-log.md` or
-  `content-log.json` exists at cwd): `idea` -> `drafted` -> `reviewed` ->
-  `posted` -> `archived`. If such a tracker exists, after writing images ASK
-  the user in one line whether to update it to the new status. Absence of a
-  tracker must never block the skill.
+Shared assumptions so content skills interoperate. Each works standalone.
+- **Folders** (cwd-relative): `drafts/`, `medium/`, `linkedin/`, `archive/`, `voice-tone/`. Never auto-create; ask if missing.
+- **Slug**: lowercase, hyphenated, derived from title; reused as filename stem across skills.
+- **Filenames**: `medium/images/<slug>/spec.yaml`, `<slug>-cover.png`, `<slug>-NN-<type>.png` per image.
+- **Overwrite policy**: never silently overwrite. Offer overwrite, a `-v2` (then `-v3`…) variant, or a new name.
+- **Status** (if `content-log.md`/`content-log.json` exists at cwd): `idea` → `drafted` → `reviewed` → `posted` → `archived`. If tracker exists, ask 1-liner whether to update after writing. Absence of tracker never blocks.

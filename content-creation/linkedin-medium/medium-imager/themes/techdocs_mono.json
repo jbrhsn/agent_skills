@@ -1,0 +1,23 @@
+{
+  "name": "techdocs_mono",
+  "colors": {
+    "background": "#0D1117",
+    "surface": "#161B22",
+    "text_primary": "#E6EDF3",
+    "text_secondary": "#8B949E",
+    "accent_positive": "#3FB950",
+    "accent_negative": "#F85149",
+    "accent_neutral": "#6E7681"
+  },
+  "fonts": {
+    "heading": "IBM Plex Sans",
+    "body": "Inter",
+    "heading_weight": 700,
+    "body_weight": 400
+  },
+  "decoration": {
+    "corner_radius": 8,
+    "gradient_bar": false
+  },
+  "pygments_style": "monokai"
+}

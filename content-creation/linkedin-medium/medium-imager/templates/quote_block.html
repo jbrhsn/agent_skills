@@ -1,0 +1,15 @@
+{% extends "_base.html" %}
+{% block style %}
+.quote-mark { font-size: calc(140px * var(--fit)); color: var(--pos); opacity: 0.3; line-height: 0.8; }
+.quote-text { font-size: calc(52px * var(--fit)); font-weight: var(--w-head); line-height: 1.2; margin: 20px 0; color: var(--text); }
+.quote-attr { font-size: calc(32px * var(--fit)); color: var(--text2); font-style: italic; }
+{% endblock %}
+{% block content %}
+<div class="pad">
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+    <div class="quote-mark">"</div>
+    <p class="quote-text">{{ image.quote }}</p>
+    {% if image.attribution %}<p class="quote-attr">— {{ image.attribution }}</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -17,9 +17,12 @@ Pipeline:
   8. Auto-merge PNGs into a single PDF (unless --no-pdf) via img2pdf.
 
 Modes:
-  --spec-only   Emit the design spec (canvas, theme, contrast, per-slide lint)
-                and exit WITHOUT rendering. Use for the review-first gate.
-  --only N      Render only slide N (1-based). Use for a slide-1 preview.
+   --spec-only   Emit the design spec (canvas, theme, contrast, per-slide lint)
+                 and exit WITHOUT rendering. Use for the review-first gate.
+   --only N      Render only slide N (1-based). Use for a slide-1 preview.
+
+Note: Content overflow is auto-scaled (min 0.7x) to guarantee everything fits
+within bounds during rendering — text becomes smaller but never clips.
 
 Examples:
   uv run python -m engine.render --deck examples/example_deck.yaml --spec-only
@@ -240,8 +243,6 @@ def main(argv=None) -> int:
                         help="Emit the design spec and exit without rendering.")
     parser.add_argument("--no-pdf", action="store_true",
                         help="Skip the automatic PNG->PDF merge.")
-    parser.add_argument("--pdf", action="store_true",
-                        help="(Default behavior) merge PNGs into one PDF after render.")
     args = parser.parse_args(argv)
 
     if not check_uv():

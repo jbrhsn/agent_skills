@@ -169,7 +169,7 @@ Exit codes: `0` ok, `1` deck/theme error, `2` `uv` missing, `3` rendered but wit
 - **No photorealistic/isometric illustrations.** The code-only approach uses a bundled flat/line SVG icon set; 3D/AI-style art is out of scope. Set expectations accordingly.
 - **Font determinism depends on `assets/fonts/`.** Never delete it; headless Chromium otherwise substitutes system fonts and rendering drifts between machines.
 - **Requires `uv` + a one-time Chromium download** (~150MB). The skill hard-stops if `uv` is missing rather than falling back to pip.
-- **Overflow is warned, not auto-fixed.** Long copy is flagged (exit `3`); shorten or split the slide.
+- **Overflow is auto-scaled to fit (no clipping).** Long copy is flagged in the spec as an overflow *risk* (exit `3`). During rendering, content is automatically scaled down to a minimum of **0.7x** to guarantee everything fits within the safe zone — text becomes smaller but rendering never clips. Shorten or split flagged slides if the scaled-down size looks too small.
 - **Landscape is not a real LinkedIn carousel size** — use square/portrait for carousels.
 - **Never auto-creates folders or overwrites files.** Asks if `linkedin/`/`voice-tone/` are missing; offers overwrite / `-v2` / new name when a target exists.
 

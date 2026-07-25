@@ -1,0 +1,13 @@
+{% extends "_base.html" %}
+{% block style %}
+.divider-line { height: 8px; width: 120px; background: var(--pos); border-radius: 4px; margin: 0 auto 30px; }
+.divider-label { font-size: calc(48px * var(--fit)); font-weight: var(--w-head); text-align: center; }
+{% endblock %}
+{% block content %}
+<div class="pad">
+  <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div class="divider-line"></div>
+    {% if image.label %}<h2 class="divider-label">{{ image.label }}</h2>{% endif %}
+  </div>
+</div>
+{% endblock %}
