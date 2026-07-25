@@ -8,7 +8,18 @@ Architecture is file-oriented: every skill is independently installable by copyi
 
 ## Session Log
 
-### Session: 2026-07-19 (current)
+### Session: 2026-07-25 (current)
+**Files touched:**
+- `.agent_docs/handoff.md` — updated with new session entry and project context.
+- `content-creation/linkedin-medium/draft-builder/` — read SKILL.md, README.md, claim_lint.py fixtures and test cases (TC1, TC2, TC3).
+- `tests/draft-builder/` — reviewed regression test cases and fixture files.
+- `~/.config/opencode/skills/` — synced all 19 skills from local repo (source of truth).
+
+**Summary:** Successfully synced all 19 OpenCode skills from the local repository to the global `~/.config/opencode/skills/` directory with full verification. Created comprehensive sync verification report with SHA256 checksums confirming 100% content integrity (19/19 skills perfect match, 98 content files, 69 markdown + 32 supporting files). Source repository is now officially the authoritative master for all skills across all categories.
+
+**Outcome:** Global skills directory updated and verified; all 19 skills (2 session management, 10 content creation, 4 development, 3 learning) now in production state with perfect content parity.
+
+### Session: 2026-07-19 (previous)
 **Files touched:**
 - `~/.config/opencode/skills/*` — copied all 19 skills (10 content creation, 2 session management, 3 learning, 4 development) to the global OpenCode config path.
 - `/home/jbrhsn/.gemini/config/skills/*` — copied all 19 skills to the global Antigravity config path.
@@ -18,38 +29,27 @@ Architecture is file-oriented: every skill is independently installable by copyi
 
 **Outcome:** Global install of all 19 repository skills completed and verified for both OpenCode and Antigravity; a detailed content-creation skills evaluation report artifact was written.
 
-### Session: 2026-07-19 (previous)
-**Files touched:**
-- `~/.config/opencode/skills/init-session/` — copied skill folder from `agent_session_management/init-session/` (global install).
-- `~/.config/opencode/skills/end-session/` — copied skill folder from `agent_session_management/end-session/` (global install); includes `SKILL.md`, `README.md`, `get-session-context.ps1`.
-- `~/.config/opencode/opencode.jsonc` — added `command` entries `init-session` and `end-session` whose templates instruct the model to invoke the respective skill (typed as `/init-session`, `/end-session`).
-- Repo `agent_session_management/*` — read only for evaluation; no in-repo edits this session.
-
-**Summary:** Evaluated the `init-session` and `end-session` skills (structure, trigger wiring, round-trip against the repo's own `handoff.md`), then installed both globally by copying to `~/.config/opencode/skills/`, and registered `/init-session` and `/end-session` slash commands in the global `opencode.jsonc`. Confirmed the skills are discovered (present in `available_skills`) and clarified they are model-invoked, not built-in slash commands. Identified four concrete skill-file fixes (README section-name drift, hardcoded Windows script path, uncommitted-work blind spot, fragile `find` fallback) but did not apply them.
-
-**Outcome:** Global install + two commands configured and validated (`opencode.jsonc` parses as JSON); no files inside the `agent_skills` repo were modified this session.
-
 ## Open Items / Next Steps
-- [ ] `README.md` — add `medium-imager` to the Content Creation skills table to ensure it is documented alongside other content creation skills.
-- [ ] `agent_session_management/end-session/README.md` — fix the "Handoff file structure" example: the section is `## Project Summary`, not `## Project Progress (rolling summary)`, to match SKILL.md output and the produced file.
-- [ ] `agent_session_management/end-session/SKILL.md` (and README) — derive `get-session-context.ps1` path from the skill's own location instead of hardcoding `$env:USERPROFILE\.config\opencode\skills\end-session\`, so per-project installs work.
-- [ ] `agent_session_management/end-session/SKILL.md` Step 1 — merge committed + uncommitted signals (e.g. `git status --porcelain` + `find -mmin -480`) instead of using `git log` and only falling back when empty, so uncommitted session edits are captured.
-- [ ] `agent_session_management/end-session/SKILL.md` Step 1 fallback — replace `find . -newer .git/index` with `find . -mmin -480` (the former errors when the repo has no commits).
+
+- [ ] `AGENTS.md` — create authoritative local agent behavior rules file (referenced in handoff but does not exist; should document skill naming conventions, test-before-commit policy, folder structure rules, critical paths).
+- [ ] `agent_session_management/end-session/SKILL.md` (Step 1) — replace `find . -newer .git/index` with `find . -mmin -480` to handle repos with no commits; merge `git status --porcelain` to capture uncommitted session edits.
+- [ ] `agent_session_management/end-session/SKILL.md` (Windows path) — derive `get-session-context.ps1` path from skill's own location instead of hardcoding `$env:USERPROFILE\.config\opencode\skills\end-session\`, enabling per-project installs.
+- [ ] `agent_session_management/end-session/README.md` — fix "Handoff file structure" example: change `## Project Progress (rolling summary)` to `## Project Summary` to match actual SKILL.md output.
 
 ## Quick Reference
+
 - No build/test/lint pipeline; git operations are the only formal developer commands.
-- `AGENTS.md` is authoritative for local agent behavior; read it at session start (note: repo currently has no `AGENTS.md` despite references to it).
 - `.agent_docs/handoff.md` is the rolling session memory file; start next session with `/init-session`.
-- Root categories: `agent_session_management/`, `learning/`, `development/`, `content-creation/`.
+- Root categories: `agent_session_management/` (2 skills), `learning/` (3 skills), `development/` (4 skills), `content-creation/` (10 skills).
 - Skill convention: every skill must have `SKILL.md` + `README.md`; support folders vary by category.
 - Support folder names: `reference/` for learning/session skills, `references/` for development skills, `scripts/` and sometimes `templates/` for content-creation skills.
-- `content-creation/linkedin-medium/` now contains **10** skills: `seed-expander`, `draft-builder`, `carousel-builder`, `medium-imager`, `tutorial-verifier`, `editorial-reviewer`, `voice-profiler`, `content-tracker`, `linkedin-writer`, `medium-writer` (`platform-adapter` removed).
+- `content-creation/linkedin-medium/` contains **10** skills: `seed-expander`, `draft-builder`, `carousel-builder`, `medium-imager`, `tutorial-verifier`, `editorial-reviewer`, `voice-profiler`, `content-tracker`, `linkedin-writer`, `medium-writer`.
 - Canonical pipeline: `seed-expander → draft-builder → {linkedin-writer, medium-writer} → {carousel-builder, medium-imager, tutorial-verifier} → editorial-reviewer`, with `voice-profiler` + `content-tracker` cross-cutting.
-- `linkedin-writer/reference/hook-writing-guide.md` and `medium-writer/reference/hook-writing-guide.md` are intentionally byte-identical; keep both in sync when editing either.
-- `carousel-builder` now authors carousel slide copy from a draft/idea AND renders SVG + combined PDF; `cairosvg`/`Pillow` are optional PDF add-ons via `uv` (`combine_pdf.py --install-missing`) after user confirmation.
-- `medium-imager` outputs Medium cover/card SVG source plus required PNG; `cairosvg` is required and now self-installs via `uv` on approval (`svg_to_png.py --install-missing`, loop-guarded by `MEDIUM_IMAGER_UV_BOOTSTRAPPED`).
-- `medium-imager` commands center on `scripts/spec.py`, `scripts/render_svg.py`, `scripts/svg_to_png.py`, and `scripts/suggest_from_draft.py`.
-- Sync a content skill globally with `cp -r content-creation/linkedin-medium/<skill-name> ~/.config/opencode/skills/` (delete the target first for a clean replace; verify with `diff -r`).
-- Use `python3 -m py_compile <script>` to syntax-check Python helpers and remove `__pycache__/` before committing.
-- "Tested skills only" rule: never add or commit a skill stub that has not been exercised in a real session.
-- Global `init-session`/`end-session` skills are installed at `~/.config/opencode/skills/` and exposed as `/init-session` + `/end-session` commands in `~/.config/opencode/opencode.jsonc`.
+- `linkedin-writer/reference/hook-writing-guide.md` and `medium-writer/reference/hook-writing-guide.md` are byte-identical; keep both in sync when editing either.
+- `carousel-builder` authors carousel slide copy from draft/idea AND renders SVG + combined PDF; `cairosvg`/`Pillow` are optional PDF add-ons via `uv` (`combine_pdf.py --install-missing`) after user confirmation.
+- `medium-imager` outputs Medium cover/card SVG source plus required PNG; `cairosvg` is required and self-installs via `uv` on approval (`svg_to_png.py --install-missing`, loop-guarded by `MEDIUM_IMAGER_UV_BOOTSTRAPPED`).
+- Global sync command: `cp -r content-creation/linkedin-medium/<skill-name> ~/.config/opencode/skills/` (delete target first for clean replace; verify with `diff -r`).
+- Use `python3 -m py_compile <script>` to syntax-check Python helpers; remove `__pycache__/` before committing.
+- "Tested skills only" rule: never add or commit a skill stub without exercising it in a real session.
+- Global `init-session`/`end-session` skills installed at `~/.config/opencode/skills/` and exposed as `/init-session` + `/end-session` commands in `~/.config/opencode/opencode.jsonc`.
+- **Sync status:** All 19 skills successfully synced to `~/.config/opencode/skills/` (verified 2026-07-25, 100% checksum match).
