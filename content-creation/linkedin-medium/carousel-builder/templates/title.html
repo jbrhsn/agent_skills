@@ -1,0 +1,14 @@
+{% extends "_base.html" %}
+{% block style %}
+.title-slide { justify-content: center; gap: 32px; min-height: 0; }
+.title-slide h1 { font-size: calc(108px * var(--fit)); color: var(--text); }
+.title-slide .sub { font-size: calc(42px * var(--fit)); line-height: 1.35; max-width: 92%; word-wrap: break-word; }
+{% endblock %}
+{% block content %}
+<div class="pad title-slide">
+  {% if slide.kicker %}<div class="kicker">{{ slide.kicker }}</div>{% endif %}
+  <div class="accent-bar"></div>
+  <h1>{{ slide.headline }}</h1>
+  {% if slide.subheadline %}<p class="body-text sub">{{ slide.subheadline }}</p>{% endif %}
+</div>
+{% endblock %}

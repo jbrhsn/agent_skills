@@ -1,0 +1,25 @@
+{% extends "_base.html" %}
+{% block style %}
+.ls-heading { font-size: calc(60px * var(--fit)); margin-bottom: 44px; }
+.ls-list { list-style: none; display: flex; flex-direction: column; gap: 30px; flex: 1; min-height: 0; }
+.ls-list li { display: flex; gap: 24px; align-items: flex-start; font-size: calc(40px * var(--fit)); line-height: 1.3; color: var(--text); word-wrap: break-word; }
+.ls-list li .icon { flex: 0 0 auto; font-size: calc(48px * var(--fit)); color: var(--pos); margin-top: 2px; }
+.ls-list li .num { flex: 0 0 auto; width: 56px; height: 56px; border-radius: 50%; background: var(--surface); color: var(--pos); font-family: var(--font-head); font-weight: var(--w-head); font-size: calc(30px * var(--fit)); display: flex; align-items: center; justify-content: center; }
+.ls-list li .bullet { flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%; background: var(--pos); margin-top: 16px; }
+{% endblock %}
+{% block content %}
+<div class="pad">
+  <div class="accent-bar" style="margin-bottom:28px;"></div>
+  <h2 class="head ls-heading">{{ slide.heading }}</h2>
+  <ul class="ls-list">
+    {% for it in slide['items'] %}
+    <li>
+      {% if slide.style == 'number' %}<span class="num">{{ loop.index }}</span>
+      {% elif slide.style == 'bullet' %}<span class="bullet"></span>
+      {% else %}<span class="icon">{{ icon('check') }}</span>{% endif %}
+      <span>{{ it }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

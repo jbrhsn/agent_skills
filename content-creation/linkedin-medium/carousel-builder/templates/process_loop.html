@@ -1,0 +1,32 @@
+{% extends "_base.html" %}
+{% block style %}
+.pl-heading { font-size: calc(56px * var(--fit)); margin-bottom: 24px; }
+.loop-wrap { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+.steps { display: grid; gap: 28px; width: 100%; min-height: 0; }
+.steps.n2 { grid-template-columns: 1fr 1fr; }
+.steps.n3, .steps.n4 { grid-template-columns: 1fr 1fr; }
+.step { background: var(--surface); border-radius: var(--radius); padding: 40px; position: relative; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+.step .num { position: absolute; top: -22px; left: 32px; width: 56px; height: 56px; border-radius: 50%; background: var(--pos); color: var(--bg); font-family: var(--font-head); font-weight: var(--w-head); font-size: calc(32px * var(--fit)); display: flex; align-items: center; justify-content: center; }
+.step .slabel { font-family: var(--font-head); font-weight: var(--w-head); font-size: calc(40px * var(--fit)); color: var(--text); word-wrap: break-word; }
+.step .sdetail { font-size: calc(30px * var(--fit)); line-height: 1.35; color: var(--text2); word-wrap: break-word; }
+.loop-note { text-align: center; margin-top: 28px; font-size: calc(30px * var(--fit)); color: var(--neutral); display: flex; align-items: center; justify-content: center; gap: 14px; }
+.loop-note .icon { font-size: calc(40px * var(--fit)); color: var(--pos); }
+{% endblock %}
+{% block content %}
+<div class="pad">
+  <div class="accent-bar" style="margin-bottom:24px;"></div>
+  <h2 class="head pl-heading">{{ slide.heading }}</h2>
+  <div class="loop-wrap">
+    <div class="steps n{{ slide.steps | length }}">
+      {% for st in slide.steps %}
+      <div class="step">
+        <div class="num">{{ loop.index }}</div>
+        <div class="slabel">{{ st.label }}</div>
+        {% if st.detail %}<div class="sdetail">{{ st.detail }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="loop-note"><span class="icon">{{ icon('arrow') }}</span> repeats as a loop</div>
+</div>
+{% endblock %}

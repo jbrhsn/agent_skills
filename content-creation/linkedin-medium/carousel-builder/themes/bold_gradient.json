@@ -1,0 +1,23 @@
+{
+  "name": "bold_gradient",
+  "colors": {
+    "background": "#3A0CA3",
+    "surface": "#4820B8",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#E4DCFF",
+    "accent_positive": "#4CE0B3",
+    "accent_negative": "#FF6B6B",
+    "accent_neutral": "#B9A7F0"
+  },
+  "fonts": {
+    "heading": "Space Grotesk",
+    "body": "Manrope",
+    "heading_weight": 700,
+    "body_weight": 500
+  },
+  "decoration": {
+    "corner_radius": 20,
+    "gradient_bar": true,
+    "gradient": ["#3A0CA3", "#7209B7", "#F72585"]
+  }
+}

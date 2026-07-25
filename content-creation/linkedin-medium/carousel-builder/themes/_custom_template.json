@@ -1,0 +1,29 @@
+{
+  "//": "CUSTOM THEME TEMPLATE — copy this file, rename it, edit the tokens, then point meta.theme at its path (e.g. theme: ./my-theme.json).",
+  "name": "my_custom_theme",
+
+  "//colors": "All 7 keys are REQUIRED. Values must be hex (#RGB or #RRGGBB). Run `--spec-only` to see the WCAG AA contrast check; aim for >=4.5:1 body text on background/surface and >=3:1 for large headline/accent text.",
+  "colors": {
+    "background": "#101820",
+    "surface": "#1C2A34",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#C7D0D6",
+    "accent_positive": "#39D98A",
+    "accent_negative": "#F0755C",
+    "accent_neutral": "#7C8B96"
+  },
+
+  "//fonts": "heading/body MUST match a bundled family folder name under assets/fonts/ (Inter, Space Grotesk, Manrope, IBM Plex Sans, IBM Plex Serif). To add your own font, drop its .woff2 files in assets/fonts/<Family Name>/ and reference that name here.",
+  "fonts": {
+    "heading": "Space Grotesk",
+    "body": "Inter",
+    "heading_weight": 700,
+    "body_weight": 400
+  },
+
+  "//decoration": "Optional presentation flags read by templates.",
+  "decoration": {
+    "corner_radius": 16,
+    "gradient_bar": true
+  }
+}

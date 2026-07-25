@@ -1,0 +1,22 @@
+{
+  "name": "dark_navy",
+  "colors": {
+    "background": "#152A38",
+    "surface": "#1E3A4C",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#C9D6DD",
+    "accent_positive": "#3DDC97",
+    "accent_negative": "#F08A6E",
+    "accent_neutral": "#7A8C99"
+  },
+  "fonts": {
+    "heading": "Space Grotesk",
+    "body": "Inter",
+    "heading_weight": 700,
+    "body_weight": 400
+  },
+  "decoration": {
+    "corner_radius": 16,
+    "gradient_bar": true
+  }
+}

@@ -1,6 +1,13 @@
 # carousel-builder
 
-Authors carousel slide copy (typically 8–12 slides) from a source draft or a rough idea when none is provided, then turns that copy into **actual rendered SVG image files** for LinkedIn at 1080x1350 portrait, then **combines them into a single multi-page PDF** — using pure local rendering. Ready slide copy can also be passed in directly and rendered as-is. No external image APIs, no image-generation models. Core generation is Python stdlib-only; the PDF combine step needs `cairosvg` + `Pillow` and, with user approval, can install them into a local `.venv` using `uv`.
+Authors a typed carousel **deck spec** from a source draft or a rough idea when
+none is provided, then renders it into **actual PNG slide files** for LinkedIn —
+square, portrait, or landscape — and **merges them into a single multi-page
+PDF**. Slides are rendered locally from HTML/CSS through headless Chromium
+(Playwright): one element screenshot of a fixed-size canvas per slide. Ready
+slide copy or an existing `deck.yaml` can also be passed in and rendered as-is.
+No external image APIs, no image-generation models. Python tooling is managed
+with `uv`; fonts are bundled locally for deterministic cross-machine rendering.
 
 ---
 
@@ -9,28 +16,33 @@ Authors carousel slide copy (typically 8–12 slides) from a source draft or a r
 | Input | Example |
 |---|---|
 | Author from a draft/idea | "turn this draft into a carousel", "make a LinkedIn carousel from this idea" |
-| Render carousel copy | "turn this carousel into slide images", "make LinkedIn carousel images from this" |
-| Themed look | "render these slides in neon / glassmorphism / LinkedIn brand style" |
-| PDF deck | "combine my carousel into a PDF", "give me one PDF of the slides" |
-| Handoff from copy | slides authored by this skill from a draft/idea, or provided directly / read from an existing `slides.json` |
+| Render a deck spec | "render this deck.yaml", "turn this carousel into slide images" |
+| Themed look | "render these slides in bold_gradient / mono_editorial" |
+| Format | "make it square", "portrait carousel", "landscape version for cross-posting" |
+| PDF deck | "combine my carousel into a PDF" |
 
-This skill is **standalone**. A source draft, a rough idea, or a plain list of slide copy is enough to run it.
-
-carousel-builder authors the slide copy itself when none is provided. Do **not** use it for full article drafting (use `draft-builder`) or idea expansion (use `seed-expander`), to verify tutorial code (use `tutorial-verifier`), or for a final editorial pass on wording (use `editorial-reviewer`).
+This skill is **standalone**. A source draft, a rough idea, or a plain list of
+slide copy is enough to run it. It authors the deck itself when none is
+provided. Do **not** use it for full article drafting (use `draft-builder`),
+idea expansion (`seed-expander`), tutorial code verification
+(`tutorial-verifier`), or final editorial wording passes (`editorial-reviewer`).
 
 ---
 
 ## What it does
 
-- **Authors slide copy when none is provided.** From a source draft (`drafts/<slug>.md`) or a rough idea/notes, it writes 8–12 slides — a strong hook slide first, one clear idea per slide, a closing/CTA slide, and optional footer/handle — then renders them. Ready slide copy or an existing `slides.json` is used as-is.
-- **SVG-only rendering with seven themes.** Every slide is a self-contained portrait SVG at 1080x1350. Themes cover default dark, glassmorphism, neomorphism, neon, Super Mario, LinkedIn brand, and minimal light.
-- **Automatic combined PDF.** After the full render, the skill combines every SVG into one multi-page PDF at `linkedin/carousels/<slug>/<slug>.pdf`. Requires `cairosvg` + `Pillow`; without them the SVGs stay valid, and the agent asks before creating `.venv` with `uv` and installing dependencies.
-- **Review-first, never end-to-end.** Emits a design spec, renders only slide 1 as a preview, then STOPS for approval before rendering all slides + PDF.
-- **Auto-fits every slide.** Steps font sizes down until title+body fit the safe area above the reserved footer band; warns and exits non-fatally when a slide still overflows so the copy can be shortened or split.
-- **Reads from a canonical slides JSON** at `linkedin/carousels/<slug>/slides.json`, using real per-slide content (no lorem ipsum).
-- **Probes PDF tooling up front** (`cairosvg`, `Pillow`) and reports whether the final PDF step will succeed before rendering, so limits are known early rather than discovered at the end.
-- **Runs a voice-compliance gate before writing slide copy.** If a `voice-tone/` profile or samples exist, it scans slide titles and bodies against the profile's avoided words/phrases and punctuation, auto-fixes mechanical violations, and flags judgment calls. Skips silently if no voice-tone exists.
-- **Respects folder rules.** All paths are cwd-relative; never silently creates the `linkedin/` tree or guesses at a missing `voice-tone/` folder. It asks.
+- **Authors a deck when none is provided** — 8–12 slides from a draft or idea, hook first, CTA last, each mapped to the best-fitting slide type. Ready copy / an existing `deck.yaml` is used as-is.
+- **Eight typed slide layouts** — `title`, `comparison`, `quote`, `stat_grid`, `numbered_phase`, `process_loop`, `list_steps`, `cta`. Each is a self-contained HTML template driven by data.
+- **Four built-in themes + a custom-theme path** — `dark_navy`, `minimal_light`, `bold_gradient`, `mono_editorial`, plus a documented token file you copy and edit.
+- **Three formats** — square (1080×1080), portrait (1080×1350, default), landscape (1920×1080). LinkedIn carousels should be square/portrait; landscape is for single-image reuse.
+- **Deterministic rendering** — headless Chromium with bundled local WOFF2 fonts (no system-font or web-font drift) at 2x for retina-quality PNGs.
+- **Schema-validated deck spec** — validated against `engine/deck_schema.json`; fails fast with the slide index and offending field.
+- **WCAG AA contrast check** — every theme's color tokens are checked (≥4.5:1 body, ≥3:1 large text); failures are warned loudly.
+- **Overflow lint** — per-field character budgets per slide type warn when copy is likely to overflow (exit `3`).
+- **Automatic combined PDF** — PNGs are merged into one PDF after the full render (opt out with `--no-pdf`).
+- **Review-first** — emits a design spec + a slide-1 preview, then STOPS for approval before rendering everything.
+- **Voice-compliance gate** — if a `voice-tone/` profile/samples exist, scans slide copy against them, auto-fixes mechanical violations, flags judgment calls. Skips silently if absent.
+- **Respects folder rules** — cwd-relative; never silently creates `linkedin/` or guesses at a missing `voice-tone/`.
 
 ---
 
@@ -38,106 +50,120 @@ carousel-builder authors the slide copy itself when none is provided. Do **not**
 
 | File | Description |
 |---|---|
-| `linkedin/carousels/<slug>/<slug>-NN.svg` | One SVG per slide (primary output, always produced). |
-| `linkedin/carousels/<slug>/<slug>.pdf` | Single multi-page PDF, one page per slide, produced automatically after full render when `cairosvg` + `Pillow` are available. |
+| `linkedin/carousels/<slug>/<format>/NN_<type>.png` | One PNG per slide (primary output, retina 2x). |
+| `linkedin/carousels/<slug>/<format>/<slug>.pdf` | Single multi-page PDF, produced automatically after the full render. |
 
 ---
 
-## Theme catalog
+## Deck spec
 
-All themes live in `templates/` as `.svg` files. They share the same 1080x1350 canvas and the same `{{TITLE_BLOCK}}` `{{BODY_BLOCK}}` `{{FOOTER}}` `{{COUNTER}}` `{{INDEX}}` `{{TOTAL}}` placeholders. Select one with `--template` (default = `slide.svg`).
+Canonical path: `linkedin/carousels/<slug>/deck.yaml` (JSON also accepted).
 
-| Theme | Template file | Look |
-|---|---|---|
-| Default (dark) | `templates/slide.svg` | Slate dark, cyan accent. |
-| Glassmorphism | `templates/slide-glassmorphism.svg` | Frosted translucent card over a blurred colorful gradient. |
-| Neomorphism | `templates/slide-neomorphism.svg` | Soft monochrome UI with extruded/inset dual shadows. |
-| Neon | `templates/slide-neon.svg` | Near-black cyberpunk with glowing pink/cyan text + grid. |
-| Super Mario | `templates/slide-mario.svg` | Sky blue, `?`-block gold accent, brick footer, chunky type. |
-| LinkedIn | `templates/slide-linkedin.svg` | Official LinkedIn blue (#0A66C2) on white, "in" mark. |
-| Minimal light | `templates/slide-minimal-light.svg` | Editorial serif on off-white, single accent rule. |
-
-Theme choice affects only the visual chrome; the design spec and auto-fit are theme-independent because themes only set fill/font-family/weight via inline `<style>` classes (`title`, `body`, `footer`) — the renderer sets geometry. Add a new theme by copying any template and restyling, keeping the canvas, geometry, class names, and placeholders identical.
-
----
-
-## Review-first flow
-
-Never runs end-to-end automatically. The mandatory stop point is:
-
-1. During the folder-confirm step, probe the PDF tooling (`cairosvg`, `Pillow`) and report whether the combined PDF step will succeed.
-2. Emit a **design spec** with `scripts/spec.py` (canvas, template, slide count, per-slide auto-fit result incl. overflow warnings).
-3. Render **only slide 1** as a preview (`--only 1`).
-4. **STOP.** Show the spec + preview path and let the user review/approve. If the spec reports overflow on any slide, recommend shortening/splitting that slide's copy first.
-5. Only after approval, render all slides and automatically combine them into the single PDF.
-
----
-
-## Slides JSON schema
-
-Canonical path: `linkedin/carousels/<slug>/slides.json`. `index`/`total` are auto-filled from array position. Do not include them.
-
-```json
-{
-  "slug": "my-carousel",
-  "slides": [
-    {"title": "The hook", "body": "One clear idea per slide.", "footer": "@handle"},
-    {"title": "Point two", "body": "Supporting detail here."}
-  ]
-}
+```yaml
+meta:
+  title: "My Carousel"
+  slug: my-carousel        # optional; derived from title if omitted
+  format: portrait         # square | portrait | landscape (default portrait)
+  theme: dark_navy         # a name in themes/, or a path to a custom theme .json
+  footer: "@handle"
+slides:
+  - type: title
+    headline: "One bold claim"
+    subheadline: "Optional supporting line."
+  - type: cta
+    headline: "Your close"
+    action: "Follow for more"
 ```
 
-- `title` (string, required), `body` (string, required)
-- `footer` (string, optional, e.g. handle/CTA)
-- `slug` names the output folder, per-slide file prefix, and the combined PDF name.
-
-Use real per-slide content, no lorem ipsum. If a `slides.json` already exists at this path, check there first before re-authoring.
+See `SKILL.md` for the required/optional fields of all eight slide types and the
+full CLI reference. A complete worked example lives at
+`examples/example_deck.yaml` (exercises every slide type).
 
 ---
 
-## Scripts
+## Themes
 
-- `scripts/spec.py`: reads slides JSON, prints design spec + per-slide auto-fit result (font sizes, line counts, overflow flags). Flags: `--path`, `--template`, `--json`, `--help`. Exit `3` if any slide overflows.
-- `scripts/render_svg.py`: slides JSON → SVG files. Portrait 1080x1350, auto-fit font sizing with overflow warning (exit `3`). Flags: `--out`, `--template`, `--only`, `--help`.
-- `scripts/combine_pdf.py`: SVGs → single multi-page PDF via `cairosvg` + `Pillow` (both optional). Prints `uv` install guidance if unavailable; with user approval, `--install-missing` creates `.venv`, installs `cairosvg pillow`, and reruns the combine step. Flags: `--out`, `--scale`, `--install-missing`, `--help`.
-- `templates/slide*.svg`: self-contained 1080x1350 slide templates (see theme catalog).
+| Theme | Look |
+|---|---|
+| `dark_navy` | Navy, green/coral accents, gradient bar (reference-deck palette). |
+| `minimal_light` | Off-white, near-black, single accent, whitespace. |
+| `bold_gradient` | Purple→magenta gradient, high contrast, punchy. |
+| `mono_editorial` | Near-black, serif headline, one gold accent. |
 
-All scripts use only the Python standard library for SVG generation. `cairosvg` and `Pillow` are **optional** add-ons for the PDF combine step only and should be installed with `uv` when needed.
-
-Script and template paths resolve under `$SKILL_DIR`, the skill's own directory (project-local `.opencode/skills/carousel-builder` or global `~/.config/opencode/skills/carousel-builder`). Commands in the skill are prefixed with `$SKILL_DIR/scripts/...` and `$SKILL_DIR/templates/...`.
-
----
-
-## Inputs
-
-| Input | Required | Description |
-|---|---|---|
-| Slide copy | Optional | 8–12 slides as a plain list, or an existing `slides.json`; if only a source draft/idea is provided, the skill authors the copy. Written into `linkedin/carousels/<slug>/slides.json` |
-| Source draft / idea | Optional | A `drafts/<slug>.md` draft or rough idea/notes the skill authors slide copy from when no ready copy is provided |
-| Theme (`--template`) | Optional | One of the seven theme templates; defaults to `slide.svg` (dark) |
-| `linkedin/` folder | Yes | Must already exist (cwd-relative); the skill asks rather than creating it |
-| `voice-tone/` folder | Optional | Read for wording/style consistency if present; asked about if expected but missing |
-| `cairosvg` + `Pillow` | Optional | Only for the combined PDF; SVG output stays valid without them; install through `uv` after confirmation |
+**Custom theme:** copy `themes/_custom_template.json`, edit the tokens, and set
+`meta.theme` to its path. All 7 color keys are required; fonts must match a
+bundled family (`Inter`, `Space Grotesk`, `Manrope`, `IBM Plex Sans`,
+`IBM Plex Serif`). Run `--spec-only` to see the contrast report.
 
 ---
 
-## Outputs
+## Usage
 
-- **Design spec** (from `spec.py`): canvas, template, slide count, and per-slide auto-fit/overflow results.
-- **Slide files** under `linkedin/carousels/<slug>/`: one `.svg` per slide.
-- **Slide-1 preview** during the review stop point before full render.
-- **Combined PDF** at `linkedin/carousels/<slug>/<slug>.pdf` when `cairosvg` + `Pillow` are available.
+Run from the skill directory (`$SKILL_DIR`) so bundled fonts/templates/themes resolve.
+
+```bash
+# One-time setup
+uv sync
+uv run playwright install chromium
+
+# Review-first: spec + slide-1 preview (STOP here for approval)
+uv run python -m engine.render --deck path/to/deck.yaml --spec-only
+uv run python -m engine.render --deck path/to/deck.yaml --only 1 --out path/to/linkedin/carousels/<slug>
+
+# Full render + automatic PDF (after approval)
+uv run python -m engine.render --deck path/to/deck.yaml --out path/to/linkedin/carousels/<slug>
+```
+
+| Option | Effect |
+|---|---|
+| `--deck PATH` | Deck spec (`.yaml`/`.json`). Required. |
+| `--theme NAME\|PATH` | Override `meta.theme`. |
+| `--format {square,portrait,landscape}` | Override `meta.format`. |
+| `--out DIR` | Output root. |
+| `--only N` | Render only slide N (skips PDF). |
+| `--scale F` | deviceScaleFactor (default 2.0). |
+| `--spec-only` | Print spec + contrast + lint, no render. |
+| `--no-pdf` | Skip PDF merge. |
+
+Exit codes: `0` ok · `1` deck/theme error · `2` `uv` missing · `3` rendered with overflow warnings.
+
+---
+
+## Structure
+
+```
+carousel-builder/
+├── SKILL.md               # trigger conditions, usage, slide/theme/format reference
+├── pyproject.toml         # uv-managed deps: playwright, jinja2, pyyaml, jsonschema, img2pdf
+├── engine/
+│   ├── render.py          # CLI entrypoint
+│   ├── layout_engine.py   # Jinja2 fill, format presets, font-face, icons, overflow lint
+│   ├── theme_loader.py    # load + validate theme tokens
+│   ├── contrast_check.py  # WCAG AA contrast validation
+│   └── deck_schema.json   # deck + 8-slide-type JSON schema
+├── templates/             # _base.html + one HTML per slide type
+├── themes/                # 4 built-in themes + _custom_template.json
+├── assets/
+│   ├── fonts/             # bundled OFL/Apache WOFF2 (do NOT remove) + licenses
+│   └── icons/             # flat/line SVG icon set
+├── examples/example_deck.yaml
+└── output/                # gitignored render target
+```
+
+**Adding a slide type:** add `templates/<type>.html` (extends `_base.html`) and a
+matching `oneOf` entry in `engine/deck_schema.json`. No core engine changes.
 
 ---
 
 ## Limitations
 
-- **Not fully automatic.** Always stops after the spec + slide-1 preview for approval before rendering all slides.
-- **PDF combine is optional but supported.** Without `cairosvg` (rasterizer) and `Pillow` (PDF writer), only the `.svg` files are produced until the user approves `uv` dependency setup.
-- **Overflowing slides are warned, not auto-fixed.** If copy is too long at the smallest font size, the skill flags the slide (exit `3`) and recommends shortening/splitting rather than spilling over the footer band.
-- **SVG effect fidelity varies.** Themes with heavy effects (glassmorphism blur, neon glow, Mario textures) render natively in modern viewers and rasterize fine through cairosvg. Very old rasterizers may ignore some filters; the layout/text still render.
-- **Never auto-creates folders or overwrites files.** Asks the user if `linkedin/`/`voice-tone/` are missing, and offers overwrite / `-v2` variant / new name when a target exists.
-- **Tracker updates are prompted, not automatic.** If a `content-log.md`/`content-log.json` tracker exists, the skill asks in one line whether to update it after writing; a missing tracker never blocks the skill.
+- **No photorealistic/isometric illustrations** — code-only rendering uses a bundled flat/line SVG icon set; 3D/AI art is out of scope.
+- **Font determinism depends on `assets/fonts/`** — do not delete it or headless rendering drifts across machines.
+- **Requires `uv` + a one-time Chromium download (~150MB)** — the skill hard-stops if `uv` is missing and never falls back to pip.
+- **Overflow is warned, not auto-fixed** — long copy is flagged (exit `3`); shorten or split.
+- **Landscape is not a native LinkedIn carousel size** — use square/portrait for carousels.
+- **Review-first, never end-to-end** — always stops after the spec + slide-1 preview.
+- **Never auto-creates folders or overwrites files** — asks about missing `linkedin/`/`voice-tone/`; offers overwrite / `-v2` / new name.
 
 ---
 
@@ -156,17 +182,11 @@ cp -r content-creation/linkedin-medium/carousel-builder .opencode/skills/
 Copy-Item -Recurse content-creation\linkedin-medium\carousel-builder "$env:USERPROFILE\.config\opencode\skills\"
 ```
 
-Optional PDF dependencies:
+Then, once, from inside the copied skill directory:
 
 ```bash
-uv venv .venv
-uv pip install --python .venv/bin/python cairosvg pillow
-```
-
-Or let the script do the same after user confirmation:
-
-```bash
-python3 content-creation/linkedin-medium/carousel-builder/scripts/combine_pdf.py linkedin/carousels/<slug> --install-missing
+uv sync
+uv run playwright install chromium
 ```
 
 ### Other platforms
@@ -182,12 +202,15 @@ python3 content-creation/linkedin-medium/carousel-builder/scripts/combine_pdf.py
 
 ## Companion skills
 
-Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` → `draft-builder` → {`linkedin-writer`, `medium-writer`} → {`carousel-builder`, `medium-imager`, `tutorial-verifier`} → `editorial-reviewer`, with `voice-profiler` and `content-tracker` as cross-cutting support.
+Part of the LinkedIn/Medium content suite. Pipeline order: `seed-expander` →
+`draft-builder` → {`linkedin-writer`, `medium-writer`} → {`carousel-builder`,
+`medium-imager`, `tutorial-verifier`} → `editorial-reviewer`, with
+`voice-profiler` and `content-tracker` as cross-cutting support.
 
 - **`seed-expander`**: expands a raw idea into an outline/angle
 - **`draft-builder`**: turns the outline into a full draft
-- **`linkedin-writer`**: writes LinkedIn post copy from a draft (carousel-builder authors its own slide copy; upstream drafting is `draft-builder` / `seed-expander`)
-- **`tutorial-verifier`**: sibling downstream step; runs and verifies tutorial code blocks
+- **`linkedin-writer`**: writes LinkedIn post copy from a draft
+- **`tutorial-verifier`**: sibling downstream step; runs and verifies tutorial code
 - **`editorial-reviewer`**: final editorial pass on wording/structure
-- **`voice-profiler`**: builds the `voice-tone/` guidance this skill reads for style consistency
-- **`content-tracker`**: maintains the `content-log` status (`idea` → `drafted` → `reviewed` → `posted` → `archived`)
+- **`voice-profiler`**: builds the `voice-tone/` guidance this skill reads
+- **`content-tracker`**: maintains the `content-log` status

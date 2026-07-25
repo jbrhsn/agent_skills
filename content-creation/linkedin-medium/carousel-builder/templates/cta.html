@@ -1,0 +1,16 @@
+{% extends "_base.html" %}
+{% block style %}
+.cta-slide { justify-content: center; gap: 36px; min-height: 0; }
+.cta-slide h1 { font-size: calc(96px * var(--fit)); color: var(--text); word-wrap: break-word; }
+.cta-slide .sub { font-size: calc(42px * var(--fit)); line-height: 1.35; max-width: 90%; word-wrap: break-word; }
+.cta-action { display: inline-flex; align-items: center; gap: 20px; align-self: flex-start; margin-top: 12px; background: var(--pos); color: var(--bg); font-family: var(--font-head); font-weight: var(--w-head); font-size: calc(42px * var(--fit)); padding: 28px 44px; border-radius: var(--radius); white-space: nowrap; }
+.cta-action .icon { font-size: calc(44px * var(--fit)); }
+{% endblock %}
+{% block content %}
+<div class="pad cta-slide">
+  <div class="accent-bar"></div>
+  <h1>{{ slide.headline }}</h1>
+  {% if slide.subtext %}<p class="body-text sub">{{ slide.subtext }}</p>{% endif %}
+  {% if slide.action %}<div class="cta-action">{{ slide.action }} <span class="icon">{{ icon('arrow') }}</span></div>{% endif %}
+</div>
+{% endblock %}
