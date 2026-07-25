@@ -6,7 +6,7 @@ CLAUDE.md
 .cursor/
 .cursorrules
 .github/copilot-instructions.md
-tests/
+tests/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

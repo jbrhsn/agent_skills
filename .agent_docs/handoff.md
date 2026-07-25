@@ -2,13 +2,23 @@
 
 ## Project Summary
 
-`agent_skills` is a curated collection of portable AI-agent skill files (`SKILL.md`) for OpenCode and other coding/content assistants. The repo has no build system, dependencies, CI, or formal test suite; it is mostly Markdown content plus small standard-library Python helper scripts for skills that need executable behavior. The live categories are `learning/`, `agent_session_management/`, `development/`, and `content-creation/`. Key artifacts are each skill's `SKILL.md`, human-facing `README.md`, optional support folders (`reference/`, `references/`, `scripts/`, `templates/`), root `AGENTS.md` for authoritative local rules, and `.agent_docs/handoff.md` for session continuity.
+`agent_skills` is a curated collection of portable AI-agent skill files (`SKILL.md`) for OpenCode (Bob) and other coding/content assistants. The repo has no build system, dependencies, CI, or formal test suite; it is mostly Markdown content plus small standard-library Python helper scripts for skills that need executable behavior. The live categories are `learning/`, `agent_session_management/`, `development/`, and `content-creation/`. Key artifacts are each skill's `SKILL.md`, human-facing `README.md`, optional support folders (`reference/`, `references/`, `scripts/`, `templates/`), root `AGENTS.md` for authoritative local rules, and `.agent_docs/handoff.md` for session continuity.
 
 Architecture is file-oriented: every skill is independently installable by copying its folder into `~/.config/opencode/skills/` or `.opencode/skills/`. Learning/session skills use `reference/`; development skills use `references/`; content-creation skills use `scripts/`, and `carousel-builder`/`medium-imager` also use SVG `templates/`. Critical constants: every skill requires `SKILL.md` + `README.md`; never add untested stubs; every phase of a multi-phase skill ends with an explicit confirmation gate; `AGENTS.md` is authoritative. `content-creation/linkedin-medium/` now holds **10** skills. `medium-imager` treats `cairosvg` as required (PNG is the Medium deliverable) and now self-installs it via `uv` on user approval (`--install-missing`), mirroring `carousel-builder`'s optional-PDF pattern.
 
 ## Session Log
 
 ### Session: 2026-07-25 (current)
+**Files touched:**
+- `.agent_docs/handoff.md` — updated at session start (init-session) and end (end-session)
+- `.gitignore` — uncommitted edit (modified outside agent actions)
+- `~/.config/opencode/skills/` — all 19 skills re-synced from repo (clean delete + copy + `diff -r` verify)
+
+**Summary:** Loaded session context via `/init-session`, then re-synced all 19 skills from the local repo to Bob's global skills directory at `~/.config/opencode/skills/`. Each skill was deleted and replaced with a fresh copy; `diff -r` verification confirmed 100% parity across all 19 skills with zero mismatches.
+
+**Outcome:** Bob's global skills directory is fully up-to-date with the repo; all 19 skills in production state with perfect content parity (verified 2026-07-25).
+
+### Session: 2026-07-25 (previous)
 **Files touched:**
 - `.agent_docs/handoff.md` — updated with new session entry and project context.
 - `content-creation/linkedin-medium/draft-builder/` — read SKILL.md, README.md, claim_lint.py fixtures and test cases (TC1, TC2, TC3).
@@ -18,16 +28,6 @@ Architecture is file-oriented: every skill is independently installable by copyi
 **Summary:** Successfully synced all 19 OpenCode skills from the local repository to the global `~/.config/opencode/skills/` directory with full verification. Created comprehensive sync verification report with SHA256 checksums confirming 100% content integrity (19/19 skills perfect match, 98 content files, 69 markdown + 32 supporting files). Source repository is now officially the authoritative master for all skills across all categories.
 
 **Outcome:** Global skills directory updated and verified; all 19 skills (2 session management, 10 content creation, 4 development, 3 learning) now in production state with perfect content parity.
-
-### Session: 2026-07-19 (previous)
-**Files touched:**
-- `~/.config/opencode/skills/*` — copied all 19 skills (10 content creation, 2 session management, 3 learning, 4 development) to the global OpenCode config path.
-- `/home/jbrhsn/.gemini/config/skills/*` — copied all 19 skills to the global Antigravity config path.
-- `/home/jbrhsn/.gemini/antigravity-ide/brain/2ecff6c1-156d-4059-a718-b1c8c5fb00b3/content_creation_skills_evaluation.md` — evaluated and compiled a detailed report of all 10 content creation skills.
-
-**Summary:** Evaluated all 10 content creation skills in detail, confirming they are fully functional, review-first, local SVG-centric, and fact-linted. Created a comprehensive evaluation report. Copied all 19 custom repository skills (content-creation, session-management, learning, and development) to the global configuration paths for both OpenCode and Antigravity.
-
-**Outcome:** Global install of all 19 repository skills completed and verified for both OpenCode and Antigravity; a detailed content-creation skills evaluation report artifact was written.
 
 ## Open Items / Next Steps
 
@@ -48,8 +48,8 @@ Architecture is file-oriented: every skill is independently installable by copyi
 - `linkedin-writer/reference/hook-writing-guide.md` and `medium-writer/reference/hook-writing-guide.md` are byte-identical; keep both in sync when editing either.
 - `carousel-builder` authors carousel slide copy from draft/idea AND renders SVG + combined PDF; `cairosvg`/`Pillow` are optional PDF add-ons via `uv` (`combine_pdf.py --install-missing`) after user confirmation.
 - `medium-imager` outputs Medium cover/card SVG source plus required PNG; `cairosvg` is required and self-installs via `uv` on approval (`svg_to_png.py --install-missing`, loop-guarded by `MEDIUM_IMAGER_UV_BOOTSTRAPPED`).
-- Global sync command: `cp -r content-creation/linkedin-medium/<skill-name> ~/.config/opencode/skills/` (delete target first for clean replace; verify with `diff -r`).
+- Global sync command: `rm -rf ~/.config/opencode/skills/<skill-name> && cp -r <repo-path>/<skill-name> ~/.config/opencode/skills/` then verify with `diff -r`.
 - Use `python3 -m py_compile <script>` to syntax-check Python helpers; remove `__pycache__/` before committing.
 - "Tested skills only" rule: never add or commit a skill stub without exercising it in a real session.
 - Global `init-session`/`end-session` skills installed at `~/.config/opencode/skills/` and exposed as `/init-session` + `/end-session` commands in `~/.config/opencode/opencode.jsonc`.
-- **Sync status:** All 19 skills successfully synced to `~/.config/opencode/skills/` (verified 2026-07-25, 100% checksum match).
+- **Sync status:** All 19 skills successfully synced to `~/.config/opencode/skills/` (verified 2026-07-25, 100% diff-r match).
