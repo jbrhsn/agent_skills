@@ -46,19 +46,13 @@ Give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality beha
 
 ### Content Creation
 
-> A LinkedIn/Medium content pipeline — from raw idea to posting-ready output. Each skill is standalone; together they chain **seed → draft → write → {carousel, image, verify} → review**, with voice and tracking as cross-cutting support.
+> Skills for creating LinkedIn content — from source notes to a posting-ready piece, visual prompts, and a virality review.
 
 | Skill | What it does |
 |---|---|
-| [**seed-expander**](./content-creation/linkedin-medium/seed-expander/README.md) | Turn one seed idea into 8-10 researched, tagged content angles, then write approved ones as `drafts/` stubs |
-| [**draft-builder**](./content-creation/linkedin-medium/draft-builder/README.md) | Turn messy notes or a stub into one clean, platform-neutral source draft — voice-matched, with claim integrity enforced by a linter (no invented facts) |
-| [**linkedin-writer**](./content-creation/linkedin-medium/linkedin-writer/README.md) | Turn a source draft or raw idea into a posting-ready LinkedIn Short Post, Long Post, or Article — hook engineering, scannability, CTA, with a mandatory review gate |
-| [**medium-writer**](./content-creation/linkedin-medium/medium-writer/README.md) | Turn a source draft or raw idea into a posting-ready Medium Short/Long Article, Tutorial, or Listicle — title/subtitle engineering, read-ratio pacing, emotional arc, with review gates |
-| [**carousel-builder**](./content-creation/linkedin-medium/carousel-builder/README.md) | Render carousel slide copy into actual 1080x1350 slide image files (SVG or themed HTML/CSS), locally, with optional PNG export — no image APIs |
-| [**tutorial-verifier**](./content-creation/linkedin-medium/tutorial-verifier/README.md) | Extract, run, and verify a tutorial's Python/JS/shell code blocks in isolation (static fallback when no runtime), then format Medium-ready blocks labeled verified or statically-validated |
-| [**editorial-reviewer**](./content-creation/linkedin-medium/editorial-reviewer/README.md) | Run a finished post/article through a structured editorial pass and return 2-3 labeled variants to choose, mix, or reject — never auto-replaces your text |
-| [**voice-profiler**](./content-creation/linkedin-medium/voice-profiler/README.md) | Analyze writing samples in `voice-tone/` once and distill a reusable `voice-tone/profile.md` so voice stays consistent across skills |
-| [**content-tracker**](./content-creation/linkedin-medium/content-tracker/README.md) | A lightweight cross-session content log — track pipeline status, query the backlog, check posting cadence, and archive posted pieces |
+| [**linkedin-post-writer**](./content-creation/linkedin/linkedin-post-writer/README.md) | Turn source notes or a rough draft into a posting-ready LinkedIn post — hook engineering, scroll-first structure, no-link-in-body discipline, mandatory review gate. Writes `linkedin_post.md` next to the source file |
+| [**linkedin-image-prompts**](./content-creation/linkedin/linkedin-image-prompts/README.md) | Generate image-generation prompts (single hero image or full carousel) for a finished post, chosen from its structure. Writes `image_prompts.md` next to the source post — prompt text only, no rendering |
+| [**linkedin-post-reviewer**](./content-creation/linkedin/linkedin-post-reviewer/README.md) | Score a finished post across 5 algorithm-aligned dimensions and produce one refined version with an itemized change list. Writes `linkedin_post_revised.md` next to the source file |
 
 ---
 
@@ -86,16 +80,10 @@ cp -r development/project-planner ~/.config/opencode/skills/
 cp -r development/repo-docs-publisher ~/.config/opencode/skills/
 cp -r development/ui-ux-designer ~/.config/opencode/skills/
 
-# Content creation skills (LinkedIn/Medium pipeline)
-cp -r content-creation/linkedin-medium/seed-expander ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/draft-builder ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/linkedin-writer ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/medium-writer ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/carousel-builder ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/tutorial-verifier ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/editorial-reviewer ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/voice-profiler ~/.config/opencode/skills/
-cp -r content-creation/linkedin-medium/content-tracker ~/.config/opencode/skills/
+# Content creation skills (LinkedIn pipeline)
+cp -r content-creation/linkedin/linkedin-post-writer ~/.config/opencode/skills/
+cp -r content-creation/linkedin/linkedin-image-prompts ~/.config/opencode/skills/
+cp -r content-creation/linkedin/linkedin-post-reviewer ~/.config/opencode/skills/
 ```
 
 ```bash
@@ -103,7 +91,7 @@ cp -r content-creation/linkedin-medium/content-tracker ~/.config/opencode/skills
 cp -r agent_session_management/init-session .opencode/skills/
 cp -r learning/create-learning-repo .opencode/skills/
 cp -r development/lean-coder .opencode/skills/
-cp -r content-creation/linkedin-medium/draft-builder .opencode/skills/
+cp -r content-creation/linkedin/linkedin-post-writer .opencode/skills/
 ```
 
 OpenCode loads skills automatically. Once installed, describe what you want and the agent invokes the right skill.
@@ -143,7 +131,7 @@ The optional support directory varies by category:
 |---|---|---|
 | `learning/`, `agent_session_management/` | `reference/` (singular) | Templates, rubrics, quality gates |
 | `development/` | `references/` (plural) | Templates, checklists, command references |
-| `content-creation/linkedin-medium/` | `scripts/` (+ `templates/` for `carousel-builder`) | Standard-library Python helpers and HTML slide themes |
+| `content-creation/linkedin/` | none (self-contained) | No support folder — craft rules are inlined directly in each `SKILL.md` |
 
 > **Only tested skills belong here.** Skills are added only after being exercised in a real session — no untested stubs.
 

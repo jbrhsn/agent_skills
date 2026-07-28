@@ -17,23 +17,15 @@ import argparse
 import os
 import shutil
 import sys
-import tarfile
 from pathlib import Path
 
 
 SKILLS = [
     "agent_session_management/end-session",
     "agent_session_management/init-session",
-    "content-creation/linkedin-medium/carousel-builder",
-    "content-creation/linkedin-medium/content-tracker",
-    "content-creation/linkedin-medium/draft-builder",
-    "content-creation/linkedin-medium/editorial-reviewer",
-    "content-creation/linkedin-medium/linkedin-writer",
-    "content-creation/linkedin-medium/medium-imager",
-    "content-creation/linkedin-medium/medium-writer",
-    "content-creation/linkedin-medium/seed-expander",
-    "content-creation/linkedin-medium/tutorial-verifier",
-    "content-creation/linkedin-medium/voice-profiler",
+    "content-creation/linkedin/linkedin-post-writer",
+    "content-creation/linkedin/linkedin-image-prompts",
+    "content-creation/linkedin/linkedin-post-reviewer",
     "development/lean-coder",
     "development/project-planner",
     "development/repo-docs-publisher",
@@ -92,23 +84,9 @@ def sync_skill(source_path: Path, skill_name: str, dest_dir: Path, dry_run: bool
     if dest_path.exists():
         shutil.rmtree(dest_path)
 
-    # Use tar to copy with exclusions
+    # Copy directory tree, excluding build artifacts
     try:
-        with tarfile.open(fileobj=None, mode="w") as tar_write:
-            # Create tar in memory, excluding unwanted files
-            tar_read = tarfile.open(fileobj=None, mode="w", name="/dev/null")
-            
-            # Actually, use a simpler approach: copy with filter
-            dest_path.mkdir(parents=True, exist_ok=True)
-            
-            for item in source_path.iterdir():
-                if item.name in EXCLUSIONS or any(item.name.endswith(ext.lstrip("*")) for ext in EXCLUSIONS if ext.startswith("*")):
-                    continue
-                if item.is_dir():
-                    shutil.copytree(item, dest_path / item.name, ignore=shutil.ignore_patterns(*EXCLUSIONS))
-                else:
-                    shutil.copy2(item, dest_path / item.name)
-
+        shutil.copytree(source_path, dest_path, ignore=shutil.ignore_patterns(*EXCLUSIONS))
         print(f"✓ {skill_name}")
         return True
     except Exception as e:
