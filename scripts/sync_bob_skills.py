@@ -84,22 +84,9 @@ def sync_skill(source_path: Path, skill_name: str, dest_dir: Path, dry_run: bool
     if dest_path.exists():
         shutil.rmtree(dest_path)
 
-    # Copy with exclusions
+    # Copy directory tree, excluding build artifacts
     try:
-        dest_path.mkdir(parents=True, exist_ok=True)
-
-        for item in source_path.iterdir():
-            # Skip excluded items
-            if item.name in EXCLUSIONS or any(
-                item.name.endswith(ext.lstrip("*")) for ext in EXCLUSIONS if ext.startswith("*")
-            ):
-                continue
-
-            if item.is_dir():
-                shutil.copytree(item, dest_path / item.name, ignore=shutil.ignore_patterns(*EXCLUSIONS))
-            else:
-                shutil.copy2(item, dest_path / item.name)
-
+        shutil.copytree(source_path, dest_path, ignore=shutil.ignore_patterns(*EXCLUSIONS))
         print(f"✓ {skill_name}")
         return True
     except Exception as e:

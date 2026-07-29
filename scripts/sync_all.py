@@ -3,10 +3,11 @@
 Sync all skills to both OpenCode and IBM Bob global configs.
 
 This unified script syncs the agent_skills repository to both:
-  - ~/.config/opencode/skills (OpenCode)
+  - ~/.config/opencode/skills, ~/.config/opencode/agent, ~/.config/opencode/plugin (OpenCode)
   - ~/.bob/skills (IBM Bob)
 
-It runs both sync_opencode_skills.py and sync_bob_skills.py in sequence.
+It runs sync_opencode_skills.py, sync_opencode_agents.py, and
+sync_opencode_plugins.py for OpenCode, and sync_bob_skills.py for Bob.
 
 Usage:
     python scripts/sync_all.py [--dry-run]
@@ -65,9 +66,13 @@ def main():
 
     exit_code = 0
 
-    # Sync to OpenCode
+    # Sync to OpenCode (skills, agents, and plugins are all OpenCode-global)
     if not args.bob_only:
         if run_sync("sync_opencode_skills.py", args.dry_run) != 0:
+            exit_code = 1
+        if run_sync("sync_opencode_agents.py", args.dry_run) != 0:
+            exit_code = 1
+        if run_sync("sync_opencode_plugins.py", args.dry_run) != 0:
             exit_code = 1
 
     # Sync to Bob
