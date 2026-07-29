@@ -88,7 +88,7 @@ def main():
 
     # Determine source and destination
     repo_root = Path(__file__).parent.parent
-    plugins_dir = repo_root / "plugins"
+    plugins_dir = repo_root / "plugins" / "token_saving"
     dest_dir = get_dest_dir()
 
     dest_dir.mkdir(parents=True, exist_ok=True)

@@ -94,7 +94,7 @@ def main():
     dest_dir.mkdir(parents=True, exist_ok=True)
 
     print("🔄 Syncing OpenCode agents...")
-    print(f"  Source:      {repo_root / 'agents'}")
+    print(f"  Source:      {repo_root / 'agents' / 'orchestrator_mode_agents'}")
     print(f"  Destination: {dest_dir}")
     print()
 
@@ -106,7 +106,7 @@ def main():
     skipped = 0
 
     for agent_name in AGENTS:
-        source_path = repo_root / "agents" / agent_name
+        source_path = repo_root / "agents" / "orchestrator_mode_agents" / agent_name
 
         if sync_agent(source_path, agent_name, dest_dir, args.dry_run):
             synced += 1

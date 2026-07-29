@@ -21,18 +21,18 @@ from pathlib import Path
 
 
 SKILLS = [
-    "agent_session_management/end-session",
-    "agent_session_management/init-session",
-    "content-creation/linkedin/linkedin-post-writer",
-    "content-creation/linkedin/linkedin-image-prompts",
-    "content-creation/linkedin/linkedin-post-reviewer",
-    "development/lean-coder",
-    "development/project-planner",
-    "development/repo-docs-publisher",
-    "development/ui-ux-designer",
-    "learning/author-chapter",
-    "learning/create-learning-repo",
-    "learning/generate-practice-exam",
+    "skills/agent_session_management/end-session",
+    "skills/agent_session_management/init-session",
+    "skills/content-creation/linkedin/linkedin-post-writer",
+    "skills/content-creation/linkedin/linkedin-image-prompts",
+    "skills/content-creation/linkedin/linkedin-post-reviewer",
+    "skills/development/lean-coder",
+    "skills/development/project-planner",
+    "skills/development/repo-docs-publisher",
+    "skills/development/ui-ux-designer",
+    "skills/learning/author-chapter",
+    "skills/learning/create-learning-repo",
+    "skills/learning/generate-practice-exam",
 ]
 
 EXCLUSIONS = [

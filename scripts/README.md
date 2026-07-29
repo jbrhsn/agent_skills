@@ -28,7 +28,7 @@ python3 scripts/sync_opencode_skills.py --dry-run # Preview
 - `OPENCODE_SKILLS` — Override destination (default: `~/.config/opencode/skills`)
 
 ### `sync_opencode_agents.py`
-Syncs the repo's agent definitions (`agents/orchestrator.md` and `agents/executor.md`) to the OpenCode global agent directory (`~/.config/opencode/agent` — note the singular `agent`). The `agents/README.md` is not synced.
+Syncs the repo's agent definitions (`agents/orchestrator_mode_agents/orchestrator.md` and `agents/orchestrator_mode_agents/executor.md`) to the OpenCode global agent directory (`~/.config/opencode/agent` — note the singular `agent`). The `agents/README.md` is not synced.
 
 **Usage:**
 ```bash
@@ -40,7 +40,7 @@ python3 scripts/sync_opencode_agents.py --dry-run # Preview
 - `OPENCODE_AGENTS` — Override destination (default: `~/.config/opencode/agent`)
 
 ### `sync_opencode_plugins.py`
-Syncs the repo's TypeScript plugins (`plugins/*.ts`, currently `token-guard.ts`) to the OpenCode global plugin directory (`~/.config/opencode/plugin` — note the singular `plugin`). The `plugins/README.md` is not synced.
+Syncs the repo's TypeScript plugins (`plugins/token_saving/*.ts`, currently `token-guard.ts`) to the OpenCode global plugin directory (`~/.config/opencode/plugin` — note the singular `plugin`). The `plugins/README.md` is not synced.
 
 **Usage:**
 ```bash
