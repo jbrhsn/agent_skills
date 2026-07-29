@@ -2,7 +2,7 @@ import type { Plugin, PluginOptions } from "@opencode-ai/plugin"
 
 // Defaults. Override per-project via the tuple form in opencode.json, e.g.:
 //   "plugin": [["./.opencode/plugin/token-guard.ts", { "maxOutputChars": 8000 }]]
-const DEFAULT_MAX_OUTPUT_CHARS = 4000
+const DEFAULT_MAX_OUTPUT_CHARS = 8000
 
 // Tools whose output we truncate. `read` is intentionally excluded: opencode's
 // built-in read tool already truncates and spools full output to a file for

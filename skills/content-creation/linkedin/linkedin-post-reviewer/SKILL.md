@@ -37,6 +37,7 @@ Grounded in how LinkedIn's 2026 algorithm actually ranks posts — not generic w
 - One idea per line; paragraphs capped at 1–3 lines with blank lines between.
 - Readable at phone width, not just desktop.
 - Deduct for dense paragraphs, walls of text, or 3+ parallel items buried in a sentence instead of bulleted.
+- Do not use em-dashes in writing.
 
 ### 3. Specificity & save-worthiness (20 pts)
 - Real, textured detail vs. generic statements a stranger could have written.

@@ -82,6 +82,7 @@ State which frame was picked and why, in one line.
 - **Line-count gut check** (Short/Long Posts): under 10 lines is likely thin; over 18, cut a paragraph that explains something the reader can infer.
 - **Bullet-ize 3+ parallel items** rather than burying them in a sentence.
 - Replace vague nouns with real, textured detail (industry, size, specific number) — anonymize names, not texture.
+- Do not use em-dashes in writing.
 
 ### 4. Engagement design (comments > likes, no bait)
 
