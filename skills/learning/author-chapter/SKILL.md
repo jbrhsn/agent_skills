@@ -9,14 +9,14 @@ This skill turns a blank stub (or a thin, incomplete file) into a fully template
 
 It is **fully generic** — no topic, tool, vendor, or repo path is hardcoded. The section order and quality rules are read from the target repo's own `templates/` and `AGENTS.md` at runtime. When those files do not exist (a loose Markdown folder), the skill falls back to the bundled `reference/quality-gate.md` after confirming with the user.
 
-The workflow is a sequence of discrete **units**. Each unit has a Goal/scope, Inputs, Do, a Self-verify step, and a terse Report contract. Two units are **STOP GATES** where scope or a plan must be confirmed before proceeding. The quality gate (Unit U3) is the doer's own self-audit run against the contract before any file is written.
+The workflow is a sequence of discrete **units**. Each unit has a Goal/scope, Inputs, Do, a Self-verify step, and a terse Report contract. Three units are **STOP GATES** where scope, a plan, or a written draft must be confirmed before proceeding. The quality gate (Unit U3) is the doer's own self-audit run against the contract before the draft is written. To keep long chapters out of the conversation, the draft is **written to the target file first** and the review gate hands back only a short pointer + summary — never the full chapter body.
 
 **What this skill does:**
 - Reads the authoring contract (template + depth rules) from disk
 - Researches the topic from live official sources, with citations and retrieval dates
 - Drafts every section in the correct order to the required depth
-- Runs a pass/fail quality gate and fixes failures before writing
-- Writes one chapter file (idempotent — never clobbers authored content without confirmation)
+- Runs a pass/fail quality gate and fixes failures before writing the draft to the target file
+- Writes the draft to the file first, then hands back only a short pointer + summary for review (never the full chapter body); finalizes on approval (idempotent — never clobbers pre-existing authored content without confirmation)
 
 **What this skill does NOT do:**
 - Scaffold folders, templates, or new repos (use `create-learning-repo`)
@@ -97,7 +97,7 @@ Follow the Content Depth Rules from the repo's `AGENTS.md` (or `reference/qualit
 
 ## Workflow
 
-The units run in order U0 → U4. Two of them are STOP GATES that hand control back for confirmation; the rest are self-verified by the doer. Do not skip the STOP GATES and do not combine a gate with the next unit in one response.
+The units run in order U0 → U4. Three of them are STOP GATES that hand control back for confirmation (U0 scope, U1 research brief, U2 draft review); the rest are self-verified by the doer. Do not skip the STOP GATES and do not combine a gate with the next unit in one response.
 
 ### Unit U0 — Locate the authoring contract & confirm scope
 
@@ -143,17 +143,19 @@ The units run in order U0 → U4. Two of them are STOP GATES that hand control b
 - **STOP GATE (hand back)**: present the research brief and **stop**. Ask the user to confirm the sources and concept breakdown, or adjust the plan. **Do not draft until confirmed.** → Hand control back for the research/plan decision.
 - **Report contract**: `sources: <N> official (dated) | objective quoted: <yes/n-a> | planned concepts: <N> | awaiting: brief approval`.
 
-### Unit U2 — Draft the chapter
+### Unit U2 — Draft the chapter, write it, then hand back for review
 
-- **Goal/scope**: write every section in the contract's order to the required depth.
+- **Goal/scope**: write every section in the contract's order to the required depth, **write the draft to the target file**, then hand back a short pointer for review — never the body.
 - **Inputs**: approved research brief + resolved contract + naming/answer-format conventions from U0.
 - **Do**:
   - Author every section in the contract's order, meeting the **section-by-section depth requirements** (shared reference material). When a repo template exists, its order and headings win over the portable list.
   - Apply **draft discipline** (shared reference material): match naming style and answer format; leave zero TODO/STUB markers; respect the depth calibration.
   - Apply **source hygiene** to Further Reading links.
-- **Self-verify**: run **Unit U3 (quality gate)** before reporting — the draft is not "done" until the gate passes or its ✗ rows are surfaced.
-- **STOP GATE (hand back)**: present the full draft and **stop**. Ask the user to review content, section order, depth, and examples, then approve or give corrections before the gate/write. → Hand control back for draft review. (If running non-interactively, note the gate as "skipped — auto-proceeding with draft as written" and continue.)
-- **Report contract**: `draft complete | sections: <N> (contract order) | snippets: <N> (incl. <N> anti-pattern) | quality gate: <PASS | N flagged, fixed | N flagged, unresolved> | awaiting: draft approval`.
+  - Run **Unit U3 (quality gate)** on the draft before writing — the draft is not ready to write until the gate passes or its ✗ rows are surfaced.
+  - **Write the draft to the confirmed target path** (from U0) with the `Write` tool. This is the draft under review — writing it now is expected and is exactly the file the user will open to review. Writing the draft first is what keeps the full chapter body out of chat. (The overwrite protection for *pre-existing authored content* was already settled at U0's gate before U1; see the write/overwrite discipline in U4.)
+- **Self-verify**: the U3 gate ran (PASS, or its ✗ rows surfaced) and the draft has been written to the target path.
+- **STOP GATE (hand back)**: **do NOT paste the full chapter body into chat.** Present ONLY a short pointer + summary and **stop**: the target file path, the U3 quality-gate result (`PASS`, or the specific flagged/unresolved rows), the section count (contract order), and the snippet count (incl. anti-pattern count). Instruct the user to **open the file to review** content, section order, depth, and examples, then approve or give corrections. On a **correction request**, re-edit the target file in place and re-point to it — never re-dump the body into chat. → Hand control back for draft review. (If running non-interactively, note the gate result and proceed to U4 with the written draft as-is.)
+- **Report contract**: `draft written to <path>, awaiting review | sections: <N> (contract order) | snippets: <N> (incl. <N> anti-pattern) | quality gate: <PASS | N flagged, fixed | N flagged, unresolved> | review by opening the file — full body not pasted`.
 
 ### Unit U3 — Quality gate (self-audit, run inside U2 before any hand-back)
 
@@ -187,13 +189,16 @@ The units run in order U0 → U4. Two of them are STOP GATES that hand control b
 - **Self-verify**: every row is ✓, or every remaining ✗ is surfaced explicitly with the reason it could not be fixed.
 - **Report contract**: folded into U2's report (`quality gate: PASS` or the flagged/fixed/unresolved counts).
 
-### Unit U4 — Write and report
+### Unit U4 — Finalize and report
 
-- **Goal/scope**: commit the file and report compliance.
+- **Goal/scope**: confirm the approved, gated draft is the file's content and report compliance. (The file was already written in U2; correction rounds updated it in place.)
 - **Inputs**: approved draft that passed the U3 gate + target path from U0.
 - **Do**:
-  - **Idempotency guard:** if the target file gained real content since U0 (e.g. a parallel edit), stop and ask before overwriting.
-  - Write the full chapter to the target path with the `Write` tool.
+  - **Write/overwrite discipline (reconciled):**
+    - The draft-write of **this run** to the confirmed target — the initial write in U2 and any in-place re-edits during correction rounds — is expected and is not what the idempotency guard below is about.
+    - **Pre-existing authored content is still protected:** if the target already *had* real authored content (not a stub) at U0, the decision to rewrite/extend was made at U0's STOP GATE before any write. That "never overwrite authored content without confirmation" guardrail remains in force — U2 only wrote because U0's gate authorized it.
+    - **Idempotency guard (genuine external/parallel edits only):** if the target file was changed *outside this run* (e.g. a parallel edit by someone else since U0) such that its content diverges from the draft this run wrote, stop and ask before overwriting. This guard is about foreign edits, not the skill's own draft write of this run.
+  - Confirm the file at the target path holds the approved + gated draft (re-write in place only if a correction round or the guard above requires it).
   - Report:
     ```
     Authored:      [path]
@@ -205,8 +210,8 @@ The units run in order U0 → U4. Two of them are STOP GATES that hand control b
     Quality gate:  PASS (all checks ✓)
     ```
   - Suggest the next logical stub in the same chapter or module (do not author it without a new request).
-- **Self-verify**: the file exists at the expected path, matches the approved+gated draft, and the U3 gate was PASS (all rows ✓) before the write.
-- **Report contract**: `wrote: <exact path> | contract: <source> | quality gate: PASS | next stub suggested: <path or none>`.
+- **Self-verify**: the file exists at the expected path, matches the approved+gated draft, and the U3 gate was PASS (all rows ✓) before finalizing.
+- **Report contract**: `finalized: <exact path> | contract: <source> | quality gate: PASS | next stub suggested: <path or none>`.
 
 ---
 

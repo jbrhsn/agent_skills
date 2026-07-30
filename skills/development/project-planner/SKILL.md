@@ -92,7 +92,7 @@ Follow the units in order. Do not skip the interview even if the user's idea sou
   - Constraints (team, timeline, budget)
   - Risks, assumptions, and open questions (always required)
 - **Self-verify**: confirm `docs/01-spec.md` exists at the repo-root `docs/` path, contains all six required sections above, and has no raw `<placeholder>` markers remaining.
-- **STOP GATE (hand back)**: present the drafted file content and ask the user to confirm or request changes. **Do not start `02-design.md` until they approve.** → Hand control back for spec approval. (Non-interactive fallback applies.)
+- **STOP GATE (hand back)**: the file is already written (see the Do/Self-verify steps above). **Point the user to the written file path (`docs/01-spec.md`) and present only a short summary** — that all 6 required sections are present and no placeholders remain, plus a one-line description of what was produced — then ask them to open the file to review and confirm or request changes. **Do NOT paste the full doc body into chat.** On a change request, re-edit `docs/01-spec.md` in place and re-point to the same file (again with only a short summary, not the body). **Do not start `02-design.md` until they approve.** → Hand control back for spec approval. (Non-interactive fallback applies.)
 - **Report contract**: `wrote: docs/01-spec.md | sections: all 6 present | placeholders: none | awaiting: spec approval`.
 
 ### Unit 3 — Write `docs/02-design.md`
@@ -104,7 +104,7 @@ Follow the units in order. Do not skip the interview even if the user's idea sou
   - Include Mermaid diagrams (architecture/component diagram at minimum; add sequence or data-flow diagrams if the system has non-trivial interactions).
   - Record the chosen option and why, once the user picks or confirms one.
 - **Self-verify**: confirm `docs/02-design.md` exists at the expected path, includes the options/tradeoffs (or the design-around-preference note) and at least an architecture Mermaid diagram, and has no raw placeholders.
-- **STOP GATE (hand back)**: present the draft and get explicit approval — including the chosen option — before Unit 4. → Hand control back for design approval. (Non-interactive fallback applies.)
+- **STOP GATE (hand back)**: the file is already written. **Point the user to `docs/02-design.md` and present only a short summary** — the count of architecture/stack options with tradeoffs (or the design-to-preference note) and the list of diagrams included — then ask them to open the file to review and give explicit approval, including the chosen option, before Unit 4. **Do NOT paste the full doc body into chat.** On a change request, re-edit `docs/02-design.md` in place and re-point to the same file (short summary only, not the body). → Hand control back for design approval. (Non-interactive fallback applies.)
 - **Report contract**: `wrote: docs/02-design.md | options: <N or design-to-preference> | diagrams: <list> | awaiting: design approval + option pick`.
 
 ### Unit 4 — Write `docs/03-roadmap.md`
@@ -117,7 +117,7 @@ Follow the units in order. Do not skip the interview even if the user's idea sou
   - Each sprint: goal, scope, deliverables, rough estimate (days or story points — pick one and be consistent), dependencies on prior sprints.
   - Flag any sprint whose estimate is highly uncertain.
 - **Self-verify**: confirm `docs/03-roadmap.md` exists at the expected path, its Planning Assumptions match the spec's Constraints verbatim, every sprint has goal/scope/deliverables/estimate/dependencies, and no raw placeholders remain.
-- **STOP GATE (hand back)**: present the draft and get approval before Unit 5. → Hand control back for roadmap approval. (Non-interactive fallback applies.)
+- **STOP GATE (hand back)**: the file is already written. **Point the user to `docs/03-roadmap.md` and present only a short summary** — the sprint count and confirmation that the spec's Constraints (team/timeline/budget) were carried forward verbatim — then ask them to open the file to review and approve before Unit 5. **Do NOT paste the full doc body into chat.** On a change request, re-edit `docs/03-roadmap.md` in place and re-point to the same file (short summary only, not the body). → Hand control back for roadmap approval. (Non-interactive fallback applies.)
 - **Report contract**: `wrote: docs/03-roadmap.md | constraints carried verbatim: yes | sprints: <N> | awaiting: roadmap approval`.
 
 ### Unit 5 — Write `docs/04-backlog.md`
@@ -130,7 +130,7 @@ Follow the units in order. Do not skip the interview even if the user's idea sou
   - Group tasks under their sprint/phase from the roadmap, in dependency order.
   - Each task should be concrete enough to reference specific files, modules, or components where the design doc makes that clear.
 - **Self-verify**: confirm `docs/04-backlog.md` exists at the expected path, every task is a checkbox grouped under its roadmap sprint in dependency order, and no raw placeholders remain.
-- **Note — no approval STOP GATE here**: the Unit 4 roadmap approval already signed off on scope, so this unit does **not** pause for approval. Summarize what was generated and invite edits instead.
+- **Note — no approval STOP GATE here**: the Unit 4 roadmap approval already signed off on scope, so this unit does **not** pause for approval. **Point the user to `docs/04-backlog.md` with only a short summary (the task count) and invite edits — do NOT paste the backlog body into chat.**
 - **Report contract**: `wrote: docs/04-backlog.md | tasks: <N> atomic checkboxes grouped by sprint | no gate (scope pre-approved in Unit 4)`.
 
 ### Unit 6 — Consistency check & wrap-up
@@ -156,7 +156,7 @@ If `docs/01-spec.md` (or siblings) already exist and the user wants changes (det
 - **Do**:
   1. Read the existing file(s) first — never overwrite blind.
   2. Ask what's changing (new requirement, scope cut, architecture pivot, re-plan, etc.) using the same batched-question style if it's non-trivial. → This is a **STOP GATE (hand back)** for the change scope. (Non-interactive fallback applies.)
-  3. Edit only the affected file(s). If a change in an earlier doc invalidates a later one (e.g. a spec change breaks the roadmap), **STOP GATE (hand back)**: flag this and ask whether they want you to cascade the update through `02-design.md` → `03-roadmap.md` → `04-backlog.md`.
+  3. Edit only the affected file(s) in place. If a change in an earlier doc invalidates a later one (e.g. a spec change breaks the roadmap), **STOP GATE (hand back)**: flag this and ask whether they want you to cascade the update through `02-design.md` → `03-roadmap.md` → `04-backlog.md`. When handing back a changed doc, **point to its file path and give a short summary of what changed — do NOT paste the full doc body into chat.**
   4. For `04-backlog.md` specifically, preserve existing checkbox state (don't uncheck completed tasks) — only add, remove, or edit task text.
 - **Self-verify**: confirm only the intended file(s) changed, backlog checkbox state is preserved, and any cascade the user approved was applied consistently (re-run the Unit 6 checklist over the touched docs).
 - **Report contract**: `updated: <files> | cascade: <none | applied through …> | backlog checkbox state preserved: yes | awaiting: <change scope / cascade decision>`.

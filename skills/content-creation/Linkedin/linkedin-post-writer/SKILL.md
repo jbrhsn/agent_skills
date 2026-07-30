@@ -32,7 +32,9 @@ The user must point to a source file (any path, any text format — `.md`, `.txt
 
 Both are written in the **same directory as the source file**. Never write to a fixed `linkedin/` or `drafts/` folder — always colocate with the input.
 
-**Overwrite policy (both paths)**: never silently overwrite. If the target file already exists in that directory, ask: overwrite, write a `-v2` variant (`linkedin_post-v2.md` / `linkedin_post_revised-v2.md`), or pick a new name.
+**Write-before-review discipline (both paths)**: the draft/refined content is written to its canonical file **first**, then the review/confirm gate presents only a **pointer + short summary** — never the full post body pasted into chat. The reader opens the file to read the body. On any edit or another-pass request, the file is re-edited **in place** and re-pointed to; the body is never re-dumped into chat.
+
+**Overwrite policy (both paths, reconciled with write-before-review)**: writing the draft/refined file for **this run** is expected — that is the artifact under review, and subsequent edit/pass rounds update it **in place** (no prompt). The never-silently-overwrite rule applies only to the **first** write of this run when a file of that name already exists from a **prior** run/session: in that case, before the first write, ask — overwrite, write a `-v2` variant (`linkedin_post-v2.md` / `linkedin_post_revised-v2.md`), or pick a new name. Once the run's file is chosen, in-place updates during this run do not re-prompt.
 
 ---
 
@@ -148,18 +150,19 @@ Pick the frame that matches what actually happened — never bend a real detail 
 
 - **Report contract**: folded into W3's report (`self-audit: PASS` or the flagged/unresolved counts).
 
-### Unit W5 — Review-first (hand back before persisting)
-- **Goal/scope**: get human approval before writing any file.
-- **Inputs**: full draft + W4 audit results + frame + content type.
-- **STOP GATE (hand back)**: present all of the above and **stop**. Ask the user to approve, request edits, or reject. **Do not write any file yet.** → Hand control back for approval. If running non-interactively, note the gate as "skipped — auto-proceeding with output as drafted" and continue rather than silently omitting it.
-- **Report contract**: `awaiting: approve / edit / reject | nothing written yet`.
+### Unit W5 — Persist draft (write before review)
+- **Goal/scope**: write the drafted post to disk **before** handing back for review.
+- **Inputs**: drafted post that passed (or has surfaced flags from) W4 + source directory.
+- **Do**: write the draft to `linkedin_post.md` in the same directory as the source file. Apply the **reconciled overwrite policy**: this is the run's canonical draft file, so writing it is expected — but if a `linkedin_post.md` already exists from a **prior** run/session, ask (overwrite / `-v2` / new name) before this first write. Once chosen, later edit rounds update this file **in place** without re-prompting.
+- **Self-verify**: confirm the file exists at the expected path and matches the drafted text.
+- **Report contract**: `draft written: <exact path> | overwrite policy: <applied choice or n/a>`.
 
-### Unit W6 — Persist
-- **Goal/scope**: write the approved post to disk.
-- **Inputs**: approved draft + source directory.
-- **Do**: after approval, write `linkedin_post.md` in the same directory as the source file. Apply the overwrite policy.
-- **Self-verify**: confirm the file exists at the expected path and matches the approved text.
-- **Report contract**: `wrote: <exact path> | overwrite policy: <applied choice>`.
+### Unit W6 — Review (hand back, pointer only)
+- **Goal/scope**: get human approval on the drafted file — presenting a pointer, not the body.
+- **Inputs**: the written `linkedin_post.md` path + W4 audit results + frame + content type + the 3 closing-question candidates.
+- **STOP GATE (hand back)**: present **only**: the file path, the content type, the chosen narrative frame, the W4 self-audit result (PASS or the flags), and the 3 closing-question candidates (short, one line each, recommended marked). **Do NOT paste the full post body into chat — point the user to the file to read it.** Ask the user to approve, request edits, or reject. → Hand control back for approval. If running non-interactively, note the gate as "skipped — auto-proceeding with the drafted file as written" and continue.
+- **On edit request**: re-edit `linkedin_post.md` **in place** and re-point the user to the file — do **not** re-dump the body into chat.
+- **Report contract**: `draft written to <path>, awaiting review | awaiting: approve / edit / reject`.
 
 ---
 
@@ -193,18 +196,19 @@ Pick the frame that matches what actually happened — never bend a real detail 
 - **Self-verify**: every R2 flag maps to either a change line or an explicit not-fixed note.
 - **Report contract**: `change list: N items | R2 flags all accounted for: yes`.
 
-### Unit R5 — Present & confirm (hand back)
-- **Goal/scope**: show results and get a lightweight go-ahead before writing.
-- **Inputs**: score table, diagnostics, refined version, change list.
-- **STOP GATE (hand back, lightweight)**: present all of the above. This is a **lightweight confirm**, not a full review-first block. If the user asks for another pass, treat the just-refined version as the new input and repeat R2–R4. → Hand control back for confirm-or-another-pass.
-- **Report contract**: `presented: score + refined + changes | awaiting: confirm or another pass`.
-
-### Unit R6 — Write
-- **Goal/scope**: persist the review artifact.
-- **Inputs**: confirmed refined version + output directory.
-- **Do**: write `linkedin_post_revised.md` containing, in order: the score table, the refined post, then the itemized change list. Apply the overwrite policy.
+### Unit R5 — Persist revised file (write before confirm)
+- **Goal/scope**: write the review artifact to disk **before** the confirm gate.
+- **Inputs**: score table + refined version + itemized change list + output directory.
+- **Do**: write `linkedin_post_revised.md` containing, in order: the score table, the refined post, then the itemized change list. Apply the **reconciled overwrite policy**: this is the run's canonical revised file, so writing it is expected — but if a `linkedin_post_revised.md` already exists from a **prior** run/session, ask (overwrite / `-v2` / new name) before this first write. Once chosen, later passes update this file **in place** without re-prompting.
 - **Self-verify**: confirm the file exists at the expected path with the three sections in the correct order.
-- **Report contract**: `wrote: <exact path> | sections: score → refined → changes | overwrite policy: <applied choice>`.
+- **Report contract**: `revised file written: <exact path> | sections: score → refined → changes | overwrite policy: <applied choice or n/a>`.
+
+### Unit R6 — Present & confirm (hand back, pointer + short summary)
+- **Goal/scope**: show the short, useful summary and get a lightweight go-ahead — without pasting the body.
+- **Inputs**: the written `linkedin_post_revised.md` path + score table + itemized change list.
+- **STOP GATE (hand back, lightweight)**: present **inline** only the **score table** and the **itemized change list** (both short and genuinely useful), plus the **file path** pointer. **Do NOT paste the full refined post body into chat — it lives in the file; point the user there to read it.** This is a lightweight confirm, not a full review-first block. → Hand control back for confirm-or-another-pass.
+- **On another pass**: treat the just-refined version as the new input, repeat R2–R4, and re-edit `linkedin_post_revised.md` **in place** — do not re-dump the body into chat.
+- **Report contract**: `revised file written to <path>, awaiting confirm | presented: score + change list (body in file) | awaiting: confirm or another pass`.
 
 ### Output format (`linkedin_post_revised.md`)
 

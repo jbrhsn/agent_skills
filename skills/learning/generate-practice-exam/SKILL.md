@@ -177,37 +177,37 @@ Write to the repo's practice-exam location (or the user's path) as `mock-exam-01
 - **STOP GATE (hand back)**: present the allocation table and **stop to confirm** before generating questions. → Hand control back for allocation/weighting approval.
 - **Report contract**: `allocation: N questions across M domains (sums to N) | blueprint: <user-supplied | fetched+dated | even | drill-focused> | awaiting: allocation approval`.
 
-## Unit U4 — Question generation
+## Unit U4 — Question generation & draft write
 
-- **Goal/scope**: write every question grounded strictly in the extracted material, with per-option rationale.
+- **Goal/scope**: write every question grounded strictly in the extracted material, with per-option rationale, then **write them to the exam file as this run's draft under review** — do not present all questions inline in chat.
 - **Inputs**: approved allocation from U3; extracted material from U2; `reference/question-item-template.md`.
 - **Do**:
   - Generate each question per the **Item construction rules** and **Allocation math** (see Shared reference): grounded scenario-first stems, pitfall-sourced plausible distractors, per-option rationale, correct multi-select phrasing, no duplication, difficulty emphasis and multi-select minimum enforced.
   - Record the source file/section for every question (traceability note).
-  - Present all N questions with stems, options, and rationale.
+  - **Write the questions to the exam file** using the **Idempotent write naming** rule — pick the next non-colliding filename **now** (`mock-exam-NN.md` / `drill-[topic]-NN.md`). **This chosen filename is this run's file**: it is the draft under review here, and U5/U6 will update/finalize this **same** file in place (they do not create a new incremented file each round).
 - **Self-verify** (this is the doer's own verification of the grounding + rationale constraints):
   - **Grounding:** every question traces to a specific authored concept/definition/example/pitfall from U2's extraction — confirm each has its recorded source note. **If any question cannot be traced to authored content, do NOT fabricate it — flag it and reduce/reroute** (surface to the user; drop or replace only from grounded material).
   - **Per-option rationale:** every question's answer explains why the correct option is right AND why each significant distractor is wrong (both correct options + the tempting wrong one for multi-select). No one-word rationales.
   - Also confirm: counts per domain match the allocation; difficulty emphasis met; ≥1 multi-select per domain (or ≥1 overall for a small drill); no duplicate/verbatim Self-Check stems.
-- **STOP GATE (hand back)**: present all questions and **stop for review** before assembly. → Hand control back for question review/revisions.
-- **Report contract**: `generated: N questions (M multi-select) | grounding: all traceable to authored content <or: K flagged, surfaced> | per-option rationale: present on all <or: K incomplete, fixed> | awaiting: question review`.
+- **STOP GATE (hand back)**: present ONLY a short summary **plus the draft file path**, and **stop for review** before assembly — **do NOT paste all the questions into chat; point the user to the written draft file to review.** The summary states: N questions generated (M multi-select), per-domain counts matching the allocation, grounding result (all traceable, or K flagged + surfaced), and per-option rationale present (or K fixed). Ask the user to review the draft and request any revisions. **On a revision request, re-edit the same draft file in place and re-point to it** (do not create a new file). → Hand control back for question review/revisions.
+- **Report contract**: `draft written to <path>, awaiting review | generated: N questions (M multi-select) | per-domain: matches allocation | grounding: all traceable to authored content <or: K flagged, surfaced> | per-option rationale: present on all <or: K incomplete, fixed> | awaiting: question review (see draft file — questions not pasted in chat)`.
 
 ## Unit U5 — Assembly
 
-- **Goal/scope**: build the exam file from the layout template in the confirmed mode.
-- **Inputs**: reviewed questions from U4; mode; answer style; `reference/exam-file-template.md`.
-- **Do**: assemble per the **Mode differences** (see Shared reference) — full-mock (header + blueprint table + question blocks + answer key & self-score) or targeted-drill (light header + inline `<details>` answers + "Review if missed" pointers). Match the repo's answer-format convention where one exists; use relative paths for links back into the repo.
+- **Goal/scope**: assemble the **already-written draft file** (from U4) into the correct layout for the confirmed mode — updating that same file in place, not producing a new one.
+- **Inputs**: the reviewed draft file written in U4 (this run's `<path>`); mode; answer style; `reference/exam-file-template.md`.
+- **Do**: rewrite/update the draft file per the **Mode differences** (see Shared reference) — full-mock (header + blueprint table + question blocks + answer key & self-score) or targeted-drill (light header + inline `<details>` answers + "Review if missed" pointers). Match the repo's answer-format convention where one exists; use relative paths for links back into the repo. **Edit U4's draft file in place — do not create a new incremented file.**
 - **Self-verify**: the file structure matches the selected mode; every question is present; drill answers each carry a relative-path "Review if missed" pointer; full-mock answer-key entries cover every question with per-option rationale.
-- **Report contract**: `assembled: <full-mock|drill> layout | questions: N | answers: <answer key | inline details> | review pointers: <n/a | present on all>`.
+- **Report contract**: `assembled in place: <path> | layout: <full-mock|drill> | questions: N | answers: <answer key | inline details> | review pointers: <n/a | present on all>`.
 
-## Unit U6 — Quality gate & write
+## Unit U6 — Quality gate & finalize
 
-- **Goal/scope**: self-audit against the full checklist, then write the file. This is the mandatory final verification.
-- **Inputs**: the assembled exam from U5.
-- **Do**: fill in the **Quality-gate checklist** (see Shared reference), running the deterministic checks. Any ✗ blocks completion — fix and re-run the gate. Only when **every row is ✓**, write the file using the **Idempotent write naming** rule, then report:
+- **Goal/scope**: self-audit the written file against the full checklist, then finalize. This is the mandatory final verification. The file already exists (written at U4, assembled at U5) — U6 confirms it passes and reports; it does **not** create a duplicate or a new incremented file.
+- **Inputs**: the assembled exam file from U5 (this run's `<path>`).
+- **Do**: fill in the **Quality-gate checklist** (see Shared reference), running the deterministic checks against the written file. **Any ✗ blocks completion — fix it in the file and re-run the gate in place.** Only when **every row is ✓**, finalize the file (it is already at `<path>` from U4 — do not write a new incremented file) and report:
 
   ```
-  Generated:     [path]
+  Finalized:     [path]
   Mode:          [full mock | targeted drill]
   Questions:     [N] ([N] multi-select)
   Domains:       [N] (weighted per blueprint | even | drill-focused)
@@ -215,8 +215,8 @@ Write to the repo's practice-exam location (or the user's path) as `mock-exam-01
   Source files:  [N] authored files
   Quality gate:  PASS (all checks ✓)
   ```
-- **Self-verify**: confirm every checklist row is ✓ before writing; after writing, confirm the file exists at the reported path and did not overwrite an existing file (number was incremented).
-- **Report contract**: `wrote: <exact path> | mode: <mock|drill> | questions: N | quality gate: PASS (all ✓) | overwrite: none (incremented)`.
+- **Self-verify**: confirm every checklist row is ✓ before finalizing; confirm the finalized file is the same `<path>` chosen at U4 (no duplicate created) and that the U4 idempotent-naming step did not overwrite a pre-existing file (number was incremented).
+- **Report contract**: `finalized: <exact path> (same file as U4 draft) | mode: <mock|drill> | questions: N | quality gate: PASS (all ✓) | overwrite: none (incremented at U4)`.
 
 ---
 

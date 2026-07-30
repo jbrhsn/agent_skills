@@ -32,7 +32,9 @@ The user must point to a source file (any path, any text format — `.md`, `.txt
 
 Both are written in the **same directory as the source file**. Never write to a fixed `medium/` or `drafts/` folder — always colocate with the input.
 
-**Overwrite policy (both paths)**: never silently overwrite. If the target file already exists in that directory, ask: overwrite, write a `-v2` variant (`medium_article-v2.md` / `medium_article_reviewed-v2.md`), or pick a new name.
+**Write-first, then review (both paths).** The full article/refined body is **written to its file FIRST — as a draft** — and only then handed back for review. The review gate carries **only a pointer to the file plus a short summary; the full body is NEVER pasted into chat.** On an edit/another-pass request, re-edit the file **in place** and re-point to it — do not re-dump the body into chat.
+
+**Overwrite policy (both paths).** The **first draft write of this run** to the canonical name (`medium_article.md` / `medium_article_reviewed.md`) is expected — it is the draft under review — and subsequent edit rounds update that same file **in place**. This does **not** trigger the overwrite prompt. The overwrite prompt applies only when a file of that name **already exists from a PRIOR run/session** at the first write: never silently overwrite it — ask to overwrite, write a `-v2` variant (`medium_article-v2.md` / `medium_article_reviewed-v2.md`), or pick a new name. (Once you have chosen the working file for this run, in-place edits within the run proceed without re-prompting.)
 
 ---
 
@@ -145,18 +147,19 @@ Earnings flow **only from paying-member reads on paywalled stories** (see mechan
 
 - **Report contract**: folded into W3's report (`self-audit: PASS` or the flagged/unresolved counts).
 
-### Unit W5 — Review-first (hand back before persisting)
-- **Goal/scope**: get human approval before writing any file.
-- **Inputs**: full draft (title+subtitle+body) + W4 audit results + article type + narrative frame + tags + paywall recommendation.
-- **STOP GATE (hand back)**: present all of the above and **stop**. Ask the user to approve, request edits, or reject. **Do not write any file yet.** → Hand control back for approval. If running non-interactively, note the gate as "skipped — auto-proceeding with output as drafted" and continue rather than silently omitting it.
-- **Report contract**: `awaiting: approve / edit / reject | nothing written yet`.
+### Unit W5 — Persist draft (write to file first)
+- **Goal/scope**: write the audited draft to disk **as a draft**, before the human review gate.
+- **Inputs**: the W3 draft that has passed (or had its flags surfaced by) the W4 self-audit + source directory.
+- **Do**: write `medium_article.md` in the same directory as the source file. Include title, subtitle, body, tags, and the paywall recommendation as a trailing note. **Overwrite policy:** this first draft write of the run to the canonical name is expected and needs no prompt; but if a `medium_article.md` already exists from a **prior run/session**, apply the overwrite policy (ask: overwrite / `-v2` / new name) before writing.
+- **Self-verify**: confirm the file exists at the expected path and matches the drafted text (title, subtitle, body, tags, paywall note).
+- **Report contract**: `draft written: <exact path> | overwrite policy: <n/a first-run write | applied choice> | self-audit: <PASS | N flagged>`.
 
-### Unit W6 — Persist
-- **Goal/scope**: write the approved article to disk.
-- **Inputs**: approved draft + source directory.
-- **Do**: after approval, write `medium_article.md` in the same directory as the source file. Include title, subtitle, body, tags, and the paywall recommendation as a trailing note. Apply the overwrite policy.
-- **Self-verify**: confirm the file exists at the expected path and matches the approved text.
-- **Report contract**: `wrote: <exact path> | overwrite policy: <applied choice>`.
+### Unit W6 — Review-first (hand back to the file, not the chat)
+- **Goal/scope**: get human approval on the draft that now lives in `medium_article.md`.
+- **Inputs**: the written draft file path + W4 audit results + article type + narrative frame + tags + paywall recommendation + the 3 closing/CTA candidates.
+- **STOP GATE (hand back)**: present **only** a short pointer + summary — the **file path**, the **article type**, the **chosen narrative frame**, the **W4 self-audit result** (PASS or the flags), the **≤5 tags**, the **paywall on/off recommendation + one-line reason**, the **"about Medium" Network-only flag** if applicable, and the **3 closing/CTA candidates** (short). **Do NOT paste the full article body into chat — point the user to `medium_article.md` to read it.** Ask the user to approve, request edits, or reject. → Hand control back for approval. If running non-interactively, note the gate as "skipped — auto-proceeding with the draft as written" and continue.
+- **On an edit request**: re-edit `medium_article.md` **in place** and re-point the user to the file — do **not** re-dump the body into chat.
+- **Report contract**: `draft written to <path>, awaiting review | awaiting: approve / edit / reject`.
 
 ---
 
@@ -190,18 +193,18 @@ Earnings flow **only from paying-member reads on paywalled stories** (see mechan
 - **Self-verify**: every R2 flag maps to either a change line or an explicit not-fixed note.
 - **Report contract**: `change list: N items | R2 flags all accounted for: yes`.
 
-### Unit R5 — Present & confirm (hand back)
-- **Goal/scope**: show results and get a lightweight go-ahead before writing.
-- **Inputs**: score table, diagnostics, refined version, change list.
-- **STOP GATE (hand back, lightweight)**: present all of the above. This is a **lightweight confirm**, not a full review-first block. If the user asks for another pass, treat the just-refined version as the new input and repeat R2–R4. → Hand control back for confirm-or-another-pass.
-- **Report contract**: `presented: score + refined + changes | awaiting: confirm or another pass`.
-
-### Unit R6 — Write
-- **Goal/scope**: persist the review artifact.
-- **Inputs**: confirmed refined version + output directory.
-- **Do**: write `medium_article_reviewed.md` containing, in order: the score table, the refined article, then the itemized change list. Apply the overwrite policy.
+### Unit R5 — Write reviewed file first
+- **Goal/scope**: persist the review artifact to disk **before** the confirm gate.
+- **Inputs**: score table + R3 refined version + R4 itemized change list + output directory.
+- **Do**: write `medium_article_reviewed.md` containing, in order: the score table, the refined article, then the itemized change list. **Overwrite policy:** this first write of the run to the canonical name is expected and needs no prompt; but if a `medium_article_reviewed.md` already exists from a **prior run/session**, apply the overwrite policy (ask: overwrite / `-v2` / new name) before writing.
 - **Self-verify**: confirm the file exists at the expected path with the three sections in the correct order.
-- **Report contract**: `wrote: <exact path> | sections: score → refined → changes | overwrite policy: <applied choice>`.
+- **Report contract**: `reviewed file written: <exact path> | sections: score → refined → changes | overwrite policy: <n/a first-run write | applied choice>`.
+
+### Unit R6 — Present & confirm (hand back to the file, not the chat)
+- **Goal/scope**: show the short, useful results and get a lightweight go-ahead.
+- **Inputs**: score table + itemized change list + written file path + any flags.
+- **STOP GATE (hand back, lightweight)**: present **inline only** the **score table** and the **itemized change list** (these are short and useful), plus the **file path pointer**, plus any **"about Medium" / writing-authenticity flags**. **Do NOT paste the full refined article body into chat — it lives in `medium_article_reviewed.md`; point the user there to read it.** Ask for confirm-or-another-pass. If the user asks for another pass, treat the just-refined version as the new input, repeat R2–R4, and re-edit the file **in place** (re-pointing to it, not re-dumping the body). → Hand control back for confirm-or-another-pass.
+- **Report contract**: `reviewed file written to <path>, awaiting review | presented: score + change list (inline) | awaiting: confirm or another pass`.
 
 ### Output format (`medium_article_reviewed.md`)
 

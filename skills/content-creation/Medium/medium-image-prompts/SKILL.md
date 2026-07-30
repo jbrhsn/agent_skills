@@ -99,7 +99,7 @@ Recommend a sensible number: **roughly one visual per major section that needs o
 
 **Report contract (to Unit 3):**
 - Counts: cover + N in-article visuals.
-- The full prompt set (Role/Placement + Prompt + Alt text + Caption + Rationale per image).
+- The full prompt set, passed internally to Unit 3 for writing (Role/Placement + Prompt + Alt text + Caption + Rationale per image) — this is an internal handoff, not something to paste to the user in chat.
 - Self-verify result: pass, or the specific items flagged.
 
 ---
@@ -136,13 +136,14 @@ Recommend a sensible number: **roughly one visual per major section that needs o
 
 ### Unit 3 — Sanity check + persist
 
-**Goal/scope:** Present the finished prompt set for a quick sanity check, then write it to disk.
+**Goal/scope:** Write the prompt set to disk first (as a draft), then present a short summary + file pointer for a quick sanity check.
 
 **Inputs:** The full prompt set and self-verify result from Unit 2; the source file's directory.
 
 **Do:**
-1. **Present the full prompt set to the user for a quick sanity check before writing** (catches obvious mismatches early). This is a **lighter gate** than the Unit 1 plan stop.
-2. Write `medium_image_prompts.md` **next to the source file**, applying the overwrite policy (never silently overwrite: offer overwrite, `medium_image_prompts-v2.md`, or a new name).
+1. Write `medium_image_prompts.md` **next to the source file first**, applying the overwrite policy (never silently overwrite: if a file already exists from a prior run, offer overwrite, `medium_image_prompts-v2.md`, or a new name).
+2. Present ONLY a **short summary + the file path** for a quick sanity check (catches obvious mismatches early): the counts (cover + N in-article visuals) and any entries flagged (e.g. a section where no purposeful visual fit). **Do NOT paste the full prompt set into chat** — point the user to the written file to review. Ask for a quick confirm or revisions. This is a **lighter gate** than the Unit 1 plan stop.
+3. On revision, **re-edit the file in place and re-point** the user to it (in-place updates don't re-trigger the overwrite prompt; the prior-run-file overwrite policy still applies only to the first write).
 
 **Self-verify (doer runs this itself before reporting):**
 - The written file matches the output-format block above (Set + Reasoning header, one entry per image with Role/Placement / Prompt / Alt text / Caption / Rationale).
@@ -151,9 +152,10 @@ Recommend a sensible number: **roughly one visual per major section that needs o
 - The file was colocated with the source (not a fixed folder), and the overwrite policy was honored.
 
 **Report contract (hands back to user):**
-- Exact path written.
+- Wrote `<exact path>` first, then presented a summary for confirm.
 - Counts: cover + N in-article visuals.
 - Any entries flagged (e.g. a section where no purposeful visual fit).
+- Explicit note that the full prompt set is in the file (not pasted here) — user reviews it there.
 - Pass, or the specific issue flagged.
 
 ---

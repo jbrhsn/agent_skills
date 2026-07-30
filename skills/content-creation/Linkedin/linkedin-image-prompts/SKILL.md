@@ -95,7 +95,7 @@ Write one detailed prompt for a cover/hero image reflecting the post's hook or c
 
 **Report contract (to Unit 3):**
 - Format + slide count.
-- The full prompt set (overlay text + prompt + rationale per slide/image).
+- The full prompt set (overlay text + prompt + rationale per slide/image) — this is an **internal handoff to Unit 3 for writing to file**, not to be surfaced to the user in chat.
 - Self-verify result: pass, or the specific items flagged (over-long overlay, merged/split beat).
 
 ---
@@ -132,13 +132,14 @@ For a single image, use the same structure with one entry.
 
 ### Unit 3 — Sanity check + persist
 
-**Goal/scope:** Present the finished prompt set for a quick sanity check, then write it to disk.
+**Goal/scope:** Write the prompt set to disk first, then present a short summary + file pointer for a quick sanity check.
 
 **Inputs:** The full prompt set and self-verify result from Unit 2; the source file's directory.
 
 **Do:**
-1. **Present the full prompt set to the user for a quick sanity check before writing** (catches obvious mismatches early). This is a **lighter gate** than the writer skill's review-first stop — no separate hook-selection step is needed here.
-2. Write `image_prompts.md` **next to the source file**, applying the overwrite policy (never silently overwrite: offer overwrite, `image_prompts-v2.md`, or a new name).
+1. **Write `image_prompts.md` FIRST**, next to the source file, applying the overwrite policy for a pre-existing file from a prior run (never silently overwrite: offer overwrite, `image_prompts-v2.md`, or a new name).
+2. **Present ONLY a short summary + the file path** for a quick sanity check (catches obvious mismatches early): format (carousel N slides / single hero), slide/image count, and any prompts flagged for mobile-readability risk. **Do NOT paste the full prompt set into chat** — point the user to the written file to review. This is a **lighter gate** than the writer skill's review-first stop — no separate hook-selection step is needed here.
+3. Ask for a quick confirm or revisions. **On revision, re-edit the file in place and re-point** to it (in-place updates don't re-trigger the overwrite prompt; the prior-run-file overwrite policy applies only to the first write).
 
 **Self-verify (doer runs this itself before reporting):**
 - The written file matches the output-format block above (Format + Reasoning header, one entry per slide/image with Overlay text / Prompt / Rationale).
@@ -146,7 +147,7 @@ For a single image, use the same structure with one entry.
 - The file was colocated with the source (not a fixed folder), and the overwrite policy was honored.
 
 **Report contract (hands back to user):**
-- Exact path written.
+- Wrote `<exact path>` first, then presented a summary for confirm (full prompt set not pasted into chat).
 - Format + slide/image count.
 - Any prompts flagged for mobile-readability risk.
 - Pass, or the specific issue flagged.
