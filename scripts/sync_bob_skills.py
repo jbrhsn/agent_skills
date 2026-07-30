@@ -23,8 +23,10 @@ from pathlib import Path
 SKILLS = [
     "skills/agent_session_management/end-session",
     "skills/agent_session_management/init-session",
-    "skills/content-creation/linkedin/linkedin-post-writer",
-    "skills/content-creation/linkedin/linkedin-image-prompts",
+    "skills/content-creation/Linkedin/linkedin-post-writer",
+    "skills/content-creation/Linkedin/linkedin-image-prompts",
+    "skills/content-creation/Medium/medium-article-writer",
+    "skills/content-creation/Medium/medium-image-prompts",
     "skills/development/lean-coder",
     "skills/development/project-planner",
     "skills/development/repo-docs-publisher",

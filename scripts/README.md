@@ -67,9 +67,10 @@ python3 scripts/sync_bob_skills.py --dry-run # Preview
 
 ### Skills
 
-All 11 skills from the repository (synced to both OpenCode and Bob):
+All 13 skills from the repository (synced to both OpenCode and Bob):
 - **2 Agent Session Management**: end-session, init-session
 - **2 Content Creation (LinkedIn)**: linkedin-post-writer, linkedin-image-prompts
+- **2 Content Creation (Medium)**: medium-article-writer, medium-image-prompts
 - **4 Development**: lean-coder, project-planner, repo-docs-publisher, ui-ux-designer
 - **3 Learning**: author-chapter, create-learning-repo, generate-practice-exam
 
