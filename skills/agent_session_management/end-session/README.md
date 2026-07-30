@@ -15,27 +15,28 @@ Writes a high-signal handoff file at the end of an agent session. Captures a rol
 
 ## What it does
 
-1. **Gets the current date** — platform-aware: uses `date +%Y-%m-%d` on Linux/macOS or `Get-Date` on Windows.
-2. **Reads recent file activity** — uses `git log` (Linux/macOS) or the bundled `get-session-context.ps1` (Windows) to identify what was worked on in the last 8 hours. Falls back to 24 hours if empty.
-3. **Reads the existing handoff** (if present) — extracts the previous session entry to carry forward verbatim, maintaining the rolling 2-session window.
-4. **Surveys the project structure** — reads the root directory and key subdirectories; reads `AGENTS.md` for authoritative project rules.
-5. **Composes the full handoff file** — four sections: Project Summary, Session Log, Open Items, Quick Reference.
-6. **Writes `.agent_docs/handoff.md`** — creates the `.agent_docs/` directory automatically if needed.
-7. **Confirms** — reports the path, whether this was an init or update, and what was captured.
+1. **Gathers the date + recent file activity** — platform-aware: `date +%Y-%m-%d` / `git log` on Linux/macOS, or `Get-Date` / the bundled `get-session-context.ps1` on Windows, to identify what was worked on in the last 8 hours (falls back to 24 hours if empty).
+2. **Reads the existing handoff** (if present) — extracts the previous session entry to carry forward verbatim, maintaining the rolling 2-session window.
+3. **Surveys the project structure** — reads the root directory and key subdirectories; reads `AGENTS.md` for authoritative project rules.
+4. **Composes the full handoff file** — four sections: Project Summary, Session Log, Open Items, Quick Reference.
+5. **Writes `.agent_docs/handoff.md`** — creates the `.agent_docs/` directory automatically if needed.
+6. **Confirms** — reports the path, whether this was an init or update, and what was captured.
 
 ---
 
 ## Workflow
 
-Six sequential steps, no confirmation gates (it is a capture-and-write operation):
+The workflow is structured as self-contained **units** in the orchestrator/executor delegation style. Each unit has a Goal/scope, Inputs, a Do step, a Self-verify step, and a terse Report contract; shared conventions (the `.agent_docs/handoff.md` path/format, the rolling two-session rule, the open-items filter, the platform-aware commands) are defined once in a **Shared reference** section that the units cite. Every unit that writes or updates content carries a Self-verify step — including an explicit check that the Session Log holds exactly the rolling two-session window.
+
+It runs **fully automatically as a capture-and-write pass — there is no confirmation gate.** It always writes the **complete** handoff file (never a partial update) and carries the prior session forward verbatim.
 
 ```
-Step 1 — Get date + recent file activity
-Step 2 — Read existing handoff.md (if any)
-Step 3 — Survey project structure + AGENTS.md
-Step 4 — Compose the four handoff sections
-Step 5 — Write .agent_docs/handoff.md
-Step 6 — Confirm to user
+Unit E1 — Gather date + recent file activity
+Unit E2 — Read existing handoff.md + extract prior session (verbatim)
+Unit E3 — Survey project structure + AGENTS.md
+Unit E4 — Compose the four handoff sections (enforces rolling 2-session window + open-items filter)
+Unit E5 — Write the complete .agent_docs/handoff.md
+Unit E6 — Confirm to user
 ```
 
 ---

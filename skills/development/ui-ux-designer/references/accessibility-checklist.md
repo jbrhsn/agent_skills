@@ -1,6 +1,6 @@
 # Accessibility checklist
 
-Only used when the user explicitly asks for an accessibility section (Phase 6). Add a section to `docs/ux-design.md` covering:
+Only used when the user explicitly asks for an accessibility section (Unit 4a). Add a section to `docs/ux-design.md` covering:
 
 ```markdown
 ## Accessibility

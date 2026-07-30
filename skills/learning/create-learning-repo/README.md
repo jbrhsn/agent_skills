@@ -1,6 +1,6 @@
 # create-learning-repo
 
-Scaffolds a complete, structured Markdown learning repository for any topic or certification. Runs phased intake, fetches live sources for curriculum design, designs the folder hierarchy, writes content templates, and generates blank stubs for every content file.
+Scaffolds a complete, structured Markdown learning repository for any topic or certification. Runs a delegation-model workflow of confirmed, self-contained units — intake, live-source research, folder-hierarchy design, template generation, AGENTS.md authoring, and blank-stub scaffolding — each handed back for approval before the next runs.
 
 ---
 
@@ -19,19 +19,19 @@ Do **not** trigger this skill to populate an existing repo's content — use `au
 
 ## What it does
 
-Guides you through **six confirmed phases** to produce a ready-to-author skeleton repo:
+Runs a delegation-model workflow of **seven self-contained units** (U0 → U6) to produce a ready-to-author skeleton repo. Each unit has a Goal/scope, Inputs, Do, a Self-verify step, and a terse Report contract; U0–U5 each end with an explicit **STOP GATE** that hands control back to you for approval before the next unit runs:
 
-| Phase | What happens |
+| Unit | What happens |
 |---|---|
-| **Phase 0 — Intake** | Collects topic, learning goals, level, time budget, naming preference, and seed URLs |
-| **Phase 1 — Research** | Fetches the official exam blueprint, documentation, and changelog in parallel; presents a structured research summary for approval |
-| **Phase 2 — Structure** | Designs the full folder + file tree with budget reconciliation, domain mapping, and naming-convention enforcement; awaits approval |
-| **Phase 3 — Templates** | Confirms the set of template files to be generated, based on detected goals |
-| **Phase 4 — Write AGENTS.md + templates** | Copies templates from `reference/` to `templates/`, writes the repo's `AGENTS.md` with the 9 content-depth rules (`author-chapter` and `generate-practice-exam` enforce these rules via their quality gates) |
-| **Phase 5 — Scaffold stubs + README** | Creates every folder and one-line stub file, writes the root `README.md`, runs a planned-vs-actual verification pass |
-| **Phase 6 — Git init** | Checks for `.git`; prints the first-commit command — runs automatically after Phase 5 |
+| **U0 — Intake & intent logic** | Collects topic, learning goals, level, time budget, naming preference, and seed URLs, then decides which per-chapter file types to generate |
+| **U1 — Research** | Fetches the official exam blueprint, documentation, and changelog in parallel; presents a structured, cited research summary for approval |
+| **U2 — Structure design** | Designs the full folder + file tree with budget reconciliation, domain mapping, and naming-convention enforcement; awaits approval |
+| **U3 — Template manifest** | Confirms the set of template files to be generated, based on detected goals |
+| **U4 — Write AGENTS.md + templates** | Copies templates verbatim from `reference/` to `templates/`, writes the repo's `AGENTS.md` with the 9 content-depth rules (`author-chapter` and `generate-practice-exam` enforce these rules via their quality gates) |
+| **U5 — Scaffold stubs + README** | Creates every folder and one-line blank-stub file, writes the root `README.md`, runs a planned-vs-actual verification pass |
+| **U6 — Git init** | Checks for `.git`; prints the first-commit command — runs automatically after U5 |
 
-Every phase (except Phase 6) ends with an explicit "proceed" gate — you approve before the next phase runs.
+Every unit runs in its own response — no two units are combined. U0–U5 end with a STOP GATE you must approve before the next unit runs; U6 follows automatically once U5 is confirmed.
 
 ---
 
@@ -52,7 +52,7 @@ Every phase (except Phase 6) ends with an explicit "proceed" gate — you approv
 
 **Slug derivation** — a deterministic 6-step algorithm (lowercase → clean → collapse → trim → 40-char cap → style) ensures consistent naming and prevents silent Windows MAX_PATH failures.
 
-**Filename lock** — after Phase 5, all file and folder names are locked. Authored chapters may forward-link to not-yet-written stubs; those links resolve when the stub is populated. Renaming breaks every reference.
+**Filename lock** — after U5, all file and folder names are locked. Authored chapters may forward-link to not-yet-written stubs; those links resolve when the stub is populated. Renaming breaks every reference.
 
 **Intent-based file types** — the set of files generated per chapter depends on your goals:
 - Certification / personal mastery → `notes.md` stubs only
@@ -61,14 +61,14 @@ Every phase (except Phase 6) ends with an explicit "proceed" gate — you approv
 
 ---
 
-## Inputs (Phase 0)
+## Inputs (Unit U0)
 
 | Question | Required | Notes |
 |---|---|---|
 | Topic / certification name | Yes | Exact name; drives all naming and research |
 | Learning goal(s) | Yes | a) exam, b) career, c) thought leadership, d) mastery |
 | Current level | Yes | Beginner / Some exposure / Adjacent expert / Practitioner |
-| Time budget (hours) | Yes | Used for budget reconciliation in Phase 2 |
+| Time budget (hours) | Yes | Used for budget reconciliation in U2 |
 | Naming preference | Optional | Preferred repo folder name; derived from topic if omitted |
 | Naming style | Optional | Lowercase-hyphen (default) or ALLCAPS_UNDERSCORE |
 | Seed URLs | Optional | Official docs, exam guides; the skill finds them if omitted |
@@ -89,7 +89,7 @@ A complete repo skeleton on disk with:
 ## Limitations
 
 - **No content is written.** The skill creates structure only. Populate stubs with `author-chapter`.
-- **Live research required.** Phase 1 makes real web requests. If official sources are unavailable, the skill provides fallback AI-assistant prompts.
+- **Live research required.** U1 makes real web requests. If official sources are unavailable, the skill provides fallback AI-assistant prompts.
 - **Blueprint changes.** Exam blueprints change over time — always re-fetch the official blueprint before final exam prep.
 - **Windows MAX_PATH.** Folder component names are capped at 40 characters. Any truncation is noted in the relevant index file.
 

@@ -15,10 +15,11 @@ Restores full project context at the start of an agent session. Reads the rollin
 
 ## What it does
 
-1. **Reads `.agent_docs/handoff.md`** — the rolling session log written by `end-session`. If not found, reports the path and stops with instructions to run `end-session` first.
-2. **Reads `AGENTS.md`** at the workspace root — internalizes authoritative project rules (naming conventions, file paths, known gotchas) that take precedence over handoff content.
-3. **Internalizes the handoff** — loads the Project Summary, Session Log, Open Items, and Quick Reference into working context.
-4. **Delivers a structured briefing** — a compact session-initialized message with the project description, last session summary, and a checklist of open items.
+1. **Reads `.agent_docs/handoff.md`** (Unit I1) — the rolling session log written by `end-session`. If not found, reports the path and stops with instructions to run `end-session` first.
+2. **Reads `AGENTS.md`** at the workspace root (Unit I2) — internalizes authoritative project rules (naming conventions, file paths, known gotchas) that take precedence over handoff content.
+3. **Internalizes the handoff** (Unit I3) — loads the Project Summary, Session Log, Open Items, and Quick Reference into working context.
+4. **Delivers a structured briefing** (Unit I4) — a compact session-initialized message with the project description, last session summary, and a checklist of open items.
+5. **Checks for a stale/ambiguous handoff** (Unit I5) — hands back for confirmation only if the handoff is clearly outdated or self-contradictory; otherwise no gate fires.
 
 The skill is **read-only** — it never modifies any files.
 
@@ -26,14 +27,17 @@ The skill is **read-only** — it never modifies any files.
 
 ## Workflow
 
-Single-pass, no confirmation gates needed (it is a read + report operation):
+Structured as self-contained delegation-model units. The skill runs **fully automatically as a single read-and-report pass — there is no routine confirmation gate** (it writes nothing). The only hand-back is a *conditional* stop gate that fires solely when the handoff looks stale or internally contradictory. Shared conventions (the `.agent_docs/handoff.md` path/format, `AGENTS.md` precedence, the missing-content rule, the briefing format) are defined once in a shared-reference section and referenced by every unit.
 
 ```
-Step 1 — Read .agent_docs/handoff.md
-Step 2 — Read AGENTS.md
-Step 3 — Internalize handoff content
-Step 4 — Reply with structured briefing
+Unit I1 — Locate & read the handoff (stops cleanly if absent)
+Unit I2 — Read project rules (AGENTS.md, optional; overrides on conflict)
+Unit I3 — Internalize handoff sections into working context
+Unit I4 — Deliver the structured briefing
+Unit I5 — Stale/ambiguous handoff check (conditional STOP GATE only)
 ```
+
+Each unit carries a Goal/scope, Inputs, Do, Self-verify, and a terse Report contract. Every read/load unit self-verifies that it actually found and loaded the expected content, reporting cleanly rather than failing when something is missing.
 
 **Output format:**
 

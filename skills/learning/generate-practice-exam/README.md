@@ -18,15 +18,16 @@ Do **not** trigger this skill to author chapter content (use `author-chapter`) o
 
 ## What it does
 
-Runs **five confirmed phases**. Every phase except the final write ends with an explicit "proceed" gate:
+The workflow is a sequence of six discrete **units**. Each unit is a self-contained piece of work with a **Goal/scope**, **Inputs**, **Do** steps, a **Self-verify** step, and a terse **Report contract** — the shape an orchestrator can delegate to an executor. Units that need a human/orchestrator decision end at a labeled **STOP GATE (hand back)**; do not proceed past a gate without confirmation. Shared rules (intake fields, grounding rule, allocation math, item construction, mode differences, quality-gate checklist, output format) are defined once in a **Shared reference** section the units point to, rather than restated per unit.
 
-| Phase | What happens |
-|---|---|
-| **Phase 0 — Intake** | Collects source scope, mode (mock/drill), question count, format mix, difficulty emphasis, blueprint weighting, and answer style |
-| **Phase 1 — Source ingestion** | Classifies every in-scope file as authored or stub/thin; extracts concepts, definitions, pitfalls, and worked examples as raw question material; fetches blueprint if needed; presents the allocation table for approval |
-| **Phase 2 — Question generation** | Writes every question from the extracted material using the item template; applies allocation math, difficulty emphasis, and multi-select minimum; presents all questions for review |
-| **Phase 3 — Assembly** | Builds the exam file from the layout template (header, domain blocks, answer key or inline `<details>`) |
-| **Phase 4 — Quality gate + write** | Self-audits against a pass/fail checklist; fixes any failures; writes the file with idempotent naming |
+| Unit | What happens | Gate |
+|---|---|---|
+| **U1 — Intake & mode selection** | Collects source scope, mode (mock/drill), question count, format mix, difficulty emphasis, blueprint weighting, answer style; determines repo vs loose folder | STOP GATE: confirm scope/mode before reading content |
+| **U2 — Source ingestion & readiness gate** | Classifies every in-scope file as authored or stub/thin; extracts concepts, definitions, pitfalls, worked examples as raw question material (read-only) | STOP GATE only if readiness fails: stop and ask to author content or reduce scope |
+| **U3 — Blueprint weighting & allocation** | Uses supplied weights, fetches the official blueprint, or falls back to even weighting; runs allocation math; presents the domain → question table | STOP GATE: confirm allocation before generating |
+| **U4 — Question generation** | Writes every question from the extracted material using the item template; **Self-verify enforces that every question traces to authored content (flag, never fabricate) and that per-option rationale is present** | STOP GATE: review questions before assembly |
+| **U5 — Assembly** | Builds the exam file from the layout template (header, domain blocks, answer key or inline `<details>` + review pointers) | — |
+| **U6 — Quality gate + write** | Self-audits against the pass/fail checklist; fixes any failures; writes the file with idempotent naming | — |
 
 ---
 
@@ -53,7 +54,7 @@ Questions are generated **only** from content that is already authored. The skil
 
 ---
 
-## Quality gate checks (Phase 4)
+## Quality gate checks (U6)
 
 | Check | Type |
 |---|---|
@@ -71,7 +72,7 @@ Questions are generated **only** from content that is already authored. The skil
 
 ---
 
-## Inputs (Phase 0)
+## Inputs (U1)
 
 | Question | Required | Notes |
 |---|---|---|

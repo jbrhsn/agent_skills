@@ -19,15 +19,15 @@ Do **not** trigger this skill to create a new repo (use `create-learning-repo`) 
 
 ## What it does
 
-Runs **five confirmed phases**. Every phase except the final write ends with an explicit "proceed" gate:
+Runs a sequence of discrete **units** (U0 → U4). Each unit has a Goal/scope, Inputs, Do, a Self-verify step, and a terse Report contract. Two units are **STOP GATES** that hand control back for confirmation; the mandatory quality gate is expressed as the doer's own self-audit run before any file is written:
 
-| Phase | What happens |
+| Unit | What happens |
 |---|---|
-| **Phase 0 — Locate contract** | Identifies the target file; walks up the tree to find `AGENTS.md` + `templates/`; confirms the file is a stub (will not silently overwrite authored content) |
-| **Phase 1 — Research** | Fetches the official documentation, exam objective wording, and changelog in parallel; presents a compact research brief with planned concepts and worked example scenario for approval |
-| **Phase 2 — Draft** | Writes every section in the template's order to the required depth; presents the full draft for review |
-| **Phase 3 — Quality gate** | Self-audits the draft against a pass/fail checklist; any failure blocks completion; fixes failures and re-runs until all rows are ✓ |
-| **Phase 4 — Write** | Writes the file with the `Write` tool; reports a structured completion summary |
+| **U0 — Locate contract & confirm scope** | Identifies the target file; walks up the tree to find `AGENTS.md` + `templates/`; classifies the file as stub vs. has-content. **STOP GATE**: confirms target + contract source before research (and never silently overwrites authored content or a loose-folder fallback) |
+| **U1 — Research (live, cited)** | Fetches the official documentation, exam objective wording, and changelog in parallel; stops rather than author from training data if sources are unreachable. **STOP GATE**: presents a compact research brief with planned concepts and worked-example scenario for approval |
+| **U2 — Draft** | Writes every section in the template's order to the required depth; runs Unit U3 as its Self-verify before handing back. **STOP GATE**: presents the full draft for review |
+| **U3 — Quality gate (self-audit)** | The doer's own verification, run inside U2 before any hand-back: self-audits the draft against a pass/fail checklist; any ✗ blocks completion; fixes failures and re-runs until all rows are ✓ |
+| **U4 — Write** | Idempotency guard, then writes the file with the `Write` tool; Self-verifies the written file and reports a structured completion summary |
 
 ---
 
@@ -45,7 +45,7 @@ This makes the skill portable across repos with different templates and standard
 
 ---
 
-## Quality gate checks (Phase 3)
+## Quality gate checks (Unit U3)
 
 These checks are the enforcement layer for the repo's 9 content-depth rules (defined in the repo's `AGENTS.md`, written by `create-learning-repo`) — one rule maps to one or more concrete checks. Every chapter is validated against them before writing. Any ✗ blocks completion:
 
@@ -75,7 +75,7 @@ These checks are the enforcement layer for the repo's 9 content-depth rules (def
 |---|---|---|
 | Target file path (or chapter name) | Yes | The stub or thin file to populate |
 | `AGENTS.md` + `templates/` | Preferred | Authoritative authoring contract; skill falls back to built-in if absent |
-| Live web access | Yes | Phase 1 fetches official docs; requires network access |
+| Live web access | Yes | Unit U1 fetches official docs; requires network access |
 
 ---
 
@@ -100,7 +100,7 @@ Quality gate:  PASS (all checks ✓)
 - **One file per invocation.** The skill authors only the file you explicitly name. It does not batch-populate a module unless you ask for each file separately.
 - **Stubs only, freely.** For files with existing authored content, the skill stops and asks before proceeding.
 - **Official sources only.** The Further Reading section uses only official documentation — no third-party blogs, Medium, or YouTube.
-- **Live research required.** Phase 1 makes real web requests. Avoid running in offline environments. If official sources are unreachable, the skill stops rather than authoring from training data — paste doc excerpts directly, or use `create-learning-repo`'s Phase 1 fallback prompts and share the results.
+- **Live research required.** Unit U1 makes real web requests. Avoid running in offline environments. If official sources are unreachable, the skill stops rather than authoring from training data — paste doc excerpts directly, or use `create-learning-repo`'s Phase 1 fallback prompts and share the results.
 - **No exam/quiz generation.** Use `generate-practice-exam` for that.
 
 ---

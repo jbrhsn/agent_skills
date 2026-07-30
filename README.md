@@ -46,13 +46,12 @@ Give agents like OpenCode, Claude Code, and Cursor repeatable, high-quality beha
 
 ### Content Creation
 
-> Skills for creating LinkedIn content — from source notes to a posting-ready piece, visual prompts, and a virality review.
+> Skills for creating LinkedIn content — from source notes to a posting-ready piece (with built-in virality review/refine) and visual prompts.
 
 | Skill | What it does |
 |---|---|
-| [**linkedin-post-writer**](./content-creation/linkedin/linkedin-post-writer/README.md) | Turn source notes or a rough draft into a posting-ready LinkedIn post — hook engineering, scroll-first structure, no-link-in-body discipline, mandatory review gate. Writes `linkedin_post.md` next to the source file |
+| [**linkedin-post-writer**](./content-creation/linkedin/linkedin-post-writer/README.md) | Turn source notes or a rough draft into a posting-ready LinkedIn post — hook engineering, scroll-first structure, no-link-in-body discipline, mandatory review gate. Writes `linkedin_post.md` next to the source file. Also scores a finished post across 5 algorithm-aligned dimensions and produces one refined version with an itemized change list in `linkedin_post_revised.md` |
 | [**linkedin-image-prompts**](./content-creation/linkedin/linkedin-image-prompts/README.md) | Generate image-generation prompts (single hero image or full carousel) for a finished post, chosen from its structure. Writes `image_prompts.md` next to the source post — prompt text only, no rendering |
-| [**linkedin-post-reviewer**](./content-creation/linkedin/linkedin-post-reviewer/README.md) | Score a finished post across 5 algorithm-aligned dimensions and produce one refined version with an itemized change list. Writes `linkedin_post_revised.md` next to the source file |
 
 ---
 
@@ -83,7 +82,6 @@ cp -r development/ui-ux-designer ~/.config/opencode/skills/
 # Content creation skills (LinkedIn pipeline)
 cp -r content-creation/linkedin/linkedin-post-writer ~/.config/opencode/skills/
 cp -r content-creation/linkedin/linkedin-image-prompts ~/.config/opencode/skills/
-cp -r content-creation/linkedin/linkedin-post-reviewer ~/.config/opencode/skills/
 ```
 
 ```bash

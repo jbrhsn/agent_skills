@@ -1,6 +1,6 @@
 # Design system template
 
-Use this structure for the design system section of `docs/ux-design.md`. Always required (per Phase 5) — never omit this section.
+Use this structure for the design system section of `docs/ux-design.md`. Always required (per Unit 4) — never omit this section.
 
 ```markdown
 ## Design System
@@ -43,11 +43,11 @@ For each: name, states, and where it's used.
 #### Card
 - Structure: <e.g. optional image, title, body, action row>
 
-(Add/remove components based on what the screens in Phase 4 actually use — don't pad with unused components.)
+(Add/remove components based on what the screens in Unit 3 actually use — don't pad with unused components.)
 ```
 
 ## Guidance
 
 - If the interview revealed an existing component library or brand kit (e.g. shadcn/ui, Material Design, a company brand guide), map this design system onto those tokens/components rather than inventing colors and type scales from scratch. State explicitly which library is the base.
 - If no existing system was named, propose a sensible, cohesive default (don't leave placeholders like `#....` in the final doc — pick real values) and note it's a starting point the user can adjust.
-- Only define components that are actually used by screens designed in Phase 4.
+- Only define components that are actually used by screens designed in Unit 3.

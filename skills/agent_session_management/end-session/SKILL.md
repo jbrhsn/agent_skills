@@ -1,171 +1,127 @@
 ---
 name: end-session
-description: Use when the user types /end-session or says "end session", "wrap up session", "create handoff", or "generate handoff". Generates or updates .agent_docs/handoff.md with a refreshed project summary, a rolling two-session action log inferred from recently modified files, and an open items section drawn from current session context.
+description: Use when the user types /end-session or says "end session", "wrap up session", "create handoff", or "generate handoff". It writes or updates .agent_docs/handoff.md with a refreshed project summary, a rolling two-session action log inferred from recently modified files and conversation context, an open-items section drawn from the current session, and a quick-reference cheat-sheet. It runs fully automatically as a capture-and-write pass — no confirmation gate — and always writes the complete file rather than a partial update.
 ---
 
 # End Session — Handoff Generator
 
-Follow these steps in order every time the skill activates. Do not skip steps.
+Capture the state of an agent session into a high-signal handoff file so the companion `init-session` skill can restore it next time. Refresh the project summary, roll a two-session action log inferred from recently modified files and conversation context, filter open items down to directly-actionable work, and refresh a quick-reference cheat-sheet — then write the complete file.
+
+## When to use
+
+- The user types `/end-session` or says "end session", "wrap up session", "create handoff", or "generate handoff".
+- At the end of a work session, to leave context for the next session.
+- Not for reading or restoring a handoff — that is the companion **`init-session`** skill.
+
+## Execution model
+
+This skill runs **fully automatically as a single capture-and-write pass — there is NO STOP GATE.** It gathers signals, composes the file, writes it, and reports without pausing for approval, because it is a routine capture-and-write operation, not a destructive or ambiguous one. It always writes the **complete** handoff file (never a partial update), and it carries the prior session forward verbatim rather than overwriting session history — see the shared reference for the rolling rule.
 
 ---
 
-## Step 1 — Get today's date and recent file activity
+## Shared reference (defined once — units reference this, do not restate)
 
-**Get today's date** (needed for the session log entry):
+**Handoff file** — `.agent_docs/handoff.md`, relative to the workspace root. Read by the companion **`init-session`** skill. The `Write` tool creates `.agent_docs/` automatically if it does not exist. Always write the **complete** file, never a partial update.
 
-Detect the platform and run the appropriate command with the `bash` tool:
+**Rolling two-session rule** — the Session Log retains exactly the last **two** sessions, newest first. On each run the current session becomes the new top entry, the most recent prior entry becomes the second entry, and **anything older than those two is dropped**. The previous session entry is carried forward **verbatim** — never rewritten or re-summarized. On first-time initialization (no prior handoff) only the current entry is written, followed by `*No prior session recorded.*`.
 
-- **Linux / macOS:**
-  ```bash
-  date +%Y-%m-%d
-  ```
-- **Windows (PowerShell):**
-  ```powershell
-  Get-Date -Format 'yyyy-MM-dd'
-  ```
+**Handoff sections** (composed in this order):
 
-**Get recently modified project files** (last 8 hours):
+- **Project Summary** *(always re-generated)* — concise 150–250 word overview: what the project is (purpose/business context), key artifacts (most important files/folders and what they are), architecture in one paragraph, and critical constants (exact names/paths/values that must not change). Tightly factual, no fluff.
+- **Session Log** *(rolling two-session window)* — two dated entries per the rolling rule (format in the file template below).
+- **Open Items / Next Steps** — a filtered checklist per the **Open-items filter** below.
+- **Quick Reference** *(refreshed each session)* — ~15-bullet cheat-sheet: key commands, key file locations, known gotchas. Every item factually grounded in actual project files — never invent paths or commands.
 
-Again, detect the platform and use the appropriate command:
+**Open-items filter** — apply ruthlessly before writing any item. Test each candidate: *"Can a coding agent open a file and make a change to resolve this?"* If no, discard it.
 
-- **Linux / macOS:**
-  ```bash
-  git log --since="8 hours ago" --name-only --pretty=format: | sort -u | grep -v '^$'
-  ```
-  If the repo has no git history or the result is empty, fall back to:
-  ```bash
-  find . -not -path './.git/*' -newer .git/index -type f 2>/dev/null | sort
-  ```
+- **Include ONLY:** a specific file/section explicitly started this session but not finished; a concrete technical decision deferred mid-session that is blocking further code/doc changes; a specific file identified as needing a code/content change that was not yet touched.
+- **Reject ALL of:** anything phrased as "consider / verify / review / confirm / check whether"; review or approval steps; improvement ideas or feature suggestions outside this session's scope; stakeholder/process/human-action items; anything not traceable to unfinished work from this session's file changes.
+- If nothing passes, write: `No open items from this session.`
 
-- **Windows (PowerShell):**
-  ```powershell
-  & "$env:USERPROFILE\.config\opencode\skills\end-session\get-session-context.ps1" -HoursBack 8 -Root "."
-  ```
-  The script outputs one line per file: `<timestamp>  <relative-path>`. Parse it as plain text — do not treat it as a table.
+**Project rules file** — `AGENTS.md` at the workspace root. Optional. Feeds the Project Summary and Quick Reference with authoritative rules, exact names, and known gotchas. If absent, continue without it.
 
-Use the `bash` tool for all commands. The file list is the primary signal for inferring what was worked on this session.
+**Handoff file template**:
 
-If the file list returns no results, retry with a 24-hour window (replace `8 hours ago` with `24 hours ago`, or `-HoursBack 24` on Windows). If still empty, note "No project files modified this session" in the session log.
+```markdown
+# Handoff Log
 
----
+## Project Progress (rolling summary)
+<150–250 word overview: purpose, key files, architecture, critical constants>
 
-## Step 2 — Read the existing handoff.md (if it exists)
-
-Use the `Read` tool on `.agent_docs/handoff.md`.
-
-- If it **succeeds**: read it in full. Extract the **Session Log** section — you need the most recent previous session entry to carry forward verbatim. The current session becomes the new top entry; the previous session becomes the second entry; drop anything older (rolling 2-session window).
-- If it **fails / file not found**: this is first-time initialization. Write all sections from scratch. Use a richer project summary since there is no prior context.
-
----
-
-## Step 3 — Survey the project structure
-
-Use the `Read` tool on the workspace root directory and these subdirectories to understand current project state:
-- Root level
-- `src/` (if it exists)
-- `notebooks/` (if it exists)
-- `docs/` (if it exists)
-- `tests/` (if it exists)
-
-Also read `AGENTS.md` at the root — it contains authoritative project rules, exact names, and known gotchas that must feed into the Project Summary and Quick Reference sections.
-
-Use the `Read` tool on other files only if the filename alone is insufficient to describe its purpose.
-
----
-
-## Step 4 — Compose the new handoff.md content
-
-Build the full file content with these four sections in order:
-
----
-
-### 4a — Project Summary *(always re-generated)*
-
-A concise 150–250 word overview covering:
-- **What this project is** — purpose, business context
-- **Key artifacts** — the most important files/folders and what they are
-- **Architecture in one paragraph** — how the pieces fit together
-- **Critical constants** — exact names/paths/values that must not be changed
-
-Keep it tightly factual. No fluff.
-
----
-
-### 4b — Session Log *(rolling 2-session window)*
-
-Format as two dated entries, newest first. Use the date obtained in Step 1 for the current session.
-
-```
 ## Session Log
 
 ### Session: <YYYY-MM-DD> (current)
-**Files touched:** <relative paths from Step 1, grouped by folder>
-**Summary:** <2–4 sentences describing what was accomplished, inferred from the files changed and conversation context>
-**Outcome:** <one sentence — what state was the work left in>
+**Files touched:** <relative paths from Unit E1, grouped by folder>
+**Summary:** <2–4 sentences on what was accomplished, inferred from files changed + conversation context>
+**Outcome:** <one sentence — what state the work was left in>
 
 ### Session: <date> (previous)
-<carry the previous session entry here verbatim — do not rewrite or summarise it>
-```
+<carried verbatim from prior handoff — never rewritten>
 
-If first-time initialization (no prior handoff.md), write only the current session entry and add a line: `*No prior session recorded.*`
-
----
-
-### 4c — Open Items / Next Steps
-
-**Strict rule:** Only include items a coding agent can execute directly in the next session. Apply this filter ruthlessly before writing any item.
-
-**Include ONLY:**
-- A specific file/section that was explicitly started this session but not finished
-- A concrete technical decision that was deferred mid-session and is blocking further code/doc changes
-- A specific file identified as needing a code or content change that was not yet touched
-
-**Reject ALL of the following — do not write them even if they seem helpful:**
-- Anything phrased as "consider", "verify", "review", "confirm", "check whether" — these are not coding tasks
-- Review or approval steps
-- Improvement ideas or feature suggestions not part of this session's scope
-- Stakeholder, process, or human-action items
-- Anything not directly traceable to unfinished work from this session's file changes
-
-**Test each item before writing it:** Ask — "Can a coding agent open a file and make a change to resolve this?" If no, discard it.
-
-If nothing passes the filter, write: `No open items from this session.`
-
-Format as a checklist:
-```
 ## Open Items / Next Steps
 - [ ] <specific file> — <what exactly needs to be done>
+
+## Quick Reference
+<~15-bullet cheat-sheet: key commands, file locations, gotchas>
 ```
 
----
+**Platform-aware commands** (run with the `bash` tool where applicable):
 
-### 4d — Quick Reference *(refresh each session)*
-
-A compact cheat-sheet for the next coding agent. Pull from `AGENTS.md` (read in Step 3) for accuracy.
-
-Cover:
-- Key commands (`make test`, `make lint`, `uv run pytest`, etc.)
-- Key file locations (main source, config files, notebooks, docs)
-- Known gotchas (bare imports vs package imports, thread-safety patterns, Databricks globals, pre-commit hooks)
-
-Limit to ~15 bullet points. Every item must be factually grounded in the actual project files — do not invent paths or commands.
+- Today's date — Linux/macOS: `date +%Y-%m-%d`; Windows (PowerShell): `Get-Date -Format 'yyyy-MM-dd'`.
+- Recently modified files (last 8 hours) — Linux/macOS: `git log --since="8 hours ago" --name-only --pretty=format: | sort -u | grep -v '^$'`, falling back to `find . -not -path './.git/*' -newer .git/index -type f 2>/dev/null | sort` when there is no git history or the result is empty. Windows (PowerShell): `& "$env:USERPROFILE\.config\opencode\skills\end-session\get-session-context.ps1" -HoursBack 8 -Root "."` (one line per file: `<timestamp>  <relative-path>` — parse as plain text, not a table).
+- If the file list is empty, retry with a 24-hour window (`24 hours ago` / `-HoursBack 24`). If still empty, record "No project files modified this session" in the Session Log.
 
 ---
 
-## Step 5 — Write the file
+## Workflow (units)
 
-Use the `Write` tool to write the complete composed content to `.agent_docs/handoff.md`.
+### Unit E1 — Gather date & recent file activity
+- **Goal/scope**: establish today's date and the list of files worked on this session — the primary signal for inferring the session summary.
+- **Inputs**: the **Platform-aware commands** (shared reference).
+- **Do**: run the date command and the recent-modified-files command for the detected platform, applying the 8h→24h fallback and the empty-result handling from the shared reference.
+- **Self-verify**: confirm a date string was obtained and a file list (or an explicit "no files modified this session" determination) is in hand.
+- **Report contract**: `date: <YYYY-MM-DD> | modified files: <N or "none — 24h window empty">`.
 
-The `Write` tool will create `.agent_docs/` automatically if it does not exist.
+### Unit E2 — Read existing handoff & extract prior session
+- **Goal/scope**: obtain the current handoff so the prior session can be carried forward, or determine this is a first-time init.
+- **Inputs**: the **Handoff file** path and **Rolling two-session rule** (shared reference).
+- **Do**: `Read` `.agent_docs/handoff.md`. If it exists, extract the most recent Session Log entry to carry forward **verbatim** as the "previous" entry. If it does not exist, treat this as first-time initialization (write a richer Project Summary; the log will carry only the current entry plus `*No prior session recorded.*`).
+- **Self-verify**: confirm whether the handoff was found; if found, confirm the prior session entry was captured verbatim for carry-forward; if absent, confirm first-time-init mode is set.
+- **Report contract**: `existing handoff: found — prior session captured` or `existing handoff: absent — first-time init`.
 
-Always write the **complete** file — never partial updates.
+### Unit E3 — Survey project structure & rules
+- **Goal/scope**: understand current project state well enough to compose an accurate Project Summary and Quick Reference.
+- **Inputs**: the **Project rules file** path (shared reference); the workspace tree.
+- **Do**: `Read` the workspace root and the key subdirectories that exist (`src/`, `notebooks/`, `docs/`, `tests/`). `Read` `AGENTS.md` at the root if present — it feeds authoritative names, rules, and gotchas into the Project Summary and Quick Reference. `Read` individual files only when the filename alone does not convey purpose.
+- **Self-verify**: confirm the root and existing key subdirectories were surveyed, and note whether `AGENTS.md` was present and folded in (absent is fine — continue).
+- **Report contract**: `surveyed: root + <subdirs present> | AGENTS.md: <loaded | absent>`.
+
+### Unit E4 — Compose the four handoff sections
+- **Goal/scope**: build the complete handoff content in memory before writing.
+- **Inputs**: E1 (date + files), E2 (prior session + init mode), E3 (survey + AGENTS.md); the **Handoff sections**, **Rolling two-session rule**, **Open-items filter**, and **Handoff file template** (shared reference).
+- **Do**: compose all four sections in order per the template — regenerate the **Project Summary**; build the **Session Log** as the current entry (files grouped by folder, 2–4 sentence summary inferred from files + conversation, one-line outcome) plus the prior entry carried forward per the rolling rule (or the first-time-init line); build **Open Items / Next Steps** by applying the Open-items filter; refresh the **Quick Reference** (~15 bullets, all grounded in real files).
+- **Self-verify**:
+  - Confirm all four sections are present and populated (not placeholders).
+  - Confirm the **Session Log holds exactly the rolling two-session window** — current entry newest, at most one prior entry, anything older dropped, prior entry unchanged verbatim (or, on first-time init, only the current entry plus `*No prior session recorded.*`).
+  - Confirm every Open Item passes the Open-items filter ("can a coding agent open a file and make this change?"); if none pass, the section reads `No open items from this session.`
+- **Report contract**: `sections composed: 4 | session log entries: <1 (init) | 2> | open items: <N | none>`.
+
+### Unit E5 — Write the handoff file
+- **Goal/scope**: persist the composed content as the complete handoff.
+- **Inputs**: the composed content from E4; the **Handoff file** path (shared reference).
+- **Do**: use the `Write` tool to write the **complete** composed content to `.agent_docs/handoff.md` (the tool creates `.agent_docs/` if needed). Never write a partial update.
+- **Self-verify**: confirm the file exists at `.agent_docs/handoff.md` and contains all four sections in order, with the Session Log matching the rolling two-session window composed in E4.
+- **Report contract**: `wrote: .agent_docs/handoff.md (complete) | mode: <first-time init | update>`.
+
+### Unit E6 — Confirm to the user
+- **Goal/scope**: report what was captured and point to the companion skill.
+- **Inputs**: results of E1–E5.
+- **Do**: reply with the path written (`.agent_docs/handoff.md`), whether this was a first-time init or an update, a one-line summary of what was captured (files touched + outcome), and the reminder: "Start your next session with `/init-session` to restore this context."
+- **Self-verify**: confirm the confirmation reflects the actual write result from E5 (path, mode, session captured).
+- **Report contract**: `confirmed: path + <init|update> + session summary + /init-session reminder`.
 
 ---
 
-## Step 6 — Confirm to the user
+## Companion skill
 
-Reply with:
-- Path written: `.agent_docs/handoff.md`
-- Whether this was a first-time init or an update
-- One-line summary of what was captured for this session (files touched + outcome)
-- Reminder: "Start your next session with `/init-session` to restore this context."
+Use **`init-session`** at the start of every session to restore the context this skill writes to `.agent_docs/handoff.md`.

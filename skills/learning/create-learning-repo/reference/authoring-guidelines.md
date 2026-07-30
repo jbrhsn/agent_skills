@@ -63,7 +63,7 @@ Include a `## Visual Overview` section in a topic note when the subject has a pi
 
 ## Blueprint Drift Warning
 
-Exam objectives and API surfaces change over time. If you are authoring more than 6 months after the repo was created, verify the current official exam guide or documentation before writing. Do not assume the Phase 1 research summary is still current.
+Exam objectives and API surfaces change over time. If you are authoring more than 6 months after the repo was created, verify the current official exam guide or documentation before writing. Do not assume the U1 research summary is still current.
 
 ## Quality Checklist
 

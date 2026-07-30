@@ -4,7 +4,7 @@ This file is the **built-in authoring contract** for the `author-chapter` skill.
 
 When a repo's own template and `AGENTS.md` exist, **those take precedence** — this file is the fallback, not the override.
 
-It doubles as the checklist the skill runs in Phase 3 (Quality Gate). Every row must be ✓ before a chapter is written.
+It doubles as the checklist the skill runs in Unit U3 (Quality Gate). Every row must be ✓ before a chapter is written.
 
 ---
 
@@ -66,7 +66,7 @@ Official documentation only — no third-party blogs, Medium, or YouTube. Every 
 
 ---
 
-## Phase 3 gate checklist
+## Unit U3 gate checklist
 
 Every row must be ✓ before writing.
 

@@ -31,18 +31,43 @@ Per 2026 engagement analysis, LinkedIn carousels/documents have the highest enga
 
 ---
 
-## Step 1 — Decide: single image or carousel
+## Workflow — delegation-model units
 
-Read the post. Analyze its structure:
+The workflow is three self-contained units of work. Each unit lists its **goal/scope**, its **inputs**, the **self-verify** the doer runs before handing back, and the **report contract** (what it hands back). Do the units in order — each unit's report is the next unit's input. Two units end in a **hand-back gate** where control returns to the user.
+
+---
+
+### Unit 1 — Format decision (HARD HAND-BACK GATE)
+
+**Goal/scope:** Read the source post and decide, from its structure, whether it wants a multi-slide carousel or a single hero image. Surface the reasoning and stop.
+
+**Inputs:** File path to the finished post/article. If not given, ask. If the source directory contains exactly one obvious candidate (e.g. `linkedin_post.md`), propose it and confirm rather than asking from scratch.
+
+**Do:** Analyze the post's structure:
 
 - **Recommend a carousel** if the post has 4+ distinct beats, steps, sections, or parallel points (a framework, a numbered list, a before/after/lessons arc, a multi-step process).
 - **Recommend a single hero image** if the post is a short, single-insight piece with no natural multi-part structure.
 
-State the recommendation and the one-line reason (e.g. "This post has 5 distinct steps — recommending a carousel"). **Ask the user to confirm or override** before generating prompts. Do not silently pick without surfacing the reasoning — this is a judgment call, not a hard rule.
+State the recommendation and the one-line reason (e.g. "This post has 5 distinct steps — recommending a carousel").
+
+**Self-verify:** Confirm the recommendation actually follows from the post's structure (beat count named), and that the reason is one line.
+
+**⛔ HAND-BACK GATE:** Do NOT proceed to Unit 2. Hand back to the user and **wait for them to confirm or override** the format. This is a judgment call, not a hard rule — never silently pick.
+
+**Report contract (hands back):**
+- Source file used.
+- Recommended format (carousel / single hero image) + one-line reason (beat count).
+- Explicit request: "Confirm or override before I generate prompts."
 
 ---
 
-## Step 2a — If carousel: slide breakdown
+### Unit 2 — Slide / image breakdown
+
+**Goal/scope:** Produce the full per-slide (carousel) or single-image prompt set to spec.
+
+**Inputs:** The **user-confirmed format** from Unit 1, and the source post.
+
+**Do — if carousel (2a):**
 
 - **Slide count: 6–9.** Under 6 slides tends to feel thin for a swipe format; over 9 loses swipe-through completion. If the post's natural structure produces fewer or more beats, consolidate or split to land in this range — note when a beat had to be merged or split.
 - **Slide 1 (cover)**: makes a promise and must be identifiable as the author's even in a fast feed skim (this is where visual branding consistency matters most). The cover's job is to make the swipe worth starting.
@@ -56,11 +81,22 @@ For each slide, write:
 3. **Image-generation prompt** — a detailed prompt covering: composition/layout, subject matter or visual metaphor, style direction (e.g. minimal flat illustration, photo-real, abstract gradient background, icon-based), color/mood direction, and where the text overlay sits relative to the visual.
 4. One-line rationale for why this slide/prompt supports the beat it represents.
 
-## Step 2b — If single image: hero prompt
+**Do — if single image (2b):**
 
 Write one detailed prompt for a cover/hero image reflecting the post's hook or core claim:
 - Composition, subject/visual metaphor, style, color/mood, and any short text overlay (the hook line or a 3–5 word takeaway, not the full post).
 - One-line rationale connecting the visual to the hook.
+
+**Self-verify (doer runs this itself before reporting):**
+- **One idea per slide** — no middle slide's prompt describes two ideas; if it does, split it.
+- **Slide count in range** — carousel lands at 6–9 slides; note any beat merged/split to get there.
+- **Cover + final slide rules met** — cover makes a promise and is brand-identifiable; final slide is takeaway + specific CTA (not a trail-off).
+- **Mobile-readability** — every overlay text is short and high-contrast enough to read on a 6-inch phone; flag any overlay that's too long.
+
+**Report contract (to Unit 3):**
+- Format + slide count.
+- The full prompt set (overlay text + prompt + rationale per slide/image).
+- Self-verify result: pass, or the specific items flagged (over-long overlay, merged/split beat).
 
 ---
 
@@ -92,14 +128,33 @@ State once in the output: most LinkedIn viewing happens on a 6-inch phone screen
 
 For a single image, use the same structure with one entry.
 
-## Workflow
+---
 
-1. Read the source post. If not given, ask.
-2. Decide carousel vs. single image per Step 1. State reasoning, confirm with user.
-3. Generate the slide/image breakdown per Step 2a or 2b.
-4. Present the full set of prompts to the user for a quick sanity check before writing (catches obvious mismatches early, but this is a lighter gate than the writer skill's review-first stop — no separate hook-selection step is needed here).
-5. Write `image_prompts.md` next to the source file, applying the overwrite policy. Confirm the exact path.
+### Unit 3 — Sanity check + persist
+
+**Goal/scope:** Present the finished prompt set for a quick sanity check, then write it to disk.
+
+**Inputs:** The full prompt set and self-verify result from Unit 2; the source file's directory.
+
+**Do:**
+1. **Present the full prompt set to the user for a quick sanity check before writing** (catches obvious mismatches early). This is a **lighter gate** than the writer skill's review-first stop — no separate hook-selection step is needed here.
+2. Write `image_prompts.md` **next to the source file**, applying the overwrite policy (never silently overwrite: offer overwrite, `image_prompts-v2.md`, or a new name).
+
+**Self-verify (doer runs this itself before reporting):**
+- The written file matches the output-format block above (Format + Reasoning header, one entry per slide/image with Overlay text / Prompt / Rationale).
+- The mobile-readability note appears once in the output.
+- The file was colocated with the source (not a fixed folder), and the overwrite policy was honored.
+
+**Report contract (hands back to user):**
+- Exact path written.
+- Format + slide/image count.
+- Any prompts flagged for mobile-readability risk.
+- Pass, or the specific issue flagged.
+
+---
 
 ## Handoff
 
 This skill produces prompt text only. Rendering the prompts into actual images/slides is outside its scope — hand the file to whatever image-generation tool or workflow the user already uses.
+
+If the user later revises the post via `linkedin-post-writer`'s built-in review/refine path (which produces `linkedin_post_revised.md`), that refined file can be fed back through Unit 1 to regenerate visuals.

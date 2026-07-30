@@ -32,4 +32,4 @@ Use this structure for each screen in `docs/ux-design.md`. No ASCII art, no imag
 
 - Describe in enough detail that a developer or coding agent could build the screen without guessing, but don't invent pixel-level specs (exact px values, hex codes inline here) — those live in the design system doc and get referenced, not restated per screen.
 - Reference design-system components by name (e.g. "uses `PrimaryButton`") once the design system section exists, rather than describing button styling per screen.
-- Every screen that appears as a node in a flow diagram (Phase 3) should have a corresponding entry here with a matching name.
+- Every screen that appears as a node in a flow diagram (Unit 2) should have a corresponding entry here with a matching name.

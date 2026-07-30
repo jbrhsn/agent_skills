@@ -38,11 +38,11 @@ A file path to the finished post/article. If not given, ask — or propose an ob
 
 ## Workflow
 
-1. Read the source post.
-2. Decide carousel vs. single image, state reasoning, confirm with the user.
-3. Generate the slide/image breakdown (Step 2a carousel / Step 2b single image in `SKILL.md`).
-4. Present the full prompt set for a quick sanity check.
-5. Write `image_prompts.md`, confirm the exact path.
+Structured as three self-contained **delegation-model units** — each with explicit inputs, a self-verify step the doer runs itself, and a terse report contract (see `SKILL.md` for the full spec):
+
+1. **Unit 1 — Format decision (hard hand-back gate).** Read the source post, decide carousel vs. single hero image from its structure, state the reasoning, and **stop for the user to confirm or override**. Never picks silently.
+2. **Unit 2 — Slide / image breakdown.** Inputs: the confirmed format. Produces the per-slide (2a) or single-image (2b) overlay text + prompt + rationale, then self-verifies one-idea-per-slide, slide count 6–9, cover/final-slide rules, and mobile-readability.
+3. **Unit 3 — Sanity check + persist.** Presents the full prompt set for a light sanity check, then writes `image_prompts.md` next to the source (overwrite policy applied) and confirms the exact path.
 
 ---
 
@@ -82,5 +82,4 @@ Copy-Item -Recurse content-creation\linkedin\linkedin-image-prompts "$env:USERPR
 
 ## Companion skills
 
-- **`linkedin-post-writer`** — produces the `linkedin_post.md` this skill reads from.
-- **`linkedin-post-reviewer`** — refined posts can also be fed into this skill for updated visuals.
+- **`linkedin-post-writer`** — produces the `linkedin_post.md` this skill reads from. Its built-in review/refine path can also produce a refined `linkedin_post_revised.md`, which can be fed back through this skill for updated visuals.

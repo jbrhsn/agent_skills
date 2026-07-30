@@ -1,6 +1,6 @@
 ---
 name: repo-docs-publisher
-description: Reads an existing repository and prepares the standard docs to publish it as a public GitHub repo — README.md, HOW_TO_USE.md, CONTRIBUTING.md, LICENSE, and optionally CODE_OF_CONDUCT.md, SECURITY.md, CHANGELOG.md, and GitHub issue/PR templates. Use whenever the user wants to prepare, write, or polish docs for open-sourcing/publishing a repo, asks for a README or related docs, or mentions making a repo "ready for GitHub" or "public." Always scans the actual repo first (code, structure, dependencies, existing docs) and checks for secrets before recommending it be made public. Do NOT use to plan a new project (project-planner) or write/refactor code (lean-coder).
+description: Reads an existing repository and prepares the standard docs to publish it as a public GitHub repo — README.md, HOW_TO_USE.md, CONTRIBUTING.md, LICENSE, and optionally CODE_OF_CONDUCT.md, SECURITY.md, CHANGELOG.md, and GitHub issue/PR templates. Use whenever the user wants to prepare, write, or polish docs for open-sourcing/publishing a repo, asks for a README or related docs, or mentions making a repo "ready for GitHub" or "public." Always scans the actual repo first (code, structure, dependencies, existing docs) and checks for secrets — an explicit stop gate — before recommending it be made public. Do NOT use to plan a new project (project-planner) or write/refactor code (lean-coder).
 metadata:
   category: documentation
   audience: maintainers
@@ -11,84 +11,148 @@ metadata:
 
 Reads an existing repository and prepares the documentation needed to publish it as a public GitHub repo: `README.md`, `HOW_TO_USE.md`, `CONTRIBUTING.md`, `LICENSE`, and — based on user confirmation — `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, and GitHub issue/PR templates.
 
-## Workflow
+## When to use
 
-**Use subagents for the two scans.** Phases 0 and 1 are both read-heavy passes over the entire repo — exactly the work to push into subagents (via the Task tool) so the full repo contents never land in your main context. Launch them **in parallel in a single message**: one subagent for the secrets/sensitive-info scan (Phase 0) and one for the repo/tech scan (Phase 1). They inspect the same tree and don't depend on each other, so running them together is strictly faster. The Phase 0 **gate still applies to the results**: even though the scans run concurrently, do not draft any public-facing docs until you've reviewed the secrets subagent's report and, if it found anything, gotten the user's acknowledgement. The interview (Phase 2), license choice, approvals, and file generation stay in the primary session. (If subagents aren't available in the environment, run both scans inline using the reference checklists, keeping the Phase 0 gate intact.)
+- The user wants to prepare, write, or polish docs to open-source/publish a repo, asks for a README or related docs, or wants a repo "ready for GitHub"/"public."
+- This is a documentation skill for **existing** repos, not project planning — see **Related skills**.
 
-### Phase 0: Secret / sensitive-info scan (always first)
+## Input
 
-Before publishing anything, since the goal is a **public** repo, scan for material that must not be published. Delegate this to a subagent (an `explore` or `general` subagent) briefed with `references/secrets-scan-checklist.md`:
+An existing repository to document. If the user actually wants to plan a *new* project, hand off to `project-planner`; if they want source code written or refactored, hand off to `lean-coder`.
 
-- Have it search for `.env` files, hardcoded API keys/tokens/passwords, private URLs or internal hostnames, credentials in config files, and `.gitignore` gaps (e.g. no `.gitignore` at all, or one that doesn't cover common secret file patterns).
-- Tell it to report exactly what was found and where (`file:line`), or to confirm the scan was clean.
-- If anything is found: **stop and flag it clearly to the user** before proceeding with documentation. List what was found and where, and recommend removal/rotation and history-scrubbing (e.g. via `git filter-repo` or BFG) if secrets are already committed — do not proceed to draft public-facing docs until the user acknowledges this.
-- If nothing is found, briefly note the scan was clean and proceed.
+## Output
 
-### Phase 1: Scan the repo
+The confirmed documentation files, written as **actual files** (not chat text) — this is a file-creation task. Always considered: `README.md`, `HOW_TO_USE.md`, `CONTRIBUTING.md`, `LICENSE`. Generated only if confirmed: `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, and `.github/` issue/PR templates.
 
-Delegate this to a second subagent (launched in parallel with the Phase 0 one), briefed with `references/repo-scan-checklist.md` for a systematic list of what to inspect and where. Ask it to report back:
+---
 
-- Language(s), framework(s), package manager, and dependencies from manifest files (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.).
-- Test runner, linter/formatter, and CI config (e.g. `.github/workflows/`) if present — these inform badges and CONTRIBUTING.md.
-- Existing docs (`README.md`, `LICENSE`, etc.) — if present, treat this as an **update/polish** pass, not a from-scratch write; the subagent should surface their current content so accurate parts are preserved.
-- Inferred project purpose (from code structure, existing docstrings/comments, package description fields), entry points, install/build/run commands, and directory layout.
-- Whether an existing `LICENSE` file is present. If one exists, use it as-is (don't re-ask about licensing). If none exists, this is handled in Phase 3.
-- **Monorepo vs single package:** detect whether the repo is a monorepo (multiple package manifests under `packages/`, `apps/`, workspaces in `package.json`/`pyproject.toml`, `go.work`, Cargo workspace, etc.). If so, ask in Phase 2 whether the user wants **root-level** docs describing the whole repo, **per-package** docs, or both — and confirm which package is the primary/published one so the README quick-start points at the right entry point. Default to root-level docs plus a short "Packages" section listing each package with a one-line purpose, unless the user asks for per-package docs.
+## Shared conventions (defined once, referenced by every unit)
 
-### Phase 2: Ask only what can't be inferred
+These apply to every doc-producing unit below — do not restate them per unit.
 
-Ask the user only for what scanning couldn't determine — don't re-ask things already evident from the repo. Typical gaps:
+### Reference material
 
-- Project name/tagline if not obvious from manifest or repo name
-- Target audience / intended use case (helps tone of README)
-- Whether GitHub issue/PR templates are wanted (see Phase 7)
-- Anything scan results were ambiguous about (e.g. multiple possible entry points, unclear install method)
+Each generation unit is driven by a reference file in `references/`. Use it rather than improvising structure:
 
-Keep this brief — a single batch of questions is usually enough since Phase 1 should have resolved most of it. Confirm the full file list to generate (README, HOW_TO_USE, CONTRIBUTING, LICENSE, plus any of CODE_OF_CONDUCT/SECURITY/CHANGELOG/templates) before generating, since the user may not want all of them for this repo.
+| Unit produces | Reference file |
+|---|---|
+| Secret scan | `references/secrets-scan-checklist.md` |
+| Repo scan | `references/repo-scan-checklist.md` |
+| LICENSE | `references/license-summaries.md` |
+| README.md | `references/readme-template.md` |
+| HOW_TO_USE.md | `references/how-to-use-template.md` |
+| CONTRIBUTING.md | `references/contributing-template.md` |
 
-### Phase 3: License
+### Doc standards (all generated docs)
 
-- If `LICENSE` already exists, reuse it as-is — **unless** the scan shows it's inconsistent with the repo (e.g. manifest `license` field names a different license than the `LICENSE` file, or a stale copyright year/holder). In that case flag the mismatch to the user and ask which is correct before proceeding, rather than silently trusting either.
-- If not, help the user pick one. Briefly summarize the common options (MIT, Apache-2.0, GPL-3.0, BSD-3-Clause) and their practical implications, then generate the full, correct license text for the one chosen. Use `references/license-summaries.md` for the summaries — never paraphrase or shorten actual license legal text, always use the complete standard text for whichever license is chosen.
+- **Never fabricate specifics** — install/build/run commands, badge data, license choice, test/lint commands must come from the scan or from explicit user confirmation. If not found, ask; do not invent.
+- **Ground every doc in the actual scanned repo**, never placeholders. A doc that still contains template tokens or generic filler has not met its Self-verify.
+- **Public-audience tone**: clear, welcoming to outside contributors, no internal jargon or references to private infrastructure.
+- **License legal text is always the complete, canonical standard text** for the chosen license — never paraphrased, shortened, or reproduced from memory.
+- **Existing docs are an update/polish pass, not a from-scratch rewrite** — preserve accurate content the scan surfaced.
 
-### Phase 4: Generate README.md
+### Delegation & context hygiene
 
-Use `references/readme-template.md`. Standard sections: title/tagline, badges, description, table of contents (for longer READMEs), installation, quick usage example, link to `HOW_TO_USE.md` for detailed usage, contributing link (to `CONTRIBUTING.md`), license section (referencing `LICENSE`).
+The scan units (U1 secret scan, U2 repo scan) are read-heavy passes over the whole tree — push them into subagents so full repo contents never fill the primary context. They inspect the same tree and don't depend on each other, so **dispatch them in parallel in a single message**. If subagents aren't available, run both scans inline against the reference checklists, keeping the U1 gate intact. All other units (interview, license, generation) stay in the primary session.
 
-Always propose badges relevant to what Phase 1 detected (build status if CI config found, license badge, package-registry version badge if published, language/version badges) — don't fabricate a badge for something that doesn't exist (e.g. no build badge if there's no CI config).
+### Overwrite / gating policy
 
-### Phase 5: Generate HOW_TO_USE.md
+- Do not generate any public-facing doc until **U1's secret result has been reviewed** and any finding acknowledged (see U1 STOP GATE).
+- Confirm the **full file list** with the user before generating (U3 STOP GATE) — the user may not want every optional doc.
 
-Keep this separate from README.md per project convention. Use `references/how-to-use-template.md`. This is the detailed usage doc: full setup, configuration options, common workflows/examples, troubleshooting tips. README.md should link here rather than duplicating this content — keep the split clean (README = quick start + overview, HOW_TO_USE = depth).
+---
 
-### Phase 6: Generate CONTRIBUTING.md
+## Workflow units
 
-Use `references/contributing-template.md`, always tailored to what Phase 1 detected — reference the actual test command, linter, and branch/PR conventions found in the repo (e.g. `npm test`, `pytest`, `make lint`) rather than generic placeholders. Cover: how to set up a dev environment, how to run tests/lint, branch naming or commit conventions if any are evident from git history, and the PR process.
+### Unit U1 — Secret / sensitive-info scan (ALWAYS FIRST)
 
-### Phase 7: Optional extras
+- **Goal/scope**: since the target is a **public** repo, find any material that must not be published, before any doc is drafted.
+- **Inputs**: the repo tree; `references/secrets-scan-checklist.md`.
+- **Do**: delegate to a subagent (dispatched in parallel with U2) briefed with the checklist. Search for `.env` files, hardcoded API keys/tokens/passwords, private keys/certs, private URLs or internal hostnames, credentials in config files, and `.gitignore` gaps (no `.gitignore`, or one not covering common secret patterns). Distinguish material present only in the **working tree** (a `.gitignore` fix + removal suffices) from material **already committed to git history** (recommend history-rewriting via `git filter-repo` or BFG **plus credential rotation**, since deleting in a new commit leaves it recoverable). Report exactly what was found and where (`file:line`), or confirm the scan was clean.
+- **Self-verify**: confirm the scan actually ran against the checklist and produced either a clean confirmation or a concrete `file:line` finding list — not an assumption.
+- **STOP GATE (hand back)**: **if anything is found, stop.** Surface the findings (`file:line`) clearly, recommend removal/rotation and history-scrubbing for anything already committed, and **do not proceed to draft any public-facing docs or call the repo "ready for public" until the user acknowledges.** → Hand control back to the user/orchestrator. If clean, note it briefly and proceed.
+- **Report contract**: `secret scan: <CLEAN | N findings> | findings: <file:line list or none> | committed-to-history: <yes/no/n-a> | gate: <passed | BLOCKED awaiting acknowledgement>`.
 
-Ask (if not already answered in Phase 2) whether the user wants:
-- `CODE_OF_CONDUCT.md` (standard Contributor Covenant text if yes)
-- `SECURITY.md` (how to report vulnerabilities)
-- `CHANGELOG.md` (seed from git tags/releases if any exist, else a starter template)
-- GitHub issue templates and a PR template under `.github/`
+### Unit U2 — Scan the repo
 
-Generate only what's confirmed.
+- **Goal/scope**: build an accurate picture of the repo so no doc contains fabricated specifics.
+- **Inputs**: the repo tree; `references/repo-scan-checklist.md`.
+- **Do**: delegate to a subagent (dispatched in parallel with U1) briefed with the checklist. Report back:
+  - Language(s), framework(s), package manager, and dependencies from manifests (`package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, etc.).
+  - Test runner, linter/formatter, CI config (`.github/workflows/`) if present — these inform badges and CONTRIBUTING.
+  - Existing docs (`README.md`, `LICENSE`, etc.) with their current content surfaced, so an update/polish pass preserves accurate parts.
+  - Inferred project purpose, entry points, install/build/run commands, directory layout.
+  - Whether a `LICENSE` file exists (reused in U4 if so).
+  - **Monorepo vs single package**: detect multiple manifests under `packages/`/`apps/`, workspaces, `go.work`, Cargo workspace, etc. If a monorepo, flag it so U3 can ask about root-level vs per-package docs and the primary package.
+- **Self-verify**: confirm each checklist area is answered (or explicitly marked "none found"), and that reported commands/badges trace to real files — no invented specifics.
+- **Report contract**: `repo scan: complete | stack: <langs/frameworks/pm> | tests/lint/CI: <found or none> | existing docs: <list> | LICENSE present: <yes/no> | monorepo: <yes/no>`.
 
-### Phase 8: Wrap up
+### Unit U3 — Interview & confirm file list
 
-If Phase 0 flagged any secrets, **before generating files re-confirm they were remediated** (removed/rotated, history scrubbed if already committed). If the user chose to proceed without remediating, note explicitly in your summary that the repo still contains the flagged material and should not be made public until it's resolved — don't let a flagged finding silently pass through to a "ready to publish" state.
+- **Goal/scope**: resolve only what scanning couldn't determine, and lock the exact set of files to generate.
+- **Inputs**: U1 result (must be passed/acknowledged), U2 scan results.
+- **Do**: ask the user **only** for gaps scanning left open — don't re-ask anything evident from the repo. Typical gaps: project name/tagline (if not obvious from manifest/repo name), target audience/use case (tone), whether issue/PR templates are wanted, and any scan ambiguity (multiple entry points, unclear install). If U2 flagged a monorepo, ask whether the user wants **root-level** docs, **per-package** docs, or both, and which package is primary/published — default to root-level docs plus a short "Packages" section unless they ask otherwise. Keep it to a single batch of questions.
+- **Self-verify**: confirm the U1 gate is cleared and every open ambiguity has an answer or a stated default.
+- **STOP GATE (hand back)**: present the **full file list to generate** (README, HOW_TO_USE, CONTRIBUTING, LICENSE, plus any of CODE_OF_CONDUCT/SECURITY/CHANGELOG/templates) and **confirm it before generating anything.** → Hand control back for the file-list decision.
+- **Report contract**: `gaps resolved: <list> | monorepo scope: <root/per-package/both/n-a> | confirmed file list: <files> | awaiting: file-list confirmation`.
 
-Generate all confirmed files as actual files (not just chat text) — this is a file-creation task. Let the user review afterward rather than gating each file individually. Summarize what was created and remind them the secrets scan (Phase 0) only checked what this skill inspected — a full history audit is their responsibility if the repo has existing commit history predating this pass.
+### Unit U4 — Generate LICENSE
+
+- **Goal/scope**: ensure a correct, canonical license is in place.
+- **Inputs**: U2's LICENSE-present flag + manifest `license` field; `references/license-summaries.md`.
+- **Do**: if `LICENSE` already exists, reuse it as-is — **unless** the scan shows inconsistency (manifest `license` names a different license, stale copyright year/holder). In that case flag the mismatch and ask which is correct before proceeding, rather than silently trusting either. If no `LICENSE` exists, summarize the common options (MIT, Apache-2.0, GPL-3.0, BSD-3-Clause) and their practical implications using `references/license-summaries.md`, let the user pick, then generate the **full, complete standard text** for the chosen license — never paraphrase or shorten.
+- **Self-verify**: confirm `LICENSE` exists with complete canonical text (not a summary/excerpt) and no manifest/file mismatch remains unresolved.
+- **Report contract**: `LICENSE: <reused as-is | generated <SPDX-id>> | mismatch: <none | resolved: <which>>`.
+
+### Unit U5 — Generate README.md
+
+- **Goal/scope**: produce the quick-start + overview entry doc.
+- **Inputs**: U2 scan results; `references/readme-template.md`.
+- **Do**: generate `README.md` from the template. Standard sections: title/tagline, badges, description, table of contents (for longer READMEs), installation, quick usage example, link to `HOW_TO_USE.md` for detailed usage, contributing link (to `CONTRIBUTING.md`), license section (referencing `LICENSE`). Propose **only** badges the U2 scan supports (build status if CI found, license badge, package-registry version if published, language/version badges) — never fabricate a badge for something absent (no build badge without CI).
+- **Self-verify**: confirm `README.md` exists with the required sections, reflects the actual scanned repo (real commands, real badges), contains no placeholders, and links to HOW_TO_USE/CONTRIBUTING/LICENSE rather than duplicating them.
+- **Report contract**: `README.md: written | sections: <present> | badges: <only-detected list> | placeholders: none`.
+
+### Unit U6 — Generate HOW_TO_USE.md
+
+- **Goal/scope**: produce the detailed usage doc, kept separate from README per project convention.
+- **Inputs**: U2 scan results; `references/how-to-use-template.md`.
+- **Do**: generate `HOW_TO_USE.md` from the template: full setup, configuration options, common workflows/examples, troubleshooting. Keep the split clean — README = quick start + overview, HOW_TO_USE = depth; README links here rather than duplicating this content.
+- **Self-verify**: confirm `HOW_TO_USE.md` exists with real setup/config/usage grounded in the scan, no placeholders, and that it holds the depth README defers to it.
+- **Report contract**: `HOW_TO_USE.md: written | covers: setup/config/workflows/troubleshooting | placeholders: none`.
+
+### Unit U7 — Generate CONTRIBUTING.md
+
+- **Goal/scope**: produce the contributor guide tailored to this repo's real workflow.
+- **Inputs**: U2 scan results (test/lint commands, CI, git history conventions); `references/contributing-template.md`.
+- **Do**: generate `CONTRIBUTING.md` from the template, tailored to what U2 detected — reference the **actual** test command, linter, and branch/PR conventions (`npm test`, `pytest`, `make lint`, etc.) rather than generic placeholders. Cover: dev-environment setup, running tests/lint, branch/commit conventions if evident from git history, and the PR process.
+- **Self-verify**: confirm `CONTRIBUTING.md` exists and its commands/conventions match the real repo — no generic placeholder commands.
+- **Report contract**: `CONTRIBUTING.md: written | test/lint cmds: <actual> | conventions: <from history or none> | placeholders: none`.
+
+### Unit U8 — Generate optional extras (only what was confirmed)
+
+- **Goal/scope**: generate the community/meta files the user confirmed in U3.
+- **Inputs**: U3's confirmed file list; U2 scan results (git tags/releases for CHANGELOG).
+- **Do**: generate **only** the confirmed items:
+  - `CODE_OF_CONDUCT.md` — standard Contributor Covenant text.
+  - `SECURITY.md` — how to report vulnerabilities.
+  - `CHANGELOG.md` — seed from git tags/releases if any exist, else a starter template.
+  - GitHub issue templates and a PR template under `.github/`.
+- **Self-verify**: confirm each confirmed file exists and nothing **unconfirmed** was generated; CHANGELOG reflects real tags if any were found.
+- **Report contract**: `optional extras: <files written or none> | unconfirmed files generated: none`.
+
+### Unit U9 — Wrap up & final gate
+
+- **Goal/scope**: confirm the repo is safe to call publishable and summarize what was produced.
+- **Inputs**: U1 result, all generated files.
+- **Do**: if U1 flagged secrets, **re-confirm remediation** (removed/rotated, history scrubbed if committed) before treating the repo as ready. If the user chose to proceed without remediating, state **explicitly** in the summary that the repo still contains the flagged material and must not be made public until resolved — never let a flagged finding silently pass to a "ready to publish" state. Summarize all files created and remind the user that U1 only checked what this skill inspected — a full git-history audit is their responsibility if the repo has commit history predating this pass.
+- **Self-verify**: confirm every confirmed file was written to disk and the secret-remediation status is stated honestly (ready vs. still-blocked).
+- **STOP GATE (hand back, conditional)**: if U1 findings were **not** remediated, do **not** declare the repo "ready for public" — surface the outstanding blocker and hand back. → Hand control back for remediation.
+- **Report contract**: `files written: <list> | secret status: <clean | remediated | STILL BLOCKED: <what>> | public-ready: <yes | no — blocked>`.
+
+---
 
 ## Related skills
 
-- **`project-planner`** — for planning a *new* project from an idea (spec/design/roadmap/backlog). This skill is for documenting an *existing* repo, not planning; hand off if the user actually wants to plan.
+- **`project-planner`** — for planning a *new* project from an idea (spec/design/roadmap/backlog). This skill documents an *existing* repo; hand off if the user actually wants to plan.
 - **`lean-coder`** — for writing or refactoring the repo's code. This skill only writes documentation, never source code.
 - **`ui-ux-designer`** — for designing an app's UI/UX. Unrelated to publishing docs.
-
-## Notes
-
-- This is a documentation skill for **existing** repos, not project planning (see Related skills above).
-- Never fabricate specifics (install commands, badge data, license choice) that weren't found in the repo or confirmed by the user.
-- Keep tone appropriate for a public open-source audience: clear, welcoming to outside contributors, no internal jargon or references to private infrastructure.

@@ -1,6 +1,6 @@
 ---
 name: author-chapter
-description: Use when the user asks to populate, author, write, or fill in a chapter, notes file, or topic stub in a learning repository or a Markdown study folder. Researches live sources, writes every template section to spec, and runs a quality gate before reporting. Do NOT use to scaffold a new repo (that is create-learning-repo) or to generate quizzes/mock exams (that is generate-practice-exam).
+description: Use when the user asks to populate, author, write, or fill in a chapter, notes file, or topic stub in a learning repository or a Markdown study folder. It locates the authoring contract on disk, researches live official sources with citations and retrieval dates, drafts every template section to spec, runs a mandatory quality gate as a self-audit, then writes one chapter file only after every check passes. Do NOT use to scaffold a new repo (that is create-learning-repo) or to generate quizzes/mock exams (that is generate-practice-exam).
 ---
 
 # Author Chapter
@@ -9,7 +9,7 @@ This skill turns a blank stub (or a thin, incomplete file) into a fully template
 
 It is **fully generic** — no topic, tool, vendor, or repo path is hardcoded. The section order and quality rules are read from the target repo's own `templates/` and `AGENTS.md` at runtime. When those files do not exist (a loose Markdown folder), the skill falls back to the bundled `reference/quality-gate.md` after confirming with the user.
 
-The workflow runs in **five confirmed phases**. Every phase except the final write ends with an explicit gate: present output, wait for approval, do not combine phases in one response.
+The workflow is a sequence of discrete **units**. Each unit has a Goal/scope, Inputs, Do, a Self-verify step, and a terse Report contract. Two units are **STOP GATES** where scope or a plan must be confirmed before proceeding. The quality gate (Unit U3) is the doer's own self-audit run against the contract before any file is written.
 
 **What this skill does:**
 - Reads the authoring contract (template + depth rules) from disk
@@ -37,97 +37,25 @@ Do **not** trigger if the user wants to create a new repo, generate an exam/quiz
 
 ---
 
-## Phase 0 — Locate the authoring contract
+## Shared reference material (defined once — referenced by the units)
 
-**Goal:** find the rules this chapter must follow, and confirm the target, before writing anything.
+Every unit below points to this section instead of restating rules. Do not duplicate this material inside a unit.
 
-### Step 1 — Identify the target file
-- Confirm the exact file path the user wants populated. If they named a chapter or topic but not a file, list the candidate stub(s) and ask which one.
-- Read the target file. Classify it:
-  - **Stub** — a single comment line (e.g. `<!-- stub: ... -->`), an `> **Status:** STUB` marker, or only an H1 title. Safe to populate.
-  - **Has real content** — anything more. **Stop and ask** whether to rewrite, extend, or leave it. Never overwrite authored content silently.
+### The authoring contract (source of truth)
 
-### Step 2 — Find the contract by walking up the tree
-From the target file's directory, walk up toward the filesystem root looking for:
-- `AGENTS.md` — the repo's authoring rules (Content Depth Rules, naming style, answer format)
-- `templates/chapter-notes-template.md` (or the repo's equivalent named topic-note template)
-- `templates/authoring-guidelines.md` (the quality rubric)
+The section order and depth rules come **from disk, not from this skill**. Resolve the contract in Unit U0 and reuse it in every later unit:
 
-**Branch on what is found:**
-
-| Found | Action |
+| Found at/above the target file | Contract used |
 |---|---|
-| `AGENTS.md` + `templates/` both present | This is a structured learning repo. Read both. They are the authoritative contract — derive the section order and rules from them, not from this skill. |
-| Neither present (loose Markdown folder) | Tell the user: "No `AGENTS.md`/`templates/` found — this looks like a loose Markdown folder. I'll author using my built-in standard chapter structure (`reference/quality-gate.md`). Proceed?" Only continue after confirmation. |
-| Partial (one present) | Use whatever is present; fall back to `reference/quality-gate.md` for the missing piece. Tell the user which contract you are using. |
+| `AGENTS.md` + `templates/` both present | Structured learning repo. Read both; they are authoritative. Derive section order and rules from them. |
+| Neither present (loose Markdown folder) | After user confirmation only, fall back to the built-in `reference/quality-gate.md`. |
+| Partial (one present) | Use whatever is present; fall back to `reference/quality-gate.md` for the missing piece; tell the user which contract applies. |
 
-> **Never hardcode the section list.** When `templates/chapter-notes-template.md` exists, the section order and headings come from it. This is what keeps the skill portable across repos with different templates.
+> **Never hardcode the section list.** When `templates/chapter-notes-template.md` exists, the section order and headings come from it. This is what keeps the skill portable across repos with different templates. The built-in fallback and its full section order live in `reference/quality-gate.md`.
 
-### Step 3 — Gather chapter context
-- Read the parent section/module index (if present) to find the chapter's declared exam objective, topic scope, and estimated time.
-- Read 1–2 sibling chapters that are already authored (if any) to match voice, depth, and formatting conventions.
-- Note the repo naming style (ALLCAPS-underscore vs lowercase-hyphen) and the answer format (inline `<details>` vs separate key) so the draft matches.
+### Section-by-section depth requirements (portable minimum)
 
-### End of Phase 0
-
-> **Phase 0 complete.** Target file: `[path]`. Contract source: `[repo templates/AGENTS.md | built-in fallback]`. Topic/objective: `[...]`.
-> Reply **"proceed"** to start research, or correct the target/scope first.
-
----
-
-## Phase 1 — Research (live, cited)
-
-**Goal:** ground the chapter in current official sources. Never write technical content from training data alone — product names, APIs, and exam objectives drift.
-
-### Step 1 — Parallel fetches
-Run these `webfetch` calls in parallel; record URL + retrieval date for each:
-1. **Official documentation** for the topic (the primary source for mechanism and parameters).
-2. **The exam/objective wording** if a certification is involved (quote it verbatim — never paraphrase objectives).
-3. **Changelog / "what's new"** if the topic is fast-evolving.
-
-### Step 2 — Handle truncation
-If a doc page is long and `webfetch` truncates, delegate a targeted read to the `explore` agent or fetch a more specific sub-page. Do not author from truncated output.
-
-### Step 2b — Offline / unreachable sources
-If official sources cannot be reached (no network, or every fetch fails), **stop rather than author from training data** — product names, APIs, and objectives drift. Tell the user and offer two paths: (a) paste the relevant official-doc excerpts directly into the chat so the chapter can be grounded in them, or (b) run `create-learning-repo`'s Phase 1 fallback AI-query prompts elsewhere and paste the results back. Only resume once cited source material is available.
-
-### Step 3 — Source hygiene
-- Only official documentation counts as a citable source — no third-party blogs, Medium, or YouTube.
-- Format every link as `[Title](url) — *verified YYYY-MM-DD*`.
-- Flag any fast-evolving feature inline with a note to re-verify before relying on it.
-
-### Step 4 — Present the research brief
-Show a compact brief and gate:
-
-```
-## Research Brief — [Chapter]
-
-**Objective covered:** [verbatim objective or topic scope]
-**Sources:**
-- [url] — verified [date] — [what it provides]
-
-**Planned Key Concepts (sub-sections):**
-1. [Concept A] — mechanism + where it appears
-2. [Concept B] — ...
-3. [Concept C] — ...
-
-**Worked Example scenario:** [one line]
-**Anti-pattern to feature:** [one line]
-**Fast-evolving flags:** [list or "none"]
-```
-
-### End of Phase 1
-
-> **Phase 1 complete.** Do the sources and concept breakdown look right?
-> Reply **"proceed"** to draft the chapter, or adjust the plan first.
-
----
-
-## Phase 2 — Draft the chapter
-
-**Goal:** write every section in the contract's order to the required depth. Follow the Content Depth Rules from the repo's `AGENTS.md` (or `reference/quality-gate.md` in fallback mode). The rules below are the portable minimum every draft must meet.
-
-### Section-by-section requirements
+Follow the Content Depth Rules from the repo's `AGENTS.md` (or `reference/quality-gate.md` in fallback mode). The following is the portable minimum every draft must meet:
 
 - **TL;DR** — 2–4 sentences; end with a single bolded "one thing to remember."
 - **ELI5** — 3–6 sentences, prose only, zero jargon. A concrete everyday analogy that maps *structurally* onto the concept, and explicitly corrects the most common misconception. A vague comparison ("think of X as a way to represent Y") is non-compliant.
@@ -143,85 +71,142 @@ Show a compact brief and gate:
 - **Self-Check / Checkpoint Questions** — 5 questions: Q1 recall, Q2–Q3 application, Q4–Q5 analysis/trade-off. At least one multi-select ("Which TWO..."). Each answer in an inline `<details><summary>Answer</summary>` block immediately after its options, explaining why the correct answer is right AND why each significant distractor is wrong. One-word rationales are non-compliant. Do not add a separate flat "Answers" section unless the repo's template uses one.
 - **Further Reading** — official-docs-only links, each with a verified date.
 
+### Source hygiene (applies to all research and links)
+
+- Only official documentation counts as a citable source — no third-party blogs, Medium, or YouTube.
+- Format every link as `[Title](url) — *verified YYYY-MM-DD*`, verified live this session.
+- Quote exam objectives **verbatim** — never paraphrase them.
+- Flag any fast-evolving feature inline with a note to re-verify before relying on it.
+
 ### Draft discipline
-- Match the repo's naming style and answer-format convention detected in Phase 0.
+
+- Match the repo's naming style (ALLCAPS-underscore vs lowercase-hyphen) and answer-format convention (inline `<details>` vs separate key) detected in Unit U0.
 - Leave zero `<!-- TODO -->` or `STUB` markers.
 - Depth calibration: Key Concepts + ELI5 + Worked Example carry the teaching load (~75% of effort); snippets ~15%; questions ~10% but non-negotiable.
 
-### End of Phase 2
-
-> **Phase 2 complete.** The full draft is above.
-> Review the content, section order, depth, and examples.
-> Reply **"proceed"** to run the quality gate, or give corrections first.
-
----
-
-## Phase 3 — Quality gate
-
-**Goal:** self-audit the draft against `reference/quality-gate.md` (and any extra rules in the repo's `AGENTS.md`) before writing. This is the step that guarantees consistency.
-
-Produce a pass/fail table. Example:
-
-| Check | Result | Note |
-|---|---|---|
-| TL;DR ends with bolded "one thing to remember" | ✓ | |
-| ELI5 has structural analogy + corrects a misconception | ✓ | |
-| Every Key Concept sub-section has How + Where | ✗ | Concept B missing mechanism |
-| Key Parameters table present or explicit "none" note | ✓ | |
-| Worked Example follows 5-step format | ✓ | |
-| ≥2 implementation snippets, different angles | ✓ | |
-| ≥1 anti-pattern snippet with corrected version | ✓ | |
-| Every snippet opens with a `# Scenario:`/`# Anti-pattern:` comment | ✓ | |
-| Pitfalls have all 3 parts | ✓ | |
-| 5 questions spanning 3 cognitive levels | ✓ | |
-| ≥1 multi-select question | ✓ | |
-| `<details>` count == question count (+1 if a sample question section exists) | ✓ | |
-| Every answer explains correct + why distractors fail | ✓ | |
-| Further Reading: official docs only, all links verified this session | ✗ | 1 link not yet verified |
-| Zero TODO/STUB markers remain | ✓ | |
-
-**Rule:** any ✗ blocks completion. Fix each failure, then re-run the gate. Only proceed when every row is ✓.
-
-Deterministic checks to run mechanically:
-- Count `<details>` occurrences and compare to the question count.
-- Search for residual `TODO` / `STUB` markers (must be zero).
-- Search for `Which TWO` / `Which THREE` (must be ≥1).
-- Re-`webfetch` each Further Reading URL to confirm 200 + content matches the citation.
-
----
-
-## Phase 4 — Write and report
-
-**Goal:** commit the file and report compliance.
-
-1. **Idempotency guard:** if the target file gained real content since Phase 0 (e.g. a parallel edit), stop and ask before overwriting.
-2. Write the full chapter to the target path with the `Write` tool.
-3. Report:
-
-```
-Authored:      [path]
-Contract:      [repo templates/AGENTS.md | built-in fallback]
-Sections:      [N] (all template sections present)
-Snippets:      [N] (incl. [N] anti-pattern)
-Questions:     5 ([N] multi-select)
-Links verified:[N]/[N]
-Quality gate:  PASS (all checks ✓)
-```
-
-4. Suggest the next logical stub in the same chapter or module (do not author it without a new request).
-
----
-
-## Constraints and Guardrails
+### Constraints and guardrails (non-negotiable, all units)
 
 - **Contract comes from disk, not this skill.** When the repo has `templates/` + `AGENTS.md`, they win. The built-in `reference/quality-gate.md` is a fallback for loose folders only, and its use must be confirmed with the user.
 - **Never overwrite authored content without explicit confirmation.** Only populate stubs freely.
-- **One phase per response.** Every phase except the final write ends with a gate.
-- **Always research live in Phase 1.** Cite URL + retrieval date. Official docs only.
-- **Quote exam objectives verbatim** — never paraphrase them.
-- **The quality gate is mandatory.** A chapter is not "done" until every gate row is ✓.
+- **Always research live in Unit U1.** Cite URL + retrieval date. Official docs only.
+- **The quality gate (Unit U3) is mandatory.** A chapter is not "done" until every gate row is ✓.
 - **Author only what the user named.** Do not batch-populate a module unless explicitly asked.
 - **Windows-safe:** quote paths with spaces; do not assume forward slashes.
+
+---
+
+## Workflow
+
+The units run in order U0 → U4. Two of them are STOP GATES that hand control back for confirmation; the rest are self-verified by the doer. Do not skip the STOP GATES and do not combine a gate with the next unit in one response.
+
+### Unit U0 — Locate the authoring contract & confirm scope
+
+- **Goal/scope**: find the rules this chapter must follow and lock the exact target file, before writing anything.
+- **Inputs**: the file path or chapter/topic name the user named.
+- **Do**:
+  - **Identify the target.** Confirm the exact file path. If the user named a chapter/topic but not a file, list the candidate stub(s) and ask which one. Read the target and classify it:
+    - **Stub** — a single comment line (e.g. `<!-- stub: ... -->`), a `> **Status:** STUB` marker, or only an H1 title. Safe to populate.
+    - **Has real content** — anything more. Do not overwrite silently (see STOP GATE below).
+  - **Find the contract by walking up the tree.** From the target file's directory, walk toward the filesystem root looking for `AGENTS.md` (Content Depth Rules, naming style, answer format), `templates/chapter-notes-template.md` (or the repo's equivalent topic-note template), and `templates/authoring-guidelines.md` (the quality rubric). Resolve which contract applies using the **authoring contract** table in shared reference material.
+  - **Gather chapter context.** Read the parent section/module index (if present) for the chapter's declared exam objective, topic scope, and estimated time. Read 1–2 already-authored sibling chapters (if any) to match voice, depth, and formatting. Note naming style and answer format so the draft matches.
+- **Self-verify**: a single target file is selected and classified; the contract source is resolved (repo `templates/`+`AGENTS.md`, partial, or built-in fallback); naming style and answer format are noted.
+- **STOP GATE (hand back)**: present target file, contract source, and topic/objective, and **stop to confirm** before research. Two cases force this gate: (a) the target **has real content** — ask whether to rewrite, extend, or leave it; never overwrite authored content silently; (b) the folder is loose (no `AGENTS.md`/`templates/`) — state "I'll author using the built-in standard structure (`reference/quality-gate.md`)" and get confirmation before continuing. → Hand control back to the user/orchestrator for the scope/contract decision.
+- **Report contract**: `target: <path> (<stub | has-content>) | contract: <repo templates/AGENTS.md | partial | built-in fallback> | topic/objective: <...> | awaiting: scope confirmation`.
+
+### Unit U1 — Research (live, cited)
+
+- **Goal/scope**: ground the chapter in current official sources and present a plan for approval. Never write technical content from training data alone — product names, APIs, and exam objectives drift.
+- **Inputs**: confirmed target + contract from U0; the topic/objective.
+- **Do**:
+  - **Parallel fetches.** Run these `webfetch` calls in parallel; record URL + retrieval date for each: (1) **official documentation** for the topic (primary source for mechanism and parameters); (2) **the exam/objective wording** if a certification is involved (quote it verbatim); (3) **changelog / "what's new"** if the topic is fast-evolving.
+  - **Handle truncation.** If a doc page is long and `webfetch` truncates, delegate a targeted read to the `explore` agent or fetch a more specific sub-page. Do not author from truncated output.
+  - **Offline / unreachable sources.** If official sources cannot be reached (no network, or every fetch fails), **stop rather than author from training data**. Tell the user and offer two paths: (a) paste the relevant official-doc excerpts into the chat, or (b) run `create-learning-repo`'s Phase 1 fallback AI-query prompts elsewhere and paste the results back. Only resume once cited source material is available.
+  - Apply **source hygiene** (shared reference material) to every source and link.
+  - **Assemble the research brief:**
+    ```
+    ## Research Brief — [Chapter]
+
+    **Objective covered:** [verbatim objective or topic scope]
+    **Sources:**
+    - [url] — verified [date] — [what it provides]
+
+    **Planned Key Concepts (sub-sections):**
+    1. [Concept A] — mechanism + where it appears
+    2. [Concept B] — ...
+    3. [Concept C] — ...
+
+    **Worked Example scenario:** [one line]
+    **Anti-pattern to feature:** [one line]
+    **Fast-evolving flags:** [list or "none"]
+    ```
+- **Self-verify**: at least the official documentation source was fetched and cited with a retrieval date; any exam objective is quoted verbatim; no source is a non-official blog/video; the brief lists concrete planned concepts, a worked-example scenario, and an anti-pattern.
+- **STOP GATE (hand back)**: present the research brief and **stop**. Ask the user to confirm the sources and concept breakdown, or adjust the plan. **Do not draft until confirmed.** → Hand control back for the research/plan decision.
+- **Report contract**: `sources: <N> official (dated) | objective quoted: <yes/n-a> | planned concepts: <N> | awaiting: brief approval`.
+
+### Unit U2 — Draft the chapter
+
+- **Goal/scope**: write every section in the contract's order to the required depth.
+- **Inputs**: approved research brief + resolved contract + naming/answer-format conventions from U0.
+- **Do**:
+  - Author every section in the contract's order, meeting the **section-by-section depth requirements** (shared reference material). When a repo template exists, its order and headings win over the portable list.
+  - Apply **draft discipline** (shared reference material): match naming style and answer format; leave zero TODO/STUB markers; respect the depth calibration.
+  - Apply **source hygiene** to Further Reading links.
+- **Self-verify**: run **Unit U3 (quality gate)** before reporting — the draft is not "done" until the gate passes or its ✗ rows are surfaced.
+- **STOP GATE (hand back)**: present the full draft and **stop**. Ask the user to review content, section order, depth, and examples, then approve or give corrections before the gate/write. → Hand control back for draft review. (If running non-interactively, note the gate as "skipped — auto-proceeding with draft as written" and continue.)
+- **Report contract**: `draft complete | sections: <N> (contract order) | snippets: <N> (incl. <N> anti-pattern) | quality gate: <PASS | N flagged, fixed | N flagged, unresolved> | awaiting: draft approval`.
+
+### Unit U3 — Quality gate (self-audit, run inside U2 before any hand-back)
+
+- **Goal/scope**: self-audit the draft against the contract before it is shown or written. This is the doer's own verification step — the mandatory gate that guarantees consistency.
+- **Inputs**: the drafted chapter + `reference/quality-gate.md` (and any extra rules in the repo's `AGENTS.md`).
+- **Do**: produce a pass/fail table; record ✓ or ✗ with a one-line note per row. Any ✗ blocks completion — fix each failure, then re-run the gate. Only pass when every row is ✓. Example:
+
+  | Check | Result | Note |
+  |---|---|---|
+  | TL;DR ends with bolded "one thing to remember" | ✓ | |
+  | ELI5 has structural analogy + corrects a misconception | ✓ | |
+  | Every Key Concept sub-section has How + Where | ✗ | Concept B missing mechanism |
+  | Key Parameters table present or explicit "none" note | ✓ | |
+  | Worked Example follows 5-step format | ✓ | |
+  | ≥2 implementation snippets, different angles | ✓ | |
+  | ≥1 anti-pattern snippet with corrected version | ✓ | |
+  | Every snippet opens with a `# Scenario:`/`# Anti-pattern:` comment | ✓ | |
+  | Pitfalls have all 3 parts | ✓ | |
+  | 5 questions spanning 3 cognitive levels | ✓ | |
+  | ≥1 multi-select question | ✓ | |
+  | `<details>` count == question count (+1 if a sample question section exists) | ✓ | |
+  | Every answer explains correct + why distractors fail | ✓ | |
+  | Further Reading: official docs only, all links verified this session | ✗ | 1 link not yet verified |
+  | Zero TODO/STUB markers remain | ✓ | |
+
+  Run these deterministic checks mechanically:
+  - Count `<details>` occurrences and compare to the question count.
+  - Search for residual `TODO` / `STUB` markers (must be zero).
+  - Search for `Which TWO` / `Which THREE` (must be ≥1).
+  - Re-`webfetch` each Further Reading URL to confirm 200 + content matches the citation.
+- **Self-verify**: every row is ✓, or every remaining ✗ is surfaced explicitly with the reason it could not be fixed.
+- **Report contract**: folded into U2's report (`quality gate: PASS` or the flagged/fixed/unresolved counts).
+
+### Unit U4 — Write and report
+
+- **Goal/scope**: commit the file and report compliance.
+- **Inputs**: approved draft that passed the U3 gate + target path from U0.
+- **Do**:
+  - **Idempotency guard:** if the target file gained real content since U0 (e.g. a parallel edit), stop and ask before overwriting.
+  - Write the full chapter to the target path with the `Write` tool.
+  - Report:
+    ```
+    Authored:      [path]
+    Contract:      [repo templates/AGENTS.md | built-in fallback]
+    Sections:      [N] (all template sections present)
+    Snippets:      [N] (incl. [N] anti-pattern)
+    Questions:     5 ([N] multi-select)
+    Links verified:[N]/[N]
+    Quality gate:  PASS (all checks ✓)
+    ```
+  - Suggest the next logical stub in the same chapter or module (do not author it without a new request).
+- **Self-verify**: the file exists at the expected path, matches the approved+gated draft, and the U3 gate was PASS (all rows ✓) before the write.
+- **Report contract**: `wrote: <exact path> | contract: <source> | quality gate: PASS | next stub suggested: <path or none>`.
 
 ---
 

@@ -25,7 +25,6 @@ SKILLS = [
     "skills/agent_session_management/init-session",
     "skills/content-creation/linkedin/linkedin-post-writer",
     "skills/content-creation/linkedin/linkedin-image-prompts",
-    "skills/content-creation/linkedin/linkedin-post-reviewer",
     "skills/development/lean-coder",
     "skills/development/project-planner",
     "skills/development/repo-docs-publisher",

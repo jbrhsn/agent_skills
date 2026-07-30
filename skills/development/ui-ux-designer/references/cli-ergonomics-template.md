@@ -1,6 +1,6 @@
 # CLI ergonomics template
 
-Use this ONLY when Phase 0 determined the project is a command-line tool (no
+Use this ONLY when Unit 0 determined the project is a command-line tool (no
 graphical/TUI surface) AND the user accepted the lighter-weight
 command-ergonomics treatment instead of full screen/flow design. Write the
 result to `docs/ux-design.md` using the structure below instead of the

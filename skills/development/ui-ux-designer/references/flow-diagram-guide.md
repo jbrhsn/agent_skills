@@ -26,4 +26,4 @@ graph TD
 
 ## Flow to screen linkage
 
-Each node in the flow diagram that represents a screen should have a matching entry in the screens section (Phase 4) using the same name, so the flow and screen descriptions stay traceable to each other.
+Each node in the flow diagram that represents a screen should have a matching entry in the screens section (Unit 3) using the same name, so the flow and screen descriptions stay traceable to each other.
