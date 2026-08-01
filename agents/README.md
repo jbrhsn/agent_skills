@@ -153,17 +153,8 @@ Agents in the `agent/` directory are **auto-discovered** — for the default
 setup you do **not** need any `opencode.json` entry to register them. Simply
 having `orchestrator.md` and `executor.md` present in the per-project
 (`.opencode/agent/`) or global (`~/.config/opencode/agent/`) directory is
-enough. For this reason, this repo's `.opencode/opencode.json` deliberately
-contains **no** `agent` block:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    ["./.opencode/plugin/token-guard.ts", { "maxOutputChars": 8000 }]
-  ]
-}
-```
+enough. For this reason, this repo's `.opencode/opencode.json` is typically not
+needed for agents.
 
 ### Optional overrides
 

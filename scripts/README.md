@@ -5,13 +5,13 @@ Automated scripts to sync skills, agents, and plugins from this repository to gl
 ## Scripts
 
 ### `sync_all.py` (Recommended)
-Syncs everything to both OpenCode and IBM Bob configurations in one command. On the OpenCode side it runs `sync_opencode_skills.py`, `sync_opencode_agents.py`, and `sync_opencode_plugins.py`; on the Bob side it runs `sync_bob_skills.py`.
+Syncs everything to both OpenCode and IBM Bob configurations in one command. On the OpenCode side it runs `sync_opencode_skills.py` and `sync_opencode_agents.py`; on the Bob side it runs `sync_bob_skills.py`.
 
 **Usage:**
 ```bash
 python3 scripts/sync_all.py                # Sync to both
 python3 scripts/sync_all.py --dry-run      # Preview before syncing
-python3 scripts/sync_all.py --opencode-only # Sync only to OpenCode (skills, agents, plugins)
+python3 scripts/sync_all.py --opencode-only # Sync only to OpenCode (skills, agents)
 python3 scripts/sync_all.py --bob-only     # Sync only to Bob (skills)
 ```
 
@@ -39,17 +39,7 @@ python3 scripts/sync_opencode_agents.py --dry-run # Preview
 **Environment variables:**
 - `OPENCODE_AGENTS` — Override destination (default: `~/.config/opencode/agent`)
 
-### `sync_opencode_plugins.py`
-Syncs the repo's TypeScript plugins (`plugins/token_saving/*.ts`, currently `token-guard.ts`) to the OpenCode global plugin directory (`~/.config/opencode/plugin` — note the singular `plugin`). The `plugins/README.md` is not synced.
 
-**Usage:**
-```bash
-python3 scripts/sync_opencode_plugins.py           # Sync
-python3 scripts/sync_opencode_plugins.py --dry-run # Preview
-```
-
-**Environment variables:**
-- `OPENCODE_PLUGINS` — Override destination (default: `~/.config/opencode/plugin`)
 
 ### `sync_bob_skills.py`
 Syncs skills to IBM Bob global config (`~/.bob/skills`).
@@ -80,7 +70,7 @@ All 13 skills from the repository (synced to both OpenCode and Bob):
 
 ### Plugins (OpenCode only)
 
-- `token-guard.ts` (all `plugins/*.ts`) → `~/.config/opencode/plugin/`
+No plugins are currently maintained in this repository.
 
 ## Build Artifacts Excluded
 
@@ -117,7 +107,6 @@ python3 scripts/sync_all.py --dry-run
    ```bash
    ls ~/.config/opencode/skills/
    ls ~/.config/opencode/agent/
-   ls ~/.config/opencode/plugin/
    ls ~/.bob/skills/
    ```
 
@@ -155,12 +144,11 @@ Use environment variables to sync to custom locations:
 ```bash
 OPENCODE_SKILLS=/custom/path python3 scripts/sync_opencode_skills.py
 OPENCODE_AGENTS=/custom/path python3 scripts/sync_opencode_agents.py
-OPENCODE_PLUGINS=/custom/path python3 scripts/sync_opencode_plugins.py
 BOB_SKILLS=/custom/path python3 scripts/sync_bob_skills.py
 ```
 
 ## Maintenance
 
 - Scripts are maintained in `scripts/` directory of the repository
-- Keep them in sync with the main `SKILLS`/`AGENTS` lists if new skills or agents are added (plugins are auto-discovered from `plugins/*.ts`)
+- Keep them in sync with the main `SKILLS`/`AGENTS` lists if new skills or agents are added
 - Document any changes to the sync behavior in this README

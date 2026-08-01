@@ -2,13 +2,26 @@
 
 ## Project Progress (rolling summary)
 
-`agent_skills` is a curated collection of reusable AI-agent **skills** for both OpenCode and IBM Bob. Each skill is a folder containing a `SKILL.md` (with YAML frontmatter whose `name` must equal the leaf folder name) plus usually a `README.md`, living under a categorized tree: `skills/agent_session_management/` (init-session, end-session), `skills/content-creation/Linkedin/` (linkedin-post-writer, linkedin-image-prompts), `skills/content-creation/Medium/` (medium-article-writer, medium-image-prompts), `skills/development/` (lean-coder, project-planner, repo-docs-publisher, ui-ux-designer), and `skills/learning/` (author-chapter, create-learning-repo, generate-practice-exam) — **13 skills total**. Agents live under `agents/orchestrator_mode_agents/` (orchestrator + executor); plugins under `plugins/token_saving/token-guard.ts`.
+`agent_skills` is a curated collection of reusable AI-agent **skills** for both OpenCode and IBM Bob. Each skill is a folder containing a `SKILL.md` (with YAML frontmatter whose `name` must equal the leaf folder name) plus usually a `README.md`, living under a categorized tree: `skills/agent_session_management/` (init-session, end-session), `skills/content-creation/Linkedin/` (linkedin-post-writer, linkedin-image-prompts), `skills/content-creation/Medium/` (medium-article-writer, medium-image-prompts), `skills/development/` (lean-coder, project-planner, repo-docs-publisher, ui-ux-designer), and `skills/learning/` (author-chapter, create-learning-repo, generate-practice-exam) — **13 skills total**. Agents live under `agents/orchestrator_mode_agents/` (orchestrator + executor); no plugins are currently maintained.
 
-The architecture is file-centric: pure Markdown/TypeScript content installed by five Python sync scripts in `scripts/` (`sync_opencode_skills.py`, `sync_bob_skills.py`, `sync_opencode_agents.py`, `sync_opencode_plugins.py`, and `sync_all.py` which orchestrates). Critical constants: skills sync to **two destinations** — `~/.config/opencode/skills` and `~/.bob/skills`; each sync script carries a **hardcoded `SKILLS` list** that must include every skill dir (an unregistered skill is silently missed); skill dirs are addressed by their **leaf name** at the destination (category path stripped). There is no root `AGENTS.md`, no build, and no automated tests — skill edits are verified by careful re-read.
+The architecture is file-centric: pure Markdown/TypeScript content installed by four Python sync scripts in `scripts/` (`sync_opencode_skills.py`, `sync_bob_skills.py`, `sync_opencode_agents.py`, and `sync_all.py` which orchestrates). Critical constants: skills sync to **two destinations** — `~/.config/opencode/skills` and `~/.bob/skills`; each sync script carries a **hardcoded `SKILLS` list** that must include every skill dir (an unregistered skill is silently missed); skill dirs are addressed by their **leaf name** at the destination (category path stripped). There is no root `AGENTS.md`, no build, and no automated tests — skill edits are verified by careful re-read.
 
 ## Session Log
 
-### Session: 2026-07-30 (current)
+### Session: 2026-08-01 (current)
+**Files touched:**
+
+_removed token-guard plugin_
+- `plugins/token_saving/` directory and `token-guard.ts` file — removed entirely
+- `plugins/README.md` — rewrote to indicate no plugins currently maintained
+- `scripts/README.md` — removed `sync_opencode_plugins.py` script documentation; updated `sync_all.py` description to remove plugins; removed plugin references from "Plugins (OpenCode only)" section; removed plugin references from typical workflow; updated troubleshooting example paths
+- `agents/README.md` — removed token-guard example from opencode.json snippet
+
+**Summary:** Removed the token-guard plugin from repo, opencode, and bob. Deleted the entire `plugins/token_saving/` directory and all related documentation references. Updated sync scripts documentation to reflect that plugins are no longer maintained. No automated tests available to verify — done by file inspection.
+
+**Outcome:** All removal tasks completed. Plugin references purged from repo documentation.
+
+### Session: 2026-07-30 (previous)
 **Files touched:**
 
 _skills/ (7 SKILL.md fixed for the chat-bloat anti-pattern)_
@@ -50,18 +63,18 @@ No open items from this session.
 
 ## Quick Reference
 
-- **Sync everything:** `python3 scripts/sync_all.py` — syncs 13 skills to both OpenCode + Bob, plus agents + plugins to OpenCode. Flags: `--dry-run`, `--opencode-only`, `--bob-only`.
-- **Per-target scripts:** `scripts/sync_opencode_skills.py`, `scripts/sync_bob_skills.py`, `scripts/sync_opencode_agents.py`, `scripts/sync_opencode_plugins.py`.
+- **Sync everything:** `python3 scripts/sync_all.py` — syncs 13 skills to both OpenCode + Bob, plus agents to OpenCode. Flags: `--dry-run`, `--opencode-only`, `--bob-only`.
+- **Per-target scripts:** `scripts/sync_opencode_skills.py`, `scripts/sync_bob_skills.py`, `scripts/sync_opencode_agents.py`.
 - **OpenCode skills destination:** `~/.config/opencode/skills/`. **Bob skills destination:** `~/.bob/skills/`.
-- **OpenCode agents/plugins destinations:** `~/.config/opencode/agent/` (singular) and `~/.config/opencode/plugin/` (singular).
-- **Env overrides:** `OPENCODE_SKILLS`, `BOB_SKILLS`, `OPENCODE_AGENTS`, `OPENCODE_PLUGINS`.
+- **OpenCode agents destination:** `~/.config/opencode/agent/` (singular).
+- **Env overrides:** `OPENCODE_SKILLS`, `BOB_SKILLS`, `OPENCODE_AGENTS`.
 - **Skills live at:** `skills/<category>/.../<name>/SKILL.md` — 13 total across agent_session_management, content-creation/Linkedin, content-creation/Medium, development, learning.
 - **GOTCHA — use `python3`, not `python`:** `python` is not on PATH in this environment.
 - **GOTCHA — hardcoded `SKILLS` list:** adding a new skill requires adding its full repo-root path to the `SKILLS` array in BOTH `scripts/sync_opencode_skills.py` AND `scripts/sync_bob_skills.py`; unregistered skills are silently skipped. The leaf segment becomes the installed folder name.
 - **GOTCHA — case of the LinkedIn category dir is `Linkedin`** (capital L, lowercase rest) as referenced in the sync scripts' SKILLS paths.
 - **GOTCHA — sync does not auto-prune:** removing a skill from the repo does NOT delete it from the global dir; delete the obsolete global folder manually.
 - **GOTCHA — restart required:** opencode loads config/agents/plugins/skills only at startup; restart after any change.
-- **Chat-pointer discipline (established this session):** skills write drafts to files, then present only a pointer + short summary at review/approval gates — **never paste the draft body into chat**. Applies to writer/planner/authoring/exam/image-prompt skills.
+- **Chat-pointer discipline (established in previous session):** skills write drafts to files, then present only a pointer + short summary at review/approval gates — **never paste the draft body into chat**. Applies to writer/planner/authoring/exam/image-prompt skills.
 - **No automated tests/lint/build:** verify skill edits by re-read; optional syntax check `python3 -m py_compile scripts/*.py`.
 - **Skill template:** each skill needs `SKILL.md` (frontmatter `name` must match leaf folder name); most also carry a `README.md`.
 - **No root `AGENTS.md`:** this handoff file is the sole persistent cross-session context.
