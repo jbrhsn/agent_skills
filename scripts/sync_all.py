@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Sync all skills to both OpenCode and IBM Bob global configs.
+Sync all skills to the OpenCode, IBM Bob, and Antigravity global configs.
 
-This unified script syncs the agent_skills repository to both:
+This unified script syncs the agent_skills repository to all three targets:
   - ~/.config/opencode/skills, ~/.config/opencode/agent, ~/.config/opencode/plugin (OpenCode)
   - ~/.bob/skills (IBM Bob)
+  - ~/.gemini/config/skills (Antigravity)
 
 It runs sync_opencode_skills.py, sync_opencode_agents.py, and
-sync_opencode_plugins.py for OpenCode, and sync_bob_skills.py for Bob.
+sync_opencode_plugins.py for OpenCode, sync_bob_skills.py for Bob, and
+sync_antigravity_skills.py for Antigravity.
 
 Usage:
     python scripts/sync_all.py [--dry-run]
@@ -16,6 +18,7 @@ Usage:
 Environment:
     OPENCODE_SKILLS: Override OpenCode destination (default: ~/.config/opencode/skills)
     BOB_SKILLS: Override Bob destination (default: ~/.bob/skills)
+    ANTIGRAVITY_SKILLS: Override Antigravity destination (default: ~/.gemini/config/skills)
 """
 
 import argparse
@@ -41,7 +44,7 @@ def run_sync(script_name: str, dry_run: bool = False) -> int:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Sync skills to both OpenCode and IBM Bob",
+        description="Sync skills to OpenCode, IBM Bob, and Antigravity",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -50,24 +53,36 @@ def main():
         action="store_true",
         help="Preview what would be synced without modifying files",
     )
-    parser.add_argument(
+    target_group = parser.add_mutually_exclusive_group()
+    target_group.add_argument(
         "--opencode-only",
         action="store_true",
-        help="Sync only to OpenCode, not Bob",
+        help="Sync only to OpenCode (skills, agents, plugins) — skip Bob and Antigravity",
     )
-    parser.add_argument(
+    target_group.add_argument(
         "--bob-only",
         action="store_true",
-        help="Sync only to Bob, not OpenCode",
+        help="Sync only to Bob — skip OpenCode and Antigravity",
+    )
+    target_group.add_argument(
+        "--antigravity-only",
+        action="store_true",
+        help="Sync only to Antigravity — skip OpenCode and Bob",
     )
     args = parser.parse_args()
+
+    # With no *-only flag, every target runs; otherwise only the requested one does.
+    only_flag_used = args.opencode_only or args.bob_only or args.antigravity_only
+    sync_opencode = not only_flag_used or args.opencode_only
+    sync_bob = not only_flag_used or args.bob_only
+    sync_antigravity = not only_flag_used or args.antigravity_only
 
     print("🔄 Syncing skills to global configs...")
 
     exit_code = 0
 
     # Sync to OpenCode (skills, agents, and plugins are all OpenCode-global)
-    if not args.bob_only:
+    if sync_opencode:
         if run_sync("sync_opencode_skills.py", args.dry_run) != 0:
             exit_code = 1
         if run_sync("sync_opencode_agents.py", args.dry_run) != 0:
@@ -76,8 +91,13 @@ def main():
             exit_code = 1
 
     # Sync to Bob
-    if not args.opencode_only:
+    if sync_bob:
         if run_sync("sync_bob_skills.py", args.dry_run) != 0:
+            exit_code = 1
+
+    # Sync to Antigravity
+    if sync_antigravity:
+        if run_sync("sync_antigravity_skills.py", args.dry_run) != 0:
             exit_code = 1
 
     print(f"\n{'=' * 79}")
