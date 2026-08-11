@@ -1,89 +1,201 @@
-# Quality Gate — Standard Chapter Rubric (fallback contract)
+# Quality Gate — Fallback Authoring Contract
 
-This file is the **built-in authoring contract** for the `author-chapter` skill. It is used only when the target repo has no `templates/chapter-notes-template.md` / `templates/authoring-guidelines.md` / `AGENTS.md` to derive rules from (i.e. a loose Markdown folder), and only after the user confirms.
+This file is the **built-in authoring contract** for the `author-chapter` skill. It is used only when the target repo has no `templates/` + `AGENTS.md` to derive rules from (i.e. a loose Markdown folder), and only after the user confirms.
 
 When a repo's own template and `AGENTS.md` exist, **those take precedence** — this file is the fallback, not the override.
 
-It doubles as the checklist the skill runs in Unit U3 (Quality Gate). Every row must be ✓ before a chapter is written.
+It doubles as the checklist the skill runs as its mandatory pre-write gate (Unit U3). No file is written until every row of the applicable checklist is ✓.
+
+The model here is **fully adaptive**. Structure adapts to the topic; sections are suggestions. There are exactly **three hard requirements** — Coverage, Prose Floor, and Reading Level — and no other fixed counts.
 
 ---
 
-## Standard chapter section order (fallback)
+## How to use this file
 
-Author these sections in this exact order. Skip a section only where the rule below says it is conditional.
+Match the target filename to its artifact type, then run only that artifact's gate plus the Universal Rules.
 
-1. **Title (H1)** + a metadata line: `Section | Module | Est. time | Objective/mapping`
-2. **TL;DR**
-3. **ELI5 — Explain It Like I'm 5**
-4. **Learning Objectives**
-5. **Visual Overview** — conditional (include if the topic has a visualisable process/architecture/decision path/before-after; omit for purely conceptual topics)
-6. **Key Concepts** — with these sub-sections:
-   - one `###` sub-section per concept
-   - **Key Parameters / Configuration Knobs** (conditional — see rule)
-   - **Worked Example: Requirement → Decision**
-7. **Implementation**
-8. **Common Pitfalls & Misconceptions**
-9. **Key Definitions**
-10. **Summary / Quick Recall**
-11. **Self-Check Questions**
-12. **Further Reading**
+| Filename pattern | Artifact type | Rubric |
+|---|---|---|
+| `00-intro.md`, `intro.md` | Chapter intro — overview + how the topics interconnect. **Derived.** Authored **last**. | [Chapter intro gate](#gate--chapter-intro) |
+| `NN-<slug>.md` (e.g. `01-<topic-slug>.md`) | Topic note — 2–6 per chapter. Authored **first**. | [Topic note gate](#gate--topic-note) |
+| `interview-prep.md` | Interview preparation. Authored alongside the topic notes. | [Interview-prep gate](#gate--interview-prep) |
+| `thought-leadership.md` | Thought-leadership essay. Authored alongside the topic notes. | [Thought-leadership gate](#gate--thought-leadership) |
+| `99-podcast.md`, `podcast.md` | Two-speaker conversational transcript covering all topics. **Derived.** Authored **last**. | [Podcast gate](#gate--podcast) |
+| anything unrecognised | Treat as a topic note. | [Topic note gate](#gate--topic-note) |
 
-Separate every major section with a horizontal rule (`---`).
+**Derived artifacts** (`00-intro.md`, `99-podcast.md`) may only be authored once **every** topic note in the chapter is complete and non-stub, and must introduce **no fact absent from the sibling topic notes**. They synthesise; they do not add.
 
 ---
 
-## Content depth rules
+## Universal rules (apply to EVERY artifact)
 
-### Rule 1 — ELI5 must use a structural analogy
-Plain English, zero jargon, 3–6 sentences, prose only. A concrete everyday analogy that maps *structurally* onto the concept, and an explicit correction of the most common misconception. A vague comparison is non-compliant.
+### Reading level and prose-first
+- Write for a **bright 14-year-old**. Short sentences. One idea per sentence.
+- Plain everyday words in place of formal ones wherever a plain word exists.
+- **Prose paragraphs carry the explanation.** A bulleted or numbered list must never stand in for explaining something. Lists are for genuine enumerations only: a parameter table, a checklist, a list of links, a set of options being compared.
+- Explain *why*, not just *what*. Every sentence must add a mechanism, a reason, a consequence, a constraint, a name, or a number.
 
-### Rule 2 — Every concept sub-section explains the mechanism
-Each `###` concept answers three questions: (1) What is it? (2) How does it work under the hood? (3) Where does it appear in the tool/platform? Answering only (1) is non-compliant.
+### Jargon and acronyms
+- Every acronym is expanded the **first** time it appears.
+- Every piece of jargon is defined **inline, in plain words**, the first time it appears — in the same sentence or the one right after.
+- A later definitions table does not excuse an undefined term in the prose above it.
 
-### Rule 3 — Key Parameters required for configurable topics
-Table: `Parameter | What it controls | Decision rule`. The decision rule is an actionable "set X when Y" rule, not a restatement of the parameter. If the topic has no tunable settings, write "No configurable parameters for this topic."
-
-### Rule 4 — Worked Example required
-One realistic scenario, walked through: Step 1 goal → Step 2 inputs → Step 3 outputs → Step 4 constraints → Step 5 approach + one-sentence rationale vs alternatives. If there is no selection decision, substitute a realistic failure-diagnosis walkthrough.
-
-### Rule 5 — Snippets are scenario-first
-≥2 snippets from different angles. Every snippet opens with a comment naming the real-world problem (`# Scenario: ...`). At least one is an anti-pattern (`# Anti-pattern:`) immediately followed by the corrected version and an explanation of what breaks.
-
-### Rule 6 — Pitfalls have three parts
-Each bullet: **bolded label** + one sentence on why beginners make the mistake + one sentence on the correct mental model. Bare bullets are non-compliant.
-
-### Rule 7 — Answer rationales cover all options
-Every question's answer explains why the correct answer is right AND why each significant distractor is wrong. One-word rationales are non-compliant. For multi-select, explain why both correct answers qualify AND why the most tempting wrong answer fails.
-
-### Rule 8 — Questions span cognitive levels
-5 questions: Q1 recall, Q2–Q3 application, Q4–Q5 analysis/trade-off. At least one multi-select. Five recall questions is non-compliant even if one is multi-select. Each answer lives in an inline `<details><summary>Answer</summary>` block immediately after its options.
-
-### Rule 9 — Visual Overview format (when included)
-Placed after Learning Objectives, before Key Concepts. Each diagram under its own `###` sub-header in a plain fenced block (no language tag). Use `──►` for flow and `│ ├ └ ─ ┌ ┐` for structure. 2–4 diagrams; one clear diagram beats four cluttered ones.
+### Adaptive structure
+- **No fixed section order and no required section list.** The author chooses which sections the topic needs and the order that teaches it best, and may invent sections the menu does not list.
+- Every sub-heading is named after the **real domain concept** it discusses. Generic headings ("How does it work?", "Key Concepts", "Important Considerations", "Overview") are non-compliant.
+- Never leave an empty heading and never write "not applicable" filler. Omit the section instead.
 
 ### Source hygiene
-Official documentation only — no third-party blogs, Medium, or YouTube. Every external link: `[Title](url) — *verified YYYY-MM-DD*`, verified live this session. Quote exam objectives verbatim.
+- Official documentation only — no third-party blogs, Medium, YouTube, forums, aggregators, or AI-generated summaries.
+- Format every external link as `[Title](url) — *verified YYYY-MM-DD*`, verified live this session.
+- Quote exam or certification objectives **verbatim** — never paraphrase them.
+- Never invent a URL, document title, product name, parameter, figure, or verification date.
+
+### No placeholders, no filler
+- Zero `TODO`, `TBD`, `STUB`, placeholder text, or leftover square-bracket template markers.
+- No filler — every sentence earns its space.
 
 ---
 
-## Unit U3 gate checklist
+## The three hard requirements (topic notes)
 
-Every row must be ✓ before writing.
+These are the only surviving numeric or structural floors in this contract.
 
-- [ ] TL;DR ends with a bolded "one thing to remember"
-- [ ] ELI5 uses a concrete structural analogy, no jargon, corrects a misconception
-- [ ] Every Key Concept sub-section answers What? How does it work? Where does it appear?
-- [ ] Key Parameters table present (or explicit "no configurable parameters" note)
-- [ ] Worked Example follows the 5-step Requirement → Decision format
-- [ ] ≥2 implementation snippets from different angles
-- [ ] ≥1 anti-pattern snippet with a corrected version
-- [ ] Every snippet opens with a `# Scenario:` or `# Anti-pattern:` comment
-- [ ] Visual Overview present if the topic is visualisable (2–4 diagrams, each under a `###` header in a plain fenced block)
-- [ ] Pitfalls have all 3 parts (label + why + correct model)
-- [ ] 5 Self-Check questions spanning 3 cognitive levels
-- [ ] ≥1 multi-select question
-- [ ] `<details>` count equals the total question count (+1 if a sample question section exists)
-- [ ] Every answer explains why correct AND why distractors fail
-- [ ] Further Reading: official docs only, every link webfetch-verified this session
-- [ ] Zero `TODO` / `STUB` markers remain
-- [ ] No filler — every sentence earns its space
+1. **Coverage.** Before writing, enumerate the topic's sub-concepts in a **Coverage Plan** (an HTML comment block that stays in the finished file so the gate can read it back). Name actual mechanisms, stages, parameters, failure modes, and neighbouring concepts — not vague buckets. Before writing the file, verify every enumerated sub-concept is genuinely explained in the body. Adaptive structure is allowed; skipping material is not.
+2. **Prose floor.** The explanatory body, **taken as a whole**, must reach a minimum of **800 words** of genuine explanation. This floor applies to the document overall, never per section. Padding, hedging, restating the title, or repeating an earlier sentence in new words is a **violation** of this requirement, not a way to satisfy it. The count excludes the metadata line, diagrams, code, tables, HTML comments, and the link list.
+3. **Reading level / prose-first.** As set out in the Universal Rules above: bright 14-year-old, short sentences, acronyms expanded and jargon defined inline on first use, explanation carried by prose rather than by lists.
+
+---
+
+## Suggested sections (menu, not mandate)
+
+A menu, not a running order. The author chooses **which** sections to include and **in what order**, and records a one-line, topic-specific reason in an **Adaptation Note** for each menu section it omits. "Not needed" is not an acceptable reason — say what about *this* topic made the section unhelpful.
+
+| Section | Earns its place when | Skip when |
+|---|---|---|
+| **TL;DR** | The reader benefits from knowing up front what this is, why it matters, and the one thing to remember. | The note is short enough that the summary would restate the body. |
+| **Plain-language opening (ELI5)** | The concept is abstract or counter-intuitive and a good everyday analogy exists; map it onto the mechanism piece by piece, then say where the analogy stops being true. | The topic is already concrete and mechanical, so an analogy adds indirection instead of removing it. |
+| **Learning objectives** | The topic is assessed, or the reader gains from knowing what they should be able to *do* afterwards. Use action verbs. | It is a short supporting or background topic. |
+| **Visual overview / diagrams** | There is a flow, pipeline, architecture, decision branch, or before/after state worth seeing. Each diagram gets a domain-specific title and a caption saying what to learn from it. | The topic is purely definitional and the diagram would be boxes containing the prose's own words. |
+| **Main explanation** (domain-named sub-headings) | Always — this is the note. Break it into as many `### [Domain Concept]` sub-headings as the topic genuinely has. | Never. |
+| **Deep dive** | One mechanism is far harder or more consequential than the rest and deserves slow treatment on its own. | The topic has no single hard centre, or the depth already sits naturally in the main explanation. |
+| **Trade-offs / alternatives** | A practitioner has a real choice, or a competing approach will be encountered. Say what each option costs and buys. | There is genuinely only one way to do the thing. |
+| **Where it appears in the real world** | Naming concrete surfaces, commands, or entry points makes the concept findable and usable. | The topic is a pure fundamental with no product surface, or specifics would date the note badly. |
+| **Key parameters table** | The topic has settings or knobs, each with a concrete decision rule. | Nothing is configurable — omit the section rather than write an empty table. |
+| **Worked example** | Following one realistic scenario end to end teaches more than describing the steps abstractly. | The topic is definitional, or the example would re-narrate the explanation. |
+| **Implementation snippets** | There is code or configuration a reader would actually write. | The topic is conceptual and code would be invented for the sake of having code. |
+| **Common pitfalls & misconceptions** | Readers reliably get this wrong; say why the wrong intuition is tempting, then give the correct mental model as a rule. | The topic has no established failure modes. |
+| **Key definitions** | The topic introduces terms the reader will meet again, defined as used *here*. | Everything was already defined plainly inline and a table would only repeat it. |
+| **Summary / quick recall** | The reader will want a fast scan before a test or a meeting; each line states a fact or rule, not a topic label. | The note is short and the TL;DR already does this job. |
+| **Self-check questions** | The topic is assessed or has decisions worth rehearsing. | It is a background note carrying no decisions. |
+| **Further reading** | Authoritative official sources exist. | No official source exists, which is rare. |
+
+If the topic needs a section this menu does not list — an evolution history, a glossary of confusingly-similar names, a troubleshooting flow — write it, and name it after what it contains.
+
+---
+
+## Gate — topic note
+
+Run for `NN-<slug>.md` and any unrecognised filename. Outcome-based: judge whether the effect was achieved, not whether a count was hit.
+
+- [ ] **Coverage:** a Coverage Plan enumerating the topic's sub-concepts exists, and every sub-concept listed is genuinely explained in the body
+- [ ] **Prose floor:** the explanatory body as a whole reaches at least 800 words of real explanation — no padding, hedging, or restatement inflating it
+- [ ] **Reading level:** a bright 14-year-old could follow it — short sentences, plain words, one idea at a time
+- [ ] Every acronym is expanded on first use, and every piece of jargon is defined inline in plain words on first use
+- [ ] The explanation is carried by prose paragraphs; lists appear only for genuine enumerations
+- [ ] Every sub-heading is named after a real domain concept — no generic headings
+- [ ] The Adaptation Note records each omitted menu section with a reason specific to this topic
+- [ ] Any diagram, table, or snippet included earns its place and is explained in the surrounding prose
+- [ ] Any code snippet opens with a comment naming the real-world problem it solves, and is syntactically valid for its language
+- [ ] Any parameter table gives actionable decision rules — a threshold, number, or explicit condition — not a restatement of the parameter name
+- [ ] Any self-check answer explains why the correct answer is right **and** why the most tempting wrong answers fail
+- [ ] Every external link is official documentation, fetched live, formatted with a `*verified YYYY-MM-DD*` date
+- [ ] Nothing is invented — no made-up product names, parameters, figures, quotes, or URLs
+- [ ] Zero `TODO` / `TBD` / `STUB` / placeholder / leftover bracket markers remain
+
+---
+
+## Gate — chapter intro
+
+Run for `00-intro.md` / `intro.md`. **Derived artifact — authored last.**
+
+- [ ] Every topic file in the chapter is represented, each with a working relative link and a plain-language description of what it covers
+- [ ] The "how the topics connect" explanation is genuine prose that explains dependencies and motivation — why one topic sets up another — rather than restating the topic list
+- [ ] A suggested reading order is given, with a reason for that order
+- [ ] **No fact appears that is absent from the sibling topic notes** — the intro synthesises, it does not introduce new material
+- [ ] **Every sibling topic note was complete and non-stub before this file was authored**
+- [ ] Reading level: bright 14-year-old, short sentences, prose carries the explanation
+- [ ] Every acronym expanded and every piece of jargon defined inline on first use
+- [ ] Any external link is official documentation with a `*verified YYYY-MM-DD*` date
+- [ ] Zero `TODO` / `TBD` / `STUB` / placeholder markers remain
+
+---
+
+## Gate — podcast
+
+Run for `99-podcast.md` / `podcast.md`. **Derived artifact — authored last.** This is spoken audio on the page.
+
+- [ ] Every topic in the chapter has its own clearly delineated segment
+- [ ] The dialogue is genuine back-and-forth — speakers question, push back, and build on each other — not a monologue split across two labels
+- [ ] Speaker labels are consistent throughout and are generic role labels (e.g. Host / Guest), never invented real-person names
+- [ ] At least one everyday analogy appears in each topic segment
+- [ ] Jargon is defined out loud in plain words on first use; acronyms are expanded when first spoken
+- [ ] **No code blocks** anywhere — nothing that cannot be spoken aloud
+- [ ] **No fact appears that is absent from the sibling topic notes**
+- [ ] **Every sibling topic note was complete and non-stub before this file was authored**
+- [ ] The listening level suits a bright teenager — conversational sentences, no dense clauses
+- [ ] Zero `TODO` / `TBD` / `STUB` / placeholder markers remain
+
+---
+
+## Gate — interview prep
+
+Run for `interview-prep.md`.
+
+- [ ] The questions are realistic for the stated target role and seniority — the kind actually asked, not trivia
+- [ ] Each answer gives substance a candidate could actually say out loud, not a topic label or a pointer to go read something
+- [ ] Answers explain the reasoning behind the answer, so the candidate can handle a follow-up rather than reciting
+- [ ] Weak-answer traps and red flags are specific to this subject matter, not generic interview advice ("be confident", "use STAR")
+- [ ] Everything is grounded in the chapter's actual content — no claims the topic notes do not support
+- [ ] Reading level: bright 14-year-old, short sentences, prose carries the explanation
+- [ ] Every acronym expanded and every piece of jargon defined inline on first use
+- [ ] Any external link is official documentation with a `*verified YYYY-MM-DD*` date
+- [ ] Zero `TODO` / `TBD` / `STUB` / placeholder markers remain
+
+---
+
+## Gate — thought leadership
+
+Run for `thought-leadership.md`.
+
+- [ ] The opening makes a specific, non-obvious claim in its first lines
+- [ ] The opening does **not** begin with a throat-clearing cliché — e.g. "In today's world", "As X continues to evolve", "Now more than ever"
+- [ ] Claims are specific and defensible; nothing rests on an unfalsifiable generality
+- [ ] At least one concrete example or number anchors the argument
+- [ ] The strongest counterargument is stated fairly and then answered — not strawmanned or ignored
+- [ ] The piece has a clear original angle: a reader could say what *this* author thinks that others do not
+- [ ] The reader is left with a concrete takeaway — something to do, decide, or stop doing
+- [ ] Reading level: bright 14-year-old, short sentences, prose carries the argument
+- [ ] Every acronym expanded and every piece of jargon defined inline on first use
+- [ ] Zero `TODO` / `TBD` / `STUB` / placeholder markers remain
+
+---
+
+## Deterministic checks
+
+Run these mechanically before the gate is declared PASS. Keyed by artifact type.
+
+| Check | Applies to | How |
+|---|---|---|
+| Residual placeholder markers | all | Grep for `TODO`, `TBD`, `STUB`, and unfilled `[bracket]` template markers. Must be zero. |
+| Prose floor | topic note | Word-count the explanatory body — excluding the metadata line, HTML comments, fenced blocks, tables, and the link list — and compare against 800. Under the floor is a hard fail; padding to clear it is also a fail. |
+| Unexpanded acronyms | all | Scan for all-caps tokens of two or more letters and confirm each has an expansion earlier in the file than its first bare use. |
+| Prose-to-list ratio | all | Estimate the share of the explanatory body that is list lines versus paragraph lines. A list-dominated body fails the prose-first rule and must be rewritten as paragraphs. |
+| Coverage Plan reconciliation | topic note | Read the Coverage Plan back out of the file and confirm each enumerated sub-concept maps to a real section of the body. |
+| Speaker labels | podcast | Confirm speaker-label lines are present, that exactly the same two labels are used throughout, and that both are generic role labels. |
+| Zero code fences | podcast | Count fenced code blocks. Must be zero. |
+| Siblings non-stub | intro, podcast | Read every sibling topic note in the chapter and confirm none is still a stub or partially authored. |
+| Relative links resolve | intro, podcast | For every relative link, confirm the target file exists on disk. |
+| External URLs live | all | Re-fetch each external URL; confirm it is reachable and that its content matches the citation title and claim. |
+
+Any failing check blocks the write. Fix it, then re-run the whole gate — not just the failing row.

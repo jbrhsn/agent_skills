@@ -23,6 +23,30 @@ The workflow is a sequence of discrete **units** (U0 → U6). Each unit has a **
 
 ---
 
+## HOW TO RUN THIS SKILL
+
+Run the units in order. **One unit per response.** A response ends at that unit's STOP GATE — never carry on into the next unit.
+
+| # | Unit | What you do in it | Response ends with |
+|---|---|---|---|
+| 1 | U0 | Ask every intake question in one message; record the answers | STOP GATE |
+| 2 | U1 | Search for, then fetch, live official sources; cite URL + retrieval date | STOP GATE |
+| 3 | U2 | Design the folder tree; decompose every chapter into 2–6 named topics; reconcile the hour budget | STOP GATE |
+| 4 | U3 | Confirm the template manifest | STOP GATE |
+| 5 | U4 | Write `AGENTS.md`; copy each manifest template verbatim from `reference/` into `templates/` | STOP GATE |
+| 6 | U5 | Create folders, one-line stubs, and the populated `README.md`; verify planned = actual | STOP GATE |
+| 7 | U6 | `git init` if needed; emit the first-commit command | Done — no extra gate |
+
+**The three failure modes that ruin this run, and their fix:**
+
+| Failure mode | Fix |
+|---|---|
+| **(a) Combining units** — two units in one response, or a STOP GATE with the next unit attached | Never do it. One unit per response, then stop at its gate and wait for the user. |
+| **(b) Inventing structure** — writing curriculum structure, exam domains, weightings, or version facts from training data instead of fetching live sources in U1 | Fetch them. If a source is unreachable, stop and ask — see **STOP CONDITIONS**. |
+| **(c) Writing content into stub files** | Every file outside `templates/`, `AGENTS.md`, and `README.md` gets **exactly one** stub comment line. Count the lines: 1. |
+
+---
+
 ## When to use this skill
 
 Trigger on any request that matches:
@@ -92,29 +116,25 @@ Use this deterministic algorithm when deriving a folder or file slug from a chap
 
 ### File naming conventions
 
+Every chapter folder holds the same five artifact types. All five are **always** created — none is conditional on the learning goals detected in U0.
+
 | File type | Pattern | Notes |
 |---|---|---|
-| Topic notes (ALLCAPS style) | `01_snake_case.md` … `03_snake_case.md` | 3 per chapter by default |
-| Topic notes (hyphen style) | `01-snake-case.md` … `03-snake-case.md` | 3 per chapter by default |
-| Thought leadership | `NN-thought-leadership.md` / `NN_thought_leadership.md` | `NN` = (topic-note count + 1). See numbering rule below. |
-| Interview prep | `NN-interview-prep.md` / `NN_interview_prep.md` | `NN` = (topic-note count + 2 if thought leadership also present, else + 1). Only if intent detected. |
+| Chapter intro | `00-intro.md` / `00_intro.md` | **Reserved slot.** One per chapter. DERIVED — authored last. |
+| Topic notes (hyphen style) | `01-<topic-slug>.md` … `NN-<topic-slug>.md` | 2–6 per chapter. `NN` never exceeds `06`. Slug derived from the topic name via the slug algorithm above. |
+| Topic notes (ALLCAPS style) | `01_<TOPIC_SLUG>.md` … `NN_<TOPIC_SLUG>.md` | Same rule, ALLCAPS-underscore slug. |
+| Interview prep | `interview-prep.md` / `interview_prep.md` | **Unnumbered.** Always created. |
+| Thought leadership | `thought-leadership.md` / `thought_leadership.md` | **Unnumbered.** Always created. |
+| Podcast | `99-podcast.md` / `99_podcast.md` | **Reserved slot.** One per chapter. DERIVED — authored last. |
 | Lab file | `LAB-XX-name.md` / `LAB_XX_name.md` | Global sequence — never reset |
 | Section index | `README.md` or `INDEX.md` inside section folder | Created at scaffold time |
 | Module index | Not created at scaffold time — on request only | |
 
-**Per-chapter file numbering rule.** Auxiliary files are numbered **sequentially after the topic notes**, in this fixed order: topic notes → thought leadership → interview prep. The number of topic notes (3 standard, 4 for dense chapters) determines the starting point; there is no fixed number for any auxiliary file.
+**Reserved slots.** `00` and `99` are reserved for the chapter intro and the podcast respectively. Topic notes therefore always occupy the contiguous range `01`…`NN` where `NN` ≤ `06`, and never take `00` or `99`. `interview-prep.md` and `thought-leadership.md` carry no number at all, so they cannot collide with any topic note however many there are.
 
-| Chapter config | Topic notes | Thought leadership | Interview prep |
-|---|---|---|---|
-| 3 notes, no aux | `01`–`03` | — | — |
-| 3 notes + thought leadership | `01`–`03` | `04` | — |
-| 3 notes + interview prep | `01`–`03` | — | `04` |
-| 3 notes + both | `01`–`03` | `04` | `05` |
-| 4 notes (dense) + both | `01`–`04` | `05` | `06` |
+**Topic file count per chapter.** Each chapter has **2–6 topic notes**, and the exact count is **derived from the U1 research during U2** — it is not a fixed number and it is not a question put to the user. The topic decomposition step in U2 splits each chapter into the topics the research actually shows it contains, gives each a name and a one-line scope, and turns those names into the `01-<topic-slug>.md` … `NN-<topic-slug>.md` filenames via the slug algorithm. If a chapter appears to need more than 6 topics, that is a signal the chapter is too large — split the chapter instead of exceeding the cap.
 
-This ordering is deterministic: interview prep always takes the number *after* thought leadership when both are present, so the two never collide regardless of topic-note count.
-
-**Topic file count per chapter.** Standard is 3 topic notes + any auxiliary files (thought leadership / interview prep) detected in U0. Dense chapters (user-confirmed during U0) use 4 topic notes + auxiliary files. Ask the user to confirm during U0 if any sections should use 4 topic notes — do not assume based on position.
+**Derived artifacts.** `00-intro.md` and `99-podcast.md` may only be authored **after every topic note in the chapter is complete and non-stub**, and must introduce **no fact absent from those sibling notes**. They synthesise and connect the notes; they do not research. See the Authoring Order rules written into the repo's `AGENTS.md` in U4.
 
 ### Filename lock and forward-link contract
 
@@ -131,12 +151,14 @@ This ordering is deterministic: interview prep always takes the number *after* t
 ├── AGENTS.md                        ← populated (written in U4)
 ├── templates/
 │   ├── README.md                    ← POPULATED (lists templates + destinations)
-│   ├── chapter-notes-template.md    ← POPULATED
+│   ├── topic-notes-template.md      ← POPULATED
+│   ├── chapter-intro-template.md    ← POPULATED
+│   ├── chapter-podcast-template.md  ← POPULATED
 │   ├── section-index-template.md    ← POPULATED
 │   ├── module-index-template.md     ← POPULATED
 │   ├── authoring-guidelines.md      ← POPULATED
-│   ├── thought-leadership-template.md   ← POPULATED (if intent detected)
-│   ├── interview-prep-template.md   ← POPULATED (if intent detected)
+│   ├── thought-leadership-template.md   ← POPULATED
+│   ├── interview-prep-template.md   ← POPULATED
 │   ├── lab-template.md              ← POPULATED (if labs requested)
 │   └── capstone-template.md         ← POPULATED
 ├── 00-roadmap/
@@ -146,9 +168,13 @@ This ordering is deterministic: interview prep always takes the number *after* t
 │   ├── 01-[module]/
 │   │   ├── README.md or INDEX.md    ← stub
 │   │   └── 01-[chapter]/
-│   │       ├── notes.md             ← stub
-│   │       ├── thought-leadership.md ← stub (if intent)
-│   │       └── interview-prep.md    ← stub (if intent)
+│   │       ├── 00-intro.md          ← stub (DERIVED — authored last)
+│   │       ├── 01-[topic-slug].md   ← stub
+│   │       ├── 02-[topic-slug].md   ← stub
+│   │       ├── ...                  ← 2–6 topic notes, count derived in U2
+│   │       ├── interview-prep.md    ← stub
+│   │       ├── thought-leadership.md ← stub
+│   │       └── 99-podcast.md        ← stub (DERIVED — authored last)
 │   └── ...
 ├── ...
 ├── capstone/
@@ -156,6 +182,8 @@ This ordering is deterministic: interview prep always takes the number *after* t
 │   └── project-brief.md             ← stub
 └── progress-tracker.md              ← stub
 ```
+
+Every chapter folder has this same shape. `00-intro.md` and `99-podcast.md` occupy reserved slots and are **authored last** — only once every topic note in that chapter is complete and non-stub — because both are derived from the topic notes.
 
 ### Structural rules
 
@@ -170,37 +198,58 @@ Template bodies are **never** inlined into this SKILL.md — they live in `refer
 
 | File | Reference source | Destination in repo | When generated |
 |---|---|---|---|
-| `chapter-notes-template.md` | `reference/chapter-notes-template.md` | `templates/chapter-notes-template.md` | Always |
+| `topic-notes-template.md` | `reference/topic-notes-template.md` | `templates/topic-notes-template.md` | Always |
+| `chapter-intro-template.md` | `reference/chapter-intro-template.md` | `templates/chapter-intro-template.md` | Always |
+| `chapter-podcast-template.md` | `reference/chapter-podcast-template.md` | `templates/chapter-podcast-template.md` | Always |
 | `section-index-template.md` | `reference/section-index-template.md` | `templates/section-index-template.md` | Always |
 | `module-index-template.md` | `reference/module-index-template.md` | `templates/module-index-template.md` | Always |
 | `authoring-guidelines.md` | `reference/authoring-guidelines.md` | `templates/authoring-guidelines.md` | Always |
 | `capstone-template.md` | `reference/capstone-template.md` | `templates/capstone-template.md` | Always |
-| `thought-leadership-template.md` | `reference/thought-leadership-template.md` | `templates/thought-leadership-template.md` | Goal (c) detected in U0 |
-| `interview-prep-template.md` | `reference/interview-prep-template.md` | `templates/interview-prep-template.md` | Goal (b) detected in U0 |
+| `thought-leadership-template.md` | `reference/thought-leadership-template.md` | `templates/thought-leadership-template.md` | Always |
+| `interview-prep-template.md` | `reference/interview-prep-template.md` | `templates/interview-prep-template.md` | Always |
 | `lab-template.md` | `reference/lab-template.md` | `templates/lab-template.md` | Labs requested in U0 |
 
-**Key sections in `chapter-notes-template.md`** (the core template every notes file follows):
-TL;DR → ELI5 → Learning Objectives → Visual Overview (recommended) → Key Concepts (definition + mechanism + platform manifestation per sub-section) → Key Parameters table → Worked Example (Requirement → Decision, 5 steps) → Implementation (≥2 snippets, ≥1 anti-pattern) → Common Pitfalls (3-part format) → Key Definitions → Summary / Quick Recall → Self-Check Questions (5 Qs spanning recall/application/analysis, ≥1 multi-select, all answers with rationale) → Further Reading (official docs only, verified URLs).
+**What `topic-notes-template.md` is** (the template every topic note follows): an **adaptive menu of suggested sections, not a fixed running order**. The author picks the sections this specific topic genuinely needs, orders them however teaches best, renames them after real domain concepts, and may invent sections the menu never anticipated. It carries only **three hard requirements**: (1) a **Coverage Plan** — the author enumerates the topic's sub-concepts before writing and verifies each one is genuinely explained before submitting; (2) an **800-word floor** of genuine explanatory prose per topic note, where padding or restatement is a violation rather than a way to meet it; (3) a **reading level** pitched at a bright 14-year-old — short sentences, acronyms expanded on first use, jargon defined inline, and prose (not bullet lists) carrying the explanation. Omissions from the menu are recorded with a topic-specific reason in the template's **Adaptation Note**, and a 12-row outcome-based Final Self-Audit is run before submission.
 
-**Key sections in `authoring-guidelines.md`**: Voice & Tone → Depth Calibration → ELI5 Requirements → Worked Examples → Visual Overview guidelines → Self-Check Questions → Source Hygiene → Blueprint Drift Warning → Quality Checklist.
+**Key sections in `authoring-guidelines.md`**: Voice & Reading Level → Prose-First Rule → Adaptive Structure → Completeness → Depth Calibration → Per-Artifact Guidance (topic notes, chapter intro, podcast, interview prep, thought leadership) → Authoring Order → Source Hygiene → Blueprint Drift Warning → Quality Checklist.
 
-**On-demand template display.** If the user asks to see a specific template ("show me the chapter-notes template", "what does the lab template look like"), read the relevant `reference/<name>` file and display it in full. Do not pre-display all templates in a single message.
+**On-demand template display.** If the user asks to see a specific template ("show me the topic-notes template", "what does the lab template look like"), read the relevant `reference/<name>` file and display it in full. Do not pre-display all templates in a single message.
 
 ### Constraints and guardrails (non-negotiable, all units)
 
 - **Templates and `AGENTS.md` are the only files with content.** `README.md` also gets content. Everything else is one stub line. No exceptions.
 - **Never assume tool names, vendor names, cloud providers, or platform names.** Derive everything from what the user said. Never default to any specific technology in folder names, template language, or `AGENTS.md`.
 - **Folder and file names use the actual subject names** — not generic placeholders. Apply the deterministic slug algorithm consistently.
+- **Every chapter gets all five artifact types.** Chapter intro, 2–6 topic notes, `interview-prep.md`, `thought-leadership.md`, and the podcast are created for every chapter. None of them is conditional on the learning goals detected in U0.
+- **Topic counts are derived, never fixed.** The 2–6 topic notes per chapter come from the topic decomposition in U2, grounded in the approved U1 research.
+- **`00` and `99` are reserved slots.** `00-intro.md` and `99-podcast.md` only. Topic notes occupy `01`…`NN` (`NN` ≤ `06`); `interview-prep.md` and `thought-leadership.md` are unnumbered.
+- **Derived artifacts come last.** `00-intro.md` and `99-podcast.md` are authored only after every topic note in their chapter is complete and non-stub, and introduce no fact absent from those notes.
 - **One unit per response.** Never combine units. Each STOP GATE hands control back before the next unit runs.
 - **Always fetch live information in U1.** Never invent curriculum structure from training data alone.
 - **Hour budget must reconcile.** If the U0 budget is outside [chapters × 1.5, chapters × 3.0] by more than 25%, propose a specific structural fix before proceeding (U2).
 - **Always cite sources** with URL and retrieval date in the U1 research summary.
-- **Always use `TodoWrite`** to track progress when file count exceeds 30 (U5).
+- **Always use `TodoWrite`** to track progress when file count exceeds 20 (U5).
 - **Windows MAX_PATH:** Proactively apply the 40-character component cap from the slug algorithm. Note any shortenings in the relevant index file.
 - **Stub creation is idempotent.** Before writing a stub, check for existing non-empty content and skip if found. U5 is re-runnable after any interruption.
 - **U5 always ends with a verification pass.** Compare planned files to actual files on disk; re-create any missing stubs; verify README relative links. Only report the scaffold summary once planned = actual.
-- **Filenames are locked after U5.** Never renumber or rename — doing so breaks forward links.
+- **Filenames are locked after U5.** Never renumber or rename — doing so breaks forward links. This includes the topic names approved in U2, which become topic-note filenames.
 - **Template bodies live in `reference/`.** Never inline them; always read from `reference/<name>` and copy to `templates/<name>` in U4.
+
+### STOP CONDITIONS
+
+Stopping and asking the user is **correct, expected behaviour**. Guessing in order to avoid stopping is the worse failure: a wrong tree, a wrong blueprint, or an overwritten file costs far more than one extra question.
+
+Stop and ask when any row below is true. Say the thing in the right-hand column, then wait.
+
+| Situation | What to say |
+|---|---|
+| A required U0 intake field is missing (topic, goal, level, or budget) | "I still need: `<field>`. I can't design the repo without it." Ask for that field only. |
+| Official sources are unreachable in U1 after a retry on a more specific sub-page | "I could not reach `<URL>`. Paste the fallback AI-query results, or give me a working source URL. I will not guess the blueprint." |
+| The hour budget is outside `[chapters × 1.5, chapters × 3.0]` by more than 25% and the user has not acknowledged it | "Your budget is `X` hrs; this tree needs `low`–`high` hrs. Here is a specific fix: `<cut/merge/add named sections>`. Confirm the fix or confirm you accept the mismatch." |
+| A chapter appears to need more than 6 topics | "Chapter `<name>` decomposes into `N` topics, above the cap of 6. I propose splitting it into `<A>` and `<B>`. Confirm before I finalise the tree." |
+| The user has not approved the U2 structure, the U3 manifest, or the U5 scaffold at its gate | Nothing further. Present the gate output and wait. Do not begin the next unit. |
+| A target file already has content beyond the stub line | "`<path>` already has content. I skipped it — nothing was overwritten." Report it; never overwrite. |
+| A U4 template written to `templates/` does not match its `reference/` source | "The copy of `<name>` does not match its source. Re-copying." Re-copy, then re-verify. Do not report success on a mismatch. |
 
 ---
 
@@ -208,12 +257,12 @@ TL;DR → ELI5 → Learning Objectives → Visual Overview (recommended) → Key
 
 The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands control back for confirmation; U6 runs immediately after U5 is confirmed (no extra gate). Do not skip a STOP GATE and do not combine a gate with the next unit in one response.
 
-### Unit U0 — Intake & intent logic
+### Unit U0 — Intake
 
-- **Goal/scope**: collect every input needed to design the repo, and decide which per-chapter file types to generate — before any research or design.
+- **Goal/scope**: collect every input needed to design the repo — before any research or design.
 - **Inputs**: the user's initial request.
 - **Do**:
-  - Ask all of the following in a **single message**. Do not proceed until every question is answered (the user may explicitly skip optional ones):
+  - **Step 1 — ask everything at once.** Send the question block below as a **single message**. Do not ask the questions one at a time and do not start researching while you wait.
 
     ```
     To design the right repo for you, I need a few details:
@@ -249,31 +298,50 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
        Any documentation pages, exam guides, or reference links to use as
        primary sources? Leave blank and I will find them.
     ```
-  - **Intent logic (run silently after answers are received).** Decide which per-chapter file types to generate and record the decision — it affects the file tree in U2 and the templates in U3:
+  - **Step 2 — wait.** Stop after sending the block. Do not run U1, do not propose a tree, do not assume defaults for the required fields.
+  - **Step 3 — handle a partial answer.** Check the four **required** fields: topic, learning goal, current level, time budget. For each one still missing, ask again **for that field only** — do not re-send the whole block, and **never assume a default** for any of the four. The three **optional** fields may be defaulted silently: repo name → derived from the topic; naming style → lowercase-hyphen; seed URLs → none (you will find sources in U1).
+  - **Step 4 — record the derived decisions** once all four required fields are in:
 
-    | Detected goal | Additional file per chapter |
+    | Decision | Derived from |
     |---|---|
-    | Includes (c) — articles / thought leadership | `thought-leadership.md` stub |
-    | Includes (b) — interviews / job / career | `interview-prep.md` stub |
-    | Both (b) and (c) | Both files |
-    | Ambiguous "learn deeply" with no output goal | Ask: "Should I also add thought-leadership.md and/or interview-prep.md stubs per chapter for future use?" |
-    | Only (a) or (d) | `notes.md` only |
-  - Also confirm during this unit whether any sections should use **4 dense topic notes** rather than 3 (see file naming conventions in shared reference material). Do not assume based on position.
-- **Self-verify**: topic, goal(s), level, and time budget are all captured; naming preference/style and seed URLs are captured or explicitly defaulted; the per-chapter file-type decision (and any dense-chapter flag) is recorded.
-- **STOP GATE (hand back)**: if any required answer is missing, or the "learn deeply" case is ambiguous, **stop and ask** rather than assuming. Do not begin research until intake is complete. → Hand control back to the user/orchestrator for the missing inputs.
-- **Report contract**: `intake: <complete | awaiting: fields> | goals: <a/b/c/d> | level: <...> | budget: <N hrs> | naming: <style, repo name> | aux files: <notes-only | +thought-leadership | +interview-prep | both>`.
+    | Repo root name | stated preference, else slug of the topic |
+    | Naming style | stated preference, else lowercase-hyphen |
+    | Labs: yes / no | an explicit request for hands-on labs anywhere in the conversation, else no |
+    | Research emphasis | the learning goal (see below) |
+    | Seed URLs | listed, else none |
+
+  - **Every chapter gets all five artifact types regardless of the answers.** The chapter intro (`00-intro.md`), 2–6 topic notes, `interview-prep.md`, `thought-leadership.md`, and the podcast (`99-podcast.md`) are always created. There is no per-chapter file-type decision to make here, and no file type is conditional on a detected goal.
+  - **What question 2 is actually for.** The learning goal shapes *emphasis*, not file existence: it steers what U1 researches hardest (exam blueprint depth for (a), role-and-level framing for (b), argument and positioning angles for (c), breadth-and-mechanism for (d)), and it shapes how `README.md` frames the repo's purpose in U5. Record the goals for that purpose only.
+  - **What is still conditional.** Only labs. If the user has asked for hands-on lab files — in the initial request or alongside these answers — record it: it adds `lab-template.md` to the U3 manifest and `LAB-XX-*.md` files to the tree.
+  - **Topic counts are not asked here.** The number of topic notes per chapter (2–6) is derived from the U1 research during the U2 topic decomposition. Do not ask the user, and do not assume a number.
+- **Self-verify**: topic, goal(s), level, and time budget are all captured; naming preference/style and seed URLs are captured or explicitly defaulted; the labs preference is captured or defaulted; no per-chapter file-type or topic-count decision was made or asked for.
+- **STOP GATE (hand back)**: if any required answer is missing, **stop and ask** rather than assuming. Do not begin research until intake is complete. → Hand control back to the user/orchestrator for the missing inputs.
+- **Report contract**: `intake: <complete | awaiting: fields> | goals: <a/b/c/d — emphasis only> | level: <...> | budget: <N hrs> | naming: <style, repo name> | labs: <yes | no> | per-chapter artifacts: intro + topic notes + interview-prep + thought-leadership + podcast (all chapters)`.
 
 ### Unit U1 — Research (live, cited)
 
 - **Goal/scope**: produce a research summary grounded in **live** sources that drives the structure in U2. Never invent curriculum structure from training data alone — product names, exam blueprints, and API surfaces change.
 - **Inputs**: the confirmed intake from U0 (topic, cert, seed URLs).
 - **Do**:
-  - **Step 1 — WebFetch (primary, run in parallel).** Attempt all of the following simultaneously; record the URL and retrieval date for each:
-    1. **Official exam blueprint** (if a certification exists): search for `[CERTIFICATION NAME] official exam guide` / `exam blueprint` to find the right URL — do not assume it. Target: exam domains, domain weightings (%), question count, passing score, duration, cost, retake policy.
-    2. **Official documentation landing page** for the technology/subject: target product/topic overview, key concepts, current version, major recent changes.
-    3. **Any seed URLs the user provided** in U0.
-    4. **Changelog / "What's new" page** (if one exists): changes in the last 12–18 months that affect what to learn or what is now deprecated.
-  - **Step 2 — Fallback AI query stubs.** For any area where WebFetch returned thin or no content, generate ready-to-paste prompts the user can run in any AI assistant:
+
+  **Hard rule:** never write curriculum structure, exam domains, weightings, question counts, passing scores, prices, or version facts from memory. Every one of them comes from a fetched page. An unfetchable source means **stop and ask** — not guess. See **STOP CONDITIONS**.
+
+  - **Step 1 — search to FIND the URLs. Do not assume them.** Run a web search per target below and take the URL from the results. Guessing a documentation URL from a pattern you remember is a failure even when the guess resolves.
+
+    | Target | Search for | Capture from it |
+    |---|---|---|
+    | Official exam blueprint (only if a certification exists) | `[CERTIFICATION NAME] official exam guide`, `[CERTIFICATION NAME] exam blueprint` | exam domains, domain weightings (%), question count, passing score, duration, cost, retake policy |
+    | Official documentation landing page | `[TOPIC] official documentation` | topic overview, key concepts, current version, major recent changes |
+    | Changelog / "What's new" page (if one exists) | `[TOPIC] release notes`, `[TOPIC] what's new` | changes in the last 12–18 months; what is now deprecated |
+    | Seed URLs the user gave in U0 | — use them as given | whatever they contain |
+
+  - **Step 2 — fetch them in parallel.** Issue all the fetches in one batch, not one at a time.
+  - **Step 3 — record URL + retrieval date for every fetch,** as you go, in the form `[URL] — retrieved [YYYY-MM-DD] — [what was found]`. A fact with no recorded source cannot go in the summary.
+  - **Step 4 — retry any thin or failed fetch on a more specific sub-page.** "Thin" means the page yielded none of its Capture-from-it column. Retry once against a deeper page — the exam-domains page rather than the certification overview, the concepts page rather than the docs home.
+  - **Step 5 — if it still fails, emit the fallback prompts below and wait** for the user to paste results back. Do not proceed to Step 6 with an unfilled required field.
+  - **Step 6 — assemble the research summary** in the template below.
+
+  **Fallback AI query stubs** (Step 5 output — ready to paste):
 
     ---
     **If any fetches above failed or returned thin results, paste this into any AI assistant and share the response:**
@@ -285,7 +353,7 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     > 3. What are the core prerequisite skills someone should verify they have before starting [TOPIC]?
     > 4. What are the most significant changes to [TOPIC] in the last 12–18 months that any learner must know about?
     ---
-  - **Step 3 — Assemble the research summary.** Fill every field from live sources; mark "N/A — no certification" where applicable:
+  - **Research summary format** (Step 6). Fill every field from live sources; mark "N/A — no certification" where applicable:
 
     ```markdown
     ## U1 Research Summary — [TOPIC]
@@ -326,35 +394,80 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
 ### Unit U2 — Repository structure design
 
 - **Goal/scope**: design the full folder + file hierarchy, reconcile it against the user's time budget, and confirm before touching templates.
-- **Inputs**: approved U1 research summary + U0 intake (naming style, aux-file decision, dense-chapter flag).
-- **Do**:
-  - Design the tree using the **naming conventions**, **slug derivation algorithm**, **file naming conventions**, **filename lock / forward-link contract**, **full repo tree structure**, and **structural rules** in shared reference material. Apply the actual subject names — never placeholders.
-  - **Budget reconciliation.** Once the chapter count is known, compute the hour range and compare it to the U0 budget **before presenting the tree**:
-    - `low = chapters × 1.5 hrs`; `high = chapters × 3.0 hrs`.
-    - **Decision rule:** if the user's budget falls outside `[low, high]` by more than 25%, do not silently proceed. Propose a specific structural fix: budget too low → name section(s) to cut or chapters to merge, then show a revised tree; budget too high → name section(s)/bonus chapters to add, or flag the budget as generous and proceed as-is only if the user confirms.
-    - Only proceed when the budget is inside the range, or the user has explicitly acknowledged the mismatch.
-    - Include this **reconciliation table above the full tree**:
+- **Inputs**: approved U1 research summary + U0 intake (naming style, labs preference, budget).
+- **Do**: run **A** (draft the tree), then **B** (decompose every chapter), then **C** (reconcile the budget), then **D** (present). Do not present anything until C is done.
 
-      | Section | Chapters | Hrs low | Hrs high |
-      |---|---|---|---|
-      | [Section 1 name] | N | N×1.5 | N×3.0 |
-      | [Section 2 name] | N | N×1.5 | N×3.0 |
-      | … | | | |
-      | **Total** | **N** | **N×1.5** | **N×3.0** |
-      | **Your budget** | — | **X hrs** | ← within range? |
-  - **Present the tree.** Show the complete folder + file tree annotated with: estimated hours per chapter; exam domain mapping per section (if a cert exists); total hours sum; `← POPULATED` next to template files and `← stub` next to all content files; any fast-evolving areas flagged in U1 (inline).
-- **Self-verify**: every folder/file name is derived via the slug algorithm and uses real subject names; the reconciliation table is present and the budget is inside range (or the mismatch is explicitly acknowledged); the tree annotates every content file as `← stub` and every template as `← POPULATED`; locked names are recorded.
-- **STOP GATE (hand back)**: present the reconciliation table + full annotated tree and **stop**. Ask the user to confirm folder names, section order, chapter sizing, and the budget table before templates. → Hand control back for the structure decision.
-- **Report contract**: `structure: <N sections / N modules / N chapters> | budget: <within range | acknowledged mismatch> | aux files per chapter: <...> | awaiting: structure approval`.
+  **A — Draft the section / module / chapter tree.** Use the **naming conventions**, **slug derivation algorithm**, **file naming conventions**, **filename lock / forward-link contract**, **full repo tree structure**, and **structural rules** in shared reference material. Apply the actual subject names — never placeholders.
+
+  **B — Topic decomposition. Run these 9 steps for every chapter, one chapter at a time.**
+
+  1. **List the candidates.** Re-read the approved U1 research and write down every distinct thing this chapter has to teach — a blueprint objective, a documented concept, a step in the canonical skill progression. Do not invent candidates the research does not support.
+  2. **Test each candidate.** A topic qualifies if it is **a distinct idea that can be explained on its own in one sitting**. Ask both: (a) could a reader learn this without first reading its siblings? (b) is there enough in it to explain for one sitting? Two yeses → it qualifies.
+  3. **Merge what cannot stand alone.** Any candidate that fails test (a) — it only makes sense as part of another candidate — is merged into that other candidate. It becomes a sub-heading inside that topic note later, not a topic of its own.
+  4. **Split what needs two unrelated explanations.** Any candidate that requires two explanations with no shared mechanism between them is two topics. Split it and name both.
+  5. **Stop between 2 and 6.** Count the surviving topics. Fewer than 2 → return to step 1, the chapter is under-decomposed or should be merged with a neighbour. More than 6 → **split the CHAPTER**, never exceed the cap; re-run steps 1–5 on each half. See **STOP CONDITIONS** before finalising a chapter split.
+  6. **Name each topic as a concrete noun phrase naming the real concept.** Banned names: `Part 1`, `Part 2`, `Overview`, `Introduction`, `Basics`, `Fundamentals`, `Key Concepts`, `Advanced Topics`, `Miscellaneous`, `Other`. The test: read the name alone, with no chapter title — does it tell you what you will learn? If no, rename it.
+  7. **Write a one-line scope per topic** — what that note covers, and where useful what it deliberately leaves to a sibling. Two scopes that overlap mean you skipped step 3.
+  8. **Slug each name.** Run every topic name through the **slug derivation algorithm**, then number in teaching order: `01-<topic-slug>.md` … `NN-<topic-slug>.md`, `NN` ≤ `06`. `00` and `99` are reserved for `00-intro.md` and `99-podcast.md`; `interview-prep.md` and `thought-leadership.md` take no number.
+  9. **Check for slug collisions within the chapter.** Compare the finished slugs pairwise. Identical after slugging → apply the collision rule (`-2`, `-3` / `_2`, `_3`) and record it, or better, rename the topic to something more distinct.
+
+  **Worked micro-example of steps 1–9 — ILLUSTRATION ONLY, from an unrelated everyday domain.** The chapter below is "Baking a loaf of bread". It has nothing to do with the subject of this repo. Copy the shape, never the content.
+
+  - Step 1 candidates: `yeast`, `what yeast eats`, `kneading`, `proving`, `the oven spring`, `oven temperature`, `slashing the top`.
+  - Step 3 merge: `what yeast eats` cannot stand alone — it only means anything alongside yeast. Merged into the yeast topic. `slashing the top` merged into the oven topic.
+  - Step 4 split: `proving` needed two unrelated explanations — the gas that inflates the dough, and the timing you judge it by — so it became one topic about the rise and left timing to the oven topic.
+  - Step 5 count: 4 surviving topics. Inside 2–6. Proceed.
+
+  | # | Topic name | Scope (one line) | Filename |
+  |---|---|---|---|
+  | 01 | How Yeast Turns Flour Into Gas | What yeast is, what it feeds on, and the gas that makes dough rise | `01-how-yeast-turns-flour-into-gas.md` |
+  | 02 | Why Kneading Builds The Stretchy Web | How working the dough forms the network that traps that gas | `02-why-kneading-builds-the-stretchy-web.md` |
+  | 03 | Judging When The Dough Has Risen Enough | The signs of a finished rise; leaves oven timing to topic 04 | `03-judging-when-the-dough-has-risen-enough.md` |
+  | 04 | What The Oven Does In The First Ten Minutes | Oven spring, crust setting, and why you slash the top | `04-what-the-oven-does-in-the-first-ten-minutes.md` |
+
+  What to copy from it: every name is a concrete noun phrase you could learn from with the chapter title removed; no name is `Part 1` or `Overview`; scopes do not overlap and one hands off explicitly to a sibling; each slug came from the algorithm; the count landed inside 2–6 by merging and splitting, not by trimming to a target.
+
+  **Present the decomposition as a table per chapter, above or inline with the tree,** so the user approves the topic names *before* they become filenames. Use the four-column shape above.
+
+  **C — Budget reconciliation. Run these 5 steps before presenting anything.**
+
+  1. **Estimate per topic note first.** Give each topic note an hour estimate. The derived (`00-intro.md`, `99-podcast.md`) and auxiliary (`interview-prep.md`, `thought-leadership.md`) artifacts are review and application of that same material — do **not** budget them separately.
+  2. **Sum per chapter.** A chapter's estimate is the sum across its topic notes. Sums well above 3.0 hrs → split that chapter. Well below 1.5 hrs → merge it with a neighbour. Then re-run step 2.
+  3. **Compute the totals.** `low = chapters × 1.5`; `high = chapters × 3.0`.
+  4. **Compare to the U0 budget and apply the decision rule.**
+
+     | Budget `X` vs `[low, high]` | Do this |
+     |---|---|
+     | Inside the range | Proceed to D. |
+     | Outside by ≤ 25% | Proceed to D, noting the variance in the table. |
+     | Below `low` by > 25% | Name the specific section(s) to cut or chapters to merge, show the revised tree, and stop for confirmation. |
+     | Above `high` by > 25% | Name the specific section(s) or bonus chapters to add, **or** flag the budget as generous — either way stop for confirmation. |
+
+  5. **Only proceed** when the budget is inside the range or the user has explicitly acknowledged the mismatch. A vague "we can adjust later" is not a fix — name the sections.
+
+  Include this **reconciliation table above the full tree**:
+
+  | Section | Chapters | Hrs low | Hrs high |
+  |---|---|---|---|
+  | [Section 1 name] | N | N×1.5 | N×3.0 |
+  | [Section 2 name] | N | N×1.5 | N×3.0 |
+  | … | | | |
+  | **Total** | **N** | **N×1.5** | **N×3.0** |
+  | **Your budget** | — | **X hrs** | ← within range? |
+
+  **D — Present the tree.** Show the complete folder + file tree annotated with: the per-chapter topic decomposition (real topic filenames, never `01-[topic].md` placeholders); estimated hours per chapter (the sum across its topic notes) and per topic note; exam domain mapping per section (if a cert exists); total hours sum; `← POPULATED` next to template files and `← stub` next to all content files; `← DERIVED — authored last` next to `00-intro.md` and `99-podcast.md`; any fast-evolving areas flagged in U1 (inline). Every chapter shows all five artifact types.
+- **Self-verify**: every folder/file name is derived via the slug algorithm and uses real subject names; every chapter has 2–6 named topics, each with a one-line scope and a resolved filename, each traceable to the U1 research; the decomposition table is present in the gate output; no chapter uses `00` or `99` for a topic note and no aux file is numbered; the reconciliation table is present and the budget is inside range (or the mismatch is explicitly acknowledged); per-chapter hours are the sum across that chapter's topic notes; the tree annotates every content file as `← stub`, every template as `← POPULATED`, and both derived artifacts as authored last; locked names are recorded.
+- **STOP GATE (hand back)**: present the reconciliation table + per-chapter topic decomposition + full annotated tree and **stop**. Ask the user to confirm folder names, section order, **the topic names and counts per chapter** (these become filenames and are locked after U5), chapter sizing, and the budget table before templates. → Hand control back for the structure decision.
+- **Report contract**: `structure: <N sections / N modules / N chapters> | topics: <N total, N–N per chapter> | budget: <within range | acknowledged mismatch> | per-chapter artifacts: intro + topic notes + interview-prep + thought-leadership + podcast | awaiting: structure approval`.
 
 ### Unit U3 — Template manifest confirmation
 
 - **Goal/scope**: confirm the exact set of template files that will be written to disk, before any files are created.
-- **Inputs**: approved U2 structure + U0 aux-file decision (thought leadership / interview prep / labs).
+- **Inputs**: approved U2 structure + U0 labs preference.
 - **Do**:
-  - Resolve the applicable rows of the **template manifest** (shared reference material) for this repo: the "Always" templates plus any conditional templates whose intent was detected in U0.
+  - Resolve the applicable rows of the **template manifest** (shared reference material) for this repo: every "Always" template, plus `lab-template.md` only if labs were requested in U0.
   - Present the resulting list — each file, its `reference/` source, its destination in the repo, and why it is (or is not) included. Do not inline template bodies; use the on-demand display rule only if the user asks to see one.
-- **Self-verify**: the confirmed manifest includes all "Always" templates and exactly the conditional templates justified by U0's intent decision; no template body was inlined into the response.
+- **Self-verify**: the confirmed manifest includes all nine "Always" templates and includes `lab-template.md` if and only if labs were requested in U0; no template body was inlined into the response.
 - **STOP GATE (hand back)**: present the manifest and **stop**. Note that these files will be copied from `reference/` to `templates/` in U4. Ask: "Any template additions or removals before I create the files?" → Hand control back for the manifest decision.
 - **Report contract**: `manifest: <N templates> (always: <N>, conditional: <list>) | awaiting: manifest approval`.
 
@@ -362,8 +475,24 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
 
 - **Goal/scope**: write `AGENTS.md` and all confirmed template files. Every other file stays a blank stub.
 - **Inputs**: approved U3 manifest + repo root path + U0/U1 values for substitution.
-- **Do**:
-  - **4a — Write `AGENTS.md`.** Create `<repo-root>/AGENTS.md`. Replace `[TOPIC]`, `[TOOL/PLATFORM]`, `[EXAM/GOAL]`, and `[SOURCE OF TRUTH]` with the actual values for this repo. The **Content Depth Rules section must be copied verbatim** — these rules are topic-agnostic and govern authoring quality for any subject.
+- **Do**: run these 5 steps in order.
+
+  1. **Create `AGENTS.md`** at `<repo-root>/AGENTS.md` from the document below, substituting each placeholder with this repo's actual value:
+
+     | Placeholder | Substitute with |
+     |---|---|
+     | `[TOPIC]` | the topic/certification name from U0 |
+     | `[TOOL/PLATFORM]` | the tool or platform this subject lives in, from U0/U1 |
+     | `[EXAM/GOAL]` | the learning goal from U0 |
+     | `[SOURCE OF TRUTH]` | the authoritative syllabus/exam-guide URL from U1 |
+
+     Substitute nothing else. Every other placeholder in the document is authoring guidance for the finished repo and stays as written.
+  2. **Copy the Content Depth Rules section verbatim.** Rules 1–9 are topic-agnostic and govern authoring quality for any subject. Do not shorten, reorder, merge, or reword them.
+  3. **For each template in the approved U3 manifest:** read `reference/<name>` (relative to this skill's base directory) with the `Read` tool, then write that content to `<repo-root>/templates/<name>` with the `Write` tool. Copy it — do not paraphrase, summarise, abbreviate, re-indent, or "improve" it. Do one template at a time; do not write a template you have not just read.
+  4. **Create `templates/README.md`** listing each template file, its `reference/` source, and its destination in the repo.
+  5. **Verify each written template matches its source.** Do not assume the copy worked. **Observable test:** for every template, compare the file you wrote against `reference/<name>` — same line count and same first and last line at minimum — and confirm they match. A mismatch means re-copy that file and re-check; never report success on a mismatch.
+
+  **The `AGENTS.md` document to write in step 1:**
 
     ````markdown
     # AGENTS.md
@@ -389,28 +518,32 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     ### Never edit template originals
     Templates in `templates/` are reference-only. Copy content from a template into the target file; never modify the template itself.
 
-    ### Standard Chapter Template
-    The authoritative template is `templates/chapter-notes-template.md`. Every notes file must follow this structure in this order:
+    ### Topic Note Template
+    The authoritative template for every topic note is `templates/topic-notes-template.md`. It is a **menu of suggested sections, not a fixed running order.**
 
-    1. **TL;DR** — 2–4 sentences ending with a bolded "one thing to remember"
-    2. **ELI5** — Mandatory plain-language analogy section, no jargon
-    3. **Learning Objectives** — Specific, testable, action-verb outcomes
-    4. **Visual Overview** — Recommended when the topic has a visualisable process; 2–4 ASCII diagrams in plain fenced blocks under `###` sub-headers; placed after Learning Objectives, before Key Concepts
-    5. **Key Concepts** — Each sub-section: definition + mechanism + [TOOL/PLATFORM] manifestation
-    6. **[TOOL/PLATFORM] Implementation** — ≥2 snippets (different angles) including one anti-pattern
-    7. **Common Pitfalls** — Each: bolded label + why beginners make it + correct mental model
-    8. **Key Definitions** — Precise, scoped definitions only
-    9. **Summary / Quick Recall** — 3–7 scannable takeaways
-    10. **Self-Check Questions** — 5 questions spanning recall → application → analysis; ≥1 multi-select
-    11. **Further Reading** — Official docs only, all links verified
+    - Pick the sections this specific topic genuinely needs; leave out the ones that do not serve it.
+    - Order them however teaches the topic best. There is no required first section and no required last section.
+    - Name every sub-heading after the real domain concept it discusses. Generic headings (`### Overview`, `### How does it work?`, `### Key Concepts`, `### Details`) are non-compliant.
+    - Invent a section the topic calls for if the menu never anticipated it.
+    - Record every omitted menu section in the template's **Adaptation Note**, with a one-line reason specific to this topic. Omission is fine; silent omission is not.
+
+    The template carries only **three hard requirements**:
+
+    1. **Coverage Plan** — before writing, enumerate the topic's sub-concepts in the template's Coverage Plan; before submitting, verify each one is genuinely explained in the body, not merely name-dropped.
+    2. **800-word prose floor** — each topic note contains at least 800 words of genuine explanatory prose. Padding, hedging, and restatement are violations of this requirement, not ways to meet it.
+    3. **Reading level** — written for a bright 14-year-old: short sentences, one idea each; every acronym expanded on first use; every piece of jargon defined inline in plain words on first use; prose paragraphs (not bullet lists) carrying the explanation.
+
+    Run the template's Final Self-Audit before submitting any topic note.
 
     ### Template → destination mapping
 
     | Template | Destination |
     |---|---|
-    | `chapter-notes-template.md` | `[chapter]/notes.md` (and `01_*.md`–`03_*.md` if ALLCAPS style) |
-    | `thought-leadership-template.md` | `[chapter]/thought-leadership.md` |
+    | `topic-notes-template.md` | `[chapter]/NN-<topic-slug>.md` (2–6 per chapter) |
+    | `chapter-intro-template.md` | `[chapter]/00-intro.md` (derived — authored last) |
+    | `chapter-podcast-template.md` | `[chapter]/99-podcast.md` (derived — authored last) |
     | `interview-prep-template.md` | `[chapter]/interview-prep.md` |
+    | `thought-leadership-template.md` | `[chapter]/thought-leadership.md` |
     | `lab-template.md` | `[chapter]/LAB-XX-name.md` |
     | `module-index-template.md` | `[module]/README.md` or `[module]/INDEX.md` |
     | `section-index-template.md` | `[section]/README.md` or `[section]/INDEX.md` |
@@ -434,65 +567,73 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
 
     These rules are topic-agnostic and govern authoring quality regardless of subject matter.
 
-    ### Rule 1 — ELI5 is mandatory and must use a structural analogy
-    Every notes file must open with an ELI5 section after TL;DR:
-    - Plain English, zero jargon
-    - A concrete everyday analogy that maps structurally onto the technical concept
-    - Specific enough that a complete beginner could build the correct mental model from it
-    - 3–6 sentences, prose only, no bullet lists
-    - Non-compliant: "Think of X as a way to represent Y." (too vague — no structure)
-    - Compliant: names a familiar object, maps its mechanism to the technical process, explicitly corrects the most common misconception
+    ### Rule 1 — Voice and reading level
+    Write for a bright 14-year-old: smart, but never taught this before.
+    - Short, direct sentences. One idea per sentence.
+    - Plain everyday words wherever a plain word exists.
+    - Expand every acronym the first time it appears.
+    - Define every piece of jargon inline, in plain words, the first time it appears — in the same sentence or the one right after. Do not defer definitions to a glossary at the bottom.
+    - Active voice, and explain **why**, not only what.
+    Formal register that restates the same idea in harder words is non-compliant. It is not more correct; it is only harder to reach.
 
-    ### Rule 2 — Every concept sub-section must explain the mechanism
-    Each Key Concepts sub-header must answer three questions:
-    1. What is it? (1–2 sentence definition)
-    2. How does it work under the hood? (2–4 sentences on the mechanism — the process or system behaviour that produces the result)
-    3. Where does it appear in [TOOL/PLATFORM]? (specific command, API call, UI location, config field, or observable output)
-    Answering only question 1 is non-compliant.
+    ### Rule 2 — Prose-first
+    Explanation is carried by **prose paragraphs** with real transitions between ideas — "because of that", "which means", "the problem with this is". A reader should be able to follow one continuous line of reasoning from the start of a section to its end.
+    Bulleted lists must **not** be used as a substitute for explanation. Lists are for genuine enumerations only: a parameter table, a checklist, a list of links, a set of options being compared.
+    Why: a page of bullets looks organised but teaches nothing. The connective reasoning *between* the points is exactly what the learner does not yet have and cannot infer.
 
-    ### Rule 3 — Key Parameters sub-section is required for configurable topics
-    Any chapter covering a component with tunable settings must include a **Key Parameters / Configuration Knobs** table: `Parameter | What it controls | Decision rule`. The Decision rule must be a concrete actionable rule, not a restatement of the parameter's purpose. If no configurable parameters exist, write "No configurable parameters for this topic." and continue.
+    ### Rule 3 — Adaptive structure
+    There is **no fixed section order and no required section list.** The author picks the sections this specific topic genuinely needs from the template's menu, reorders them into whatever order teaches best, and may invent a section the menu never anticipated.
+    - Sub-headings are named after the actual domain concept being explained. `### Overview`, `### How does it work?`, `### Key Concepts`, `### Details` are all non-compliant. Name the thing.
+    - Every omitted menu section is recorded in the template's **Adaptation Note** with a one-line reason specific to this topic. "Not needed" is not a reason. Omission is fine; silent omission is not.
 
-    ### Rule 4 — Worked Example is required in every chapter
-    Every notes file must include a **Worked Example: Requirement → Decision** sub-section following this structure:
-    - Given: a realistic scenario in plain English
-    - Step 1 — Identify the goal
-    - Step 2 — Define inputs
-    - Step 3 — Define outputs
-    - Step 4 — Apply constraints (constraints relevant to this domain and topic)
-    - Step 5 — Select the approach with a one-sentence rationale vs alternatives
-    If no selection decision exists, substitute a realistic failure diagnosis walkthrough.
+    ### Rule 4 — Coverage is enumerated, then verified
+    Adaptive must not become thin.
+    1. **Before writing:** enumerate the topic's sub-concepts — every distinct idea a reader must hold to understand this topic — in the template's Coverage Plan. Name actual mechanisms, stages, parameters, failure modes, and neighbouring concepts, not vague buckets. Do not trim the list to make the writing easier.
+    2. **Before submitting:** verify every enumerated sub-concept is genuinely explained in the body, not merely name-dropped.
 
-    ### Rule 5 — Snippets must be scenario-first, not topic-first
-    Every code or config snippet must begin with a comment naming the real-world problem being solved.
+    ### Rule 5 — 800-word explanatory prose floor
+    Each topic note contains a minimum of **800 words of genuine explanatory prose**, measured across the body as a whole rather than per section. "Genuine" means each sentence adds a mechanism, a reason, a consequence, a constraint, a name, or a number. Padding, hedging, restating the title, and repeating an earlier sentence in new words are **violations of this rule, not ways to satisfy it**. If the floor is out of reach, go deeper — another mechanism, a concrete consequence, an edge case, a worked case — never repeat yourself in new words. The count excludes the metadata line, diagrams, code, tables, HTML comments, and the Further Reading list.
+
+    ### Rule 6 — Explain the mechanism, not just the definition
+    A definition alone is non-compliant. Wherever a concept is introduced, the note must also say **how it actually works** — the process or system behaviour that produces the result — and **where it shows up in [TOOL/PLATFORM]**: a specific command, API call, UI location, config field, or observable output the reader could go and look at. This applies wherever the concept is explained; it does not require a section with any particular name.
+
+    ### Rule 7 — Snippets are scenario-first, not topic-first
+    Any code or configuration snippet opens with a comment naming the real operational problem it solves and the constraint that makes this the right choice.
     Non-compliant: a comment that only names the feature or command being demonstrated.
-    Compliant: a comment that states the concrete operational goal the snippet achieves and the constraint that makes it the right choice.
-    At least one snippet per file must be an anti-pattern (`# Anti-pattern:`) immediately followed by the corrected version with an explanation of what breaks.
+    Snippets must be syntactically valid for their language. Include a snippet only when there is code or configuration a reader would actually write — inventing code for the sake of having code is non-compliant.
 
-    ### Rule 6 — Pitfalls must have three parts
-    Each pitfall bullet: (1) **bolded label**, (2) one sentence on why beginners make this mistake, (3) one sentence on the correct mental model. Bare bullets are non-compliant.
+    ### Rule 8 — Answer rationales cover the distractor
+    Any self-check answer explains why the correct answer is right **and** why the most tempting wrong answer fails. One-word rationales are non-compliant. For multi-select, explain why each correct option qualifies and why the most tempting wrong option does not. This rule governs self-check questions when a note has them; it does not require that a note have them.
 
-    ### Rule 7 — Answer rationales must cover all options
-    Every Self-Check answer must explain why the correct answer is right AND why the main distractor(s) are wrong. One-word rationales are non-compliant. For multi-select, explain why both correct answers qualify AND why the most tempting wrong answer fails.
+    ### Rule 9 — Derived artifacts introduce no new facts
+    `00-intro.md` and `99-podcast.md` are derived artifacts. Every claim, number, name, and definition in them must already appear in a sibling topic note in the same chapter. They summarise and connect; they do not research. If a derived artifact needs a citation, that is the signal it is smuggling in a new fact — cut it, or add it to the relevant topic note first. `99-podcast.md` additionally contains **zero code blocks** (and no tables or diagrams): it is spoken audio, so anything technical is described in words.
 
-    ### Rule 8 — Self-Check questions must span cognitive levels
-    Required distribution: Q1 recall, Q2–Q3 application, Q4–Q5 analysis/trade-off. Five recall questions is non-compliant even if one is multi-select.
+    ---
 
-    ### Rule 9 — Visual Overview is recommended for visualisable topics
-    When a topic involves a pipeline, decision path, architecture, or before/after contrast, include a `## Visual Overview` section placed **after `## Learning Objectives` and before `## Key Concepts`**. Format: each diagram under its own `### [Diagram Title]` sub-header inside a plain fenced code block (no language tag). Use `──►` for flow arrows and `│ ├ └ ─ ┌ ┐` for tree/box structure. Aim for 2–4 diagrams. Omit this section only for purely conceptual topics where no process or structure exists to diagram.
+    ## Authoring Order
+
+    Order is not optional:
+
+    1. **First:** all topic notes (`01-…`, `02-…`, …) for the chapter, plus `interview-prep.md` and `thought-leadership.md`. These are researched and written from sources.
+    2. **Last:** `00-intro.md` and `99-podcast.md` — and only once **every** topic note in that chapter is complete and non-stub.
+
+    Why: both derived artifacts exist to synthesise the topic notes. The intro maps how the chapter's topics interconnect; the podcast retells them as conversation. Writing either one earlier means guessing at content that does not exist yet, which guarantees drift between the derived file and the notes it claims to summarise. If any topic note in the chapter is still a stub, stop and finish it before touching the intro or the podcast.
 
     ---
 
     ## File Naming Rules
     (Adjust based on repo naming style)
-    - Notes: `01_snake_case.md` / `01-kebab-case.md` (zero-padded)
-    - Thought leadership: `NN_thought_leadership.md` / `NN-thought-leadership.md` — `NN` is the next number after the topic notes
-    - Interview prep: `NN_interview_prep.md` / `NN-interview-prep.md` — `NN` is the number after thought leadership when both are present
+    - Topic notes: `01-<topic-slug>.md` … `NN-<topic-slug>.md` / `01_<TOPIC_SLUG>.md` … `NN_<TOPIC_SLUG>.md` — zero-padded, contiguous from `01`, `NN` never exceeds `06`
+    - Chapter intro: `00-intro.md` / `00_intro.md` — **reserved slot**, one per chapter
+    - Podcast: `99-podcast.md` / `99_podcast.md` — **reserved slot**, one per chapter
+    - Interview prep: `interview-prep.md` / `interview_prep.md` — **unnumbered**
+    - Thought leadership: `thought-leadership.md` / `thought_leadership.md` — **unnumbered**
     - Labs: `LAB_XX_snake_case.md` / `LAB-XX-kebab.md` (global sequence)
     - Section folders: `SECTION_XX_NAME/` or `01-name/`
     - Module folders: `MODULE_XX_Name/` or `01-name/`
     - Chapter folders: `CHAPTER_XX_Name/` or `01-name/`
-    - Auxiliary files (thought leadership, interview prep) are numbered sequentially after the topic notes; interview prep always follows thought leadership so they never collide.
+
+    `00` and `99` are reserved for the chapter intro and the podcast. Topic notes never take them. `interview-prep.md` and `thought-leadership.md` carry no number at all, so they cannot collide with a topic note however many there are.
 
     ---
 
@@ -500,18 +641,21 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     - H1 for file title, H2 for major sections, H3 for sub-sections
     - All code blocks carry a language tag
     - Horizontal rules (`---`) separate every major section
-    - Self-Check answers use `<details><summary>Answer</summary>` collapsible blocks
+    - Self-check answers use `<details><summary>Answer</summary>` collapsible blocks, when a file includes self-check questions
     - HTML comments (`<!-- -->`) carry authoring guidance in templates — preserve them
 
     ## What Not to Do
     - Do not populate stubs without explicit user instruction
     - Do not paraphrase syllabus or exam objectives — quote verbatim from the source of truth
     - Do not add content not traceable to the authoritative source
-    - Do not renumber or rename files or folders after scaffold — filenames are locked once U5 writes them. Authored chapters may forward-link to not-yet-written stubs; those links resolve when the target is populated. Renaming to "fix" a link breaks every other reference to that file.
+    - Do not author a chapter intro (`00-intro.md`) or podcast (`99-podcast.md`) while any topic note in that chapter is still a stub
+    - Do not introduce into a derived artifact (`00-intro.md`, `99-podcast.md`) any fact absent from the sibling topic notes
+    - Do not renumber or rename files or folders after scaffold — filenames are locked once U5 writes them. That includes renumbering topic notes, moving a topic note into the reserved `00`/`99` slots, and adding a number to `interview-prep.md` or `thought-leadership.md`. Authored chapters may forward-link to not-yet-written stubs; those links resolve when the target is populated. Renaming to "fix" a link breaks every other reference to that file.
     - Do not link to third-party blogs, Medium, or YouTube
     - Do not skip or merge sections without user approval
     ````
-  - **4b — Write all template files.** For each template in the confirmed U3 manifest that applies to this repo, read the corresponding file from `reference/<name>` (relative to this skill's base directory) and write its content **verbatim** to `<repo-root>/templates/<name>` using the `Write` tool. Do not paraphrase or abbreviate. Also create `templates/README.md` listing each template file, its reference source, and its destination in the repo. These are the only non-stub files other than `AGENTS.md` and `README.md`.
+
+  `templates/*`, `templates/README.md`, `AGENTS.md`, and (in U5) `README.md` are the **only** non-stub files in the repo. Touch nothing else in this unit.
 - **Self-verify**: `AGENTS.md` exists with all placeholders substituted and the Content Depth Rules copied verbatim; every manifest template exists at `templates/<name>` matching its `reference/` source byte-for-byte (no paraphrase); `templates/README.md` lists every template with source + destination; **no content file outside `templates/`, `AGENTS.md` has been touched.**
 - **STOP GATE (hand back)**: report that `AGENTS.md` and all templates are written and **stop**. Ask: "Reply proceed to continue to U5 (scaffold stubs + README), or request changes." → Hand control back for the write approval.
 - **Report contract**: `wrote: AGENTS.md + <N> templates + templates/README.md | verbatim copy: confirmed | stubs: not yet created | awaiting: proceed to scaffold`.
@@ -527,7 +671,7 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     <!-- stub: populate using templates/ -->
     ```
 
-    No headings, no tables, no prose — one comment line only. This applies to all section/module/chapter content files, `progress-tracker.md`, `00-roadmap/learning-roadmap.md`, and all capstone files. Section and module index stubs point to their specific template:
+    No headings, no tables, no prose — one comment line only. This applies to all section/module/chapter content files, `progress-tracker.md`, `00-roadmap/learning-roadmap.md`, and all capstone files. Section, module, and per-chapter artifact stubs point to their specific template:
 
     ```markdown
     <!-- stub: populate using templates/section-index-template.md -->
@@ -535,9 +679,24 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     ```markdown
     <!-- stub: populate using templates/module-index-template.md -->
     ```
+    ```markdown
+    <!-- stub: populate using templates/topic-notes-template.md -->
+    ```
+    ```markdown
+    <!-- stub: populate using templates/chapter-intro-template.md -->
+    ```
+    ```markdown
+    <!-- stub: populate using templates/chapter-podcast-template.md -->
+    ```
+    ```markdown
+    <!-- stub: populate using templates/interview-prep-template.md -->
+    ```
+    ```markdown
+    <!-- stub: populate using templates/thought-leadership-template.md -->
+    ```
   - **Idempotency rule.** Before writing a stub, check whether the file already exists with content beyond the stub line. If it does, **skip it — never overwrite.** This makes U5 re-runnable: re-invoking it after an interruption creates only missing files and leaves authored content intact.
   - **README.md** — the one content file written here. Include: H1 title (actual topic/cert name); goal statement (what the repo is, who for, what the reader can do after); learning path table (Phase | Section | Estimated hours | Focus area); repository structure (top 2–3 levels only); section summaries (one bullet per section, relative link + one-line description); file type guide (File type | Pattern | Purpose | Created at scaffold?); certification/exam target (only if a cert exists). Use only the user's topic name, section names, and goal — no generic boilerplate or assumed tool names.
-  - **Use `TodoWrite` for large repos.** For repos with more than 30 files, track scaffold progress: mark each section `pending` → `in_progress` → `completed` as its files are written; write one section at a time.
+  - **Use `TodoWrite` for large repos.** For repos with more than 20 files, track scaffold progress: mark each section `pending` → `in_progress` → `completed` as its files are written; write one section at a time.
   - **Verification pass** (run before reporting the summary — catches Windows MAX_PATH truncations, permission errors, interrupted writes):
     1. Build the **planned file list** from the U2 tree (every stub, all `templates/` files + `templates/README.md`, `AGENTS.md`, `README.md`).
     2. Check each planned file's existence on disk.
@@ -558,9 +717,11 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
   Sections:              N
   Modules:               N
   Chapters:              N
-  Notes stubs:           N
-  Thought leadership:    N  (stubs)
-  Interview prep:        N  (stubs, if applicable)
+  Chapter intros:        N  (stubs, 00-intro.md — one per chapter)
+  Topic notes:           N  (stubs, NN-<topic-slug>.md — 2–6 per chapter)
+  Interview prep:        N  (stubs, one per chapter)
+  Thought leadership:    N  (stubs, one per chapter)
+  Podcasts:              N  (stubs, 99-podcast.md — one per chapter)
   Lab stubs:             N  (if applicable)
   Capstone stubs:        N
   Template files:        N  (fully populated, incl. templates/README.md)
@@ -570,7 +731,7 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
   Total files:           N
   ```
 
-  Then tell the user: *"All content files are blank stubs. Ask me to populate any file, chapter, or section and I will follow the Standard Chapter Template from `templates/chapter-notes-template.md` and the Content Depth Rules in `AGENTS.md`."* Remind them that module-level index files are created on request (not at scaffold time), and that thought-leadership files are best populated after the notes files, since they draw on what was learned while authoring. → Hand control back for the scaffold confirmation.
+  Then tell the user: *"All content files are blank stubs. Ask me to populate any file, chapter, or section and I will follow `templates/topic-notes-template.md` and the Content Depth Rules in `AGENTS.md`."* Then state the authoring order: topic notes come first — plus `interview-prep.md` and `thought-leadership.md` — and `00-intro.md` and `99-podcast.md` come **last**, only once every topic note in that chapter is complete, because both are derived from those notes and introduce no fact absent from them. Remind them that module-level index files are created on request (not at scaffold time). → Hand control back for the scaffold confirmation.
 - **Report contract**: `scaffold: <N total files> | stubs blank-verified: yes | templates+AGENTS.md+README populated: yes | planned==actual: yes | awaiting: proceed to git init`.
 
 ### Unit U6 — Git initialisation
@@ -591,7 +752,7 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
 
     This commit captures the folder structure, templates, and `AGENTS.md` before any content authoring begins. It gives you a clean baseline to branch from for each section.
 
-    **Next step:** read `templates/authoring-guidelines.md`, then start populating stubs section by section using `templates/chapter-notes-template.md`.
+    **Next step:** read `templates/authoring-guidelines.md`, then start populating stubs section by section using `templates/topic-notes-template.md`. Author each chapter's topic notes first (along with `interview-prep.md` and `thought-leadership.md`); leave `00-intro.md` and `99-podcast.md` until last, once every topic note in that chapter is complete.
 
     ---
 

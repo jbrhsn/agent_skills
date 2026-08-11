@@ -65,8 +65,28 @@ The information every run needs before any work begins:
 - **Structured repo** (`AGENTS.md` + `templates/` found by walking up from the source path): use its conventions (answer format, naming, objective wording).
 - **Loose Markdown folder** (no repo markers): generate questions from the pointed-at Markdown files using the built-in exam format — but confirm this with the user first (see U1 STOP GATE).
 
+### Chapter artifacts & source eligibility
+A chapter is a **folder of several files**, not a single notes file:
+
+```
+<chapter>/
+  00-intro.md              <- chapter overview + how the topics interconnect (DERIVED)
+  01-<topic-slug>.md       <- topic note (2-6 per chapter)
+  02-<topic-slug>.md
+  ...
+  interview-prep.md
+  thought-leadership.md
+  99-podcast.md            <- two-speaker conversational transcript (DERIVED)
+```
+
+A naive glob of the chapter folder would pull in all five kinds of file. Only some are legitimate question sources — state this explicitly when resolving scope:
+
+- **Numbered topic notes (`NN-<topic-slug>.md`) — the PRIMARY source. Always in scope.** This is where the subject matter is actually taught, and every question should be grounded here and cited here.
+- **`00-intro.md` and `99-podcast.md` — SECONDARY; never sole grounding.** Both are *derived* artifacts that contain no fact absent from the topic notes. Use them to identify a topic's most common misunderstanding and to gauge which topics the chapter emphasises. Never let a question rest on them alone — cite the topic note that actually teaches the fact.
+- **`interview-prep.md` and `thought-leadership.md` — NOT exam-question sources. Excluded by default.** Interview prep is role-performance material and thought leadership is opinion and argument; neither is examinable fact.
+
 ### Content-only grounding rule (non-negotiable)
-Never generate questions from stubs, empty files, training data, or raw objectives alone. Every question **and** every distractor must trace to authored material. Distractors should be real misconceptions from the source (Pitfalls section preferred). If any question cannot be grounded in authored content, that is a **flag to surface, not license to fabricate**.
+Never generate questions from stubs, empty files, training data, or raw objectives alone. Every question **and** every distractor must trace to authored material. Distractors should be real misconceptions from the source (misconception/pitfall material preferred — see U2's content-role extraction). If any question cannot be grounded in authored content, that is a **flag to surface, not license to fabricate**.
 
 ### Allocation math
 - Questions per domain = `round(weight% × N)`; reconcile rounding so the total equals exactly N (adjust the largest-remainder domain).
@@ -74,12 +94,13 @@ Never generate questions from stubs, empty files, training data, or raw objectiv
 
 ### Item construction rules
 Each question uses `reference/question-item-template.md` and obeys:
-- **Grounded stem:** every question traces to a specific authored concept, definition, worked example, or pitfall. Introduce no facts absent from the source content.
+- **Grounded stem:** every question traces to a specific piece of authored material — a concept explained in a topic note, a term it defines, a scenario it walks through, or a misconception it corrects. Introduce no facts absent from the source content.
 - **Scenario-first for application/analysis:** frame the stem as a realistic situation requiring a decision, mirroring exam style — not a bare definition lookup (except recall questions).
-- **Plausible distractors:** wrong options must be believable misconceptions, drawn from the chapter's Pitfalls section wherever possible. No throwaway options; no "all of the above" / "none of the above" filler.
+- **Plausible distractors:** wrong options must be believable misconceptions, drawn from the source's misconception material wherever possible (a pitfalls/misconceptions section if the note has one, otherwise its explicit corrections of wrong intuitions). No throwaway options; no "all of the above" / "none of the above" filler.
 - **Per-option rationale:** the answer explains why the correct option is right AND why each significant distractor is wrong. For multi-select, explain why both correct answers qualify AND why the most tempting wrong answer fails. One-word rationales are non-compliant.
 - **Multi-select phrasing:** use "Which TWO..." / "Which THREE..." and provide 5 options.
-- **No duplication:** do not restate an existing Self-Check question verbatim; vary the angle.
+- **No duplication:** do not restate an existing self-check question verbatim; vary the angle.
+- **Plain-language register:** the source repo is written for a bright 14-year-old — short sentences, plain words, jargon defined inline. Match that register in stems, options, and rationales: plain language, every acronym expanded on first use, no jargon that the question does not need. This constrains *wording only*, not difficulty — questions may still be hard, and analysis-level items are still expected; they just have to be plainly worded.
 - **Traceability note:** for each question, keep an internal note of the source file/section it came from — used in drill mode for the "Review if missed" pointer and in the quality gate for coverage checking.
 
 ### Mode differences (assembly)
@@ -108,8 +129,10 @@ Built from `reference/exam-file-template.md`.
 | Difficulty emphasis matches the requested balance | ✓ | |
 | Every answer explains correct + why each distractor fails | ✗ | Q7 rationale incomplete |
 | No "all/none of the above" filler options | ✓ | |
-| No duplicate stems (incl. vs existing Self-Check questions) | ✓ | |
-| Distractors are plausible misconceptions (pitfall-sourced where possible) | ✓ | |
+| No duplicate stems (incl. vs existing self-check questions in the notes) | ✓ | |
+| Distractors are plausible misconceptions (misconception-sourced where possible) | ✓ | |
+| Every question is grounded in a numbered topic note (not intro/podcast alone; no interview-prep or thought-leadership sourcing) | ✓ | |
+| Stems, options, and rationales use plain language with acronyms expanded | ✓ | |
 | Drill mode: every question has a "Review if missed" pointer | ✓ | |
 | Any fetched blueprint link verified + dated | ✓ | |
 
@@ -141,15 +164,22 @@ Write to the repo's practice-exam location (or the user's path) as `mock-exam-01
 - **Goal/scope**: confirm there is enough authored content to ground the exam, and extract the raw question material. **Read-only.**
 - **Inputs**: confirmed scope + mode from U1.
 - **Do**:
-  - For each chapter/file in scope, classify it: **Authored** (real content — Key Concepts, definitions, prose) or **Stub/thin** (a stub marker, only an H1, or too little to question).
-  - From each authored file, extract: **Key Concepts** → application/analysis stems; **Key Definitions** → recall questions; **Common Pitfalls & Misconceptions** → **primary source of distractors**; **Worked Examples** → scenario-based application stems; **existing Self-Check / sample questions** → note to avoid duplication.
-- **Self-verify**: apply the **Content-only grounding rule** (see Shared reference). If **all** in-scope files are stubs/thin, or the requested question count cannot be supported by the authored material, this unit must **stop** rather than continue.
+  - **Resolve which files are in scope** using **Chapter artifacts & source eligibility** (see Shared reference): numbered topic notes are the primary source; `00-intro.md` and `99-podcast.md` are secondary and may never be a question's sole grounding; `interview-prep.md` and `thought-leadership.md` are excluded. Do not simply glob the chapter folder.
+  - Classify each in-scope topic note: **Authored** (real explanatory prose a question can be built from) or **Stub/thin** (a stub marker, only an H1, or too little to question). List both sets.
+  - **Extract by content role, not by heading name.** Topic notes are written with an **adaptive** structure: sections are chosen per topic, ordered freely, and sub-headings are named after real domain concepts. **No specific heading is guaranteed to exist.** So locate material by what it *does*. The canonical heading names below are common-case hints only, never a requirement:
+    - **Definitional / recall material** → recall questions. Look for a definitions table if the note has one (often "Key Definitions"); otherwise take the terms the note defines inline on first use, which the authoring contract requires of every piece of jargon.
+    - **Conceptual / mechanism material** → application and analysis stems. This is the note's main explanatory prose and its domain-named sub-headings, whatever they happen to be called. Do not look for a heading called "Key Concepts" — it is explicitly discouraged in the authoring contract.
+    - **Misconceptions** → the **preferred source of distractors**. Look for a pitfalls/misconceptions section if the note has one (often "Common Pitfalls & Misconceptions"); otherwise take the note's explicit corrections of wrong intuitions, which the template asks authors to make inline ("the tempting wrong belief, then the correct rule"). The chapter's `99-podcast.md` also names a common misunderstanding per topic segment — useful for *finding* the misconception, but ground and cite the question on the topic note that corrects it.
+    - **Scenario material** → application stems. Look for a worked example if the note has one; otherwise any concrete scenario the note walks through end to end.
+    - **Existing questions** → note them only to avoid duplicating them. Look for a self-check section if the note has one.
+  - **Do NOT require any specific heading to exist.** Locate material by role. If a role yields nothing in a given note, record that ("no misconception material in `03-…`") and move on — an absent role is never a licence to fabricate the material.
+- **Self-verify**: apply the **Content-only grounding rule** (see Shared reference). Confirm every extracted item came from an eligible source (a topic note, or a secondary artifact backed by a topic note). If **all** in-scope topic notes are stubs/thin, or the requested question count cannot be supported by the authored material, this unit must **stop** rather than continue.
 - **STOP GATE (hand back)** — *only when the readiness check fails*: report the shortfall and stop:
 
-  > "I can only generate questions from content that is already authored. The following in-scope files are still stubs or too thin: [list]. Please author them first (the `author-chapter` skill does this), then re-run this skill. I can proceed now with a smaller exam drawn only from the authored files [list] if you prefer — say the word."
+  > "I can only generate questions from content that is already authored. The following in-scope topic notes are still stubs or too thin: [list]. Please author them first (the `author-chapter` skill does this), then re-run this skill. I can proceed now with a smaller exam drawn only from the authored topic notes [list] if you prefer — say the word."
 
   → Hand control back for authoring or a reduced-scope decision. If readiness passes, no gate — continue to U3.
-- **Report contract**: `readiness: <PASS: N authored / N stub excluded | FAIL: insufficient authored content> | material extracted: concepts/defs/pitfalls/examples | awaiting: <nothing, proceeding | author-or-reduce decision>`.
+- **Report contract**: `readiness: <PASS: N authored topic notes / N stub excluded | FAIL: insufficient authored content> | sources: topic notes primary (intro/podcast secondary; interview-prep + thought-leadership excluded) | roles extracted: definitional/conceptual/misconception/scenario/existing-questions <+ roles absent, if any> | awaiting: <nothing, proceeding | author-or-reduce decision>`.
 
 ## Unit U3 — Blueprint weighting & allocation
 
@@ -165,15 +195,15 @@ Write to the repo's practice-exam location (or the user's path) as `mock-exam-01
 
   Mode: [full mock | targeted drill]
   Total questions: [N]   Multi-select: [N]   Answer style: [inline | key]
-  Content readiness: [N] authored files in scope, [N] stubs excluded
+  Content readiness: [N] authored topic notes in scope, [N] stubs excluded
 
-  | Domain / Module | Weight | Questions | Source files |
+  | Domain / Module | Weight | Questions | Source topic notes |
   |---|---|---|---|
-  | [Domain A] | 30% | 14 | [files] |
-  | [Domain B] | 22% | 10 | [files] |
+  | [Domain A] | 30% | 14 | [topic notes] |
+  | [Domain B] | 22% | 10 | [topic notes] |
   | Total      | 100%| N  |         |
   ```
-- **Self-verify**: per-domain question counts sum to exactly N; each domain maps to at least one authored source file; any fetched blueprint has a recorded URL + date.
+- **Self-verify**: per-domain question counts sum to exactly N; each domain maps to at least one authored topic note; any fetched blueprint has a recorded URL + date.
 - **STOP GATE (hand back)**: present the allocation table and **stop to confirm** before generating questions. → Hand control back for allocation/weighting approval.
 - **Report contract**: `allocation: N questions across M domains (sums to N) | blueprint: <user-supplied | fetched+dated | even | drill-focused> | awaiting: allocation approval`.
 
@@ -182,13 +212,13 @@ Write to the repo's practice-exam location (or the user's path) as `mock-exam-01
 - **Goal/scope**: write every question grounded strictly in the extracted material, with per-option rationale, then **write them to the exam file as this run's draft under review** — do not present all questions inline in chat.
 - **Inputs**: approved allocation from U3; extracted material from U2; `reference/question-item-template.md`.
 - **Do**:
-  - Generate each question per the **Item construction rules** and **Allocation math** (see Shared reference): grounded scenario-first stems, pitfall-sourced plausible distractors, per-option rationale, correct multi-select phrasing, no duplication, difficulty emphasis and multi-select minimum enforced.
-  - Record the source file/section for every question (traceability note).
+  - Generate each question per the **Item construction rules** and **Allocation math** (see Shared reference): grounded scenario-first stems, misconception-sourced plausible distractors, per-option rationale, correct multi-select phrasing, no duplication, plain-language wording, difficulty emphasis and multi-select minimum enforced.
+  - Record the source file/section for every question (traceability note) — cite the **topic note** that teaches the fact, not a derived artifact.
   - **Write the questions to the exam file** using the **Idempotent write naming** rule — pick the next non-colliding filename **now** (`mock-exam-NN.md` / `drill-[topic]-NN.md`). **This chosen filename is this run's file**: it is the draft under review here, and U5/U6 will update/finalize this **same** file in place (they do not create a new incremented file each round).
 - **Self-verify** (this is the doer's own verification of the grounding + rationale constraints):
-  - **Grounding:** every question traces to a specific authored concept/definition/example/pitfall from U2's extraction — confirm each has its recorded source note. **If any question cannot be traced to authored content, do NOT fabricate it — flag it and reduce/reroute** (surface to the user; drop or replace only from grounded material).
+  - **Grounding:** every question traces to a specific piece of authored material from U2's extraction — a concept, a defined term, a scenario, or a corrected misconception — and each has its recorded source note pointing at a **numbered topic note**. No question rests solely on `00-intro.md` or `99-podcast.md`, and none draws on `interview-prep.md` or `thought-leadership.md`. **If any question cannot be traced to authored content, do NOT fabricate it — flag it and reduce/reroute** (surface to the user; drop or replace only from grounded material).
   - **Per-option rationale:** every question's answer explains why the correct option is right AND why each significant distractor is wrong (both correct options + the tempting wrong one for multi-select). No one-word rationales.
-  - Also confirm: counts per domain match the allocation; difficulty emphasis met; ≥1 multi-select per domain (or ≥1 overall for a small drill); no duplicate/verbatim Self-Check stems.
+  - Also confirm: counts per domain match the allocation; difficulty emphasis met; ≥1 multi-select per domain (or ≥1 overall for a small drill); no duplicate/verbatim stems taken from the notes' self-check questions; stems, options, and rationales are plainly worded with acronyms expanded.
 - **STOP GATE (hand back)**: present ONLY a short summary **plus the draft file path**, and **stop for review** before assembly — **do NOT paste all the questions into chat; point the user to the written draft file to review.** The summary states: N questions generated (M multi-select), per-domain counts matching the allocation, grounding result (all traceable, or K flagged + surfaced), and per-option rationale present (or K fixed). Ask the user to review the draft and request any revisions. **On a revision request, re-edit the same draft file in place and re-point to it** (do not create a new file). → Hand control back for question review/revisions.
 - **Report contract**: `draft written to <path>, awaiting review | generated: N questions (M multi-select) | per-domain: matches allocation | grounding: all traceable to authored content <or: K flagged, surfaced> | per-option rationale: present on all <or: K incomplete, fixed> | awaiting: question review (see draft file — questions not pasted in chat)`.
 
@@ -212,7 +242,7 @@ Write to the repo's practice-exam location (or the user's path) as `mock-exam-01
   Questions:     [N] ([N] multi-select)
   Domains:       [N] (weighted per blueprint | even | drill-focused)
   Answer style:  [inline <details> | separate key]
-  Source files:  [N] authored files
+  Source files:  [N] authored topic notes
   Quality gate:  PASS (all checks ✓)
   ```
 - **Self-verify**: confirm every checklist row is ✓ before finalizing; confirm the finalized file is the same `<path>` chosen at U4 (no duplicate created) and that the U4 idempotent-naming step did not overwrite a pre-existing file (number was incremented).
@@ -223,7 +253,10 @@ Write to the repo's practice-exam location (or the user's path) as `mock-exam-01
 ## Constraints and Guardrails
 
 - **Content-only grounding is non-negotiable.** Never generate questions from stubs, empty files, training data, or raw objectives alone. If content is missing, stop at U2's gate and ask the user to author it first. If a single question cannot be grounded, flag it in U4's self-verify — never fabricate.
-- **Every question and distractor traces to authored material.** Distractors should be real misconceptions from the source (Pitfalls section preferred).
+- **Every question and distractor traces to authored material.** Distractors should be real misconceptions from the source (misconception/pitfall material preferred).
+- **Topic notes are the source of truth.** Numbered topic notes are the primary question source; `00-intro.md` and `99-podcast.md` are derived and may never be a question's sole grounding; `interview-prep.md` and `thought-leadership.md` are not exam-question sources.
+- **Extract by content role, never by exact heading.** Topic notes are adaptive — no heading is guaranteed to exist. Find material by what it does; if a role is absent, say so rather than inventing it.
+- **Match the repo's reading level.** Stems, options, and rationales use plain language with acronyms expanded and no unnecessary jargon. This governs wording, not difficulty — hard questions are still expected.
 - **Units run in order and gates are respected.** Do not proceed past a labeled STOP GATE without the required confirmation.
 - **Blueprint weights are inputs.** Fetch and cite them if a cert exists and the user did not supply them; fall back to even weighting and say so.
 - **The quality gate is mandatory.** An exam is not "done" until every gate row is ✓ (U6).
