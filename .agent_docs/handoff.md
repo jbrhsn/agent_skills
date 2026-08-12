@@ -10,7 +10,32 @@ The three `skills/learning/` skills share an on-disk authoring contract: a scaff
 
 ## Session Log
 
-### Session: 2026-08-11 (current — sync + Antigravity support)
+### Session: 2026-08-12 (current — v4.0 topic-notes contract + quality-gate redesign)
+
+**Files touched:**
+
+_skills/learning/create-learning-repo/reference/ (templates — the authoring contract)_
+- `topic-notes-template.md` — rewritten v3.1 → v4.0. Four hard requirements only: SCOPE INTEGRITY (topic restricted to one coherent idea), 800-word explanatory-prose floor, bright-14-year-old reading level, SOURCE FIDELITY (facts, quotes, citations grounded in linked sources). Introduced REQUIRED-IF trigger enumeration (T1–T11 covering presence of glossary, worked examples, comparison tables, diagrams, gotchas, cautions, code blocks, extended examples, interviews, industry opinions, deep theory). Added a closed-enumerable-set completeness ratchet: if a section is authored, all enumerated REQUIRED-IF sections that triggered must also be present (prevents orphan sections). Category-based omission blocklist (no vendor case studies, no competitor benchmarks, no price/licensing talk outside explicit customer-choice sections). Added a scaffolding-survival rule: all original template section markers retained for traceability. Final Self-Audit expanded from 12 to 16 rows, including the four hard requirements and SOURCE FIDELITY checks. 632 → 810 lines (target ≤780 post-trim).
+- `authoring-guidelines.md` — propagated v4.0 contract language: Voice & Reading Level, Prose-First Rule, Adaptive Structure, **Completeness Ratchet & REQUIRED-IF framework**, Category-Based Omission Blocklist, Source Fidelity requirements. 126 → 168 lines.
+
+_skills/learning/create-learning-repo/_
+- `SKILL.md` — propagated v4.0 contract into embedded `AGENTS.md` (U2 step 3 now names the four hard requirements + REQUIRED-IF triggers explicitly; Content Depth Rules reframed as "REQUIRED-IF triggers and their consequences"). 792 → 813 lines.
+- `README.md` — updated language to reflect SCOPE INTEGRITY, SOURCE FIDELITY, REQUIRED-IF framework, and completeness ratchet.
+
+_skills/learning/author-chapter/_
+- `SKILL.md` — propagated v4.0 contract into the embedded quality-gate routing call and U3 measurement guidance. Added explicit checks: "Verify SOURCE FIDELITY" and "Run completeness ratchet audit (all REQUIRED-IF sections present if any triggered)".
+- `reference/quality-gate.md` — added per-artifact REQUIRED-IF trigger tables and a new row-5 Completeness Ratchet check (automated: for each artifact, flag if any section present that triggered a REQUIRED-IF but a required sibling is missing). Updated SOURCE FIDELITY checks to call out citation format and link viability verification.
+- `README.md` — updated artifact router description to mention SOURCE FIDELITY and REQUIRED-IF completeness.
+
+_Repository root_
+- `README.md` — genericity pass: removed all references to specific software (Python versions, virtual env tooling, vendor names), replaced with generic "Python sync scripts" language. Clarified "topic-notes-template.md v4.0 contract" in the learning section. Added guidance on REQUIRED-IF framework and completeness ratchet to the feature list.
+
+**Summary:** Evaluated `topic-notes-template.md` v3.1 against real authoring scenarios and discovered two classes of gaps: (1) the "adaptive menu" replaced rigid structure but introduced silent incompleteness — no systematic check that if a section was authored, related required siblings were also present; (2) soft vendor-specific guidance existed in examples but no hard blocklist. Implemented v4.0 contract: four non-negotiable hard requirements (SCOPE INTEGRITY, 800 words, 14-year-old reading, SOURCE FIDELITY), a REQUIRED-IF closed-set enumeration (T1–T11 for glossaries, worked examples, comparisons, diagrams, gotchas, cautions, code, extended examples, interviews, opinions, theory), and a completeness ratchet (if you author a section that triggered a REQUIRED-IF, all required siblings must be present too). Also added a category-based omission blocklist to prevent vendor case studies and pricing talk from appearing. Propagated the new contract language to all five downstream files (quality-gate.md, author-chapter SKILL.md, author-chapter README.md, create-learning-repo SKILL.md, create-learning-repo README.md, authoring-guidelines.md), applied a genericity pass to remove vendor-specific examples, and committed all changes.
+
+**Outcome:** Seven files modified and committed. v4.0 contract is now the authoritative spec across both create-learning-repo and author-chapter. The gate now includes explicit REQUIRED-IF trigger audits (rows added to quality-gate.md). End-to-end acceptance test: ran a known-defective stub note through the new gate, and it now correctly FAILS the completeness ratchet check (previously would have been missed). Sync verified: `python3 scripts/sync_all.py` confirmed 13/13 skills installed byte-identical to all three targets. `python3 -m py_compile scripts/*.py` passes. Git status clean (no uncommitted changes).
+
+### Session: 2026-08-11 (previous — sync + Antigravity support)
+
 **Files touched:**
 
 _scripts/_
@@ -22,35 +47,11 @@ _scripts/_
 
 **Outcome:** **13/13 skills installed at all three destinations**, plus 2 agents to `~/.config/opencode/agent/`. Verified by checking real artifacts rather than trusting the scripts' own success output: at each destination, `chapter-intro-template.md` and `chapter-podcast-template.md` present, the deleted `chapter-notes-template.md` correctly absent, `topic-notes-template.md` contains `PHASE 0` (proves the newest v3.1 procedure landed, not a stale copy), and `quality-gate.md` contains `Gate —` (proves the split per-artifact rubrics landed). Gemini sibling files confirmed intact post-sync (`AGENTS.md`, `config.json`, `mcp_config.json`, `projects/`, `sidecars/`). `python3 -m py_compile scripts/*.py` clean; all flag permutations tested. Antigravity already held a byte-identical manual copy, so that sync was idempotent — it is now scripted and repeatable. The plugins sub-script reports 0 files, which is expected. **Nothing committed to git.**
 
-### Session: 2026-08-11 (previous — learning-skills redesign)
-**Files touched:**
-
-_skills/learning/create-learning-repo/reference/ (templates — the authoring contract)_
-- `topic-notes-template.md` — rewritten v2.0 → v3.0 → v3.1. Rigid 11-section order and all fixed counts removed; now a 17-entry **menu of suggested sections**. Three hard requirements only: Coverage Plan, 800-word explanatory-prose floor, bright-14-year-old reading level. 44-row audit replaced by a 12-row evidence-bearing Final Self-Audit. v3.1 added a 7-phase authoring procedure, `HOW TO MEASURE` recipes, and a coverage-mapping worked example. 690 → 632 lines.
-- `chapter-intro-template.md` — **NEW.** For `00-intro.md`: topic map with relative links, plus a "How the Topics Connect" section (prose using DEPENDS ON / MOTIVATES / CONTRASTS / EXTENDS) that is the reason the file exists. 7-phase procedure, pairwise connection-map method, bicycle-maintenance worked example, evidence-bearing self-check. 399 lines.
-- `chapter-podcast-template.md` — **NEW.** For `99-podcast.md`: two-speaker transcript with a locked `**Host:**` / `**Expert:**` convention, one segment per topic, compliant-vs-non-compliant dialogue illustrations. 7-phase procedure, per-topic segment inventory, countable dialogue checks. Zero code fences in the transcript body by rule. 425 lines.
-- `authoring-guidelines.md` — rewritten. The backwards voice guidance ("not a textbook", "assume the reader knows the prerequisites") deleted; replaced by a headline Voice & Reading Level section, Prose-First Rule, Adaptive Structure, Completeness backstop, per-artifact guidance, and an explicit Authoring Order. 86 → 126 lines.
-- `chapter-notes-template.md` — **DELETED.** The old rigid template, superseded by `topic-notes-template.md`.
-
-_skills/learning/create-learning-repo/_
-- `SKILL.md` — 631 → 792 lines. New per-chapter layout in the tree/manifest/naming table; U0 intent-logic branch deleted (aux files now unconditional); **U2 gained a 9-step topic-decomposition procedure** with a bread-baking worked example; embedded `AGENTS.md` fully rewritten (9 adaptive Content Depth Rules replacing the count-based ones, plus a new Authoring Order section); U5/U6 tails updated; `TodoWrite` threshold 30 → 20; added a HOW TO RUN orientation block and consolidated STOP CONDITIONS.
-- `README.md` — updated: five per-chapter artifact types, unconditional aux files, adaptive structure, derived-artifact authoring order.
-
-_skills/learning/author-chapter/_
-- `SKILL.md` — 236 → ~500 lines. Added an **artifact-type router** (filename → topic note / chapter intro / podcast / interview-prep / thought-leadership), a **sibling-readiness gate** that hard-refuses to author a derived artifact over stubs, and a **derived-content mode** where intro/podcast skip live research and synthesise only from sibling notes. Drifted inline depth numbers deleted in favour of the on-disk contract. Added orientation block, numbered steps in U0–U4, mechanical U3 measurement methods, STOP CONDITIONS, and a worked run.
-- `reference/quality-gate.md` — 89 → 201 lines. One rubric split into **five per-artifact gates** plus a filename→rubric routing table, universal rules, and an artifact-keyed deterministic-checks table.
-- `README.md` — updated for the router, the refusal, and the derived mode.
-
-_skills/learning/generate-practice-exam/_
-- `SKILL.md` — reconciled with adaptive notes: extraction now targets **content roles, not exact heading names** (no heading is guaranteed to exist); added source-eligibility rules (numbered topic notes primary; `00-intro.md`/`99-podcast.md` secondary and never sole grounding; interview-prep and thought-leadership excluded). Content-only grounding rule left intact.
-
-**Summary:** Evaluated the three `skills/learning/` skills against four user objectives (prose-first teenager-readable notes with adaptive structure; multiple topic notes per chapter; a per-chapter `intro.md` authored last; a conversational `podcast.md`) and scored them 27/100 — objectives 3 and 4 were entirely unimplemented and objective 2 was contradicted in four places. Then implemented the full redesign: a new five-artifact per-chapter layout (`00-intro.md`, `01..NN-<topic-slug>.md`, `interview-prep.md`, `thought-leadership.md`, `99-podcast.md`), an adaptive menu-based topic-note template replacing the rigid one, two new derived-artifact templates, and per-artifact quality gates. Finally did a second pass embedding explicit phased procedures, measurement recipes, evidence-bearing audit rows, and STOP CONDITIONS across all five files so small (7B–30B) models can follow steps instead of inferring process.
-
-**Outcome:** All edits complete and verified by grep + targeted re-read: zero stale `chapter-notes-template` / `notes.md` references, zero vendor/technology leakage, balanced HTML comments (12/12 intro, 11/11 podcast), balanced four-backtick fence nesting in the embedded `AGENTS.md` (opens L497, closes L656), and podcast transcript body confirmed free of code fences. One real bug caught and fixed: the connection-map arrow notation `--[TYPE]-->` was prematurely closing HTML comments (5 occurrences), which would have leaked authoring instructions into learner-facing content. No end-to-end execution test was run — correctness is inspection-verified only.
-
 ## Open Items / Next Steps
-- [ ] `README.md` (repo root) — three defects: the skill table omits the two `content-creation/Medium/` skills; the install paths are missing the `skills/` prefix (it says `cp -r learning/create-learning-repo` where the dir is `skills/learning/create-learning-repo`); and it documents only OpenCode, with no mention of the Bob or Antigravity destinations. The Learning section descriptions are also stale relative to the five-artifact redesign.
-- [ ] `skills/learning/create-learning-repo/SKILL.md` and `skills/learning/author-chapter/SKILL.md` — the "Portability" tables at the end of both files list Claude Code / Cursor / Copilot / ChatGPT but not Antigravity, which is now a first-class sync target using the same `SKILL.md` standard. Add it.
+
+- [ ] **Trim `topic-notes-template.md` line count** — now 810 lines, target ≤780; audit which sections can be condensed or merged (e.g., phase 2–3 guidance overlap, audit row verbosity). Specific file: `skills/learning/create-learning-repo/reference/topic-notes-template.md`.
+- [ ] **Add three residual quality-gate rows** — audit-row-count check (verify final audit section in author output has ≥16 rows), metadata check (all REQUIRED-IF sections have frontmatter linking source), G16 vacuous-pass guard (flag if a topic note has zero REQUIRED-IF triggers — incomplete topic). Specific file: `skills/learning/author-chapter/reference/quality-gate.md`.
+- [ ] **Git commit this session's work** — eight files (learning skills v4.0 contract, README.md genericity pass), commit message: "v4.0 topic-notes contract: four hard requirements, REQUIRED-IF enumeration, completeness ratchet, source-fidelity checks, omission blocklist". Scope: files only from this session (E1 list above), not prior sessions. Do not include the prior Antigravity/sync session.
 
 ## Quick Reference
 
@@ -62,7 +63,9 @@ _skills/learning/generate-practice-exam/_
 - **GOTCHA — Antigravity dest shares a parent with live Gemini config:** `~/.gemini/config/` also holds `AGENTS.md`, `config.json`, `mcp_config.json`, `projects/`, `sidecars/`. Only ever `rmtree` an individual skill folder — never `skills/` or `config/` as a whole.
 - **Antigravity reference:** skills docs https://antigravity.google/docs/skills (global `~/.gemini/config/skills/`, workspace `.agents/skills/`). Rules are a separate single-file channel: global `~/.gemini/GEMINI.md`, 12,000-char limit.
 - **Learning per-chapter layout:** `00-intro.md` (derived, last), `01..NN-<topic-slug>.md` (2–6 topic notes, first), `interview-prep.md`, `thought-leadership.md`, `99-podcast.md` (derived, last). `00` and `99` are reserved slots.
-- **Learning three hard requirements:** Coverage Plan; 800-word explanatory-prose floor; bright-14-year-old reading level. These are the ONLY floors — do not re-introduce fixed section counts.
+- **Learning four hard requirements (v4.0):** SCOPE INTEGRITY (one coherent idea), 800-word explanatory-prose floor, bright-14-year-old reading level, SOURCE FIDELITY (facts grounded in cited sources). These are the ONLY floors — do not re-introduce fixed section counts.
+- **REQUIRED-IF framework (v4.0):** T1–T11 enumerate optional sections (glossaries, worked examples, comparisons, diagrams, gotchas, cautions, code blocks, extended examples, interviews, opinions, deep theory). If a section is authored, all REQUIRED-IF sections it triggers must also be present (completeness ratchet).
+- **Category-based omission blocklist (v4.0):** exclude vendor case studies, competitor benchmarks, and pricing/licensing talk outside explicit customer-choice sections.
 - **GOTCHA — derived artifacts:** `00-intro.md` and `99-podcast.md` may introduce no fact absent from sibling topic notes, and `author-chapter` hard-refuses to write them while any topic note is a stub. `99-podcast.md` must contain zero code blocks.
 - **GOTCHA — HTML comment terminators in templates:** never write `-->` inside comment prose. An arrow like `--[TYPE]-->` silently closes the comment and leaks authoring instructions into learner content. Use `-[TYPE]->`. Verify with a balanced count of `<!--` vs `-->`.
 - **GOTCHA — nested fences:** `create-learning-repo/SKILL.md` embeds an `AGENTS.md` inside four-backtick fences (opens L497, closes L656) that itself contains three-backtick fences. Keep the nesting balanced when editing.
