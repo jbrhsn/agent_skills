@@ -8,10 +8,12 @@ Scaffolds a complete, structured Markdown learning repository for any topic or c
 
 | Input | Example |
 |---|---|
-| Topic/cert focus | "create a learning repo for Kubernetes" |
-| Certification prep | "build a certification prep repo for AWS SAA-C03" |
-| General study | "scaffold a study guide for machine learning" |
-| Expertise goal | "set up a knowledge base to become an expert in Rust" |
+| Topic/cert focus | "create a learning repo for 18th-century European diplomacy" |
+| Certification prep | "build a certification prep repo for the sommelier certification exam" |
+| General study | "scaffold a study guide for organic chemistry" |
+| Expertise goal | "set up a knowledge base to become an expert in professional cooking technique" |
+
+The subject can be anything — a historical period, a craft, a body of law, a science, a musical tradition, a software platform. Nothing in the workflow assumes a technical subject.
 
 Do **not** trigger this skill to populate an existing repo's content — use `author-chapter` for that.
 
@@ -23,11 +25,11 @@ Runs a delegation-model workflow of **seven self-contained units** (U0 → U6) t
 
 | Unit | What happens |
 |---|---|
-| **U0 — Intake** | Collects topic, learning goals, level, time budget, naming preference, labs preference, and seed URLs. Learning goals shape *emphasis* only — every chapter gets all five artifact types regardless |
-| **U1 — Research** | Fetches the official exam blueprint, documentation, and changelog in parallel; presents a structured, cited research summary for approval |
+| **U0 — Intake** | Collects topic, learning goals, level, time budget, naming preference, hands-on practice preference, and seed URLs. Learning goals shape *emphasis* only — every chapter gets all five artifact types regardless |
+| **U1 — Research** | Fetches the authoritative syllabus, blueprint, or reference sources in parallel; presents a structured, cited research summary for approval |
 | **U2 — Structure design** | **Decomposes every chapter into 2–6 topics** derived from the approved U1 research (each with a name and one-line scope, becoming the `NN-<topic-slug>.md` filenames), then designs the full folder + file tree with budget reconciliation, domain mapping, and naming-convention enforcement; the topic names are presented for approval before being locked |
-| **U3 — Template manifest** | Confirms the set of template files to be generated — every "Always" template, plus `lab-template.md` only if labs were requested |
-| **U4 — Write AGENTS.md + templates** | Copies templates verbatim from `reference/` to `templates/`, writes the repo's `AGENTS.md` with the adaptive authoring rules — an adaptive section menu rather than a fixed order, plus the **three hard requirements** (Coverage Plan, 800-word prose floor, bright-14-year-old reading level) and the authoring order for derived artifacts (`author-chapter` and `generate-practice-exam` enforce these rules via their quality gates) |
+| **U3 — Template manifest** | Confirms the set of template files to be generated — every "Always" template, plus `lab-template.md` only if hands-on practice files were requested |
+| **U4 — Write AGENTS.md + templates** | Copies templates byte-for-byte from `reference/` to `templates/`, writes the repo's `AGENTS.md` with the adaptive authoring rules — an adaptive section menu rather than a fixed order, plus the **four hard requirements** (Coverage Plan, 800-word prose floor, bright-14-year-old reading level, source fidelity), the binding T1–T11 REQUIRED-IF triggers, the closed-enumerable-set ratchet, and the authoring order for derived artifacts (`author-chapter` and `generate-practice-exam` enforce these rules via their quality gates) |
 | **U5 — Scaffold stubs + README** | Creates every folder and one-line blank-stub file — including all five artifact types in every chapter — writes the root `README.md`, runs a planned-vs-actual verification pass |
 | **U6 — Git init** | Checks for `.git`; prints the first-commit command — runs automatically after U5 |
 
@@ -37,8 +39,8 @@ Every unit runs in its own response — no two units are combined. U0–U5 end w
 
 ## What gets created
 
-- A `templates/` directory — the **only** directory with real file content. It holds `topic-notes-template.md`, `chapter-intro-template.md`, `chapter-podcast-template.md`, `interview-prep-template.md`, `thought-leadership-template.md`, `section-index-template.md`, `module-index-template.md`, `authoring-guidelines.md`, `capstone-template.md`, a `templates/README.md` index, and `lab-template.md` if labs were requested
-- `AGENTS.md` — authoring rules for the repo: the adaptive section menu, the three hard requirements (Coverage Plan, 800-word prose floor, bright-14-year-old reading level), the template → destination mapping, and the authoring order (the same standards `author-chapter` drafts to and its quality gates check)
+- A `templates/` directory — the **only** directory with real file content. It holds `topic-notes-template.md`, `chapter-intro-template.md`, `chapter-podcast-template.md`, `interview-prep-template.md`, `thought-leadership-template.md`, `section-index-template.md`, `module-index-template.md`, `authoring-guidelines.md`, `capstone-template.md`, a `templates/README.md` index, and `lab-template.md` if hands-on practice files were requested. `templates/` is the authoritative statement of the authoring contract — this README only summarises it
+- `AGENTS.md` — authoring rules for the repo: the adaptive section menu, the four hard requirements (Coverage Plan, 800-word prose floor, bright-14-year-old reading level, source fidelity), the binding T1–T11 REQUIRED-IF triggers, the closed-enumerable-set ratchet, the template → destination mapping, and the authoring order (the same standards `author-chapter` drafts to and its quality gates check)
 - `README.md` — populated with repo metadata, learning path table, and section summaries
 - Blank one-line stubs for every content file (`<!-- stub: populate using templates/ -->`) — including, in **every** chapter folder, all five artifact types: `00-intro.md`, 2–6 `NN-<topic-slug>.md` topic notes, `interview-prep.md`, `thought-leadership.md`, and `99-podcast.md`
 
@@ -71,9 +73,15 @@ Every unit runs in its own response — no two units are combined. U0–U5 end w
 
 **Derived-artifact authoring order** — `00-intro.md` and `99-podcast.md` may only be authored once **every** topic note in that chapter is complete and non-stub, and must introduce **no fact absent from those sibling notes**. Topic notes, `interview-prep.md`, and `thought-leadership.md` are authored first, from live sources; the two derived artifacts synthesise and connect them.
 
-**Derived topic counts** — the number of topic notes per chapter is never asked for and never defaulted. U2's topic-decomposition step splits each chapter into the 2–6 topics the approved U1 research actually shows it contains, gives each a name and a one-line scope, and traces each back to a blueprint objective or documented concept.
+**Derived topic counts** — the number of topic notes per chapter is never asked for and never defaulted. U2's topic-decomposition step splits each chapter into the 2–6 topics the approved U1 research actually shows it contains, gives each a name and a one-line scope, and traces each back to a stated syllabus or blueprint objective, or to a concept the authoritative source documents.
 
-**Adaptive structure over a fixed template** — `topic-notes-template.md` is a **menu of suggested sections, not a running order**. The author picks the sections the topic genuinely needs, orders them to teach best, names every sub-heading after a real domain concept, may invent sections the menu never anticipated, and records each omission with a topic-specific reason in the template's **Adaptation Note**. Only three hard requirements survive: a **Coverage Plan** of sub-concepts verified as genuinely explained, an **800-word floor** of real explanatory prose per topic note (padding is a violation, not a way to meet it), and the reading level below.
+**Adaptive structure over a fixed template** — `topic-notes-template.md` is a **menu of suggested sections, not a running order**. The author picks the sections the topic genuinely needs, orders them to teach best, names every sub-heading after a real domain concept, may invent sections the menu never anticipated, and records each omission with a topic-specific reason in the template's **Adaptation Note**. Adaptivity governs **shape only** — it is never permission to leave substance out. Four hard requirements survive every adaptation: a **Coverage Plan** of sub-concepts verified as genuinely explained, an **800-word floor** of real explanatory prose per topic note (padding is a violation, not a way to meet it), the reading level below, and **source fidelity**.
+
+**Source fidelity (requirement 4)** — a note that conveys only the *feel* of a subject is non-compliant, however readable it is. Every exact proper name, designation, term of art, or identifier is spelled as the authoritative source spells it — a treaty name, a statute section, a species name, a place name, a grade, a date (in software, a field or parameter name). Every quantity, date, threshold, limit, unit, range, and closed set of permitted values the source states, the note states too. An analogy may illustrate a mechanism, but it may **never** substitute for naming the real thing, stating a real number, or enumerating a set. This requirement is graded **independently of the 800-word prose floor**: artifacts sit outside the prose count, so adding a table, a diagram, or a worked example can never reduce compliance with the word floor — and dropping one never improves it.
+
+**Binding T1–T11 REQUIRED-IF triggers** — artifact selection is not left to taste. The template carries eleven yes/no questions about the topic (ordered stages → a diagram; settings the reader chooses, such as proportions, grades, or thresholds → a parameters table; a real decision with consequences → a worked example; and so on through competing approaches, concrete artifacts, pitfalls, analogies, deep dives, definitions, objectives, and further reading). **Where a trigger's condition is true of the topic, that artifact is REQUIRED, not recommended.** All eleven answers — including every "no" — are recorded in the Adaptation Note, and omitting a triggered artifact requires citing **the trigger ID** plus a reason naming something specific about this topic that makes the artifact impossible or actively misleading. The template blocklists whole categories of excuse (impossibility asserted without checking a source; "something else already carries it"; "it would have to be invented"; "this subject has nothing selectable"; anything about the author's own effort or time), and a blocklisted reason fails the audit exactly as a blank row would.
+
+**Closed-enumerable-set completeness ratchet** — before writing, the author answers whether the topic's subject is a *closed enumerable set*: a finite documented list of members (statutory articles, treaty signatories, named historical periods, taxonomic ranks, official grades or classifications, musical modes, grammatical cases, permitted values or status codes). If it is, the **complete** member list must be extracted from the authoritative source before any prose is written; the source URL, retrieval date, and **source member count** go in the Coverage Plan; every member gets its own row in one complete table, named exactly as the source names it; and three numbers must be equal — **source count == Coverage Plan count == rendered table rows**. Covering the well-known members and stopping teaches the reader that the rest do not exist. The set must not be widened either: a neighbouring concept that merely *influences* the set is not a member of it.
 
 **Reading level pitched at a bright 14-year-old** — short sentences, one idea each, acronyms expanded on first use, jargon defined inline in plain words, and explanation carried by prose paragraphs rather than bullet lists. This is a requirement in `AGENTS.md` and `authoring-guidelines.md`, not a style preference.
 
@@ -89,16 +97,16 @@ Every unit runs in its own response — no two units are combined. U0–U5 end w
 | Time budget (hours) | Yes | Used for budget reconciliation in U2 |
 | Naming preference | Optional | Preferred repo folder name; derived from topic if omitted |
 | Naming style | Optional | Lowercase-hyphen (default) or ALLCAPS_UNDERSCORE |
-| Seed URLs | Optional | Official docs, exam guides; the skill finds them if omitted |
+| Seed URLs | Optional | Authoritative sources — official syllabus, standards body, canonical reference; the skill finds them if omitted |
 
-**Not asked here:** which per-chapter file types to create (all five are unconditional) and how many topic notes each chapter gets (derived from the U1 research during U2's topic decomposition). The only conditional input is whether you want hands-on lab files.
+**Not asked here:** which per-chapter file types to create (all five are unconditional) and how many topic notes each chapter gets (derived from the U1 research during U2's topic decomposition). The only conditional input is whether you want hands-on practice (lab) files.
 
 ---
 
 ## Outputs
 
 A complete repo skeleton on disk with:
-- `AGENTS.md` (fully populated with the adaptive authoring rules, the three hard requirements, and the authoring order)
+- `AGENTS.md` (fully populated with the adaptive authoring rules, the four hard requirements, the binding T1–T11 triggers, the enumerable-set ratchet, and the authoring order)
 - `templates/` (fully populated with real template content, plus a `templates/README.md` index)
 - `README.md` (fully populated with repo metadata)
 - All section, module, and chapter files as one-line stubs — every chapter carrying `00-intro.md`, its 2–6 `NN-<topic-slug>.md` topic notes, `interview-prep.md`, `thought-leadership.md`, and `99-podcast.md`
@@ -110,7 +118,7 @@ A complete repo skeleton on disk with:
 
 - **No content is written.** The skill creates structure only. Populate stubs with `author-chapter`.
 - **Live research required.** U1 makes real web requests. If official sources are unavailable, the skill provides fallback AI-assistant prompts.
-- **Blueprint changes.** Exam blueprints change over time — always re-fetch the official blueprint before final exam prep.
+- **Sources drift.** Syllabi, blueprints, editions, and reference works are revised over time — always re-fetch the authoritative source before final study or exam prep.
 - **Windows MAX_PATH.** Folder component names are capped at 40 characters. Any truncation is noted in the relevant index file.
 
 ---

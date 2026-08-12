@@ -113,17 +113,18 @@ Template selection is **per artifact type**. In a structured repo, prefer the re
 
 **The on-disk contract is the single source of truth for which sections to write and how deep to go.** That means the repo's `templates/` + `AGENTS.md`, or `reference/quality-gate.md` in fallback mode. This skill deliberately does **not** restate a section list or per-section counts — those drift, and a drifted copy is worse than no copy. Read the contract in U0 and obey it.
 
-**The three hard requirements (topic notes).** These are the only structural floors, and they are non-negotiable:
+**The four hard requirements (topic notes).** These are the only structural floors, and they are non-negotiable. **The on-disk template states each one authoritatively — read it there and obey its numbers.** The summaries below exist only so you know what to look for:
 
-1. **Coverage.** Before writing, enumerate the topic's sub-concepts in the template's **Coverage Plan** block (which stays in the finished file so the gate can read it back). Name real mechanisms, stages, parameters, failure modes, and neighbouring concepts — not vague buckets. Before writing the file, verify every enumerated sub-concept is genuinely explained in the body. Adaptive structure is allowed; skipping material is not.
-2. **Prose floor.** The explanatory body, **taken as a whole**, must reach at least **800 words** of genuine explanation. This applies to the document overall, never per section. Padding, hedging, restating the title, or repeating an earlier sentence in new words is a **violation**, not a way to satisfy it. The count excludes the metadata line, diagrams, code, tables, HTML comments, and the link list.
+1. **Coverage.** Before writing, enumerate the topic's sub-concepts in the template's **Coverage Plan** block (which stays in the finished file so the gate can read it back). Name real mechanisms, stages, settings, failure modes, and neighbouring concepts — not vague buckets. Before writing the file, verify every enumerated sub-concept is genuinely explained in the body. Adaptive structure is allowed; skipping material is not. If the subject is a **closed enumerable set**, coverage means **every member of that set** — see the enumerable-set rules in U1 and U3.
+2. **Prose floor.** The explanatory body, **taken as a whole**, must reach the template's stated minimum of genuine explanation — **800 words** unless the on-disk template states otherwise. This applies to the document overall, never per section. Padding, hedging, restating the title, or repeating an earlier sentence in new words is a **violation**, not a way to satisfy it. The count excludes the metadata line, diagrams, code, tables, HTML comments, and the link list.
 3. **Reading level / prose-first.** As in the universal rules below.
+4. **Source fidelity.** The note carries the exact substance a practitioner needs, not just a feel for the topic. Every exact proper name, designation, term of art, or identifier is spelled as the authoritative source spells it. Every quantity, date, threshold, limit, unit, range, and closed set of permitted values the source states, the note states too. Every artifact whose REQUIRED-IF trigger fired is actually present. An analogy may **illustrate** a mechanism but may **never substitute** for naming the real thing, stating a real number, or enumerating a set. This requirement is graded **independently** of requirement 2: artifacts neither count toward the prose floor nor against it, so adding one can never reduce compliance with the floor.
 
 **Universal voice and prose-first rules (every artifact type).**
 
 - Write for a **bright 14-year-old**. Short sentences. One idea per sentence. Plain everyday words wherever a plain word exists. Active voice. Warm, never condescending.
 - Expand every **acronym** the first time it appears. Define every piece of **jargon inline, in plain words**, on first use. A definitions table lower down does not excuse an undefined term in the prose above it.
-- **Prose paragraphs carry the explanation.** A bulleted or numbered list must never stand in for explaining something. Lists are for genuine enumerations only — a parameter table, a checklist, a list of links, a set of options being compared.
+- **Prose paragraphs carry the explanation.** A bulleted or numbered list must never stand in for explaining something. Lists are for genuine enumerations only — a table of settings, a checklist, a list of links, a set of options being compared. This rule targets **bullets used as a substitute for explanation**; it does **not** discourage diagrams, tables, or concrete artifacts, and an artifact a REQUIRED-IF trigger fired for is never in tension with it. Deliver both the artifact and the prose that says what to take from it.
 - Explain **why**, not just what. Every sentence must add a mechanism, a reason, a consequence, a constraint, a name, or a number.
 - **Adaptive structure.** No fixed section order and no required section list. Choose the sections this artifact and topic genuinely need from the template's suggested menu, order them so they teach best, and invent a section the menu never anticipated if the topic calls for one. Name every sub-heading after the **real domain concept** it discusses — generic headings ("Overview", "How does it work?", "Key Concepts", "Details") are non-compliant. Never leave an empty heading or "not applicable" filler; omit the section and record it in the **Adaptation Note**.
 
@@ -131,7 +132,7 @@ Template selection is **per artifact type**. In a structured repo, prefer the re
 
 | Artifact type | What it is for | Distinctive bar |
 |---|---|---|
-| **Topic note** (`NN-<slug>.md`) | The primary teaching artifact: one topic explained start to finish for someone who has not seen it before. | All three hard requirements apply here most strictly — Coverage Plan, 800-word prose floor, domain-named sub-headings. |
+| **Topic note** (`NN-<slug>.md`) | The primary teaching artifact: one topic explained start to finish for someone who has not seen it before. | All four hard requirements apply here most strictly — Coverage Plan, prose floor, domain-named sub-headings, and source fidelity. |
 | **Chapter intro** (`00-intro.md`) | An overview of every topic in the chapter and, above all, **how those topics interconnect** — what depends on what, what competes with what, what order to learn them in. | The connective map is the reason the file exists. A bare list of topic titles is non-compliant. Derived: no new facts, and a suggested reading order with a stated reason. |
 | **Podcast** (`99-podcast.md`) | A two-speaker conversational transcript covering every topic at orientation depth. Spoken audio on the page. | Genuine back-and-forth, not two monologues. Consistent generic role labels, never invented personalities. **Zero code blocks** — nothing that cannot be said aloud. Breadth over depth. Derived: no new facts. |
 | **Interview prep** (`interview-prep.md`) | Role-targeted question and answer preparation. | Questions realistic for the stated role and seniority, not trivia. Each answer is substance a candidate could say out loud, with the reasoning behind it so a follow-up is survivable, plus weak-answer traps specific to *this* subject matter — never generic interview advice. |
@@ -151,7 +152,7 @@ Template selection is **per artifact type**. In a structured repo, prefer the re
 - Match the repo's naming style (ALLCAPS-underscore vs lowercase-hyphen) and answer-format convention (inline `<details>` vs separate key) detected in Unit U0.
 - Leave zero `<!-- TODO -->`, `TBD`, or `STUB` markers, and no leftover square-bracket template placeholders.
 - Record every omitted suggested section in the **Adaptation Note**, with a one-line reason specific to *this* topic. "Not needed" is not an acceptable reason — say what about this topic made the section unhelpful. Omission is fine; silent omission is not.
-- Depth calibration: the **prose explanation and worked examples carry the teaching load** and should dominate. Snippets, diagrams, tables, and questions support that load — they illustrate and test what the prose already explained, and never stand in for it. Do not invert these proportions.
+- Depth calibration: the **prose explanation and worked examples carry the teaching load** and should dominate. Diagrams, tables, concrete examples, and questions support that load — they illustrate and test what the prose explained, and never stand in for it. The reverse also holds: prose never stands in for an artifact a trigger required. Deliver both, and do not invert these proportions.
 
 ### Constraints and guardrails (non-negotiable, all units)
 
@@ -181,6 +182,8 @@ Template selection is **per artifact type**. In a structured repo, prefer the re
 | 7 | The topic is really two or more topics (the Coverage Plan will not decompose into one note) | U1 or U2 | Say what the two topics are and ask whether to split the stub. Splitting is a scope decision, not yours to make silently. |
 | 8 | The 800-word prose floor cannot be reached with genuine explanation | U2 or U3 | Report the measured word count and the gap. Ask for more source material or a wider scope. Do **not** pad — padding is a gate failure, not a workaround. |
 | 9 | Two sibling notes contradict each other on something a derived artifact must state | U1 or U2 | Quote both claims and their filenames. Ask which is correct. Do not silently pick a side. |
+| 10 | The subject is a closed enumerable set, but its **complete** membership cannot be confirmed from an authoritative source | U1 or U2 | Name the set, the source you read, and the members you could confirm. Say that a partial list teaches the reader the rest do not exist, so you will not publish one. Ask for the authoritative list. |
+| 11 | The **source member count** cannot be established, or the source count and the Coverage Plan count disagree and the discrepancy cannot be resolved | U1, U2 or U3 | Report both numbers (or say which one is unavailable) and the source and date you read. Ask which count is authoritative. Never split the difference and never guess the count. |
 
 **How to stop:** do not write a partial file and report success. State (a) exactly what is missing, (b) what you checked, (c) what you need in order to continue. Then hand control back and wait.
 
@@ -278,8 +281,23 @@ The units run in order U0 → U4. Three of them are STOP GATES that hand control
   5. **Fallback rule (STOP).** If official sources cannot be reached for the topic, **stop** — see STOP CONDITIONS row 4. Tell the user and offer two paths: (a) paste the relevant official-doc excerpts into the chat, or (b) run `create-learning-repo`'s Phase 1 fallback AI-query prompts elsewhere and paste the results back. Only resume once cited source material is available.
   6. **Apply source hygiene** (shared reference material) to every source and link. Reject any third-party blog, video, forum, or aggregator outright — it is not a citable source, however good it looks.
   7. **Quote any exam objective verbatim.** Copy it character for character. Never paraphrase it.
-  8. **Enumerate the Coverage Plan sub-concepts** from what the sources actually say. Name real mechanisms, stages, parameters, failure modes, and confusable neighbours — not vague buckets like "basics" or "key concepts". If a sub-concept has no supporting source, it must be dropped or asked about, never invented.
-  9. **Assemble the research brief:**
+  8. **Enumerate the Coverage Plan sub-concepts** from what the sources actually say. Name real mechanisms, stages, settings, failure modes, and confusable neighbours — not vague buckets like "basics" or "key concepts". If a sub-concept has no supporting source, it must be dropped or asked about, never invented.
+
+  9. **CLOSED-ENUMERABLE-SET EXTRACTION — do this before any drafting.** Ask one question and write the answer down: **is this topic's subject a closed enumerable set?** A closed enumerable set is a subject whose members are a finite, documented list. Answer **yes** if any of these holds: the subject *is* one of these kinds of list (permitted values, result or status codes, selectable options, lifecycle or workflow states, error categories, allowed roles, supported units, taxonomic ranks, statutory articles or subsections, treaty signatories, named periods or dynasties, musical modes, grammatical cases, classification tiers, official grades or rankings); the source documents the subject *as* a list a reader could count; or a reader would reasonably ask "what are all of them?".
+
+     **If yes, all four are mandatory before you draft a single sentence:**
+     1. Open the authoritative source and **extract the COMPLETE member list**. Not the common ones. Not the ones you happen to remember. All of them.
+     2. **Record the source URL, the retrieval date (YYYY-MM-DD), and the SOURCE MEMBER COUNT** — the number of members that source lists — into the brief, and later into the Coverage Plan.
+     3. List every member in the brief **exactly as the source names them**, character for character.
+     4. Plan for **one complete table** in the body with **one row per member**. A member mentioned only in passing in prose does not satisfy this.
+
+     **CAUTION — do not widen the set. A related-but-distinct item is NOT a set member.** Only what the source lists as a member is a member. A neighbouring concept, control, or setting that merely *influences* the set is not part of it. Naming such a neighbour as a member is a factual error that teaches the reader something false, and it is a common one: the neighbour usually appears on the same page as the list, so it feels like it belongs. Check membership against **the source's own list**, not against the page it appears on. Genuine neighbours go in "deliberately out of scope" or a "commonly confused with" note.
+
+     **If no,** record one line in the brief saying why this subject has no finite member list.
+
+     If you cannot confirm the complete membership or establish the source member count, **stop** — see STOP CONDITIONS rows 10 and 11.
+
+  10. **Assemble the research brief:**
      ```
      ## Research Brief — [Artifact type] — [Topic]
 
@@ -291,6 +309,14 @@ The units run in order U0 → U4. Three of them are STOP GATES that hand control
      1. [Sub-concept A] — mechanism + why it matters
      2. [Sub-concept B] — ...
      3. [Sub-concept C] — ...
+
+     **Closed enumerable set:** [yes / no — if no, one line on why this subject has no finite member list]
+     - If yes — Source: [url] — retrieved [YYYY-MM-DD]
+     - If yes — SOURCE MEMBER COUNT: [n]
+     - If yes — Members, exactly as the source names them: [name, name, name, ...]
+     - If yes — Related but NOT members (do not put these in the table): [name — what it does instead]
+
+     **REQUIRED-IF trigger answers (all of T1-T11, none skipped):** [T1 yes/no — ...]
 
      **Sections planned (from the template menu, in teaching order):** [list]
      **Sections deliberately omitted (for the Adaptation Note):** [section — topic-specific reason]
@@ -362,8 +388,9 @@ The units run in order U0 → U4. Three of them are STOP GATES that hand control
 
   While drafting, these apply throughout:
   - **Record every omitted suggested section in the Adaptation Note**, each with a one-line reason specific to this topic. "Not needed" is not acceptable — say what about *this* topic made the section unhelpful. Silent omission is a gate failure.
-  - **Meet the three hard requirements — non-negotiable for topic notes** (see shared reference material): (1) the **Coverage Plan** is filled in before the body is written and every sub-concept it enumerates is genuinely explained; (2) the explanatory body as a whole clears the **800-word floor** of real explanation, with no padding; (3) **reading level and prose-first** — bright 14-year-old, short sentences, acronyms expanded and jargon defined inline on first use, explanation carried by prose rather than lists.
+  - **Meet the four hard requirements — non-negotiable for topic notes** (see shared reference material): (1) the **Coverage Plan** is filled in before the body is written and every sub-concept it enumerates is genuinely explained; (2) the explanatory body as a whole clears the **800-word floor** of real explanation, with no padding; (3) **reading level and prose-first** — bright 14-year-old, short sentences, acronyms expanded and jargon defined inline on first use, explanation carried by prose rather than lists, every sub-heading named after the real domain concept it discusses; (4) **source fidelity** — every exact proper name, designation, and term of art spelled as the authoritative source spells it, plus every quantity, date, threshold, limit, unit, range, and closed set of permitted values the source states, and every artifact whose REQUIRED-IF trigger fired actually present. An analogy may illustrate a mechanism; it may never substitute for a real name, a real number, or an enumerated set.
   - Apply the **universal voice and prose-first rules** and the artifact's **distinctive bar** (shared reference material) — for a derived artifact this includes introducing **no fact absent from the sibling topic notes**, and for a podcast it includes zero code blocks.
+  - **Keep only the surviving scaffolding blocks, and delete every other one outright** — do not leave a trimmed or summarised version. The template carries a **survival manifest**; obey it. For a topic note, exactly three scaffolding blocks are still in the finished file, filled in and still inside HTML comments: **1. Coverage Plan  2. Adaptation Note  3. Final Self-Audit**. Every other block must be gone before the file is written: the template's header block (including the four hard requirements and the manifest itself), **HOW TO AUTHOR THIS FILE** (all phases), **HOW TO MEASURE THE FOUR HARD REQUIREMENTS** (all recipes), the **WORKED MICRO-EXAMPLE**, the **SUGGESTED SECTIONS MENU**, the **VOICE AND PROSE-QUALITY ILLUSTRATIONS**, the **FURTHER READING — SOURCE HYGIENE** guidance block (the Further Reading section you wrote stays), and **VERSION HISTORY**. Also delete the placeholder first-section heading and every square-bracket placeholder you did not replace. **No `## Version History` heading may appear in a finished note.** Where another artifact type's template carries its own manifest, that manifest governs instead — read it and follow it.
   - Apply **draft discipline** (shared reference material): match naming style and answer format; leave zero TODO/TBD/STUB or bracket placeholders; respect the depth calibration.
   - Apply **source hygiene** to any links. For derived artifacts, add no citation the sibling notes do not already carry.
   - If any STOP CONDITION fires mid-draft — a missing fact, an unreachable floor, a topic that is really two — stop and ask. Do not fabricate to finish.
@@ -424,6 +451,20 @@ The units run in order U0 → U4. Three of them are STOP GATES that hand control
     4. To fix a ✗: rewrite one offending list as a paragraph that states each point **and** why it is true. Then recount.
 
   - **Coverage Plan reconciliation (topic notes).** Read the Coverage Plan back out of the file. Take each enumerated sub-concept in turn and find the specific sub-heading or paragraph in the body that explains it. Name that location next to the item. Not found → either write the missing explanation, or delete the item and record one line saying why it does not belong here. Record `[n] of [n] mapped`. An item marked done with no location named is a failed row.
+
+  - **Domain-named sub-headings (all artifacts).** List every sub-heading in the file. For each, ask whether it names a real thing in this subject or only a generic slot ("Overview", "How does it work?", "Key Concepts", "Details", "Background"). Record `headings [n], generic [n]`. Required generic count: **0**.
+
+  - **Source fidelity (topic notes — requirement 4).** Three counts, all recorded, none estimated.
+    1. **Exact names.** List every proper name, designation, term of art, and identifier in the draft (a statute section, a species name, a place name, a grade, a field or parameter name). Check each one **character by character** against the source that supplies it. Record `names checked [n], mismatches fixed [n]`.
+    2. **Real numbers.** List every quantity, date, threshold, limit, unit, range, and closed set of permitted values the source states for this topic. Confirm each one appears in the note. Record `source-stated values [n], present in note [n]` — the two must be equal. Any value in the note that no source states is an invention: delete it and record `untraceable dropped [n]`, which must reach **0**.
+    3. **Delivered artifacts.** Count the REQUIRED-IF triggers answered **yes**, then count how many of those artifacts are actually in the body. Record `triggers fired [n], delivered [n]` — the two must be equal. Fix by writing the missing artifact, or by changing the answer to no with a reason specific to this topic.
+    Every subject has names and dates, so this row is never "not applicable". An analogy never counts as a name, a number, or a set.
+
+  - **REQUIRED-IF trigger answers (topic notes).** Read the Adaptation Note back out of the file and check the triggers **T1 through T11** one at a time. Record `answered [n] of 11`; required: **11 of 11**, every one an explicit yes or no. Then record `yes [n], each naming the section that satisfies it [n of n]` and `no [n], each with a reason specific to this topic [n of n]`. A missing answer, a "yes" that names no section, and a "no" whose reason would read identically in a note on any other subject are each a failed row.
+
+  - **Closed-enumerable-set count equality (topic notes whose subject is a closed enumerable set).** Write down three numbers and compare them: (a) the **source member count** recorded in the Coverage Plan, (b) the number of members listed in the Coverage Plan, (c) the number of member rows in the rendered table in the body. Record `source [n] == plan [n] == table rows [n]`. All three equal → ✓. Any disagreement → ✗: re-read the source list, and if the discrepancy will not resolve, stop and ask (STOP CONDITIONS row 11). Also confirm no row is a related-but-distinct neighbour the source does not list as a member. If the subject is not a closed enumerable set, record the one line from the brief saying why, and mark the row not applicable.
+
+  - **Scaffolding survival (all artifacts).** Search the finished draft for the blocks the template's survival manifest says must be gone — its header/requirements block, the authoring phases, the measurement recipes, the worked micro-example, the sections menu, the voice illustrations, the manifest itself, and any `## Version History` heading. Record `non-surviving blocks found [n]`; required: **0**. Then confirm the surviving blocks are present and filled in: `Coverage Plan [y/n], Adaptation Note [y/n], Final Self-Audit [y/n]`. A missing survivor and a leaked non-survivor are each a failed row.
 
   - **Speaker turns and code fences (podcasts).**
     1. Count `###` topic segments. Compare to the number of numbered topic files. The two must be the same number; record both.
@@ -499,6 +540,12 @@ U3  Ran the TOPIC-NOTE gate. Measured, not judged:
       coverage: 5 of 5 items mapped to named sub-headings  ✓
       acronyms: 4 found, 3 expanded, 1 fixed  ✓
       prose-first: P = 11, L = 2 -> 11 >= 6  ✓
+      source fidelity: 14 names checked (1 fixed), 9 of 9 source values present,
+                       triggers fired 6 / delivered 6  ✓
+      triggers: 11 of 11 answered (6 yes, each naming a section; 5 no with reasons)  ✓
+      enumerable set: source 8 == plan 8 == table rows 8  ✓
+      scaffolding: non-surviving blocks found 0; Coverage Plan / Adaptation Note /
+                   Final Self-Audit all present  ✓
       placeholders: 0 hits | external links: 2 fetched live  ✓
 U2  Wrote the file. Handed back a POINTER ONLY, no body.
 
@@ -512,6 +559,7 @@ This skill is written in the `SKILL.md` format for OpenCode. The workflow and ru
 
 | Platform | How to use |
 |---|---|
+| **Google Antigravity** | Drop the whole `author-chapter/` folder into `~/.gemini/config/skills/` — same `SKILL.md` standard (YAML frontmatter required, `name` optional) |
 | **Claude Code** | Copy the content below the frontmatter into `CLAUDE.md` under a `## Workflows` section |
 | **Cursor** | Paste into `.cursor/rules/author-chapter.mdc`, set rule type to `Agent Requested` |
 | **GitHub Copilot** | Add to `.github/copilot-instructions.md` under a clearly labelled heading |

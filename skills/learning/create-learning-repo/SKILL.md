@@ -12,7 +12,7 @@ The workflow is a sequence of discrete **units** (U0 → U6). Each unit has a **
 **What gets created:**
 - A structured folder tree (sections → modules → chapters)
 - A `templates/` directory — the only directory with real content (plus `AGENTS.md` and `README.md`)
-- An `AGENTS.md` — authoring rules and content depth standards for the repo
+- An `AGENTS.md` — authoring rules and content depth standards for the repo, including the four hard requirements every topic note must meet and the binding REQUIRED-IF trigger table
 - A `README.md` — populated with actual repo metadata
 - Blank stub files for all content (one placeholder line each)
 
@@ -209,7 +209,9 @@ Template bodies are **never** inlined into this SKILL.md — they live in `refer
 | `interview-prep-template.md` | `reference/interview-prep-template.md` | `templates/interview-prep-template.md` | Always |
 | `lab-template.md` | `reference/lab-template.md` | `templates/lab-template.md` | Labs requested in U0 |
 
-**What `topic-notes-template.md` is** (the template every topic note follows): an **adaptive menu of suggested sections, not a fixed running order**. The author picks the sections this specific topic genuinely needs, orders them however teaches best, renames them after real domain concepts, and may invent sections the menu never anticipated. It carries only **three hard requirements**: (1) a **Coverage Plan** — the author enumerates the topic's sub-concepts before writing and verifies each one is genuinely explained before submitting; (2) an **800-word floor** of genuine explanatory prose per topic note, where padding or restatement is a violation rather than a way to meet it; (3) a **reading level** pitched at a bright 14-year-old — short sentences, acronyms expanded on first use, jargon defined inline, and prose (not bullet lists) carrying the explanation. Omissions from the menu are recorded with a topic-specific reason in the template's **Adaptation Note**, and a 12-row outcome-based Final Self-Audit is run before submission.
+**What `topic-notes-template.md` is** (the template every topic note follows): an **adaptive menu of suggested sections, not a fixed running order**. The author picks the sections this specific topic genuinely needs, orders them however teaches best, renames them after real domain concepts, and may invent sections the menu never anticipated. It carries **four hard requirements**: (1) a **Coverage Plan** — the author enumerates the topic's sub-concepts before writing and verifies each one is genuinely explained before submitting, and where the topic's subject is a closed enumerable set (a finite documented list of members, such as permitted grades, statutory subsections, taxonomic ranks, or workflow states) coverage means **every** member of that set; (2) an **800-word floor** of genuine explanatory prose per topic note, where padding or restatement is a violation rather than a way to meet it; (3) a **reading level** pitched at a bright 14-year-old — short sentences, acronyms expanded on first use, jargon defined inline, and prose (not bullet lists) carrying the explanation; (4) **source fidelity** — every exact proper name, designation, or term of art spelled as the authoritative source spells it, every quantity, date, threshold, limit, unit and closed set of permitted values the source states, and every artifact a fired REQUIRED-IF trigger demanded, with no analogy standing in for a real name, number, or set.
+
+The template's **REQUIRED-IF triggers T1–T11** are **binding, not advisory**: each is a yes/no question about the topic, and where the condition is true the named artifact (a diagram, a parameters table, a worked example, a concrete example of the thing a reader produces or follows, and so on) is required rather than recommended. All eleven answers — including every "no" — are recorded in the template's **Adaptation Note**, and every omission cites the trigger ID it answered no to plus a reason specific to this topic that survives the template's rejected-justification blocklist. Requirement 4 is graded **independently** of requirement 2, so adding a diagram or table can never reduce compliance with the word floor. A 15-row outcome-based Final Self-Audit, with an Evidence column carrying measured values, is run before submission.
 
 **Key sections in `authoring-guidelines.md`**: Voice & Reading Level → Prose-First Rule → Adaptive Structure → Completeness → Depth Calibration → Per-Artifact Guidance (topic notes, chapter intro, podcast, interview prep, thought leadership) → Authoring Order → Source Hygiene → Blueprint Drift Warning → Quality Checklist.
 
@@ -224,6 +226,7 @@ Template bodies are **never** inlined into this SKILL.md — they live in `refer
 - **Topic counts are derived, never fixed.** The 2–6 topic notes per chapter come from the topic decomposition in U2, grounded in the approved U1 research.
 - **`00` and `99` are reserved slots.** `00-intro.md` and `99-podcast.md` only. Topic notes occupy `01`…`NN` (`NN` ≤ `06`); `interview-prep.md` and `thought-leadership.md` are unnumbered.
 - **Derived artifacts come last.** `00-intro.md` and `99-podcast.md` are authored only after every topic note in their chapter is complete and non-stub, and introduce no fact absent from those notes.
+- **The topic-note contract is four hard requirements, not three.** Coverage (including every member of a closed enumerable set), the 800-word prose floor, the bright-14-year-old reading level, and source fidelity. The `AGENTS.md` written in U4 must state all four, must state that the T1–T11 REQUIRED-IF triggers are binding, and must state that source fidelity is graded independently of the prose floor.
 - **One unit per response.** Never combine units. Each STOP GATE hands control back before the next unit runs.
 - **Always fetch live information in U1.** Never invent curriculum structure from training data alone.
 - **Hour budget must reconcile.** If the U0 budget is outside [chapters × 1.5, chapters × 3.0] by more than 25%, propose a specific structural fix before proceeding (U2).
@@ -250,6 +253,7 @@ Stop and ask when any row below is true. Say the thing in the right-hand column,
 | The user has not approved the U2 structure, the U3 manifest, or the U5 scaffold at its gate | Nothing further. Present the gate output and wait. Do not begin the next unit. |
 | A target file already has content beyond the stub line | "`<path>` already has content. I skipped it — nothing was overwritten." Report it; never overwrite. |
 | A U4 template written to `templates/` does not match its `reference/` source | "The copy of `<name>` does not match its source. Re-copying." Re-copy, then re-verify. Do not report success on a mismatch. |
+| The `AGENTS.md` you are about to write states fewer than four hard requirements, or describes the T1–T11 triggers as optional | Nothing to ask — fix it before writing. A repo whose `AGENTS.md` understates the contract silently overrides `templates/topic-notes-template.md` for every note ever authored in it. |
 
 ---
 
@@ -487,10 +491,10 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
      | `[SOURCE OF TRUTH]` | the authoritative syllabus/exam-guide URL from U1 |
 
      Substitute nothing else. Every other placeholder in the document is authoring guidance for the finished repo and stays as written.
-  2. **Copy the Content Depth Rules section verbatim.** Rules 1–9 are topic-agnostic and govern authoring quality for any subject. Do not shorten, reorder, merge, or reword them.
+  2. **Copy the Content Depth Rules section verbatim.** Rules 1–10 are topic-agnostic and govern authoring quality for any subject. Do not shorten, reorder, merge, or reword them. In particular, do not soften Rule 3 or Rule 10: the four hard requirements and the binding T1–T11 triggers are the substance of the contract, and an `AGENTS.md` that states fewer of them overrides `templates/topic-notes-template.md` for every note authored in that repo.
   3. **For each template in the approved U3 manifest:** read `reference/<name>` (relative to this skill's base directory) with the `Read` tool, then write that content to `<repo-root>/templates/<name>` with the `Write` tool. Copy it — do not paraphrase, summarise, abbreviate, re-indent, or "improve" it. Do one template at a time; do not write a template you have not just read.
   4. **Create `templates/README.md`** listing each template file, its `reference/` source, and its destination in the repo.
-  5. **Verify each written template matches its source.** Do not assume the copy worked. **Observable test:** for every template, compare the file you wrote against `reference/<name>` — same line count and same first and last line at minimum — and confirm they match. A mismatch means re-copy that file and re-check; never report success on a mismatch.
+  5. **Verify each written template matches its source.** Do not assume the copy worked. **Observable test:** for every template, compare the file you wrote against `reference/<name>` — same line count and same first and last line at minimum — and confirm they match. Take the expected line count from the `reference/` file you just read; never from a number remembered from a previous run. For `topic-notes-template.md` additionally confirm the copy still carries its `VERSION:` marker and all four hard requirements, since a truncated copy usually loses the tail of the file first. A mismatch means re-copy that file and re-check; never report success on a mismatch.
 
   **The `AGENTS.md` document to write in step 1:**
 
@@ -527,13 +531,51 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     - Invent a section the topic calls for if the menu never anticipated it.
     - Record every omitted menu section in the template's **Adaptation Note**, with a one-line reason specific to this topic. Omission is fine; silent omission is not.
 
-    The template carries only **three hard requirements**:
+    Adaptive structure is freedom over *shape*, never permission to leave material out. The template carries **four hard requirements**:
 
-    1. **Coverage Plan** — before writing, enumerate the topic's sub-concepts in the template's Coverage Plan; before submitting, verify each one is genuinely explained in the body, not merely name-dropped.
+    1. **Coverage Plan** — before writing, enumerate the topic's sub-concepts in the template's Coverage Plan; before submitting, verify each one is genuinely explained in the body, not merely name-dropped. If the topic's subject is a **closed enumerable set**, coverage means every member of it — see the completeness ratchet below.
     2. **800-word prose floor** — each topic note contains at least 800 words of genuine explanatory prose. Padding, hedging, and restatement are violations of this requirement, not ways to meet it.
     3. **Reading level** — written for a bright 14-year-old: short sentences, one idea each; every acronym expanded on first use; every piece of jargon defined inline in plain words on first use; prose paragraphs (not bullet lists) carrying the explanation.
+    4. **Source fidelity** — the note carries the exact substance a practitioner needs, not just a feel for the topic. Every exact proper name, designation, term of art, or identifier is spelled as the authoritative source spells it. Every quantity, date, threshold, limit, unit, range, and closed set of permitted values the source states, the note states too. Every artifact whose REQUIRED-IF trigger fired is actually present. An analogy may illustrate a mechanism, but it may **never** substitute for naming the real thing, stating a real number, or enumerating a set.
 
-    Run the template's Final Self-Audit before submitting any topic note.
+    **Requirement 4 is graded independently of requirement 2.** Artifacts neither count toward the 800-word prose floor nor against it, so adding a diagram, a table, or a worked example can never reduce compliance with the word floor. Never drop a required artifact to protect the word count, and never treat a table as progress toward it. If an artifact replaced prose the reader still needed, write the prose back.
+
+    ### REQUIRED-IF triggers are binding, not advisory
+    The template's trigger table (T1–T11) is a set of yes/no questions about the topic. **Where the condition is true, the named artifact is REQUIRED, not recommended.** Record an explicit yes/no for **all eleven** triggers in the Adaptation Note — including every "no".
+
+    | ID | Required if this is true of the topic | Then this is required |
+    |---|---|---|
+    | T1 | It has ordered stages — a sequence, a flow, a life cycle (a fermentation, a court appeal route, a processing pipeline) | a diagram |
+    | T2 | It has settings a reader chooses — limits, sizes, quantities, proportions, grades, thresholds (an oven temperature, a gear ratio, a configuration value) | a parameters table |
+    | T3 | A practitioner faces a real decision with consequences | a worked example |
+    | T4 | There is a competing approach the reader will meet | trade-offs / alternatives |
+    | T5 | There is a concrete artifact, procedure, worked calculation, or template the reader would actually produce or follow (a step sequence, a dosage calculation, a citation format, a piece of code or configuration) | a concrete example of it |
+    | T6 | Readers reliably get it wrong, or a wrong intuition is tempting | common pitfalls |
+    | T7 | It is abstract or counter-intuitive and has a true everyday analogy | a plain-language opening |
+    | T8 | One mechanism is much harder than the rest | a deep dive |
+    | T9 | It introduces terms the reader will meet again later | key definitions |
+    | T10 | It is assessed, or the reader must be able to DO something after | learning objectives and self-check questions |
+    | T11 | An authoritative source exists | further reading |
+
+    A "no" is valid only when it is true of the *topic*. Answering no because the artifact is effort is a failed audit row.
+
+    ### Omission requires a trigger ID and a surviving reason
+    Every omission of a trigger artifact must cite **the trigger ID it answered no to**, plus a reason naming something specific about **this** topic that makes the artifact impossible or actively misleading — not merely inconvenient. The template's blocklist rejects whole categories of reason, and a rejected reason is a failing audit row exactly as if the row were blank:
+
+    - impossibility asserted without a source check — name the source you read and what it did not contain;
+    - "something else already carries it" — an analogy cannot enumerate a set or state a real quantity, and prose cannot replace a required artifact;
+    - "the artifact would have to be invented" — fails whenever the source in fact contains a real one (a real ratio, a real ruling, a real measurement, a real procedure);
+    - "this subject has nothing selectable or variable" — fails unless you say which source you checked for quantities, thresholds, grades, or permitted values, and what it stated;
+    - any reason about your own convenience — effort, time, uncertainty, length.
+
+    A reason that would read identically in a note on a completely different topic is boilerplate, and boilerplate is rejected.
+
+    ### Closed-enumerable-set completeness ratchet
+    Before writing, answer in the Coverage Plan: **is this topic's subject a closed enumerable set?** It is, if its members are a finite documented list — permitted values, status or result codes, selectable options, lifecycle or workflow states, error categories, supported units, allowed roles, taxonomic ranks, statutory articles or subsections, named historical periods or treaty signatories, musical modes, grammatical cases, classification tiers, official grades or classes — or if the source documents the subject *as* a list, or if a reader would reasonably ask "what are all of them?".
+
+    If yes, all four are mandatory: extract the **complete** member list from the authoritative source before writing any prose; record the source URL, the retrieval date, and the **source member count** in the Coverage Plan; give **every** member its own row in one complete table in the body, named exactly as the source names it; and verify three numbers are equal — source member count == members in the Coverage Plan == rows in the table. A member mentioned only in passing in prose does not satisfy this. Covering the well-known members and stopping teaches the reader that the rest do not exist. Do not widen the set either: a neighbouring concept that merely *influences* the set is not a member of it, and belongs in "deliberately out of scope". If the three counts disagree, or no source confirms the member count, stop and ask.
+
+    Run the template's Final Self-Audit before submitting any topic note, filling the Evidence column of every row with the measured value or the specific thing you found. A tick with no evidence is a failed row.
 
     ### Template → destination mapping
 
@@ -581,32 +623,42 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     Bulleted lists must **not** be used as a substitute for explanation. Lists are for genuine enumerations only: a parameter table, a checklist, a list of links, a set of options being compared.
     Why: a page of bullets looks organised but teaches nothing. The connective reasoning *between* the points is exactly what the learner does not yet have and cannot infer.
 
-    ### Rule 3 — Adaptive structure
+    ### Rule 3 — Adaptive structure, not optional substance
     There is **no fixed section order and no required section list.** The author picks the sections this specific topic genuinely needs from the template's menu, reorders them into whatever order teaches best, and may invent a section the menu never anticipated.
     - Sub-headings are named after the actual domain concept being explained. `### Overview`, `### How does it work?`, `### Key Concepts`, `### Details` are all non-compliant. Name the thing.
     - Every omitted menu section is recorded in the template's **Adaptation Note** with a one-line reason specific to this topic. "Not needed" is not a reason. Omission is fine; silent omission is not.
+    Adaptivity governs **shape only**. It is not a licence to leave out substance: where a REQUIRED-IF trigger (T1–T11) fires, the artifact it names is required, and the matching menu entry is not optional. Diagrams, parameters tables, worked examples and concrete examples are **not optional-by-default** — they are optional only when the trigger genuinely did not fire, and every "no" is answered explicitly, cites its trigger ID, and gives a topic-specific reason that survives the template's blocklist.
 
     ### Rule 4 — Coverage is enumerated, then verified
     Adaptive must not become thin.
     1. **Before writing:** enumerate the topic's sub-concepts — every distinct idea a reader must hold to understand this topic — in the template's Coverage Plan. Name actual mechanisms, stages, parameters, failure modes, and neighbouring concepts, not vague buckets. Do not trim the list to make the writing easier.
     2. **Before submitting:** verify every enumerated sub-concept is genuinely explained in the body, not merely name-dropped.
+    3. **If the subject is a closed enumerable set** — a finite documented list of members — coverage means **all** of them. Extract the complete list from the authoritative source first, record the source, the retrieval date and the source member count in the Coverage Plan, give every member its own row in one complete table, and confirm source count == plan count == table rows. Covering the familiar members and stopping is a failed audit, not a partial pass.
 
     ### Rule 5 — 800-word explanatory prose floor
     Each topic note contains a minimum of **800 words of genuine explanatory prose**, measured across the body as a whole rather than per section. "Genuine" means each sentence adds a mechanism, a reason, a consequence, a constraint, a name, or a number. Padding, hedging, restating the title, and repeating an earlier sentence in new words are **violations of this rule, not ways to satisfy it**. If the floor is out of reach, go deeper — another mechanism, a concrete consequence, an edge case, a worked case — never repeat yourself in new words. The count excludes the metadata line, diagrams, code, tables, HTML comments, and the Further Reading list.
+    That exclusion is a measurement boundary, never an argument against artifacts. This rule measures prose only; artifacts are measured separately under Rule 10. Adding a diagram or a table therefore cannot reduce compliance with this rule, and removing one cannot improve it.
 
     ### Rule 6 — Explain the mechanism, not just the definition
-    A definition alone is non-compliant. Wherever a concept is introduced, the note must also say **how it actually works** — the process or system behaviour that produces the result — and **where it shows up in [TOOL/PLATFORM]**: a specific command, API call, UI location, config field, or observable output the reader could go and look at. This applies wherever the concept is explained; it does not require a section with any particular name.
+    A definition alone is non-compliant. Wherever a concept is introduced, the note must also say **how it actually works** — the process or system behaviour that produces the result — and **where the reader can go and see it for themselves** in [TOOL/PLATFORM]: a named place, document, edition, ruling, instrument, measurement, or observable output (in software, a specific command, API call, UI location, config field, or log line). This applies wherever the concept is explained; it does not require a section with any particular name.
 
-    ### Rule 7 — Snippets are scenario-first, not topic-first
-    Any code or configuration snippet opens with a comment naming the real operational problem it solves and the constraint that makes this the right choice.
-    Non-compliant: a comment that only names the feature or command being demonstrated.
-    Snippets must be syntactically valid for their language. Include a snippet only when there is code or configuration a reader would actually write — inventing code for the sake of having code is non-compliant.
+    ### Rule 7 — Concrete examples are scenario-first, not topic-first
+    Any concrete artifact the note shows — a procedure, a worked calculation, a filled-in form, a citation, a piece of code or configuration — opens by naming the real problem it solves and the constraint that makes this the right choice.
+    Non-compliant: an introduction that only names the feature, step, or term being demonstrated.
+    Include such an example whenever trigger T5 fires — that is, whenever there is something concrete a reader would actually produce or follow. Do not invent one where a reader produces nothing; say what they do instead. Where the artifact is code or configuration, it must also be syntactically valid; where it is a calculation, the arithmetic must actually work out.
 
     ### Rule 8 — Answer rationales cover the distractor
     Any self-check answer explains why the correct answer is right **and** why the most tempting wrong answer fails. One-word rationales are non-compliant. For multi-select, explain why each correct option qualifies and why the most tempting wrong option does not. This rule governs self-check questions when a note has them; it does not require that a note have them.
 
     ### Rule 9 — Derived artifacts introduce no new facts
     `00-intro.md` and `99-podcast.md` are derived artifacts. Every claim, number, name, and definition in them must already appear in a sibling topic note in the same chapter. They summarise and connect; they do not research. If a derived artifact needs a citation, that is the signal it is smuggling in a new fact — cut it, or add it to the relevant topic note first. `99-podcast.md` additionally contains **zero code blocks** (and no tables or diagrams): it is spoken audio, so anything technical is described in words.
+
+    ### Rule 10 — Source fidelity: exact names, real numbers, delivered artifacts
+    A note that conveys only the *feel* of a topic is non-compliant, however readable it is. Three things are checked, and all three are two-sided — they fail when something present is wrong *and* when something required is missing.
+    1. **Exact names.** Every proper name, designation, term of art, or identifier is spelled as the authoritative source spells it — a statute section, a species name, a date, a place name, a grade, a field or parameter name. Check each one character by character against the source. No paraphrased, prettified, or guessed names.
+    2. **Real numbers.** Every quantity, date, threshold, limit, unit, range, and closed set of permitted values the source states for this topic appears in the note. Anything present in the note but absent from any source is an invention — delete it.
+    3. **Delivered artifacts.** Count the triggers answered yes in the Adaptation Note, then count how many of those artifacts are actually in the body. The two numbers must be equal. If they are not, write the missing artifact or change the answer to no with a reason that survives the blocklist.
+    An analogy may illustrate a mechanism; it may never stand in for a real name, a real number, or an enumerated set. Every subject has names and dates, so this rule is never "not applicable". It is graded independently of Rule 5: artifacts are outside the prose count, so satisfying this rule can never cost you compliance with the word floor.
 
     ---
 
@@ -653,10 +705,14 @@ The units run in order U0 → U6. U0–U5 each end with a STOP GATE that hands c
     - Do not renumber or rename files or folders after scaffold — filenames are locked once U5 writes them. That includes renumbering topic notes, moving a topic note into the reserved `00`/`99` slots, and adding a number to `interview-prep.md` or `thought-leadership.md`. Authored chapters may forward-link to not-yet-written stubs; those links resolve when the target is populated. Renaming to "fix" a link breaks every other reference to that file.
     - Do not link to third-party blogs, Medium, or YouTube
     - Do not skip or merge sections without user approval
+    - Do not leave a REQUIRED-IF trigger (T1–T11) unanswered, and do not omit an artifact whose trigger fired without citing the trigger ID and a topic-specific reason that survives the blocklist
+    - Do not publish a partial list where the subject is a closed enumerable set — every member gets a row, or you stop and ask
+    - Do not let an analogy stand in for a real name, a real quantity, or an enumerated set
+    - Do not drop a diagram, table, or example to protect the 800-word prose floor — the floor measures prose only, and artifacts are graded separately
     ````
 
   `templates/*`, `templates/README.md`, `AGENTS.md`, and (in U5) `README.md` are the **only** non-stub files in the repo. Touch nothing else in this unit.
-- **Self-verify**: `AGENTS.md` exists with all placeholders substituted and the Content Depth Rules copied verbatim; every manifest template exists at `templates/<name>` matching its `reference/` source byte-for-byte (no paraphrase); `templates/README.md` lists every template with source + destination; **no content file outside `templates/`, `AGENTS.md` has been touched.**
+- **Self-verify**: `AGENTS.md` exists with all placeholders substituted and the Content Depth Rules copied verbatim; its Topic Note Template section names all **four** hard requirements (coverage, prose floor, reading level, source fidelity), states that triggers T1–T11 are binding, states the closed-enumerable-set completeness ratchet, and states that source fidelity is graded independently of the prose floor; every manifest template exists at `templates/<name>` matching its `reference/` source byte-for-byte (no paraphrase), verified against the line count and first/last line of the source you just read; `templates/README.md` lists every template with source + destination; **no content file outside `templates/`, `AGENTS.md` has been touched.**
 - **STOP GATE (hand back)**: report that `AGENTS.md` and all templates are written and **stop**. Ask: "Reply proceed to continue to U5 (scaffold stubs + README), or request changes." → Hand control back for the write approval.
 - **Report contract**: `wrote: AGENTS.md + <N> templates + templates/README.md | verbatim copy: confirmed | stubs: not yet created | awaiting: proceed to scaffold`.
 
@@ -768,6 +824,7 @@ This skill is written in the `SKILL.md` format for OpenCode. The workflow, units
 
 | Platform | How to use |
 |---|---|
+| **Google Antigravity** | Drop the whole `create-learning-repo/` folder into `~/.gemini/config/skills/` — same `SKILL.md` standard (YAML frontmatter required, `name` optional) |
 | **Claude Code** | Copy the content below the frontmatter into `CLAUDE.md` under a `## Workflows` section |
 | **Cursor** | Paste into `.cursor/rules/create-learning-repo.mdc`, set rule type to `Agent Requested` |
 | **GitHub Copilot** | Add to `.github/copilot-instructions.md` under a clearly labelled heading |
