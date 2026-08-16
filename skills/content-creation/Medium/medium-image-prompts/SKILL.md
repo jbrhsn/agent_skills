@@ -1,167 +1,141 @@
 ---
 name: medium-image-prompts
-description: Use when the user wants "image prompts for my Medium article", a "cover image for this Medium story", "visuals/illustrations for this Medium post", or a "featured image idea" — i.e. image-generation prompts for a finished Medium article. Produces one featured/cover image prompt plus one purposeful in-article visual prompt per major section that earns one (Medium is NOT a carousel platform), each with alt text, a caption including credit and the mandatory AI-disclosure line, and a rationale. Writes them to medium_image_prompts.md next to the source article. Does not render images — produces prompt text only.
+description: Read a finished article and generate ready-to-use image generation prompts for it — one hero/cover image plus three to five in-article images, each with placement, aspect ratio, negative prompt, alt text, and caption. Use this whenever the user asks for image prompts, cover art, hero images, article visuals, illustrations, or media for a blog post or Medium story, or says an article is finished and needs images. Also use when working in an article folder that contains a finished draft and the user mentions images, visuals, or artwork.
 ---
 
 # Medium Image Prompts
 
-Generate image-generation prompts for a finished Medium article. Produces **prompt text only** — no image rendering, no API calls. The output is meant to be fed into whatever image-generation tool the user uses separately.
+Turn a finished article into a coherent set of image prompts the user can paste
+into an image generation service. Output is a single file, `image-prompts.md`.
 
-## When to use
+This runs **after** the article is written and edited. Do not generate prompts
+from a draft, an outline, or a topic — read the actual final text, because
+placement and subject matter come from what the sections actually say.
 
-- User has a finished article (typically `medium_article.md` or `medium_article_reviewed.md` from `medium-article-writer`) and wants visuals for it.
-- User asks for "a cover image for this Medium story", "image prompts for my Medium article", "visuals/illustrations for this Medium post", or a "featured image idea".
-- Not for actually rendering images — this skill produces prompts, not pixels.
+## Inputs
 
-## Input
+Work inside the article folder. Find the final article:
 
-A file path to the finished Medium article. If not given, ask. If the source directory contains exactly one obvious candidate (e.g. `medium_article.md` or `medium_article_reviewed.md`), propose it and confirm rather than asking from scratch.
+- If there is exactly one finished article file (typically `article.md`), use it.
+- If several candidates exist, use the most recently modified and say which one
+  you chose.
+- If the user names a file, use that.
+
+Read it end to end before writing any prompt.
 
 ## Output
 
-`medium_image_prompts.md`, written in the **same directory as the source article file**. Never write to a fixed folder — always colocate.
+One file: `image-prompts.md`, built from `assets/image-prompts-template.md`.
 
-**Overwrite policy**: never silently overwrite. If `medium_image_prompts.md` already exists, ask: overwrite, write `medium_image_prompts-v2.md`, or pick a new name.
+- **1 hero image** — the cover. 16:9.
+- **3–5 in-article images** — placed at specific sections. 3:2 unless a diagram
+  needs otherwise.
 
----
+Fewer, stronger images beat five weak ones. If the article only supports three,
+produce three and say why.
 
-## Why this format (verified Medium mechanics, retrieved 2026-07-30)
+## Fixed constraints
 
-Grounded in Medium's official Using-images, Setting-a-featured-image, Read-time, Distribution Guidelines (updated 2026-06-29), and AI-content-policy help pages.
+Every prompt in every article must carry these:
 
-**Medium is NOT a carousel platform.** Unlike LinkedIn, a Medium article has (a) exactly **one featured/cover image** that gets pulled into the preview and social cards, and (b) **inline visuals placed at section breaks** inside the article body. So the decision is never "single hero vs carousel" — it is "one cover, plus how many purposeful in-article visuals the structure warrants, and where."
+**White background.** Pure white, seamless, no gradient, no vignette, no shadow
+pooling at the edges. Medium's reading surface is white, so the image should
+dissolve into the page rather than sit in a box. This is not negotiable per
+article — it is the house style.
 
-Why this shape wins on Medium:
+**No text.** Image models render lettering as garbage, and a misspelled word in a
+cover image is worse than no image. Any label the user wants goes in the caption.
 
-- **Featured/cover image drives the card.** It's what gets pulled into the article preview + social cards; it's set via the featured-image picker (Shift+F). You set a **focal point** (Alt/Opt+click) so cropping stays clean across the homepage grid, feed cards, and social thumbnails — the same image is cropped to many aspect ratios, and a wrong/absent focal point produces bad crops. Full-width placement needs **≥1192px wide**; files up to 25MB; .JPG/.JPEG/.PNG/.GIF. Practical safe cover: **wide landscape, ~2:1 to 16:9, ≥1192px (ideally 1500px+)** so it survives every crop.
-- **Curators reward purposeful, credited, captioned images** that "contribute to the story directly" — NOT decorative filler. Original/authentic visuals (your own photos, screenshots, charts, diagrams) signal first-hand experience and outperform generic stock. So every generated prompt targets a purposeful, contextual visual — not decoration.
-- **Read-time effect.** Medium computes read time from word count (~265 WPM) **with an adjustment for images**, so meaningful images modestly increase displayed read time and the dwell signal. Another reason to place real visuals at section breaks — but filler is penalized, not rewarded.
-- **AI-image disclosure is MANDATORY.** AI-generated images are allowed but **must be disclosed in the image caption**, e.g. "This image was created using an AI image creation program." Every prompt here is for an AI image generator, so every generated image needs that disclosure caption. Undisclosed AI erodes trust; undisclosed AI *writing* gets Network-only distribution — reinforce the disclosure habit.
-- **Alt text + captions.** Medium natively supports alt text (accessibility + a curation quality signal) and captions (note: captions do not support italics). Every image should ship with short, descriptive alt text and a caption carrying credit + the AI-disclosure line.
-- **In-article visual types that work best:** charts/diagrams, screenshots, and conceptual illustrations at section breaks. For code, prefer Medium's **native code blocks** over screenshots of code — they read better and are accessible/selectable. Place a visual roughly at each major section that genuinely needs one.
+**No logos, brands, or trademarks.** Do not prompt for the Airflow logo, the AWS
+icon, the Python logo, or any recognizable product mark. Use generic forms
+instead — a directed graph rather than the Airflow logo, a stylized container
+rather than the Docker whale.
 
-**Standalone reminder (state once in the output):** every image needs a **caption + credit**, and every **AI-generated image needs the AI-disclosure caption line**.
+**No real or identifiable people.** Abstracted figures, silhouettes, or hands only.
 
----
+**No fabricated data.** Never prompt for a chart, dashboard, graph with plotted
+values, or terminal output. A generated chart shows invented numbers, and Medium
+treats fabricated figures as a rules violation. Real numbers belong in a real
+screenshot or a real diagram the user makes.
 
-## Workflow — delegation-model units
+## Workflow
 
-The workflow is three self-contained units of work. Each unit lists its **goal/scope**, its **inputs**, the **self-verify** the doer runs before handing back, and the **report contract** (what it hands back). Do the units in order — each unit's report is the next unit's input. Unit 1 ends in a **hard hand-back gate** where control returns to the user.
+### 1. Classify the article
 
----
+Determine the piece type — listicle, tutorial/how-to, case study or post-mortem,
+opinion, explainer, or experience report. This selects the visual system. See
+`references/style-tracks.md`.
 
-### Unit 1 — Visual plan (HARD HAND-BACK GATE)
+### 2. Choose the visual system
 
-**Goal/scope:** Read the source article and propose the visual plan — the cover concept plus the list of in-article visuals (which sections, what each depicts, why each earns its place). State counts. Surface the reasoning and stop.
+Pick one track from `references/style-tracks.md` and commit to it for the whole
+set. Then lock three variables and repeat them verbatim in every prompt:
 
-**Inputs:** File path to the finished article. If not given, ask. If the source directory contains exactly one obvious candidate (e.g. `medium_article.md` / `medium_article_reviewed.md`), propose it and confirm rather than asking from scratch.
+- **One accent colour**, chosen for the article's subject and mood. Everything
+  else stays white, black, and grey. Two colours maximum, and the second only if
+  the article genuinely has a before/after or A-versus-B structure.
+- **One rendering style** — flat vector, fine line art, isometric, soft 3D clay,
+  paper cut, technical blueprint.
+- **One perspective and line weight.**
 
-**Do:** Read the article structure, then propose:
+The set must read as a series. A hero in soft 3D followed by four flat vector
+illustrations looks like four different articles.
 
-- **1 featured/cover image (always)** — a one-line concept tied to the article's core claim or hook.
-- **N in-article visuals** — one per major section/beat that genuinely benefits from a visual (a chart/diagram, a screenshot, or a conceptual illustration at the section break). For each, name the section it sits at, what it depicts, and why it earns its place.
+State the locked choices at the top of `image-prompts.md` so the user can regenerate
+any single image later and have it match.
 
-Recommend a sensible number: **roughly one visual per major section that needs one — do NOT force a visual onto every section.** Decorative-only filler is penalized by curators and does nothing for read-time, so leave a section imageless if no purposeful visual fits. State the counts explicitly (e.g. "Cover + 3 in-article visuals: Section 2 process diagram, Section 4 results chart, Section 6 screenshot").
+### 3. Place the images
 
-**Self-verify:** Confirm the plan follows from the article's structure (sections named), that every proposed in-article visual is purposeful (not decorative filler), and that the cover concept ties to the article's core claim.
+Walk the article and pick the moments that genuinely need a visual:
 
-**⛔ HAND-BACK GATE:** Do NOT proceed to Unit 2. Hand back to the user and **wait for them to confirm or override** the plan (cover concept, visual count, and placements). This is a judgment call, not a hard rule — never silently pick.
+- The hero represents the article's central claim, not its topic. An article
+  arguing that a vector database was the wrong choice gets an image about the
+  wrong choice, not an image about databases.
+- In-article images go where a reader's attention dips: after a dense technical
+  passage, at a structural turn, at the start of a major section.
+- For a listicle, one image per list item is the natural rhythm — but only if
+  the items are visually distinguishable. Five near-identical illustrations are
+  worse than two good ones.
+- Do not place an image where a real screenshot, diagram, or code output belongs.
+  Note that as a `[user-supplied]` slot in the file instead, and say what it
+  should show.
 
-**Report contract (hands back):**
-- Source file used.
-- Plan: cover concept (one line) + the list of in-article visuals (section, what it depicts, why it earns its place).
-- Counts: "Cover + N in-article visuals."
-- Explicit request: "Confirm or override this plan before I generate prompts."
+### 4. Write the prompts
 
----
+Follow `references/prompt-craft.md`. Each prompt is self-contained prose that
+works in any image service — no service-specific flags in the prompt body.
+Aspect ratio is a separate field so the user can translate it to whatever syntax
+their tool uses.
 
-### Unit 2 — Prompt generation
+For each image, supply: placement, what it conveys, the prompt, a negative
+prompt, aspect ratio, alt text, and a caption.
 
-**Goal/scope:** Produce the full prompt set — the cover plus each confirmed in-article visual — to spec.
+### 5. Check the set
 
-**Inputs:** The **user-confirmed plan** from Unit 1, and the source article.
+Before presenting:
 
-**Do:** For the cover AND each confirmed in-article visual, write an entry with:
+- [ ] Does every prompt name the white seamless background explicitly?
+- [ ] Does every prompt repeat the locked style, accent colour, and perspective?
+- [ ] Is any prompt asking for text, a logo, a real person, or plotted data?
+- [ ] Would the set read as one article if laid out side by side?
+- [ ] Does the hero represent the argument rather than the subject?
+- [ ] Does every image have alt text that describes content, not "illustration"?
 
-1. **Role/placement** — e.g. "Cover" / "Section 2 — the process diagram".
-2. **Image-generation prompt** — a detailed prompt covering: composition/layout, subject matter or visual metaphor, style direction (e.g. minimal flat illustration, photo-real, clean data-viz, diagram), and color/mood direction.
-   - **For the cover only, also specify:** a **wide landscape composition (~2:1 to 16:9)** suitable for cropping, a clear central **focal point** the crop can lock onto (so social/grid/feed crops stay clean), and a **≥1192px wide (ideally 1500px+)** resolution note.
-   - Prefer purposeful visual types: charts/diagrams, screenshots, conceptual illustrations. For code, note that a **native code block reads better than a code screenshot**.
-3. **Alt text** — a suggested short, descriptive alt-text line (accessibility + curation signal).
-4. **Caption** — a suggested caption including a **credit**, and — because these are AI-generated — the **AI-disclosure line**, e.g. "This image was created using an AI image creation program." (No italics in captions.)
-5. **Rationale** — one line on how the image contributes to the story directly (not decoration).
+## Notes to carry into the file
 
-**Self-verify (doer runs this itself before reporting):**
-- **Every image is purposeful** — no decorative-only filler; each earns its place from the article's content.
-- **Cover meets guidance** — wide landscape (~2:1 to 16:9), explicit focal point, ≥1192px note present.
-- **Every entry has all four attachments** — alt text + caption (with credit) + the AI-disclosure line + rationale.
-- **Code handled right** — where the visual is code, native-code-block preference is noted rather than defaulting to a text/code screenshot.
+Medium requires AI-generated images to be captioned as such. Include a one-line
+reminder at the top of `image-prompts.md`; the user decides how to handle it.
 
-**Report contract (to Unit 3):**
-- Counts: cover + N in-article visuals.
-- The full prompt set, passed internally to Unit 3 for writing (Role/Placement + Prompt + Alt text + Caption + Rationale per image) — this is an internal handoff, not something to paste to the user in chat.
-- Self-verify result: pass, or the specific items flagged.
+Generated art is decoration. It does not substitute for the diagram, screenshot,
+or architecture sketch that a technical piece actually needs, and Medium's
+guidelines favour images that carry information. Where the article has a moment
+that wants a real visual, flag it rather than papering over it with an
+illustration.
 
----
+## Reference files
 
-## Output format (`medium_image_prompts.md`)
-
-```markdown
-# Image Prompts — <article title>
-
-**Set:** Cover + N in-article visuals
-**Reasoning:** <one line — how the visuals map to the article's structure>
-
-> Reminder: every image needs a caption + credit. Every AI-generated image
-> needs an AI-disclosure caption line, e.g. "This image was created using an
-> AI image creation program."
-
-## Cover — Featured image
-**Prompt:** <composition/layout; subject or visual metaphor; style; color/mood; WIDE LANDSCAPE ~2:1–16:9; set a focal point for clean cropping; render ≥1192px wide (ideally 1500px+)>
-**Alt text:** ...
-**Caption:** <credit> · This image was created using an AI image creation program.
-**Rationale:** ...
-
-## Section 2 — <what it depicts>
-**Prompt:** ...
-**Alt text:** ...
-**Caption:** <credit> · This image was created using an AI image creation program.
-**Rationale:** ...
-
-## Section N — <what it depicts>
-...
-```
-
----
-
-### Unit 3 — Sanity check + persist
-
-**Goal/scope:** Write the prompt set to disk first (as a draft), then present a short summary + file pointer for a quick sanity check.
-
-**Inputs:** The full prompt set and self-verify result from Unit 2; the source file's directory.
-
-**Do:**
-1. Write `medium_image_prompts.md` **next to the source file first**, applying the overwrite policy (never silently overwrite: if a file already exists from a prior run, offer overwrite, `medium_image_prompts-v2.md`, or a new name).
-2. Present ONLY a **short summary + the file path** for a quick sanity check (catches obvious mismatches early): the counts (cover + N in-article visuals) and any entries flagged (e.g. a section where no purposeful visual fit). **Do NOT paste the full prompt set into chat** — point the user to the written file to review. Ask for a quick confirm or revisions. This is a **lighter gate** than the Unit 1 plan stop.
-3. On revision, **re-edit the file in place and re-point** the user to it (in-place updates don't re-trigger the overwrite prompt; the prior-run-file overwrite policy still applies only to the first write).
-
-**Self-verify (doer runs this itself before reporting):**
-- The written file matches the output-format block above (Set + Reasoning header, one entry per image with Role/Placement / Prompt / Alt text / Caption / Rationale).
-- The **caption + credit** requirement and the **AI-disclosure** reminder appear in the output (the standalone reminder block is present, and every caption carries the disclosure line).
-- The cover entry carries the resolution / ratio / focal-point guidance.
-- The file was colocated with the source (not a fixed folder), and the overwrite policy was honored.
-
-**Report contract (hands back to user):**
-- Wrote `<exact path>` first, then presented a summary for confirm.
-- Counts: cover + N in-article visuals.
-- Any entries flagged (e.g. a section where no purposeful visual fit).
-- Explicit note that the full prompt set is in the file (not pasted here) — user reviews it there.
-- Pass, or the specific issue flagged.
-
----
-
-## Handoff
-
-This skill produces prompt text only. Rendering the prompts into actual images is outside its scope — hand the file to whatever image-generation tool the user already uses. Remind the user, when they publish, to set the cover via the featured-image picker (Shift+F), set the focal point (Alt/Opt+click), and add the alt text + caption (with credit + AI-disclosure line) to every image on Medium.
-
-If the user later revises the article via `medium-article-writer`'s review path (which produces `medium_article_reviewed.md`), that revised file can be fed back through Unit 1 to regenerate the visual plan.
+- `references/style-tracks.md` — the visual system per piece type, with accent
+  colour guidance. Read at step 2.
+- `references/prompt-craft.md` — prompt structure, negatives, and the failure
+  modes worth pre-empting. Read at step 4.
+- `assets/image-prompts-template.md` — output format.
