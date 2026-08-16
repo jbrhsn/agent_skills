@@ -57,7 +57,7 @@ python3 scripts/sync_bob_skills.py --dry-run # Preview
 - `BOB_SKILLS` — Override destination (default: `~/.bob/skills`)
 
 ### `sync_antigravity_skills.py`
-Syncs skills to the Antigravity (Google Antigravity IDE) global config (`~/.gemini/config/skills`). Antigravity uses the same directory-of-skill-folders standard as OpenCode and Bob, so the same 13 skill folders are copied verbatim.
+Syncs skills to the Antigravity (Google Antigravity IDE) global config (`~/.gemini/config/skills`). Antigravity uses the same directory-of-skill-folders standard as OpenCode and Bob, so the same 14 skill folders are copied verbatim.
 
 **Usage:**
 ```bash
@@ -72,10 +72,10 @@ python3 scripts/sync_antigravity_skills.py --dry-run # Preview
 
 ### Skills
 
-All 13 skills from the repository (synced to OpenCode, Bob, and Antigravity):
+All 14 skills from the repository (synced to OpenCode, Bob, and Antigravity):
 - **2 Agent Session Management**: end-session, init-session
 - **2 Content Creation (LinkedIn)**: linkedin-post-writer, linkedin-image-prompts
-- **2 Content Creation (Medium)**: medium-article-writer, medium-image-prompts
+- **3 Content Creation (Medium)**: medium-article-writer, medium-image-prompts, medium-article-brainstorm
 - **4 Development**: lean-coder, project-planner, repo-docs-publisher, ui-ux-designer
 - **3 Learning**: author-chapter, create-learning-repo, generate-practice-exam
 

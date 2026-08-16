@@ -6,7 +6,7 @@
 
 Give agents like OpenCode, IBM Bob, Google Antigravity, Claude Code, and Cursor repeatable, high-quality behavior for common development tasks. Each skill is a prompt file your agent loads and follows like a playbook.
 
-**13 skills** across session management, learning, development, and content creation.
+**14 skills** across session management, learning, development, and content creation.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
@@ -73,6 +73,7 @@ Derived artifacts (`00-intro.md`, `99-podcast.md`) may introduce **no fact absen
 
 | Skill | What it does |
 |---|---|
+| [**medium-article-brainstorm**](./skills/content-creation/Medium/medium-article-brainstorm/SKILL.md) | Brainstorm article ideas grounded in the user's examples and experience — interview-driven ideation, pattern parsing, web research for current facts, and one source.md seed per idea so the user writes the article themselves. Scaffolds ideas as folders or series. |
 | [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/SKILL.md) | Turn source notes or a draft into a publish-ready `medium_article.md`, applying Medium-specific craft grounded in Medium's Distribution Guidelines, AI-content policy, and earnings mechanics — title+subtitle+cover as a unit, read-ratio-driven scannability, first-hand originality, relevant tagging, soft value-tied CTAs, paywall recommendation — behind mandatory review gates. Also scores a finished article out of 100 across 5 distribution-aligned dimensions and writes one refined `medium_article_reviewed.md` with an itemized change list |
 | [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/SKILL.md) | Generate image-generation prompts for a finished Medium article — one featured/cover prompt plus one in-article visual per major section that earns one (Medium is not a carousel platform), each with alt text, a caption including credit and the mandatory AI-disclosure line, and a rationale. Writes `medium_image_prompts.md` next to the source article — prompt text only, no rendering |
 
@@ -82,7 +83,7 @@ Derived artifacts (`00-intro.md`, `99-podcast.md`) may introduce **no fact absen
 
 ### Sync everything (recommended)
 
-The sync scripts install all 13 skills to every supported destination in one command. Run from the repo root:
+The sync scripts install all 14 skills to every supported destination in one command. Run from the repo root:
 
 ```bash
 python3 scripts/sync_all.py                     # Sync to all three targets

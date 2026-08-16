@@ -27,6 +27,7 @@ SKILLS = [
     "skills/content-creation/Linkedin/linkedin-image-prompts",
     "skills/content-creation/Medium/medium-article-writer",
     "skills/content-creation/Medium/medium-image-prompts",
+    "skills/content-creation/Medium/medium-article-brainstorm",
     "skills/development/lean-coder",
     "skills/development/project-planner",
     "skills/development/repo-docs-publisher",
