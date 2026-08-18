@@ -1,128 +1,241 @@
-# author-chapter
+# Author-Chapter Skill
 
-Turns a blank stub (or thin file) into one fully contract-compliant learning file. Resolves the target's artifact type from its filename, then either researches live official sources (topic notes, interview prep, thought leadership) or synthesises strictly from the sibling topic notes (chapter intro, podcast). Drafts the sections the topic genuinely needs, runs the matching artifact quality gate as a self-audit, and writes the file only after every check passes. It is subject-neutral: the same contract governs a note on a dynasty's marriage strategy, on sharpening a knife, on a statute, on a species, on a musical mode, or on a piece of software.
+## Skill Overview
 
-**Trigger phrases:** "populate this chapter" / "fill in this stub"; "author the notes for [topic]"; a bare file path such as `01-<section>/01-<chapter>/02-<topic-slug>.md`; "write the chapter intro now the topics are done"; "write `99-podcast.md`"; "author `interview-prep.md` / `thought-leadership.md` for this chapter". Do **not** trigger it to create a new repo (use `create-learning-repo`) or to generate a quiz or exam (use `generate-practice-exam`).
+The author-chapter skill produces one textbook-quality Markdown file that teaches any topic comprehensively, taking a reader from absolute zero to architect-level mastery. Use this skill whenever someone asks you to write a chapter, learning module, tutorial, course, guide, primer, explainer, study material, or any long-form educational document about a concept or technology — even if they don't explicitly use the word "chapter" or "module".
 
----
+## Reader Model
 
-## The five per-chapter artifact types
+The target reader is a **curious 15-year-old with no background in the field but real patience**. They are not stupid — they are *uninformed*. The skill never dumbs down the material; instead, it removes every unexplained assumption. By the end of the module, the reader should be able to hold their own with a senior practitioner in the domain, judge tradeoffs, and predict how systems fail.
 
-A chapter folder holds five kinds of file, and this skill authors any one of them. The filename resolves the artifact type, and the artifact type then selects the template, the depth rules, the research mode, and the quality-gate rubric:
+This reader model shapes every decision in the skill: concrete examples over abstract explanation, problem-first over definition-first, and always defining jargon at the moment it appears.
 
-| Filename pattern | Artifact type | Source | Order |
-|---|---|---|---|
-| `00-intro.md`, `intro.md` | Chapter intro — overview plus **how the topics interconnect** | Derived from sibling topic notes | **Last** |
-| `NN-<slug>.md` (not `00`/`99`) | Topic note — the primary teaching artifact, 2–6 per chapter | Live official sources | First |
-| `interview-prep.md` | Interview prep — role-targeted Q&A | Live official sources | Alongside the topic notes |
-| `thought-leadership.md` | Thought leadership — one original, defensible argument | Live official sources | Alongside the topic notes |
-| `99-podcast.md`, `podcast.md` | Podcast — two-speaker conversational transcript, zero code blocks | Derived from sibling topic notes | **Last** |
-| anything unrecognised | Defaults to topic note — the assumption is stated at the U0 gate | Live official sources | — |
+## Key Philosophy
 
-**Derived artifacts** (`00-intro.md`, `99-podcast.md`) may introduce **no fact absent from the sibling topic notes**. They synthesise; they do not add.
+Long educational writing fails in predictable ways: authors skip prerequisites they thought were obvious, use terms before defining them, explain *what* but never *why*, and stop at tutorial depth. The author-chapter skill prevents these failures through a strict **5-phase workflow structure** that front-loads planning and back-loads auditing.
 
----
+**Follow the phases in order.** The plan is what makes later sections comprehensive; skipping phases produces a shallow document that looks complete but teaches little. Each phase exists because it catches a specific failure mode that looser processes miss.
 
-## What it does
+## Phases Overview
 
-Runs a sequence of discrete **units** (U0 → U4). Each unit has a Goal/scope, Inputs, Do, a Self-verify step, and a terse Report contract. Three units are **STOP GATES** that hand control back for confirmation; the mandatory quality gate is expressed as the doer's own self-audit run before the draft is written:
+### Phase 1: Resolve the Topic (Fast)
 
-| Unit | What happens |
-|---|---|
-| **U0 — Resolve artifact type, locate contract & confirm scope** | Identifies the target file; **resolves its artifact type from the filename**; walks up the tree to find `AGENTS.md` + `templates/` and selects the template for that artifact type; classifies the file as stub vs. has-content; for a chapter intro or podcast, runs the **sibling-readiness gate**. **STOP GATE**: confirms target + artifact type + contract source before research, and never silently overwrites authored content or assumes a loose-folder fallback |
-| **U1 — Build the source brief** | **Branch A (source-based)** — for topic notes, interview prep, and thought leadership: fetches official documentation, exam objective wording, and changelog in parallel; stops rather than author from training data if sources are unreachable. **Branch B (derived)** — for chapter intro and podcast: skips live research entirely and reads every sibling topic note in full instead. **STOP GATE**: presents a compact brief — Coverage Plan, the eleven trigger answers, and planned sections, or else topic inventory, connections, and reading order — for approval |
-| **U2 — Draft, write, hand back** | Picks the sections this artifact and topic genuinely need from the template's suggested **menu**, adds every artifact a trigger required, orders them to teach best, records omissions in the Adaptation Note; runs Unit U3 as its Self-verify, then writes the draft. **STOP GATE**: hands back only a short pointer + summary — never the full body — and asks you to open the file to review |
-| **U3 — Quality gate (self-audit)** | The doer's own verification, run inside U2 before any hand-back: selects the rubric **for this artifact type**, self-audits the draft row by row plus the universal rules, carrying evidence on every row — a measured number, a name, or a location. A tick with no evidence is a failed row; any ✗ blocks completion, and the **whole** gate re-runs after each fix |
-| **U4 — Finalize and report** | Idempotency guard against foreign edits, confirms the file holds the approved and gated draft, reports a structured completion summary, and suggests the next stub **respecting authoring order** |
+Pick a sensible scope and move on. Ask the user **only** when one of these is true:
+- The topic name is genuinely ambiguous across fields (e.g., "bootstrapping", "normalization")
+- The topic is code-heavy and no language/stack is implied
+- The endpoint is unclear in a way that changes the entire learning ladder
 
-**Sibling-readiness refusal (derived artifacts).** Because a chapter intro and a podcast can only summarise what the topic notes already say, U0 **refuses outright** to author either one while any sibling topic note in that chapter is still a stub or too thin to synthesise from: it enumerates the chapter's files, classifies each as Authored or Stub/thin, and on failure stops at its gate, names the files that must be authored first, and hands control back — it does not warn and continue, and it does not offer a reduced-scope partial synthesis. In **derived-content mode** (Branch B of U1) it also does no live research at all, because fetching the web there is precisely how a derived artifact acquires facts its chapter never taught; the only permitted fetch is re-verifying a link carried over from a sibling note. If the intro or podcast seems to need a fact the notes do not contain, the skill surfaces it at the gate so it can be added to the proper topic note first — never invented here.
+Otherwise, make a decision and record it in the module's **Scope** section: what this module covers, what it deliberately does not, and what the reader will be able to do at the end.
 
-**Contract-first design.** The section menu, depth rules, and gate rubric are **read from the target repo's own files at runtime**, not hardcoded here. When `AGENTS.md` and `templates/` are both found they win, and the skill reads the template matching the resolved artifact type (`topic-notes-template.md`, `chapter-intro-template.md`, `chapter-podcast-template.md`, `interview-prep-template.md`, `thought-leadership-template.md`), tolerating a repo that names them differently. When only one is found it uses what is present, falls back for the missing piece, and tells you which contract applies. When neither is found — a loose Markdown folder — it asks for confirmation, then falls back to the built-in `reference/quality-gate.md` and its filename → rubric routing table. **That file is the authoritative statement of the requirements and the gate; everything below is a summary of it.**
+If the host agent has web search capability and the topic is fast-moving (versions, APIs, standards), verify specifics before writing. If it has no search, write from knowledge and mark version-sensitive claims as "check current docs."
 
----
+### Phase 2: Build the Concept Inventory Before Writing Any Prose
 
-## Adaptive structure and the four hard requirements
+This is the highest-leverage step. Write every concept the reader must own, along with its dependencies and its tier.
 
-There is **no fixed section list and no fixed section order.** The template supplies a **menu of suggested sections**; the skill picks the ones this artifact and this topic genuinely need, arranges them in the order that teaches best, names every sub-heading after the real domain concept it discusses (generic headings like "Overview" or "Key Concepts" are non-compliant), and may invent a section the menu never anticipated. Every omitted menu section is recorded in the **Adaptation Note** with a reason specific to this topic — omission is fine, silent omission is a gate failure.
+**The Tier System:**
 
-Exactly four hard requirements survive, and for topic notes they are non-negotiable:
+| Tier | Name | The reader can... |
+|---|---|---|
+| 0 | Foundations | ...explain what the thing is and what problem it solves, in their own words |
+| 1 | Mechanics | ...describe how it actually works, step by step, and predict simple outcomes |
+| 2 | Practitioner | ...use it correctly on real work, debug it, and follow standard idioms |
+| 3 | Architect | ...choose it or reject it, defend the choice, predict failure modes at scale, and design around them |
 
-1. **Coverage** — the sub-concepts are enumerated up front in a **Coverage Plan** that stays in the finished file, and every one is verified as genuinely explained in the body before the file is written. If the subject is a closed enumerable set, coverage means *every member of that set*.
-2. **Prose floor** — the explanatory body as a whole reaches at least **800 words** of genuine explanation. Padding, hedging, or restatement is a violation, not a way to meet it.
-3. **Reading level / prose-first** — written for a **bright 14-year-old**: short sentences, one idea each, every acronym expanded and every piece of jargon defined inline in plain words on first use, and the explanation carried by **prose paragraphs** rather than bullet lists. Lists are for genuine enumerations only.
-4. **Source fidelity** — every exact proper name, designation, or term of art is spelled as the authoritative source spells it (a rank, a statute section, a species name, a place name, a field name); every quantity, date, threshold, limit, unit, range, and closed set of permitted values the source states, the note states too; and every artifact whose **REQUIRED-IF trigger** fired is actually present. An analogy may *illustrate* a mechanism but may **never substitute** for naming the real thing, stating a real number, or enumerating a set. This requirement is graded **independently** of the 800-word prose floor: artifacts neither count toward the floor nor against it, so adding a table or a diagram can never reduce compliance with the floor.
+Order concepts so that nothing appears before its prerequisites. That ordering becomes the module's table of contents.
 
-**REQUIRED-IF triggers T1–T11 are binding, not recommendations.** Each is a yes/no question about *this* topic: does it have ordered stages (T1); settings the reader chooses, such as proportions, grades, quantities, or thresholds (T2); a real decision with consequences (T3); a competing approach the reader will meet (T4); a concrete artifact, procedure, or worked calculation the reader would actually produce or follow (T5); a tempting wrong intuition (T6); a true everyday analogy for something abstract (T7); one mechanism much harder than the rest (T8); terms the reader will meet again later (T9); something the reader must be able to do afterwards (T10); an authoritative source (T11). Where the condition is true of the topic, that artifact is **REQUIRED**, not recommended. All eleven get an explicit yes or no in the Adaptation Note, and omitting one means **citing the trigger ID** plus a reason naming something specific about this topic that makes the artifact impossible or actively misleading. A reason that would read identically in a note on a completely different subject is boilerplate and fails, as does any reason about the author's own effort, time, or uncertainty.
+**Sanity checks:**
+- If Tier 0 has fewer than three concepts, the on-ramp is too steep for a beginner.
+- If Tier 3 is thin, the module is a tutorial, not a path to architect level.
+- Fix the inventory, not the prose, if something is wrong here.
 
-**Closed-enumerable-set ratchet.** When the subject's members are a finite documented list — taxonomic ranks, statutory articles, treaty signatories, musical modes, official grades, permitted values, lifecycle states — the skill extracts the **complete** list from the authoritative source before writing, records the source URL, the retrieval date, and the **source member count**, renders one row per member using the source's own spelling, and confirms **source count == Coverage Plan count == table row count**. A related-but-distinct item that merely influences the set is **not** a member of it; genuine neighbours go in a deliberately-out-of-scope or commonly-confused note.
+### Phase 3: Write Section by Section, Appending to the File
 
-**Scaffolding survival.** Exactly **three** scaffolding blocks survive into a finished topic note — **Coverage Plan**, **Adaptation Note**, **Final Self-Audit** — each filled in. Every other scaffolding block is **deleted outright**, not trimmed or summarised, and no `## Version History` heading appears in a finished note.
+Never attempt the whole document in one pass — long single-shot writing degrades badly and gets truncated. Write one section, append it, move to the next.
 
-The voice and reading-level target applies to **every** artifact type, not just topic notes. Prose explanation and worked examples carry the teaching load; artifacts — diagrams, tables, concrete examples, questions — support it and never stand in for it. The reverse also holds: prose never stands in for an artifact a trigger required. Deliver both.
+Before writing prose, read:
+- `references/structure.md` — the exact document skeleton and per-concept block
+- `references/voice.md` — prose rules and sentence-level style
+- `references/pedagogy.md` — how to build examples, analogies, and difficulty ramps
 
----
+Keep writing until every concept in the inventory has been covered. Do not summarise or compress later sections because the file is getting long; length is not a failure mode here — gaps are.
 
-## Quality gate checks (Unit U3)
+### Phase 4: Audit and Repair
 
-There is no single one-size checklist. The gate selects the rubric **for the resolved artifact type** and always runs it **plus the universal rules**. In a structured repo the rubric comes from the repo's own `AGENTS.md` / `templates/`; in fallback mode it comes from `reference/quality-gate.md`, which holds **five separate per-artifact gates** reached through its filename → rubric routing table and carries the authoritative wording. Any ✗ blocks completion — the failure is fixed and the whole gate re-runs:
+Delete the scratch inventory. Run every check in `references/checklist.md` against the finished file and fix what fails. Report to the user only what was actually changed — do not claim a clean pass without verifying it.
 
-| Rubric | Representative checks |
-|---|---|
-| **Universal (every artifact)** | Bright-14-year-old reading level; every acronym expanded and jargon defined inline on first use; explanation carried by prose, not lists; sub-headings named after real domain concepts; official documentation only, each link live with a `*verified YYYY-MM-DD*` date; nothing invented; zero TODO/TBD/STUB/bracket markers |
-| **Topic note** | Coverage Plan reconciled against the body; 800-word prose floor met with real explanation; all eleven T1–T11 triggers answered in the Adaptation Note, every omission citing its trigger ID with a topic-specific reason that survives the blocklist categories. **Artifacts are judged two-sided:** every artifact *present* — a diagram, a table, a worked example, a concrete example or artifact — earns its place and has prose around it saying what to take away, **and** every artifact *required* by a fired trigger is actually delivered; **triggers fired must equal artifacts delivered**, and a note containing **zero** artifacts **FAILS** unless every one of T1–T11 is a "no" whose reason survives the blocklist categories. Enumerable-set counts agree (source == Coverage Plan == table rows) with no member the source does not list; **source fidelity two-sided** — exact names spelled as the source spells them, and every source-stated quantity, date, threshold, limit, unit, and permitted-value set present; only the three surviving scaffolding blocks remain |
-| **Chapter intro** | Every topic file represented with a working relative link; the "how the topics connect" explanation is genuine prose about dependencies and motivation, not a restated topic list; a suggested reading order with a stated reason; no fact absent from the sibling notes; every sibling topic note was non-stub before authoring |
-| **Podcast** | One clearly delineated segment per topic; genuine back-and-forth rather than two monologues; consistent generic role labels, never invented personalities; an everyday analogy per segment; **zero code blocks**; no fact absent from the sibling notes; every sibling topic note was non-stub before authoring |
-| **Interview prep** | Questions realistic for the stated role and seniority, not trivia; answers a candidate could say out loud, with the reasoning behind them so a follow-up is survivable; weak-answer traps specific to this subject matter, not generic interview advice; everything grounded in the chapter's actual content |
-| **Thought leadership** | A specific, non-obvious claim in the opening lines; no throat-clearing cliché opener; defensible rather than unfalsifiable claims; at least one concrete example or number anchoring the argument; the strongest counterargument stated fairly and answered; a clear original angle and a concrete takeaway |
+### Phase 5: Deliver
 
-**Deterministic checks** are run mechanically, keyed by artifact type: grep for residual placeholder markers (all); acronym-expansion scan (all); prose-to-list ratio (all); external URLs re-fetched (all); **source-fidelity counts** — names checked character by character against the source, and source-stated values present in the note (all); word count against the 800-word floor, Coverage Plan reconciliation, **trigger completeness (11 of 11 answered)**, two-sided artifact delivery, **enumerable-set count equality**, the omission-reason blocklist test, and the **scaffolding-leak grep** including any `## Version History` heading (topic notes); speaker-label consistency and a zero code-fence count (podcast); every sibling topic note non-stub and every relative link resolving on disk (chapter intro and podcast).
+Save as `<topic-slug>.md` (lowercase, hyphenated, e.g., `database-indexing.md`) unless the user specified a path. Tell the user the tier coverage in one line — concept count per tier — so they can see the shape of what they received.
 
-**Stopping is a successful outcome.** The skill stops and asks rather than guess — for existing authored content, an unconfirmed fallback contract, stub siblings, unreachable sources, a missing fact, a topic that is really two, an unreachable prose floor, contradictory siblings, and two conditions specific to enumerable sets: the **complete membership of a closed set cannot be confirmed** from an authoritative source, or the **source member count cannot be established** (or it disagrees with the Coverage Plan count and the discrepancy cannot be resolved). A partial member list teaches the reader that the rest do not exist, so it is never published, and a count is never guessed or split.
+## Non-Negotiables
 
----
+These six rules are violated most often, so they sit in the main file rather than references. They are never negotiable:
 
-## Inputs and outputs
+1. **No undefined term, ever.** Every piece of jargon is defined in plain language at first use, inline, before it's used in an explanation. If defining term A requires term B, then B comes first — that's what the inventory ordering is for.
 
-**Inputs.** A target file path, or a chapter/topic name to resolve to one (required — its filename resolves the artifact type). The repo's `AGENTS.md` + `templates/` (preferred; the built-in fallback is used, with confirmation, if absent). Live web access (required for source-based artifacts, since U1 Branch A fetches official docs; derived artifacts need only the sibling notes on disk plus the web for link re-verification). Completed sibling topic notes (required for derived artifacts — a chapter intro or podcast is refused while any topic note in the chapter is still a stub).
+2. **Every concept gets a worked example.** Concrete, specific, with real values or real code, walked through step by step. An abstract description is not an example.
 
-**Output.** A single fully-authored Markdown file at the target path. The draft is written to the file first and reviewed by opening it — the body is never pasted into chat. Completion report:
+3. **Every concept gets a misconception.** State the wrong belief a learner actually forms, then dismantle it. "A common trap is thinking X — here's why that breaks."
+
+4. **Every Tier 3 section names a failure mode.** What breaks, at what scale, with what symptom. Architect-level knowledge is mostly knowledge of failure.
+
+5. **Answer "why does this exist" before "how does it work".** Mechanism without motivation doesn't stick. Every concept opens with the problem it solves.
+
+6. **Cross-reference forward and back.** When a later section pays off an earlier one, say so explicitly: "This is the reason we insisted on X back in section 3."
+
+## Document Structure
+
+The final output follows a strict skeleton that ensures logical pacing and comprehensive coverage:
 
 ```
-Authored:      path/to/file.md
-Artifact type: topic note | chapter intro | podcast | interview prep | thought leadership
-Contract:      repo templates/AGENTS.md  (or partial, or built-in fallback)
-Sections:      N included (N omitted, each citing a trigger ID and a topic-specific reason)
-Triggers:      11 of 11 answered — N fired, N artifacts delivered
-Depth:         explanatory word count vs floor | segments | Q&A pairs
-Source:        N official links verified | derived from N sibling topic notes
-Quality gate:  PASS (artifact rubric — every row ✓ with evidence)
+# <Topic>: From Zero to Architect
+
+## Before You Start
+- What you'll be able to do (concrete capabilities)
+- What you need to know already (minimal and honest)
+- What this module deliberately does not cover
+- How to read this: the tiers and checkpoints
+
+## Part 0 — Why This Exists
+- The problem that made someone invent this
+- What people did before it and what went wrong
+- One-sentence version of the whole topic
+
+## Part 1 — Foundations
+- Tier 0 concept blocks (minimum 3)
+- Checkpoint (3-5 questions with folded answers)
+
+## Part 2 — Mechanics
+- Tier 1 concept blocks
+- Checkpoint
+
+## Part 3 — Practitioner
+- Tier 2 concept blocks
+- Exercises (3-5 real tasks with worked solutions)
+- Checkpoint
+
+## Part 4 — Architect
+- Tier 3 concept blocks
+- Case Studies (2-3 real systems or incidents)
+- Design Drills (open-ended scenarios with reference answers)
+
+## The Whole Picture
+- One page that reassembles everything now that vocabulary is complete
+- Should feel obvious on rereading
+
+## Glossary
+- Every term defined in the module, alphabetical, one line each
+
+## Spaced Recall
+- Questions worth re-answering in a week and a month
+- Grouped by tier, no answers
+
+## Where To Go Next
+- Specific books, specs, papers
+- What each one is good for
 ```
 
----
+## The Per-Concept Block
 
-## Limitations
+Every concept in the inventory gets this 8-part structure. It is the unit of the module — repeat it, don't improvise around it:
 
-- **One file per invocation.** The skill authors only the file you explicitly name; it does not batch-populate a chapter or module unless you ask for each file separately. Stubs are populated freely, but for a file with existing authored content it stops and asks first.
-- **Derived artifacts come last.** `00-intro.md` and `99-podcast.md` cannot be authored until every topic note in the chapter is complete and non-stub — the skill refuses rather than guessing.
-- **Official sources only, researched live.** External links use only official documentation — no third-party blogs or video. U1 Branch A makes real web requests for topic notes, interview prep, and thought leadership, so avoid running those offline. If official sources are unreachable it stops rather than authoring from training data: paste the official excerpts, or use `create-learning-repo`'s Phase 1 fallback prompts and share the results. Derived artifacts are exempt — they read the sibling notes instead.
-- **No exam or quiz generation.** Use `generate-practice-exam` for that.
+### Structure of a Concept Block
 
----
+1. **The problem.** The situation that makes this concept necessary. Something goes wrong or is impossible without it. (2-4 sentences, concrete.)
 
-## Install
+2. **The idea.** The concept in plain language, no jargon, as if explaining to a friend. (One short paragraph.)
 
-Run from the **repo root** (`agent_skills/`):
+3. **An analogy.** One analogy, chosen well. Then immediately state where the analogy breaks down — an unmarked analogy becomes a misconception later.
 
-```bash
-cp -r learning/author-chapter ~/.config/opencode/skills/   # global, all projects
-cp -r learning/author-chapter .opencode/skills/            # this project only
-```
+4. **How it actually works.** The precise mechanics. This is where jargon is introduced, each term defined at first use. Be technically exact; the earlier sections bought you the right to be dense.
 
-On Windows use `Copy-Item -Recurse learning\author-chapter "$env:USERPROFILE\.config\opencode\skills\"`. On other platforms, paste the skill content where that tool reads standing instructions: `CLAUDE.md` under a `## Workflows` heading (Claude Code), `.cursor/rules/author-chapter.mdc` set to `Agent Requested` (Cursor), `.github/copilot-instructions.md` under a labelled heading (GitHub Copilot), or as your first chat message before naming the chapter to author (web chat assistants).
+5. **Worked example.** Real values, real code, real numbers. Walk through it step by step, showing intermediate state. The reader should be able to follow it with a pen and reproduce the result.
 
----
+6. **The trap.** The wrong belief learners actually form here. State it in the learner's voice, then take it apart. Explain why it's tempting — that's what makes the correction stick.
 
-## Companion skills
+7. **Why it's built this way.** The tradeoff. What was given up to get this, what the alternatives are, and when the alternative wins. For Tier 3 concepts, add the failure mode: what breaks, at what scale, with what symptom.
 
-- **`create-learning-repo`** — scaffolds the repo, templates, and the five per-chapter artifact stubs that this skill populates
-- **`generate-practice-exam`** — builds mock exams from chapters authored by this skill
+8. **Check yourself.** One question the reader can only answer if they got it. Answer folded below it in a `<details>` block.
+
+Blocks may be shorter for small concepts, but no part may be dropped. If a concept has no meaningful trap or no meaningful tradeoff, it is probably not a concept — fold it into a neighbouring one.
+
+## Reference Files
+
+Read these as you reach the phase that needs them; do not load them all at once. All five files are in the `references/` subdirectory:
+
+### references/structure.md
+The complete document skeleton, the per-concept block structure, and rules for diagrams, tables, and code blocks. Read before writing any prose.
+
+### references/pedagogy.md
+How to build examples, analogies, misconceptions, and exercises that actually work. Covers load management (introducing one new idea at a time), why worked examples come before independent practice, the role of retrieval in retention, how to make analogies useful without being misleading, and why Tier 3 is about judgement, not just facts.
+
+### references/voice.md
+Prose rules, sentence-level style, and patterns to avoid. Emphasizes concrete language, second-person present tense, numbered specifics over adjectives, and respect for the reader's intelligence. Lists what to avoid: undefined jargon, filler openers, hollow enthusiasm, rhetorical questions as headings, and talking down.
+
+### references/examples.md
+An annotated weak-vs-strong section pair (both about database indexes). The weak version shows common failures; the strong version shows how each element works when done correctly. Read this if unsure whether the writing is hitting the bar.
+
+### references/checklist.md
+The Phase 4 audit checklist — 30+ verification points covering coverage, per-concept integrity, vocabulary, learning scaffolding, prose quality, and mechanics. Run every item before delivering.
+
+## When to Use This Skill
+
+Trigger this skill on any of these requests:
+
+- "Write a chapter on X"
+- "Create a learning module about X"
+- "I want to master X"
+- "Teach me X properly"
+- "Write a deep dive on X"
+- "Create a tutorial for X"
+- "Write a guide to X"
+- "Build a course on X"
+- "Write a primer on X"
+- "Create an explainer for X"
+- "I need study material on X"
+
+Even if the user doesn't use the word "chapter" or "module", if the deliverable is teaching material, use this skill instead of answering from scratch.
+
+## When NOT to Use This Skill
+
+Do not use this skill for:
+
+- **Scaffolding a new learning repository** — use the `create-learning-repo` skill instead. That skill is for setting up repo structure, templates, and stub files. This skill is for authoring one complete chapter within an already-structured repo.
+
+- **Generating quizzes or mock exams** — use the `generate-practice-exam` skill instead. That skill builds graded assessments from existing chapter content.
+
+- **Editing existing repo content** — if the content is already in a repo and needs updating or refactoring, use the `lean-coder` skill instead.
+
+This skill is specifically for authoring one complete, self-contained educational module from scratch.
+
+## Quick Start Example
+
+**User request:** "Write a tutorial that teaches database indexing from the ground up. I want someone with no database experience to understand why indexes exist, how they work, what they cost, and how to use them."
+
+**Workflow:**
+
+1. **Phase 1** — Resolve: The request is clear (database indexing, beginner to practitioner level). Scope is set: this covers indexes in relational databases, not key-value stores or search engines. The endpoint is defined: the reader will understand tradeoffs and know when to index.
+
+2. **Phase 2** — Inventory: Build the concept list:
+   - Tier 0: Why indexes exist (full table scans are slow), the index as a sorted lookup structure
+   - Tier 1: B-tree structure, page boundaries, search algorithms, update cost
+   - Tier 2: Choosing columns, covering indexes, composite indexes, real tools
+   - Tier 3: Tradeoffs at scale, failure modes (write amplification), alternatives (hash indexes, LSM trees)
+
+3. **Phase 3** — Write: Section by section, following structure.md and voice.md. Each concept gets the 8-part block. Checkpoints after each tier. Real examples with numbers and code.
+
+4. **Phase 4** — Audit: Run every check in checklist.md. Fix any undefined terms, missing examples, or weak analogies.
+
+5. **Phase 5** — Deliver: Save as `database-indexing.md`. Report: "Tier coverage: 2 concepts at Foundation, 4 at Mechanics, 3 at Practitioner, 3 at Architect."
+
+## Key Outputs
+
+At the end of the skill's workflow, the user receives:
+
+- **One complete Markdown file** with comprehensive coverage from beginner to architect level
+- **Filename**: a lowercase, hyphenated slug of the topic (e.g., `http-caching.md`, `git-internals.md`)
+- **Tier coverage**: a one-line summary of how many concepts at each tier (e.g., "3 Foundation / 5 Mechanics / 4 Practitioner / 3 Architect")
+- **Ready to use**: the file is audit-passed and ready to publish, link, or include in a learning repository
+
+The file teaches one person, alone, to understand the topic deeply. It is not a reference manual and it is not a blog post; it is a complete path from zero to expert understanding.
