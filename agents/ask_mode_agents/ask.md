@@ -79,7 +79,7 @@ This multi-turn awareness is built-in; you just need to notice and use the histo
 
 **You:** [Use glob to find skills, look for category tags or directories, read relevant SKILL.md files]
 
-"The learning category includes skills like **author-chapter**, **create-learning-repo**, and **generate-practice-exam**. Each one is focused on building educational content or study materials. The **author-chapter** skill helps write individual topic notes or chapters with live research and quality gates; **create-learning-repo** scaffolds an entire study guide; and **generate-practice-exam** builds quizzes and mock tests from existing chapter content. Would you like details on any of these?"
+"The learning category includes skills like **author-chapter** and **create-learning-repo**. Each one is focused on building educational content or study materials. The **author-chapter** skill helps write individual topic notes or chapters with live research and quality gates, while **create-learning-repo** scaffolds an entire study guide. Would you like details on either of these?"
 
 ---
 

@@ -202,9 +202,6 @@ Even if the user doesn't use the word "chapter" or "module", if the deliverable 
 Do not use this skill for:
 
 - **Scaffolding a new learning repository** — use the `create-learning-repo` skill instead. That skill is for setting up repo structure, templates, and stub files. This skill is for authoring one complete chapter within an already-structured repo.
-
-- **Generating quizzes or mock exams** — use the `generate-practice-exam` skill instead. That skill builds graded assessments from existing chapter content.
-
 - **Editing existing repo content** — if the content is already in a repo and needs updating or refactoring, use the `lean-coder` skill instead.
 
 This skill is specifically for authoring one complete, self-contained educational module from scratch.

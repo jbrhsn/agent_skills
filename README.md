@@ -6,7 +6,7 @@
 
 Give agents like OpenCode, IBM Bob, Google Antigravity, Claude Code, and Cursor repeatable, high-quality behavior for common development tasks. Each skill is a prompt file your agent loads and follows like a playbook.
 
-**14 skills** across session management, learning, development, and content creation.
+**13 skills** across session management, learning, development, and content creation.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
@@ -43,9 +43,8 @@ Derived artifacts (`00-intro.md`, `99-podcast.md`) may introduce **no fact absen
 
 | Skill | What it does |
 |---|---|
-| [**create-learning-repo**](./skills/learning/create-learning-repo/README.md) | Scaffold a structured learning repository for any topic or certification — phased intake, live research, decomposition of every chapter into 2–6 topics, template generation, and blank stubs for all five artifact types in every chapter |
+| [**create-learning-repo**](./skills/learning/create-learning-repo/SKILL.md) | Scaffold a structured learning repository for any topic or certification — phased intake, live research, decomposition of every chapter into 2–6 topics, template generation, and blank stubs for all five artifact types in every chapter |
 | [**author-chapter**](./skills/learning/author-chapter/README.md) | Populate one blank stub into a fully contract-compliant file — resolves the artifact type from the filename, researches live official sources (topic notes, interview prep, thought leadership) or synthesises from sibling topic notes (intro, podcast), then runs the matching quality gate before writing |
-| [**generate-practice-exam**](./skills/learning/generate-practice-exam/README.md) | Generate a blueprint-weighted mock exam or targeted drill from already-authored chapter content, with per-option answer rationale |
 
 ### Development
 
@@ -83,7 +82,7 @@ Derived artifacts (`00-intro.md`, `99-podcast.md`) may introduce **no fact absen
 
 ### Sync everything (recommended)
 
-The sync scripts install all 14 skills to every supported destination in one command. Run from the repo root:
+The sync scripts install all 13 skills to every supported destination in one command. Run from the repo root:
 
 ```bash
 python3 scripts/sync_all.py                     # Sync to all three targets
@@ -127,7 +126,6 @@ cp -r skills/agent_session_management/end-session ~/.config/opencode/skills/
 # Learning skills
 cp -r skills/learning/create-learning-repo ~/.config/opencode/skills/
 cp -r skills/learning/author-chapter ~/.config/opencode/skills/
-cp -r skills/learning/generate-practice-exam ~/.config/opencode/skills/
 
 # Development skills
 cp -r skills/development/lean-coder ~/.config/opencode/skills/

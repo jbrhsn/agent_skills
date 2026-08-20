@@ -34,7 +34,6 @@ SKILLS = [
     "skills/development/ui-ux-designer",
     "skills/learning/author-chapter",
     "skills/learning/create-learning-repo",
-    "skills/learning/generate-practice-exam",
 ]
 
 EXCLUSIONS = [
