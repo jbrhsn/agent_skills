@@ -1,6 +1,4 @@
 # Agent instruction and session files
-AGENTS.md
-CLAUDE.md
 .agent_docs/
 .opencode/
 .cursor/
