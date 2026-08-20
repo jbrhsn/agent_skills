@@ -6,7 +6,7 @@
 
 Give agents like OpenCode, IBM Bob, Google Antigravity, Claude Code, and Cursor repeatable, high-quality behavior for common development tasks. Each skill is a prompt file your agent loads and follows like a playbook.
 
-**13 skills** across session management, learning, development, and content creation.
+**11 skills** across session management, learning, development, and content creation.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
@@ -27,35 +27,23 @@ Give agents like OpenCode, IBM Bob, Google Antigravity, Claude Code, and Cursor 
 
 ### Learning
 
-> Create and populate Markdown-based learning repositories built on a five-artifact-per-chapter layout.
+> Scaffold learning repositories and populate complete chapters.
 
-Every chapter folder holds the same five artifact types. `00` and `99` are reserved slots:
-
-| File | Artifact | Authored |
-|---|---|---|
-| `00-intro.md` | Chapter intro — overview plus how the topics interconnect | **Last** (derived from the topic notes) |
-| `01..NN-<topic-slug>.md` | Topic notes — the primary teaching artifact, 2–6 per chapter | **First**, from live official sources |
-| `interview-prep.md` | Interview prep — role-targeted Q&A | Alongside the topic notes |
-| `thought-leadership.md` | Thought leadership — one original, defensible argument | Alongside the topic notes |
-| `99-podcast.md` | Podcast — two-speaker conversational transcript | **Last** (derived from the topic notes) |
-
-Derived artifacts (`00-intro.md`, `99-podcast.md`) may introduce **no fact absent from the sibling topic notes** — they synthesise, they do not add.
+Use **create-learning-repo** to structure your learning (goal → plan → empty stubs), then use **author-chapter** to fill in content one chapter at a time. Two complementary skills.
 
 | Skill | What it does |
 |---|---|
-| [**create-learning-repo**](./skills/learning/create-learning-repo/SKILL.md) | Scaffold a structured learning repository for any topic or certification — phased intake, live research, decomposition of every chapter into 2–6 topics, template generation, and blank stubs for all five artifact types in every chapter |
-| [**author-chapter**](./skills/learning/author-chapter/README.md) | Populate one blank stub into a fully contract-compliant file — resolves the artifact type from the filename, researches live official sources (topic notes, interview prep, thought leadership) or synthesises from sibling topic notes (intro, podcast), then runs the matching quality gate before writing |
+| [**create-learning-repo**](./skills/learning/create-learning-repo/README.md) | Turn a learning goal into a folder structure with blank stub files — interviews for the goal, researches to fill gaps, drafts a plan (sections → modules → chapters → topics), shows you the tree for approval, then scaffolds the repo and tracking files. Creates structure only; no content written. |
+| [**author-chapter**](./skills/learning/author-chapter/README.md) | Populate one complete Markdown file that teaches a topic from zero to architect-level mastery — covers all prerequisite concepts, worked examples, failure modes, misconceptions, and Socratic checkpoints. Use this to fill in stubs created by create-learning-repo, or to author standalone modules. |
 
 ### Development
 
-> Plan, build, design, and document software projects.
+> Write, refactor, and plan software projects.
 
 | Skill | What it does |
 |---|---|
 | [**lean-coder**](./skills/development/lean-coder/README.md) | A "lazy senior developer" discipline for coding work — the least code that correctly and safely solves the problem; adds `/review-diff` and `/audit-repo` workflows for finding over-engineering |
 | [**project-planner**](./skills/development/project-planner/README.md) | Plan and spec a project before coding — produces spec, design, roadmap, and backlog docs under `docs/` (`/plan-project`) |
-| [**repo-docs-publisher**](./skills/development/repo-docs-publisher/README.md) | Prepare a repo to go public — scans the code and checks for secrets first, then writes README, HOW_TO_USE, CONTRIBUTING, LICENSE, and optional community/GitHub docs |
-| [**ui-ux-designer**](./skills/development/ui-ux-designer/README.md) | Design user flows, screens, and a design system into `docs/ux-design.md` (`/design-ux`) — detects non-UI projects (CLI/API/backend) and stops rather than fabricating screens |
 
 ### Content Creation
 
@@ -82,7 +70,7 @@ Derived artifacts (`00-intro.md`, `99-podcast.md`) may introduce **no fact absen
 
 ### Sync everything (recommended)
 
-The sync scripts install all 13 skills to every supported destination in one command. Run from the repo root:
+The sync scripts install all 11 skills to every supported destination in one command. Run from the repo root:
 
 ```bash
 python3 scripts/sync_all.py                     # Sync to all three targets
@@ -130,8 +118,6 @@ cp -r skills/learning/author-chapter ~/.config/opencode/skills/
 # Development skills
 cp -r skills/development/lean-coder ~/.config/opencode/skills/
 cp -r skills/development/project-planner ~/.config/opencode/skills/
-cp -r skills/development/repo-docs-publisher ~/.config/opencode/skills/
-cp -r skills/development/ui-ux-designer ~/.config/opencode/skills/
 
 # Content creation skills (LinkedIn pipeline)
 cp -r skills/content-creation/Linkedin/linkedin-post-writer ~/.config/opencode/skills/
