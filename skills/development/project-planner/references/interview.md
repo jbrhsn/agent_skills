@@ -71,7 +71,9 @@ skip this turn entirely and go to confirmation.
 
 ## State file
 
-After every batch, write `docs/.planner-state.md`:
+After every batch, write `docs/.planner-state.md`. It survives PRD approval because the
+surface interview (Stage 5) appends to it — delete it only after the UIUX doc is approved
+at Stage 7.
 
 ```markdown
 # Planner state (delete after PRD approval)

@@ -3,6 +3,8 @@
 **Status:** Draft | Approved
 **Last updated:** <YYYY-MM-DD>
 **Mode:** standard | learn-by-building
+**Surface:** web | mobile | desktop | conversational | headless
+**UIUX:** [docs/uiux.md](uiux.md)  *(add this link once Stage 6 has written the file)*
 **Plan:** [docs/plan/overview.md](plan/overview.md)
 
 ## 1. Problem and goal

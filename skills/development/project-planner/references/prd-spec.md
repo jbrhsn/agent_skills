@@ -4,6 +4,10 @@ Write to `docs/prd.md`. Start from `assets/prd.template.md` — copy it, then fi
 Do not compose the structure from memory; the template exists so the section set is
 identical across projects.
 
+The PRD does not reference `docs/uiux.md` yet — that file does not exist until Stage 6.
+The plan link in the template header is enough at this point; leave the UIUX link out
+rather than pre-writing a path that might change.
+
 ## Requirement IDs
 
 - Functional: `FR-01`, `FR-02`, … Non-functional: `NFR-01`, … Constraints: `CON-01`, …
