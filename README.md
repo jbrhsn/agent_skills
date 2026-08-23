@@ -54,15 +54,20 @@ Use **create-learning-repo** to structure your learning (goal → plan → empty
 | Skill | What it does |
 |---|---|
 | [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Turn source notes or a rough draft into a posting-ready LinkedIn post — hook engineering, scroll-first structure, no-link-in-body discipline, mandatory review gate. Writes `linkedin_post.md` next to the source file. Also scores a finished post across 5 algorithm-aligned dimensions and produces one refined version with an itemized change list in `linkedin_post_revised.md` |
-| [**linkedin-image-prompts**](./skills/content-creation/Linkedin/linkedin-image-prompts/README.md) | Generate image-generation prompts (single hero image or full carousel) for a finished post, chosen from its structure. Writes `image_prompts.md` next to the source post — prompt text only, no rendering |
 
 **Medium** — `skills/content-creation/Medium/`
 
 | Skill | What it does |
 |---|---|
-| [**medium-article-brainstorm**](./skills/content-creation/Medium/medium-article-brainstorm/SKILL.md) | Brainstorm article ideas grounded in the user's examples and experience — interview-driven ideation, pattern parsing, web research for current facts, and one source.md seed per idea so the user writes the article themselves. Scaffolds ideas as folders or series. |
 | [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/SKILL.md) | Turn source notes or a draft into a publish-ready `medium_article.md`, applying Medium-specific craft grounded in Medium's Distribution Guidelines, AI-content policy, and earnings mechanics — title+subtitle+cover as a unit, read-ratio-driven scannability, first-hand originality, relevant tagging, soft value-tied CTAs, paywall recommendation — behind mandatory review gates. Also scores a finished article out of 100 across 5 distribution-aligned dimensions and writes one refined `medium_article_reviewed.md` with an itemized change list |
 | [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/SKILL.md) | Generate image-generation prompts for a finished Medium article — one featured/cover prompt plus one in-article visual per major section that earns one (Medium is not a carousel platform), each with alt text, a caption including credit and the mandatory AI-disclosure line, and a rationale. Writes `medium_image_prompts.md` next to the source article — prompt text only, no rendering |
+
+**Common** — `skills/content-creation/Common/`
+
+| Skill | What it does |
+|---|---|
+| [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Generate ranked, evidence-backed content ideas for Medium, LinkedIn, and Reddit from live public sources — fetches from Hacker News, Reddit, Google Trends, Medium tags, then clusters by beat, scores by recency+velocity+fit+gap, and scaffolds a source.md per approved idea |
+| [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Run keyless keyword research for a drafted article and write a kresearch.md next to its source.md — search intent, long-tail keywords, Medium tags, article optimization tips, and related topics from Google Autocomplete, related searches, and Medium's tag index |
 
 ---
 
@@ -119,13 +124,16 @@ cp -r skills/learning/author-chapter ~/.config/opencode/skills/
 cp -r skills/development/lean-coder ~/.config/opencode/skills/
 cp -r skills/development/project-planner ~/.config/opencode/skills/
 
-# Content creation skills (LinkedIn pipeline)
+# Content creation skills (LinkedIn)
 cp -r skills/content-creation/Linkedin/linkedin-post-writer ~/.config/opencode/skills/
-cp -r skills/content-creation/Linkedin/linkedin-image-prompts ~/.config/opencode/skills/
 
-# Content creation skills (Medium pipeline)
+# Content creation skills (Medium)
 cp -r skills/content-creation/Medium/medium-article-writer ~/.config/opencode/skills/
 cp -r skills/content-creation/Medium/medium-image-prompts ~/.config/opencode/skills/
+
+# Content creation skills (Common)
+cp -r skills/content-creation/Common/idea-research ~/.config/opencode/skills/
+cp -r skills/content-creation/Common/keyword-research ~/.config/opencode/skills/
 ```
 
 ```bash
