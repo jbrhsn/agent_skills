@@ -2,7 +2,6 @@
 name: medium-article
 description: Turn a rough draft, notes, or dictated thoughts in source.md into a finished, publishable Medium article, plus title options, subtitle, tags, and cover/alt-text notes. Use this whenever the user mentions Medium, publishing an article or blog post, turning notes or a draft into an article, writing up an experience, tutorial, post-mortem, or opinion piece for readers, or is working inside a folder that contains a source.md. Also use when asked to restructure, retitle, tighten, or tag an existing article draft, even if Medium is not named explicitly.
 ---
-
 # Medium Article
 
 Convert the user's raw material into a finished article that could be pasted into
@@ -21,7 +20,7 @@ Each article lives in its own folder. Work only inside it.
 <article-folder>/
   source.md    # written by the user: draft, bullets, thoughts, experience
   brief.md     # you write: angle, reader, promise, outline, gaps
-  article.md   # you write: the finished piece
+  medium_article.md   # you write: the finished piece
   publish.md   # you write: titles, subtitle, tags, alt text, checklist
 ```
 
@@ -57,7 +56,7 @@ Wait for answers before drafting.
 
 ### 3. Brief
 
-Write `brief.md` from `assets/brief-template.md`: the angle in one sentence, who
+Write `medium_brief.md` from `assets/brief-template.md`: the angle in one sentence, who
 the reader is, the promise, a section outline, and any claim you could not verify.
 
 **Stop and show the brief.** A rejected brief costs one minute; a rejected 2,000-word
@@ -73,13 +72,13 @@ You may not search to find new sources, new arguments, new examples, or extra
 material to pad the piece. The article's substance comes from the user.
 
 When a claim fails verification or you cannot check it, do not write around it and
-do not silently drop it. List it in `brief.md` under "Unverified" and raise it with
+do not silently drop it. List it in `medium_brief.md` under "Unverified" and raise it with
 the user. Never state a number, date, version, or attributed quote you have not
 confirmed or been given.
 
 ### 5. Write
 
-Write the full article to `article.md`. Finished prose, publishable as-is.
+Write the full article to `medium_article.md`. Finished prose, publishable as-is.
 
 - Preserve the user's own phrasings wherever they work. Do not mark them, do not
   set them apart — just keep them.
@@ -108,7 +107,7 @@ Two checks worth doing explicitly, because they are the ones that get skipped:
 
 ### 7. Package
 
-Write `publish.md` from `assets/publish-template.md`: five title options, a
+Write `medium_publish.md` from `assets/publish-template.md`: five title options, a
 subtitle, five tags, cover image direction, alt text for every image referenced,
 and the editor formatting steps. See `references/medium-mechanics.md`.
 

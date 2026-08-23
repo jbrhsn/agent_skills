@@ -22,7 +22,7 @@ subheader in that position converts into the story's subtitle.
 
 Formatting matters mechanically, not just visually: an unformatted title or
 subtitle can leave the story's metadata wrong and weakens it in curation. Always
-include the formatting steps in `publish.md` — the user is pasting markdown into a
+include the formatting steps in `medium_publish.md` — the user is pasting markdown into a
 WYSIWYG editor and the header block will not survive the paste intact.
 
 The title, subtitle, and cover image together are what a reader sees in the feed.
@@ -91,14 +91,14 @@ For an account under roughly 5,000 followers, the publication is the distributio
 Editor nominations drive about half of all Boosted stories, and a piece on a small
 personal profile reaches almost no one by comparison.
 
-In `publish.md`, name one or two plausible target publications for the piece's
+In `medium_publish.md`, name one or two plausible target publications for the piece's
 topic and note that submission guidelines should be checked before submitting —
 each publication sets its own requirements, and several mandate a kicker and
 subtitle.
 
 ## Images
 
-- Every image needs alt text. Supply it in `publish.md` for each image the article
+- Every image needs alt text. Supply it in `medium_publish.md` for each image the article
   references — Medium's guidelines call out alt text and credits explicitly.
 - Images should carry information: diagrams, screenshots, real output,
   architecture sketches. Decorative stock adds nothing and can hurt.
@@ -108,7 +108,7 @@ subtitle.
 ## Paste workflow
 
 The article is written as markdown but Medium's editor is not a markdown editor.
-Include these steps in `publish.md`:
+Include these steps in `medium_publish.md`:
 
 1. Paste the body first, leaving the title area alone.
 2. Move the title to the first line, select it, apply the large "T".
@@ -123,6 +123,6 @@ Include these steps in `publish.md`:
 
 ## After publishing
 
-Note in `publish.md`: if click-through sits below about 3% after 48 hours, the
+Note in `medium_publish.md`: if click-through sits below about 3% after 48 hours, the
 title is the problem, not the topic. Rewriting the title on a live story is
 cheaper than writing a new piece.

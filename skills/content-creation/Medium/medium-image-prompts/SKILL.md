@@ -2,7 +2,6 @@
 name: medium-image-prompts
 description: Read a finished article and generate ready-to-use image generation prompts for it — one hero/cover image plus three to five in-article images, each with placement, aspect ratio, negative prompt, alt text, and caption. Use this whenever the user asks for image prompts, cover art, hero images, article visuals, illustrations, or media for a blog post or Medium story, or says an article is finished and needs images. Also use when working in an article folder that contains a finished draft and the user mentions images, visuals, or artwork.
 ---
-
 # Medium Image Prompts
 
 Turn a finished article into a coherent set of image prompts the user can paste
@@ -25,7 +24,7 @@ Read it end to end before writing any prompt.
 
 ## Output
 
-One file: `image-prompts.md`, built from `assets/image-prompts-template.md`.
+One file: `medium_image_prompts.md`, built from `assets/image-prompts-template.md`.
 
 - **1 hero image** — the cover. 16:9.
 - **3–5 in-article images** — placed at specific sections. 3:2 unless a diagram
@@ -81,7 +80,7 @@ set. Then lock three variables and repeat them verbatim in every prompt:
 The set must read as a series. A hero in soft 3D followed by four flat vector
 illustrations looks like four different articles.
 
-State the locked choices at the top of `image-prompts.md` so the user can regenerate
+State the locked choices at the top of `medium_image_prompts.md` so the user can regenerate
 any single image later and have it match.
 
 ### 3. Place the images
@@ -124,7 +123,7 @@ Before presenting:
 ## Notes to carry into the file
 
 Medium requires AI-generated images to be captioned as such. Include a one-line
-reminder at the top of `image-prompts.md`; the user decides how to handle it.
+reminder at the top of `medium_image_prompts.md`; the user decides how to handle it.
 
 Generated art is decoration. It does not substitute for the diagram, screenshot,
 or architecture sketch that a technical piece actually needs, and Medium's
