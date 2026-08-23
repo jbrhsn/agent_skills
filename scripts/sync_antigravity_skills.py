@@ -32,6 +32,7 @@ SKILLS = [
     "skills/content-creation/Medium/medium-article-writer",
     "skills/content-creation/Medium/medium-image-prompts",
     "skills/content-creation/Medium/medium-article-brainstorm",
+    "skills/content-creation/Common/keyword-research",
     "skills/development/lean-coder",
     "skills/development/project-planner",
     "skills/development/repo-docs-publisher",
