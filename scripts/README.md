@@ -1,21 +1,22 @@
 # Sync Scripts
 
-Automated scripts to sync skills, agents, and plugins from this repository to global OpenCode, IBM Bob, and Antigravity configurations.
+Automated scripts to sync skills, agents, and plugins from this repository to global OpenCode, IBM Bob, Antigravity, and Claude Code configurations.
 
 ## Scripts
 
 ### `sync_all.py` (Recommended)
-Syncs everything to the OpenCode, IBM Bob, and Antigravity configurations in one command. On the OpenCode side it runs `sync_opencode_skills.py`, `sync_opencode_agents.py`, and `sync_opencode_plugins.py`; on the Bob side it runs `sync_bob_skills.py`; on the Antigravity side it runs `sync_antigravity_skills.py`.
+Syncs everything to the OpenCode, IBM Bob, Antigravity, and Claude Code configurations in one command. On the OpenCode side it runs `sync_opencode_skills.py`, `sync_opencode_agents.py`, and `sync_opencode_plugins.py`; on the Bob side it runs `sync_bob_skills.py`; on the Antigravity side it runs `sync_antigravity_skills.py`; on the Claude Code side it runs `sync_claude_skills.py`.
 
-The three `--*-only` flags are mutually exclusive. With none of them passed, all three targets sync.
+The four `--*-only` flags are mutually exclusive. With none of them passed, all four targets sync.
 
 **Usage:**
 ```bash
-python3 scripts/sync_all.py                     # Sync to all three targets
+python3 scripts/sync_all.py                     # Sync to all four targets
 python3 scripts/sync_all.py --dry-run           # Preview before syncing
 python3 scripts/sync_all.py --opencode-only     # Only OpenCode (skills, agents, plugins)
 python3 scripts/sync_all.py --bob-only          # Only Bob (skills)
 python3 scripts/sync_all.py --antigravity-only  # Only Antigravity (skills)
+python3 scripts/sync_all.py --claude-only       # Only Claude Code (skills)
 ```
 
 ### `sync_opencode_skills.py`
@@ -42,8 +43,6 @@ python3 scripts/sync_opencode_agents.py --dry-run # Preview
 **Environment variables:**
 - `OPENCODE_AGENTS` — Override destination (default: `~/.config/opencode/agent`)
 
-
-
 ### `sync_bob_skills.py`
 Syncs skills to IBM Bob global config (`~/.bob/skills`).
 
@@ -68,11 +67,23 @@ python3 scripts/sync_antigravity_skills.py --dry-run # Preview
 **Environment variables:**
 - `ANTIGRAVITY_SKILLS` — Override destination (default: `~/.gemini/config/skills`)
 
+### `sync_claude_skills.py`
+Syncs skills to Claude Code global config (`~/.claude/skills`). Claude Code auto-discovers skills placed here across all projects and exposes them as slash commands or automatic capabilities.
+
+**Usage:**
+```bash
+python3 scripts/sync_claude_skills.py           # Sync
+python3 scripts/sync_claude_skills.py --dry-run # Preview
+```
+
+**Environment variables:**
+- `CLAUDE_SKILLS` — Override destination (default: `~/.claude/skills`)
+
 ## What Gets Synced
 
 ### Skills
 
-All 11 skills from the repository (synced to OpenCode, Bob, and Antigravity):
+All 11 skills from the repository (synced to OpenCode, Bob, Antigravity, and Claude Code):
 - **2 Agent Session Management**: end-session, init-session
 - **1 Content Creation (LinkedIn)**: linkedin-post-writer
 - **2 Content Creation (Medium)**: medium-article-writer, medium-image-prompts
@@ -125,6 +136,7 @@ python3 scripts/sync_all.py --dry-run
    ls ~/.config/opencode/agent/
    ls ~/.bob/skills/
    ls ~/.gemini/config/skills/
+   ls ~/.claude/skills/
    ```
 
 ## Environment Setup
@@ -139,6 +151,7 @@ After syncing, content is available in:
 - OpenCode plugins: `~/.config/opencode/plugin/`
 - IBM Bob skills: `~/.bob/skills/`
 - Antigravity skills: `~/.gemini/config/skills/`
+- Claude Code skills: `~/.claude/skills/`
 
 ## Troubleshooting
 
@@ -155,10 +168,10 @@ python3 scripts/sync_all.py
 ```
 
 ### Destination Directory Doesn't Exist
-Scripts automatically create destination directories if they don't exist. If you get permission errors, ensure you have write access to `~/.config/`, `~/.bob/`, and `~/.gemini/`.
+Scripts automatically create destination directories if they don't exist. If you get permission errors, ensure you have write access to `~/.config/`, `~/.bob/`, `~/.gemini/`, and `~/.claude/`.
 
-### The Antigravity Destination Shares a Parent With Other Gemini Config
-`~/.gemini/config/` is **not** a skills-only directory — it also holds `AGENTS.md`, `config.json`, `mcp_config.json`, `projects/`, and `sidecars/`, which belong to other Gemini tooling. `sync_antigravity_skills.py` therefore only ever removes an *individual* destination skill folder immediately before re-copying that one skill. Never add a "clean" step that deletes the whole `~/.gemini/config/skills/` directory or its parent `~/.gemini/config/` — doing so would destroy unrelated Gemini configuration.
+### Shared Parent Directories Caution
+`~/.gemini/config/` and `~/.claude/` are **not** skills-only directories — they hold configs, history, and state used by other tooling. Sync scripts therefore only ever remove *individual* destination skill folders immediately before re-copying each skill. Never add a "clean" step that deletes the whole `~/.gemini/config/skills/` or `~/.claude/skills/` parent tree indiscriminately.
 
 ### Override Destination Paths
 Use environment variables to sync to custom locations:
@@ -167,6 +180,7 @@ OPENCODE_SKILLS=/custom/path python3 scripts/sync_opencode_skills.py
 OPENCODE_AGENTS=/custom/path python3 scripts/sync_opencode_agents.py
 BOB_SKILLS=/custom/path python3 scripts/sync_bob_skills.py
 ANTIGRAVITY_SKILLS=/custom/path python3 scripts/sync_antigravity_skills.py
+CLAUDE_SKILLS=/custom/path python3 scripts/sync_claude_skills.py
 ```
 
 ## Maintenance

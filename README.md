@@ -78,14 +78,15 @@ Use **create-learning-repo** to structure your learning (goal → plan → empty
 The sync scripts install all 11 skills to every supported destination in one command. Run from the repo root:
 
 ```bash
-python3 scripts/sync_all.py                     # Sync to all three targets
+python3 scripts/sync_all.py                     # Sync to all four targets
 python3 scripts/sync_all.py --dry-run           # Preview without writing anything
 python3 scripts/sync_all.py --opencode-only     # Only OpenCode (skills, agents, plugins)
 python3 scripts/sync_all.py --bob-only          # Only IBM Bob (skills)
 python3 scripts/sync_all.py --antigravity-only  # Only Google Antigravity (skills)
+python3 scripts/sync_all.py --claude-only       # Only Claude Code (skills)
 ```
 
-The three `--*-only` flags are **mutually exclusive**. With none of them passed, all three targets sync.
+The four `--*-only` flags are **mutually exclusive**. With none of them passed, all four targets sync.
 
 ### Destinations
 
@@ -95,19 +96,21 @@ The three `--*-only` flags are **mutually exclusive**. With none of them passed,
 | OpenCode agents | `~/.config/opencode/agent/` (note the singular `agent`) | `OPENCODE_AGENTS` |
 | IBM Bob skills | `~/.bob/skills/` | `BOB_SKILLS` |
 | Google Antigravity skills | `~/.gemini/config/skills/` | `ANTIGRAVITY_SKILLS` |
+| Claude Code skills | `~/.claude/skills/` | `CLAUDE_SKILLS` |
 
 ```bash
 # Sync a single target to a custom location
 OPENCODE_SKILLS=/custom/path python3 scripts/sync_opencode_skills.py
 BOB_SKILLS=/custom/path python3 scripts/sync_bob_skills.py
 ANTIGRAVITY_SKILLS=/custom/path python3 scripts/sync_antigravity_skills.py
+CLAUDE_SKILLS=/custom/path python3 scripts/sync_claude_skills.py
 ```
 
 See [`scripts/README.md`](./scripts/README.md) for per-script details.
 
 ### Install manually
 
-Prefer to copy only the skills you want? Run these from the repo root. Swap the destination for `~/.bob/skills/` or `~/.gemini/config/skills/` to target Bob or Antigravity instead — all three use the same skill-folder layout.
+Prefer to copy only the skills you want? Run these from the repo root. Swap the destination for `~/.bob/skills/`, `~/.gemini/config/skills/`, or `~/.claude/skills/` to target Bob, Antigravity, or Claude Code instead — all four use the same skill-folder layout.
 
 ```bash
 # Global — available in all your projects
