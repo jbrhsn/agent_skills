@@ -19,9 +19,9 @@ Each article lives in its own folder. Work only inside it.
 ```
 <article-folder>/
   source.md    # written by the user: draft, bullets, thoughts, experience
-  brief.md     # you write: angle, reader, promise, outline, gaps
-  medium_article.md   # you write: the finished piece
-  publish.md   # you write: titles, subtitle, tags, alt text, checklist
+  medium_brief.md      # you write: angle, reader, promise, outline, gaps
+  medium_article.md    # you write: the finished piece
+  medium_publish.md    # you write: titles, subtitle, tags, alt text, checklist
 ```
 
 If `source.md` is missing, look for `draft.md` or any single markdown file in the

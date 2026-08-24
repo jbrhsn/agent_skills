@@ -15,7 +15,7 @@ placement and subject matter come from what the sections actually say.
 
 Work inside the article folder. Find the final article:
 
-- If there is exactly one finished article file (typically `article.md`), use it.
+- If there is exactly one finished article file (typically `medium_article.md`), use it.
 - If several candidates exist, use the most recently modified and say which one
   you chose.
 - If the user names a file, use that.

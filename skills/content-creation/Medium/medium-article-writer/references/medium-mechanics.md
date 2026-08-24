@@ -1,6 +1,6 @@
 # Medium mechanics
 
-Platform specifics needed when packaging `publish.md`. Behaviour changes over
+Platform specifics needed when packaging `medium_publish.md`. Behaviour changes over
 time; treat anything here that contradicts what the user sees in the editor as
 out of date.
 

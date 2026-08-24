@@ -37,7 +37,7 @@ Restart the agent session afterward.
 ```
 articles/iceberg-compaction/
 ├── source.md
-├── article.md        ← after your editing pass
+├── medium_article.md ← after your editing pass
 └── image-prompts.md  ← produced here
 ```
 

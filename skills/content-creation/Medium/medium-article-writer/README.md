@@ -80,14 +80,14 @@ articles/iceberg-compaction/
 ```
 
 Write your draft, notes, or dictated thoughts into `source.md`, then tell the
-agent to turn it into a Medium article. It produces `brief.md` (which it pauses on
-for approval), then `article.md` and `publish.md`.
+agent to turn it into a Medium article. It produces `medium_brief.md` (which it
+pauses on for approval), then `medium_article.md` and `medium_publish.md`.
 
 ## Design notes
 
 - **Facts are verify-only.** The agent may check claims already in `source.md`
   against the web. It may not search for new material to pad the piece. Anything
-  it cannot confirm is surfaced in `brief.md` rather than written around.
+  it cannot confirm is surfaced in `medium_brief.md` rather than written around.
 - **No fabricated experience.** Anecdotes, benchmarks, and error messages come
   from you or they don't appear.
 - **Finance pieces are framed as experience,** never advice — Medium treats

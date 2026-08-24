@@ -4,47 +4,41 @@
 
 ## Project Snapshot
 
-agent_skills: curated 11-skill distribution repo for OpenCode, IBM Bob, Google Antigravity.
+agent_skills: curated 11-skill distribution repo for OpenCode, IBM Bob, Google Antigravity, and Claude Code.
 Skill organization: agent_session_management (2), learning (2), development (2), content-creation (5: Common 2, LinkedIn 1, Medium 2).
 Key components: SKILL.md + README.md per skill, handoff.md compaction system, 3 agents (orchestrator, executor, ask).
-Sync model: Python scripts to 3 platforms; agents to OpenCode only. Build: file-centric, no tests, verify by re-read/grep.
+Sync model: Lean Python sync system (`scripts/common.py` + per-platform scripts) to 4 platforms; agents to OpenCode only. Auto-discovery of skills from directory tree.
 
 ## Cumulative Learnings
 
-- Skill removal requires updating 3 sync scripts (hardcoded SKILLS lists) — filesystem deletion alone silently leaves orphaned copies on platforms.
+- Shared helper module (`common.py`) + dynamic skill discovery (`Path.glob('**/SKILL.md')`) eliminates hardcoded lists and reduces multi-platform sync boilerplate by ~75% while keeping CLI backwards compatibility.
 - Compaction on every write (never append) keeps handoff.md read cost bounded even on 100+ session projects.
+- Claude Code on macOS uses `~/.claude/skills/{skill-name}/SKILL.md` for personal skills, with direct drop-in compatibility with OpenCode/Antigravity/Bob format.
 - Evidence-backed ideation (velocity scoring, live sources) outperforms interview-driven brainstorm; users want signals, not questions.
 - LinkedIn algorithm mechanics (dwell time, saves, substantive comments) differ materially from generic engagement; algorithm-informed rules yield better results.
-- Voice inference (extract, not impose) is harder but more authentic than fixed persona; requires calibration checks.
 
 ## Last Session
 
-- Removed obsolete skills (repo-docs-publisher, ui-ux-designer) and cleaned global platform folders.
-- Wrote comprehensive README.md files for all learning + development skills.
-- Updated root README.md to reflect accurate 11-skill count.
-- Identified and began fixing hardcoded SKILLS lists in sync scripts.
+- Removed medium-article-brainstorm and linkedin-image-prompts; added evidence-backed idea-research skill.
+- Refined linkedin-post-writer with 2026 algorithm mechanics and anti-slop audit.
+- Upgraded agent session management (init-session, end-session) with compaction and archiving.
+- Synchronized and validated 11 skills and 3 agents across OpenCode, IBM Bob, and Antigravity.
 
 ## Current Session
 
-**Date:** 2026-08-23
-**Focus:** Skill refinement, documentation sync updates, comprehensive validation
+**Date:** 2026-08-24
+**Focus:** Claude Code support integration and lean-coder sync script refactoring
 
 ### Done
-- Removed 2 skills: medium-article-brainstorm (replaced by evidence-backed idea-research), linkedin-image-prompts (optional downstream, streamlines workflow)
-- Added 1 new skill: idea-research (evidence-backed content ideas, velocity-scored, multi-platform, 91/100 rating)
-- Refined linkedin-post-writer: 6-step workflow, 4 focused reference files, 2026 algorithm mechanics, anti-slop audit (91/100 rating)
-- Enhanced agent_session_management skills: init-session and end-session significantly refined with robust scripts, compaction strategy, archive archiving (92/100 rating each)
-- Updated README.md: removed old skill refs, added Common content section, clarified category breakdown (11 skills: 2+2+2+5)
-- Updated scripts/README.md: corrected skill count (13→11), rewrote 'What Gets Synced' section
-- Updated sync scripts: reflected 11-skill roster, removed hardcoded refs to deleted skills
-- Final sync: 11 skills + 3 agents to all 3 platforms (OpenCode, Bob, Antigravity)
-- Comprehensive validation: verified all 11 skills on all 3 platforms, file integrity, script presence, removed skills confirmed absent
+- Researched Claude Code on macOS: personal skills live in `~/.claude/skills/` and are 100% compatible with existing SKILL.md format.
+- Implemented `scripts/sync_claude_skills.py` and integrated `--claude-only` into `scripts/sync_all.py`.
+- Applied lean-coder skill across all sync scripts: created `scripts/common.py`, eliminated duplicate code, and switched to dynamic skill discovery (1003 → 255 total LOC, -74.5%).
+- Updated documentation in `scripts/README.md`, `README.md`, and `AGENTS.md`.
+- Verified dry-runs and executed live sync across all 4 platforms (OpenCode, IBM Bob, Antigravity, Claude Code).
 
 ### Decisions
-- Remove image-prompts as separate skill: downstream optional workflow, better as user choice after post approval
-- Consolidate to idea-research: live sources + velocity scoring better than interview-driven ideation
-- Enhance session management: compaction + archive strategy solves multi-session context problem elegantly
-- 11 skills is the right portfolio size: lean, focused, no dead weight
+- Auto-discover skills dynamically via glob in `common.py` rather than maintaining hardcoded arrays across 4 scripts.
+- Keep each per-platform script independently executable with CLI flags and env overrides while delegating to `common.py`.
 
 ### Open Items
 _None._

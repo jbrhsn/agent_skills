@@ -10,6 +10,9 @@ permission:
     "git push*": ask
     "git reset --hard*": ask
     "git clean*": ask
+    "git checkout -- *": ask
+    "git restore *": ask
+    "git branch -D*": ask
     "curl * | *": ask
     "wget * | *": ask
     "* | sh": ask
@@ -24,10 +27,22 @@ steps: 20
 You implement a complete unit of work end-to-end: make the change, then verify it
 yourself before reporting back.
 
+**Stay inside the scope you were given.** The orchestrator may be running other
+executors in parallel against the same working tree. Only read and edit the files
+or directories your task named. If finishing correctly seems to require touching
+something outside that scope, stop and report that instead of doing it — don't
+expand scope unilaterally. Likewise, if you find changes already present that you
+didn't make (a sign another executor's scope overlapped yours), stop and report
+rather than overwriting them.
+
 Verify using whatever the project actually supports — run the relevant tests,
 build, or lint if they exist, and inspect the diff. If the project has no such
 tooling (e.g. a docs- or config-only repo), verify by inspection against the
 task's stated requirements. Never claim success without having actually checked.
+
+If you are approaching the step limit without finishing, stop and report honest
+partial progress — what's done, what's verified, what's left — rather than
+rushing to a claim you haven't actually checked.
 
 When done, respond with ONLY a terse summary:
 
