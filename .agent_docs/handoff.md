@@ -23,33 +23,32 @@ Sync model: scripts/common.py + per-platform scripts, dynamic discovery, PEP 723
 - Antigravity has no per-mode agent-file concept — one flat `AGENTS.md` at `~/.gemini/config/AGENTS.md` governs every agent session in the workspace; IBM Bob has real subagents/custom-modes but no publicly documented config file format to target.
 - `.gitignore` line 18 is a bare `.*`, which already ignores every dotfile including `.DS_Store` — no separate entry is needed, and none is tracked. `.agent_docs/handoff.md` is nonetheless committed despite `.agent_docs/` being listed, because gitignore has no effect on already-tracked files. Verify with `git check-ignore -v` before re-flagging either as a hygiene gap.
 - The destination/env-var mapping is duplicated across four docs — root `README.md`, `AGENTS.md` §5-6, `scripts/README.md`, and `agents/README.md`. Adding or changing a sync target means editing all four or the docs silently drift; the 2026-08-26 pass found three of them still claiming agents sync to OpenCode only.
+- Repo-only files can live safely at `skills/{category}/` level (category READMEs, notes) — discovery globs `**/SKILL.md` and copies only the containing skill directory, so anything outside a skill dir is never synced anywhere. Verified against a full `--dry-run`.
+- `skills/content-creation/Medium/medium-article-writer/` declares `name: medium-article` in its SKILL.md frontmatter — folder name and frontmatter name disagree. Sync uses the directory name for the destination folder, so harnesses keying off frontmatter and harnesses keying off the directory will resolve different skill names. Unresolved as of 2026-08-26.
 
 ## Last Session
 
-- Built the plugin composition engine (scripts/plugins.py) and converted search-internet from forked agent copies into plugin.json + overlays; verified live on OpenCode 1.18.23 that orchestrator denies web_search_tool while executor/ask/researcher allow it.
-- Evolved lean-coder into a full coding-assistant skill: sharpened description (debugging + quoted triggers), added a production-grade loop step and reference guide, deepened the React guide, and made executor.md mandate loading it.
-- Added cross-platform agent sync — sync_claude_agents.py (executor.md translated to Claude Code's subagent schema) and sync_antigravity_agents.py (agents/ANTIGRAVITY_AGENTS.md → ~/.gemini/config/AGENTS.md, full overwrite by design). Bob deliberately excluded.
-- Caught that agent files must invoke skills by name, not repo path, since the path doesn't survive syncing elsewhere.
+- Documentation accuracy pass across root README, AGENTS.md, agents/README.md and scripts/README.md — agents and plugins were absent from the root README, all invocations said `python3` instead of `uv run`, and three docs still claimed agents sync to OpenCode only.
+- Removed real factual errors: a nonexistent `carousel-builder` skill, a wrong support-folder table, `tests/` listed as a sync exclusion it isn't, and AGENTS.md's false claim that it is gitignored.
+- Fixed two small sync_all.py bugs found while verifying docs: `--help` described skills-only, and unflushed parent prints made `--dry-run` output arrive out of order through a pipe.
+- Deliberately deferred the missing per-category skill READMEs — closed in this session.
 
 ## Current Session
 
 **Date:** 2026-08-26
-**Focus:** Documentation accuracy pass across root README, AGENTS.md, and the agents/plugins/scripts READMEs after the plugin + cross-platform-agent work landed
+**Focus:** Category-level READMEs for the three skill categories that lacked them
 
 ### Done
-- Rewrote the root README: agents and plugins were entirely absent from it, all invocations said `python3` instead of `uv run`, the destinations table was missing 3 of 8 rows (OpenCode plugins, Claude Code agents, Antigravity AGENTS.md), and the 'other agents' table still told Claude Code users to paste skills into CLAUDE.md despite native ~/.claude/skills sync existing.
-- Removed two factual errors from the root README: a reference to a `carousel-builder` skill that does not exist in the repo, and a layout table claiming learning/session skills use `reference/` (singular) and that LinkedIn/Medium skills have no support folder — verified against the tree that every skill uses `references/`, `assets/`, and/or `scripts/`.
-- Cut agents/README.md from 284 to 116 lines by dropping prose that restated the frontmatter permission maps verbatim; kept the safety split, the orchestrator/executor workflow, and added a cross-platform table plus the invoke-skills-by-name rule.
-- Fixed AGENTS.md: its header claimed the file is gitignored and never committed (it is tracked and not ignored), §6 still said agents and plugins sync to OpenCode only, §5 omitted both new agent-sync scripts and their env vars, §7 listed `tests/` as a sync exclusion that isn't in EXCLUSIONS, and §4 documented no `ask` agent at all.
-- Updated scripts/README.md: every `--*-only` flag comment said '(skills)' although three targets now sync agents too; replaced the run-order paragraph with a table and dropped a `chmod +x` troubleshooting entry that is meaningless under `uv run`.
-- Fixed two small real bugs in sync_all.py found while verifying the docs: `--help` described it as syncing skills only, and unflushed parent prints made child-script output arrive out of order through a pipe so `--dry-run` was unreadable.
-- Verified the pass: every relative link in the five edited docs resolves, `--help` output matches every documented flag, and a full `uv run scripts/sync_all.py --dry-run` exits 0 with all eight scripts reporting in order.
+- Created skills/development/README.md, skills/learning/README.md, and skills/content-creation/README.md, modeled on the existing agent_session_management house style: ASCII flow block, fires-when/produces table, one 'why this category coheres' section, Install.
+- Grounded each in actual SKILL.md frontmatter and grepped output filenames rather than paraphrasing the root README — content-creation's table names the real artifacts (source.md, kresearch.md, linkedin_post.md, linkedin_post_notes.md, medium_article.md, medium_image_prompts.md).
+- Documented the source.md-per-folder convention in content-creation/README.md as the actual handoff format between all five skills, including why being inside such a folder is usually enough to trigger the right skill without naming it.
+- Linked all four category headings in the root README to their category directories.
+- Verified: every relative link in the root README and the three new files resolves, and a full `uv run scripts/sync_all.py --dry-run` (49 sync lines) confirms the category READMEs are not picked up as skills.
 
 ### Decisions
-- Left plugins/README.md and plugins/search-internet/README.md untouched — both were written in the same session as the code they describe and audited as accurate.
-- Did not create the missing per-category READMEs under skills/learning, skills/development, and skills/content-creation (only agent_session_management has one) — the root README covers those categories and the ask was accuracy, not new surface area.
+- Category READMEs stay repo-only by construction rather than by an exclusion rule — they sit outside any skill directory, so `**/SKILL.md` discovery never reaches them. No change to EXCLUSIONS was needed.
+- Each category README explains one non-obvious thing rather than restating the root README's skill table: why lean-coder is meant to fire unprompted, why scaffolding and authoring are split, and the source.md convention.
 
 ### Open Items
-- [x] Everything through this docs pass is committed (36d4ca0) and the working tree is clean — the previous 'nothing committed' item is resolved.
-- [x] .DS_Store hygiene was a false alarm: .gitignore's bare `.*` already covers it and nothing is tracked. Resolved, do not re-flag.
-- [ ] skills/learning, skills/development, and skills/content-creation still have no category-level README, unlike skills/agent_session_management — inconsistent, deliberately deferred.
+- [ ] medium-article-writer's SKILL.md declares `name: medium-article` while its folder is `medium-article-writer` — raised with the user, not fixed. Decide which name wins before it causes an invocation miss.
+- [x] Category READMEs and the root README heading links are committed (6b077ec); working tree clean.
