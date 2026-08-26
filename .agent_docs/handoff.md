@@ -21,34 +21,35 @@ Sync model: scripts/common.py + per-platform scripts, dynamic discovery, PEP 723
 - Claude Code subagent frontmatter (confirmed against official docs) has no per-command bash permission map like OpenCode's `permission.bash` patterns — required fields are just `name`+`description`; granular allow/ask/deny gates have to be expressed as a plain-language instruction in the body instead, not faked in frontmatter.
 - Any agent-file instruction that references a skill by literal repo path (e.g. `skills/development/lean-coder/SKILL.md`) breaks once the file is synced to another platform/project — skills flatten to `skills/{name}/` at every destination (no category subfolder) and live in a completely different tree than the target project. Invoke skills by name, never by hardcoded path, in anything that gets synced out.
 - Antigravity has no per-mode agent-file concept — one flat `AGENTS.md` at `~/.gemini/config/AGENTS.md` governs every agent session in the workspace; IBM Bob has real subagents/custom-modes but no publicly documented config file format to target.
+- `.gitignore` line 18 is a bare `.*`, which already ignores every dotfile including `.DS_Store` — no separate entry is needed, and none is tracked. `.agent_docs/handoff.md` is nonetheless committed despite `.agent_docs/` being listed, because gitignore has no effect on already-tracked files. Verify with `git check-ignore -v` before re-flagging either as a hygiene gap.
+- The destination/env-var mapping is duplicated across four docs — root `README.md`, `AGENTS.md` §5-6, `scripts/README.md`, and `agents/README.md`. Adding or changing a sync target means editing all four or the docs silently drift; the 2026-08-26 pass found three of them still claiming agents sync to OpenCode only.
 
 ## Last Session
 
-- Added Claude Code skill sync (`sync_claude_skills.py`, `--claude-only`); all 4 platforms got skills for the first time.
-- Refactored sync scripts onto a shared `common.py` with dynamic skill discovery, cutting sync tooling from 1003 to 255 LOC.
-- Updated docs (scripts/README.md, README.md, AGENTS.md) to match the refactor.
+- Built the plugin composition engine (scripts/plugins.py) and converted search-internet from forked agent copies into plugin.json + overlays; verified live on OpenCode 1.18.23 that orchestrator denies web_search_tool while executor/ask/researcher allow it.
+- Evolved lean-coder into a full coding-assistant skill: sharpened description (debugging + quoted triggers), added a production-grade loop step and reference guide, deepened the React guide, and made executor.md mandate loading it.
+- Added cross-platform agent sync — sync_claude_agents.py (executor.md translated to Claude Code's subagent schema) and sync_antigravity_agents.py (agents/ANTIGRAVITY_AGENTS.md → ~/.gemini/config/AGENTS.md, full overwrite by design). Bob deliberately excluded.
+- Caught that agent files must invoke skills by name, not repo path, since the path doesn't survive syncing elsewhere.
 
 ## Current Session
 
 **Date:** 2026-08-26
-**Focus:** Convert search-internet into a real opt-in OpenCode plugin with composable agent overlays; evolve lean-coder into a full coding-assistant skill; align Claude Code and Antigravity agent sync with the OpenCode model
+**Focus:** Documentation accuracy pass across root README, AGENTS.md, and the agents/plugins/scripts READMEs after the plugin + cross-platform-agent work landed
 
 ### Done
-- Built the plugin composition engine (scripts/plugins.py): discovery, manifest validation, frontmatter deep-merge with cross-plugin conflict detection, append-only '## Capability' body sections, manifest-scoped pruning.
-- Converted search-internet from 3 forked full-agent copies into plugin.json + 3 small overlays (orchestrator denies web_search_tool, executor/ask allow it) + a net-new researcher.md subagent.
-- Rewrote sync_opencode_agents.py (compose + sync + --verify against `opencode debug agent`), sync_opencode_plugins.py (was broken/hardcoded to a nonexistent path), and sync_all.py (--plugins/--list-plugins/--verify).
-- Verified live on OpenCode 1.18.23: orchestrator web_search_tool=False, executor/ask/researcher=True; deselect-then-reselect round-trip clean and byte-identical to base.
-- Evolved the lean-coder skill: fixed a mangled title, sharpened its description to explicitly cover debugging plus quoted trigger phrases, added a 'production-grade' loop step backed by a new references/production-grade/GUIDE.md, and deepened references/typescript-react/GUIDE.md with accessibility, error boundaries/Suspense, and performance guidance.
-- Added a mandatory 'load lean-coder' instruction to executor.md — this, not the skill description alone, is what actually gets it invoked during coding work.
-- Built cross-platform agent sync: scripts/sync_claude_agents.py (translates OpenCode mode:subagent agents into Claude Code's real subagent schema, verified against Claude Code's own docs rather than a first guess) and scripts/sync_antigravity_agents.py (copies a new agents/ANTIGRAVITY_AGENTS.md to ~/.gemini/config/AGENTS.md, full overwrite per explicit user choice). Factored a shared `install()` helper into plugins.py to remove duplication between the OpenCode and Claude Code agent syncs.
-- Caught and fixed a bug from earlier in the session: the lean-coder instruction added to executor.md pointed at a literal repo path that doesn't exist once synced elsewhere; switched to name-based skill invocation.
-- Ran a full sync across all 4 platforms with --dry-run then live; verified Claude Code's synced executor.md parses as valid YAML and both new destination files landed correctly.
+- Rewrote the root README: agents and plugins were entirely absent from it, all invocations said `python3` instead of `uv run`, the destinations table was missing 3 of 8 rows (OpenCode plugins, Claude Code agents, Antigravity AGENTS.md), and the 'other agents' table still told Claude Code users to paste skills into CLAUDE.md despite native ~/.claude/skills sync existing.
+- Removed two factual errors from the root README: a reference to a `carousel-builder` skill that does not exist in the repo, and a layout table claiming learning/session skills use `reference/` (singular) and that LinkedIn/Medium skills have no support folder — verified against the tree that every skill uses `references/`, `assets/`, and/or `scripts/`.
+- Cut agents/README.md from 284 to 116 lines by dropping prose that restated the frontmatter permission maps verbatim; kept the safety split, the orchestrator/executor workflow, and added a cross-platform table plus the invoke-skills-by-name rule.
+- Fixed AGENTS.md: its header claimed the file is gitignored and never committed (it is tracked and not ignored), §6 still said agents and plugins sync to OpenCode only, §5 omitted both new agent-sync scripts and their env vars, §7 listed `tests/` as a sync exclusion that isn't in EXCLUSIONS, and §4 documented no `ask` agent at all.
+- Updated scripts/README.md: every `--*-only` flag comment said '(skills)' although three targets now sync agents too; replaced the run-order paragraph with a table and dropped a `chmod +x` troubleshooting entry that is meaningless under `uv run`.
+- Fixed two small real bugs in sync_all.py found while verifying the docs: `--help` described it as syncing skills only, and unflushed parent prints made child-script output arrive out of order through a pipe so `--dry-run` was unreadable.
+- Verified the pass: every relative link in the five edited docs resolves, `--help` output matches every documented flag, and a full `uv run scripts/sync_all.py --dry-run` exits 0 with all eight scripts reporting in order.
 
 ### Decisions
-- Antigravity's AGENTS.md is treated as fully repo-managed and overwritten on every sync, not merged or appended — explicit user choice, since the pre-existing file's content and provenance were uncertain.
-- IBM Bob agent/subagent sync deliberately skipped for now — its custom-agent config format isn't documented publicly enough to target without guessing.
-- orchestrator/ask (mode: primary) get no Claude Code subagent translation — Claude Code's own top-level session is that equivalent, governed by CLAUDE.md, not an agent file.
+- Left plugins/README.md and plugins/search-internet/README.md untouched — both were written in the same session as the code they describe and audited as accurate.
+- Did not create the missing per-category READMEs under skills/learning, skills/development, and skills/content-creation (only agent_session_management has one) — the root README covers those categories and the ask was accuracy, not new surface area.
 
 ### Open Items
-- [ ] Nothing has been committed this session — plugins/search-internet/, scripts/plugins.py, scripts/sync_claude_agents.py, scripts/sync_antigravity_agents.py, agents/ANTIGRAVITY_AGENTS.md, the executor.md fix, lean-coder skill changes, and doc updates are all uncommitted.
-- [ ] .DS_Store hygiene still unaddressed: .gitignore has no .DS_Store entry and stray .DS_Store files exist under plugins/ — flagged previously, never fixed.
+- [x] Everything through this docs pass is committed (36d4ca0) and the working tree is clean — the previous 'nothing committed' item is resolved.
+- [x] .DS_Store hygiene was a false alarm: .gitignore's bare `.*` already covers it and nothing is tracked. Resolved, do not re-flag.
+- [ ] skills/learning, skills/development, and skills/content-creation still have no category-level README, unlike skills/agent_session_management — inconsistent, deliberately deferred.

@@ -26,7 +26,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Google Antigravity,
 
 ## Skills
 
-### Session Management
+### [Session Management](./skills/agent_session_management/)
 
 > Load and save project context across agent sessions.
 
@@ -35,7 +35,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Google Antigravity,
 | [**init-session**](./skills/agent_session_management/init-session/) | Restore project context at session start — reads the handoff log and delivers a concise briefing of open items and last state |
 | [**end-session**](./skills/agent_session_management/end-session/) | Write a high-signal handoff at session end — compacted on every write, never appended to, so read cost stays flat |
 
-### Learning
+### [Learning](./skills/learning/)
 
 > Scaffold a learning repository, then fill it in chapter by chapter.
 
@@ -44,7 +44,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Google Antigravity,
 | [**create-learning-repo**](./skills/learning/create-learning-repo/README.md) | Turn a learning goal into a folder structure of blank stubs — interviews, researches gaps, drafts a plan (sections → modules → chapters → topics), shows the tree for approval, then scaffolds. Structure only, no content |
 | [**author-chapter**](./skills/learning/author-chapter/README.md) | Populate one Markdown file that teaches a topic from zero to architect level — prerequisites, worked examples, failure modes, misconceptions, Socratic checkpoints |
 
-### Development
+### [Development](./skills/development/)
 
 > Write, review, and plan software.
 
@@ -53,7 +53,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Google Antigravity,
 | [**lean-coder**](./skills/development/lean-coder/README.md) | The least code that correctly and safely solves the problem. Fires on writing, refactoring, review, and debugging; 9 per-language guides plus a production-grade checklist |
 | [**project-planner**](./skills/development/project-planner/README.md) | Plan and spec a project before coding — produces spec, design, roadmap, and backlog docs under `docs/` |
 
-### Content Creation
+### [Content Creation](./skills/content-creation/)
 
 > Source notes → posting-ready piece, with review gates and matching visual prompts.
 
