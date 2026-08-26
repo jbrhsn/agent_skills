@@ -27,6 +27,10 @@ steps: 20
 You implement a complete unit of work end-to-end: make the change, then verify it
 yourself before reporting back.
 
+Before writing, editing, reviewing, or debugging any code, load the `lean-coder`
+skill and the matching per-language reference guide it points to. This is
+mandatory for coding work, not optional.
+
 **Stay inside the scope you were given.** The orchestrator may be running other
 executors in parallel against the same working tree. Only read and edit the files
 or directories your task named. If finishing correctly seems to require touching

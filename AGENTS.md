@@ -1,6 +1,6 @@
 # AGENTS.md — agent_skills Repository Guide
 
-This file is **not committed** (in `.gitignore`). It's for your session only.
+Working guide for agents operating in this repo. Committed — keep it accurate.
 
 ---
 
@@ -23,9 +23,10 @@ This file is **not committed** (in `.gitignore`). It's for your session only.
 ## 3. Skill Directory Structure
 
 All skills live under `skills/{category}/{skill-name}/`:
-- `SKILL.md` — agent-facing prompt with YAML frontmatter (`---` headers: available_skills, references, etc.)
+- `SKILL.md` — agent-facing prompt with YAML frontmatter (`name`, `description`)
 - `README.md` — human-readable guide (optional but recommended)
-- `reference/` or `references/` — templates, checklists, examples (optional)
+- `references/`, `assets/`, `scripts/` — optional: guides the skill loads on demand,
+  templates it writes from, stdlib-only Python it runs
 
 Example: `skills/development/lean-coder/SKILL.md`
 
@@ -44,8 +45,13 @@ Example: `skills/development/lean-coder/SKILL.md`
 - Has edit + bash access; gates dangerous commands (`rm -rf`, `git push`, etc.) behind `ask`
 - Implements, runs tests/builds, verifies itself, reports terse summary
 - Never pastes raw logs; only structured result (files changed, verification type, pass/fail)
+- Mandated to load the `lean-coder` skill before writing, editing, reviewing, or debugging code
 
-See `agents/README.md` for full safety model and permission rules.
+**Ask** (`agents/ask_mode_agents/ask.md`):
+- Mode: `primary` (read-only entry point)
+- No edit, bash, or delegation — searches and reads, cites `path/to/file:line`
+
+See `agents/README.md` for the full safety model and permission rules.
 
 ---
 
@@ -72,12 +78,14 @@ each agent's resolved permissions match what was composed.
 
 **Individual script sync:**
 ```bash
-uv run scripts/sync_opencode_skills.py      # OpenCode skills only
-uv run scripts/sync_opencode_agents.py      # OpenCode agents only (accepts --plugins, --verify)
-uv run scripts/sync_opencode_plugins.py     # OpenCode plugin runtime only (accepts --plugins)
-uv run scripts/sync_bob_skills.py           # IBM Bob skills only
-uv run scripts/sync_antigravity_skills.py   # Antigravity skills only
-uv run scripts/sync_claude_skills.py        # Claude Code skills only
+uv run scripts/sync_opencode_skills.py       # OpenCode skills
+uv run scripts/sync_opencode_agents.py       # OpenCode agents (accepts --plugins, --verify)
+uv run scripts/sync_opencode_plugins.py      # OpenCode plugin runtime (accepts --plugins)
+uv run scripts/sync_claude_skills.py         # Claude Code skills
+uv run scripts/sync_claude_agents.py         # Claude Code subagents (executor only, translated)
+uv run scripts/sync_antigravity_skills.py    # Antigravity skills
+uv run scripts/sync_antigravity_agents.py    # Antigravity ~/.gemini/config/AGENTS.md (full overwrite)
+uv run scripts/sync_bob_skills.py            # IBM Bob skills
 ```
 
 **Inspect a composed agent without writing anything:**
@@ -89,9 +97,11 @@ uv run scripts/sync_opencode_agents.py --plugins search-internet --print-compose
 - `OPENCODE_SKILLS=~/.config/opencode/skills`
 - `OPENCODE_AGENTS=~/.config/opencode/agent` (note: singular)
 - `OPENCODE_PLUGINS=~/.config/opencode/plugin` (note: singular)
-- `BOB_SKILLS=~/.bob/skills`
-- `ANTIGRAVITY_SKILLS=~/.gemini/config/skills`
 - `CLAUDE_SKILLS=~/.claude/skills`
+- `CLAUDE_AGENTS=~/.claude/agents`
+- `ANTIGRAVITY_SKILLS=~/.gemini/config/skills`
+- `ANTIGRAVITY_AGENTS=~/.gemini/config/AGENTS.md` (a file, not a directory)
+- `BOB_SKILLS=~/.bob/skills`
 
 > OpenCode's docs say `agents/` and `plugins/` (plural), but 1.18.23 reads the
 > **singular** paths above. Verified empirically — don't "fix" these.
@@ -102,16 +112,28 @@ uv run scripts/sync_opencode_agents.py --plugins search-internet --print-compose
 
 Where synced files land on each platform:
 
-| Target | Skills Destination | Agents Destination | Plugins Destination |
+| Target | Skills | Agents | Plugins |
 |---|---|---|---|
-| **OpenCode** | `~/.config/opencode/skills/{skill-name}/` | `~/.config/opencode/agent/{agent-name}.md` | `~/.config/opencode/plugin/{file}.js` |
-| **IBM Bob** | `~/.bob/skills/{skill-name}/` | — (not synced) | — (not synced) |
-| **Antigravity** | `~/.gemini/config/skills/{skill-name}/` | — (not synced) | — (not synced) |
-| **Claude Code** | `~/.claude/skills/{skill-name}/` | — (not synced) | — (not synced) |
+| **OpenCode** | `~/.config/opencode/skills/{skill}/` | `~/.config/opencode/agent/{agent}.md` — all 3, composed | `~/.config/opencode/plugin/{file}.js` |
+| **Claude Code** | `~/.claude/skills/{skill}/` | `~/.claude/agents/executor.md` — translated | — |
+| **Antigravity** | `~/.gemini/config/skills/{skill}/` | `~/.gemini/config/AGENTS.md` — one flat file | — |
+| **IBM Bob** | `~/.bob/skills/{skill}/` | — | — |
 
-**Agents and plugins sync to OpenCode only.** Agents are composed at sync time: base
-agents from `agents/`, plus overlays from any plugin named in `--plugins`. Composed
+**Plugins are OpenCode-only.** OpenCode agents are composed at sync time: base agents
+from `agents/*/*.md`, plus overlays from any plugin named in `--plugins`. Composed
 files exist only at the destination — never written back into the repo.
+
+**Claude Code** gets only `mode: subagent` agents (today, just `executor`); its own
+top-level session is the `primary` equivalent, governed by `CLAUDE.md`. Its subagent
+frontmatter has no per-command bash permission map, so `executor`'s allow/ask/deny
+gates become a plain-language note in the body.
+
+**Antigravity** has no per-mode agent files — `agents/ANTIGRAVITY_AGENTS.md` is a
+separate hand-authored source (not a translation) copied verbatim, overwriting the
+destination in full.
+
+**Bob** gets skills only — its custom-agent config format isn't publicly documented
+enough to target confidently.
 
 ---
 
@@ -134,16 +156,21 @@ files exist only at the destination — never written back into the repo.
 - Two plugins setting the same frontmatter key to different values is a **hard error**,
   not a last-one-wins merge. Resolve it in the overlays.
 
-**Excluded from sync** (saved ~2.5GB of artifacts):
-- `.venv/`, `__pycache__/`, `*.pyc`, `.pytest_cache/`, `node_modules/`, `.git/`, `.DS_Store`, `*.egg-info/`, `dist/`, `build/`, `tests/`
+**Excluded from sync** (`EXCLUSIONS` in `scripts/common.py`):
+- `.venv/`, `__pycache__/`, `*.pyc`, `.pytest_cache/`, `node_modules/`, `.git/`, `.DS_Store`, `*.egg-info/`, `dist/`, `build/`
 
 **Contributing:**
 - Not open for contributions yet (solo curated collection)
 - Issues welcome; see `CONTRIBUTING.md`
 
-**Session-only files** (in `.gitignore`):
-- `AGENTS.md` (this file) — your session guide, never committed
-- `CLAUDE.md`, `.opencode/`, `.cursor/`, `.cursorrules`, `.github/copilot-instructions.md`
+**Skills are referenced by name, never by path:**
+- Anything that gets synced out (agent files, `ANTIGRAVITY_AGENTS.md`) must say
+  "load the `lean-coder` skill", not `skills/development/lean-coder/SKILL.md`.
+- Skills flatten to `skills/{name}/` at every destination — the category subfolder
+  is gone, and the destination tree is unrelated to whatever project the agent runs in.
+
+**Local-only files** (in `.gitignore`):
+- `.agent_docs/`, `.opencode/`, `.cursor/`, `.cursorrules`, `.github/copilot-instructions.md`
 
 ---
 

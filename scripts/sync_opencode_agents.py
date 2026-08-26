@@ -64,7 +64,6 @@ def verify_agents(composed: dict[str, str]) -> int:
 
 def sync_agents(dest_dir: Path, selected: list[dict], dry_run: bool = False, verify: bool = False) -> int:
     composed = plug.compose_agents(selected)
-    dest_dir.mkdir(parents=True, exist_ok=True)
 
     print("🔄 Syncing OpenCode agents...")
     print(f"  Source:      {plug.AGENTS_DIR}\n  Destination: {dest_dir}")
@@ -72,24 +71,7 @@ def sync_agents(dest_dir: Path, selected: list[dict], dry_run: bool = False, ver
     if dry_run:
         print("🔍 DRY RUN MODE (no files will be modified)\n")
 
-    synced, skipped = 0, 0
-    for filename, content in sorted(composed.items()):
-        if dry_run:
-            print(f"→ Would sync: {filename}")
-            synced += 1
-            continue
-        try:
-            (dest_dir / filename).write_text(content)
-            print(f"✓ {filename}")
-            synced += 1
-        except OSError as e:
-            print(f"✗ {filename}: {e}")
-            skipped += 1
-
-    for stale in plug.prune(dest_dir, set(composed), dry_run):
-        print(f"{'→ Would remove' if dry_run else '🗑  Removed'} (deselected): {stale}")
-    if not dry_run:
-        plug.write_manifest(dest_dir, list(composed))
+    synced, skipped = plug.install(dest_dir, composed, dry_run)
 
     mode_str = "🔍 DRY RUN: No files were modified" if dry_run else "✅ Sync complete!"
     print(f"\n{mode_str}\n  Synced:  {synced} agents\n  Skipped: {skipped} agents\n")

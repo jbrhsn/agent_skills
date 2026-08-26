@@ -136,6 +136,34 @@ def compose_agents(plugins: list[dict]) -> dict[str, str]:
 # --- Install manifest --------------------------------------------------------
 
 
+def install(dest: Path, files: dict[str, str], dry_run: bool = False) -> tuple[int, int]:
+    """Write `files` to dest, prune stale manifest-owned files, update the manifest.
+
+    Shared by every sync script that installs a composed/translated agent set
+    (OpenCode, Claude Code, ...). Returns (synced, skipped).
+    """
+    dest.mkdir(parents=True, exist_ok=True)
+    synced, skipped = 0, 0
+    for filename, content in sorted(files.items()):
+        if dry_run:
+            print(f"→ Would sync: {filename}")
+            synced += 1
+            continue
+        try:
+            (dest / filename).write_text(content)
+            print(f"✓ {filename}")
+            synced += 1
+        except OSError as e:
+            print(f"✗ {filename}: {e}")
+            skipped += 1
+
+    for stale in prune(dest, set(files), dry_run):
+        print(f"{'→ Would remove' if dry_run else '🗑  Removed'} (no longer synced): {stale}")
+    if not dry_run:
+        write_manifest(dest, list(files))
+    return synced, skipped
+
+
 def write_manifest(dest: Path, files: list[str]) -> None:
     payload = {"version": 1, "note": "Written by agent_skills sync. Lists files it owns.", "files": sorted(files)}
     (dest / MANIFEST_NAME).write_text(json.dumps(payload, indent=2) + "\n")

@@ -4,14 +4,16 @@ Write cleaner, shorter code without sacrificing correctness or security. This sk
 
 ## When to Use It
 
-Use Lean Coder whenever you're writing new code, refactoring existing code, or reviewing a diff — whether it's a complete function, a small snippet, or a pull request. The skill is language-aware and works across multiple languages, so even small bits of code benefit from the discipline.
+Use Lean Coder whenever you're writing new code, refactoring existing code, reviewing a diff, or debugging a failure — whether it's a complete function, a small snippet, or a pull request. The skill is language-aware and works across multiple languages, so even small bits of code benefit from the discipline.
 
 **Practical triggers:**
 - You're about to write a new function or feature
 - You've written something and want to trim unnecessary parts
 - You're reviewing code and want to spot bloat (dead branches, unnecessary variables, over-engineering)
 - You need a refactor but aren't sure where to start
+- You're debugging a failure and need to fix it without adding defensive cruft
 - You want to improve test-ability of an existing function
+- You'd phrase it as "clean this up," "is this good code," "make this production-ready," "review my PR," or "why is this slow/broken"
 
 ## What You'll Get
 
@@ -54,7 +56,10 @@ The skill follows a consistent loop for every code task:
 2. **Stdlib** — Use built-in language features before adding dependencies
 3. **Inline** — Remove single-use helpers
 4. **Secure** — Apply language-specific security rules (always kept)
-5. **Test** — Restructure until the code can be tested without excessive mocks
+5. **Production-grade** — Structured logging, no swallowed errors, run the project's own lint/test gate before calling it done
+6. **Test** — Restructure until the code can be tested without excessive mocks
+
+An additional `references/production-grade/GUIDE.md` covers cross-language hardening (logging, error propagation, dependency pinning, the pre-"done" gate). It's opt-in — load it when the task is explicitly about hardening or shipping, not on every edit.
 
 For details on the full workflow, language guides, and the "cut on sight" checklist, see **[SKILL.md](./SKILL.md)**.
 

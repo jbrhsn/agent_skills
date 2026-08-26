@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyyaml"]
 # ///
-"""Sync all skills to OpenCode, IBM Bob, Antigravity, and Claude Code global configs."""
+"""Sync skills, agents, and plugins to OpenCode, IBM Bob, Antigravity, and Claude Code."""
 
 import argparse
 import subprocess
@@ -18,8 +18,8 @@ TARGETS = {
     # plugins before agents: --verify inspects resolved tools, which needs runtime installed
     "opencode": ["sync_opencode_skills.py", "sync_opencode_plugins.py", "sync_opencode_agents.py"],
     "bob": ["sync_bob_skills.py"],
-    "antigravity": ["sync_antigravity_skills.py"],
-    "claude": ["sync_claude_skills.py"],
+    "antigravity": ["sync_antigravity_skills.py", "sync_antigravity_agents.py"],
+    "claude": ["sync_claude_skills.py", "sync_claude_agents.py"],
 }
 PLUGIN_AWARE = {"sync_opencode_agents.py", "sync_opencode_plugins.py"}
 VERIFY_AWARE = {"sync_opencode_agents.py"}
@@ -33,12 +33,12 @@ def run_sync(script_name: str, args: argparse.Namespace) -> int:
         cmd += ["--plugins", args.plugins]
     if args.verify and script_name in VERIFY_AWARE:
         cmd.append("--verify")
-    print(f"\n{'=' * 79}\nRunning: {script_name}\n{'=' * 79}\n")
+    print(f"\n{'=' * 79}\nRunning: {script_name}\n{'=' * 79}\n", flush=True)
     return subprocess.run(cmd, cwd=SCRIPTS_DIR.parent).returncode
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Sync skills to OpenCode, IBM Bob, Antigravity, and Claude Code")
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Preview without modifying files")
     parser.add_argument("--plugins", default="", help="Comma-separated plugins to install (OpenCode only)")
     parser.add_argument("--list-plugins", action="store_true", help="List available plugins and exit")
@@ -56,7 +56,7 @@ def main() -> int:
         return 0
 
     active_targets = [t for t in TARGETS if getattr(args, f"{t}_only")] or list(TARGETS.keys())
-    print("🔄 Syncing skills to global configs...")
+    print("🔄 Syncing to global configs...")
 
     exit_code = 0
     for target in active_targets:

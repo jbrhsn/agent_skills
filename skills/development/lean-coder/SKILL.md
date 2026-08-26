@@ -1,8 +1,8 @@
 ---
 name: lean-coder
-description: Write and review code with the minimum lines needed, using the standard library over dependencies and inlining over helper indirection, while keeping it secure and testable. Use this skill whenever writing new code, refactoring, reviewing a diff, or evaluating an implementation in Python, SQL, Scala/Spark, TypeScript/React, Solidity, Rust, Swift, Kotlin, or React Native — even when the user does not say "keep it short," and even for small snippets, since most bloat enters at that size.
+description: Use proactively whenever writing new code, refactoring, reviewing a diff, debugging a failure, or evaluating an implementation in Python, SQL, Scala/Spark, TypeScript/React/Next.js, Solidity, Rust, Swift, Kotlin, or React Native — including requests phrased as "clean this up," "is this good code," "make this production-ready," "review my PR," or "why is this slow/broken." Writes and reviews code with the minimum lines needed, using the standard library over dependencies and inlining over helper indirection, while keeping it secure, testable, and production-grade. Applies even when the user does not say "keep it short," and even for small snippets, since most bloat enters at that size.
 ---
-# Lean Hyphen Coder
+# Lean Coder
 
 Minimum code that is correct, secure, and testable. Fewer lines is the tiebreaker, never the goal — never trade correctness or security for brevity.
 
@@ -12,7 +12,8 @@ Minimum code that is correct, secure, and testable. Fewer lines is the tiebreake
 2. **Stdlib** — Does the language/framework already ship this? Use it. No dependency for what stdlib does in ≤5 lines.
 3. **Inline** — A helper used once is not a helper. Inline it.
 4. **Secure** — Apply the language's security list from its reference file. Security code is never cut.
-5. **Test** — Can this be tested without mocks or setup? If not, restructure until it can.
+5. **Production-grade** — Structured/leveled logging over `print`/`console.log`; errors propagate or are handled, never silently swallowed; run the project's own lint/typecheck/test gate before calling it done. See `references/production-grade/GUIDE.md` when hardening or shipping, not on every edit.
+6. **Test** — Can this be tested without mocks or setup? If not, restructure until it can.
 
 Report LOC delta on refactors: `before → after`.
 
@@ -43,5 +44,8 @@ Load **only** the file for the language in play. Do not read the others.
 | Swift                        | `references/swift/GUIDE.md`            |
 | Kotlin                       | `references/kotlin/GUIDE.md`           |
 | React Native                 | `references/react-native/GUIDE.md`     |
+| Production-grade (any language) | `references/production-grade/GUIDE.md` |
 
 Polyglot task: load each relevant file at the moment you write that language, not upfront.
+Production-grade guide is opt-in: load it when the task is explicitly about
+hardening or shipping (e.g. "make this production-ready"), not for routine edits.

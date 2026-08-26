@@ -2,15 +2,25 @@
 
 # Agent Skills
 
-**Structured workflows for AI coding agents — tested in real sessions, ready to install.**
+**Skills, agents, and plugins for AI coding agents — tested in real sessions, ready to install.**
 
-Give agents like OpenCode, IBM Bob, Google Antigravity, Claude Code, and Cursor repeatable, high-quality behavior for common development tasks. Each skill is a prompt file your agent loads and follows like a playbook.
+Repeatable, high-quality behavior for OpenCode, Claude Code, Google Antigravity, and IBM Bob. One repo is the source of truth; sync scripts push it to every platform.
 
-**11 skills** across session management, learning, development, and content creation.
+**11 skills** · **3 base agents** · **1 opt-in plugin**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 </div>
+
+---
+
+## What's here
+
+| Layer | What it is | Where it syncs |
+|---|---|---|
+| **Skills** | Prompt playbooks the agent loads on demand ([`skills/`](./skills/)) | All four platforms |
+| **Agents** | Per-mode agent definitions with permission models ([`agents/`](./agents/)) | OpenCode, Claude Code, Antigravity |
+| **Plugins** | Runtime tools bundled with the agent overlays that govern them ([`plugins/`](./plugins/)) | OpenCode only, opt-in |
 
 ---
 
@@ -22,180 +32,153 @@ Give agents like OpenCode, IBM Bob, Google Antigravity, Claude Code, and Cursor 
 
 | Skill | What it does |
 |---|---|
-| [**init-session**](./skills/agent_session_management/init-session/README.md) | Restore full project context at session start — reads the handoff log and delivers a concise briefing of open items and last state |
-| [**end-session**](./skills/agent_session_management/end-session/README.md) | Write a high-signal handoff at session end — rolling project summary, session log, and filtered open items for the next agent |
+| [**init-session**](./skills/agent_session_management/init-session/) | Restore project context at session start — reads the handoff log and delivers a concise briefing of open items and last state |
+| [**end-session**](./skills/agent_session_management/end-session/) | Write a high-signal handoff at session end — compacted on every write, never appended to, so read cost stays flat |
 
 ### Learning
 
-> Scaffold learning repositories and populate complete chapters.
-
-Use **create-learning-repo** to structure your learning (goal → plan → empty stubs), then use **author-chapter** to fill in content one chapter at a time. Two complementary skills.
+> Scaffold a learning repository, then fill it in chapter by chapter.
 
 | Skill | What it does |
 |---|---|
-| [**create-learning-repo**](./skills/learning/create-learning-repo/README.md) | Turn a learning goal into a folder structure with blank stub files — interviews for the goal, researches to fill gaps, drafts a plan (sections → modules → chapters → topics), shows you the tree for approval, then scaffolds the repo and tracking files. Creates structure only; no content written. |
-| [**author-chapter**](./skills/learning/author-chapter/README.md) | Populate one complete Markdown file that teaches a topic from zero to architect-level mastery — covers all prerequisite concepts, worked examples, failure modes, misconceptions, and Socratic checkpoints. Use this to fill in stubs created by create-learning-repo, or to author standalone modules. |
+| [**create-learning-repo**](./skills/learning/create-learning-repo/README.md) | Turn a learning goal into a folder structure of blank stubs — interviews, researches gaps, drafts a plan (sections → modules → chapters → topics), shows the tree for approval, then scaffolds. Structure only, no content |
+| [**author-chapter**](./skills/learning/author-chapter/README.md) | Populate one Markdown file that teaches a topic from zero to architect level — prerequisites, worked examples, failure modes, misconceptions, Socratic checkpoints |
 
 ### Development
 
-> Write, refactor, and plan software projects.
+> Write, review, and plan software.
 
 | Skill | What it does |
 |---|---|
-| [**lean-coder**](./skills/development/lean-coder/README.md) | A "lazy senior developer" discipline for coding work — the least code that correctly and safely solves the problem; adds `/review-diff` and `/audit-repo` workflows for finding over-engineering |
-| [**project-planner**](./skills/development/project-planner/README.md) | Plan and spec a project before coding — produces spec, design, roadmap, and backlog docs under `docs/` (`/plan-project`) |
+| [**lean-coder**](./skills/development/lean-coder/README.md) | The least code that correctly and safely solves the problem. Fires on writing, refactoring, review, and debugging; 9 per-language guides plus a production-grade checklist |
+| [**project-planner**](./skills/development/project-planner/README.md) | Plan and spec a project before coding — produces spec, design, roadmap, and backlog docs under `docs/` |
 
 ### Content Creation
 
-> Turn source notes into a posting-ready piece (with built-in review/refine) and generate matching visual prompts — for LinkedIn and Medium.
-
-**LinkedIn** — `skills/content-creation/Linkedin/`
+> Source notes → posting-ready piece, with review gates and matching visual prompts.
 
 | Skill | What it does |
 |---|---|
-| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Turn source notes or a rough draft into a posting-ready LinkedIn post — hook engineering, scroll-first structure, no-link-in-body discipline, mandatory review gate. Writes `linkedin_post.md` next to the source file. Also scores a finished post across 5 algorithm-aligned dimensions and produces one refined version with an itemized change list in `linkedin_post_revised.md` |
+| [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Ranked, evidence-backed content ideas from live sources (Hacker News, Reddit, Google Trends, Medium tags) — clustered by beat, scored on recency + velocity + fit + gap |
+| [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Keyless keyword research for a drafted article — search intent, long-tail keywords, Medium tags, and optimization tips |
+| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Notes → posting-ready LinkedIn post: hook engineering, scroll-first structure, no-link-in-body discipline. Also scores a finished post on 5 algorithm-aligned dimensions and emits a refined version |
+| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Notes → publish-ready Medium article grounded in Medium's distribution guidelines, AI-content policy, and earnings mechanics. Also scores a finished article /100 and emits a refined version |
+| [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/README.md) | Image-generation prompts for a finished article — one cover plus one per section that earns it, each with alt text, caption, credit, and the mandatory AI-disclosure line |
 
-**Medium** — `skills/content-creation/Medium/`
+---
 
-| Skill | What it does |
+## Agents
+
+Three base definitions in [`agents/`](./agents/), built around a safety split: the planner holds no edit or bash power, the implementer does and gates destructive commands.
+
+| Agent | Mode | Role |
+|---|---|---|
+| **orchestrator** | `primary` | Decomposes a request, delegates every unit of work to executors (≤4 in parallel). Never edits, never runs bash |
+| **executor** | `subagent` | Implements *and verifies* one unit end-to-end. Edit + bash, with `rm -rf`, `git push`, `sudo` and friends behind `ask` |
+| **ask** | `primary` | Read-only conversational exploration. No edit, bash, or delegation |
+
+Only `executor` translates to a Claude Code subagent (`~/.claude/agents/`) — Claude Code's own top-level session is the primary-agent equivalent. Antigravity has no per-mode agent files, so [`agents/ANTIGRAVITY_AGENTS.md`](./agents/ANTIGRAVITY_AGENTS.md) carries the equivalent standing rules into its one global instructions file. See [`agents/README.md`](./agents/README.md).
+
+## Plugins
+
+Optional, OpenCode-only, opt-in per sync. A plugin ships a runtime tool **plus** the agent overlays that constrain it — installed together, since a plugin tool is otherwise allowed in every agent by default.
+
+| Plugin | What it adds |
 |---|---|
-| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/SKILL.md) | Turn source notes or a draft into a publish-ready `medium_article.md`, applying Medium-specific craft grounded in Medium's Distribution Guidelines, AI-content policy, and earnings mechanics — title+subtitle+cover as a unit, read-ratio-driven scannability, first-hand originality, relevant tagging, soft value-tied CTAs, paywall recommendation — behind mandatory review gates. Also scores a finished article out of 100 across 5 distribution-aligned dimensions and writes one refined `medium_article_reviewed.md` with an itemized change list |
-| [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/SKILL.md) | Generate image-generation prompts for a finished Medium article — one featured/cover prompt plus one in-article visual per major section that earns one (Medium is not a carousel platform), each with alt text, a caption including credit and the mandatory AI-disclosure line, and a rationale. Writes `medium_image_prompts.md` next to the source article — prompt text only, no rendering |
+| [`search-internet`](./plugins/search-internet/) | `web_search_tool` (Tavily → Firecrawl → self-hosted fallback) and a `researcher` subagent that keeps raw results out of the orchestrator's context |
 
-**Common** — `skills/content-creation/Common/`
-
-| Skill | What it does |
-|---|---|
-| [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Generate ranked, evidence-backed content ideas for Medium, LinkedIn, and Reddit from live public sources — fetches from Hacker News, Reddit, Google Trends, Medium tags, then clusters by beat, scores by recency+velocity+fit+gap, and scaffolds a source.md per approved idea |
-| [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Run keyless keyword research for a drafted article and write a kresearch.md next to its source.md — search intent, long-tail keywords, Medium tags, article optimization tips, and related topics from Google Autocomplete, related searches, and Medium's tag index |
+Base agents are never edited by a plugin — overlays are merged in memory at sync time. See [`plugins/README.md`](./plugins/README.md).
 
 ---
 
 ## Getting started
 
-### Sync everything (recommended)
-
-The sync scripts install all 11 skills to every supported destination in one command. Run from the repo root:
+Requires [`uv`](https://docs.astral.sh/uv/) — the scripts carry PEP 723 headers and resolve their own dependencies. A bare `python3` invocation fails on `ModuleNotFoundError: yaml`.
 
 ```bash
-python3 scripts/sync_all.py                     # Sync to all four targets
-python3 scripts/sync_all.py --dry-run           # Preview without writing anything
-python3 scripts/sync_all.py --opencode-only     # Only OpenCode (skills, agents, plugins)
-python3 scripts/sync_all.py --bob-only          # Only IBM Bob (skills)
-python3 scripts/sync_all.py --antigravity-only  # Only Google Antigravity (skills)
-python3 scripts/sync_all.py --claude-only       # Only Claude Code (skills)
-```
+uv run scripts/sync_all.py                     # everything, to all four platforms
+uv run scripts/sync_all.py --dry-run           # preview, write nothing
+uv run scripts/sync_all.py --opencode-only     # one platform (flags are mutually exclusive)
 
-The four `--*-only` flags are **mutually exclusive**. With none of them passed, all four targets sync.
+uv run scripts/sync_all.py --list-plugins                       # what's available
+uv run scripts/sync_all.py --plugins search-internet --verify   # install a plugin + assert resolved config
+uv run scripts/sync_all.py                                      # omit --plugins = uninstall, files pruned
+```
 
 ### Destinations
 
 | What | Destination | Env override |
 |---|---|---|
 | OpenCode skills | `~/.config/opencode/skills/` | `OPENCODE_SKILLS` |
-| OpenCode agents | `~/.config/opencode/agent/` (note the singular `agent`) | `OPENCODE_AGENTS` |
-| IBM Bob skills | `~/.bob/skills/` | `BOB_SKILLS` |
-| Google Antigravity skills | `~/.gemini/config/skills/` | `ANTIGRAVITY_SKILLS` |
+| OpenCode agents | `~/.config/opencode/agent/` (singular) | `OPENCODE_AGENTS` |
+| OpenCode plugins | `~/.config/opencode/plugin/` (singular) | `OPENCODE_PLUGINS` |
 | Claude Code skills | `~/.claude/skills/` | `CLAUDE_SKILLS` |
+| Claude Code agents | `~/.claude/agents/` | `CLAUDE_AGENTS` |
+| Antigravity skills | `~/.gemini/config/skills/` | `ANTIGRAVITY_SKILLS` |
+| Antigravity agent rules | `~/.gemini/config/AGENTS.md` | `ANTIGRAVITY_AGENTS` |
+| IBM Bob skills | `~/.bob/skills/` | `BOB_SKILLS` |
 
 ```bash
-# Sync a single target to a custom location
-OPENCODE_SKILLS=/custom/path python3 scripts/sync_opencode_skills.py
-BOB_SKILLS=/custom/path python3 scripts/sync_bob_skills.py
-ANTIGRAVITY_SKILLS=/custom/path python3 scripts/sync_antigravity_skills.py
-CLAUDE_SKILLS=/custom/path python3 scripts/sync_claude_skills.py
+OPENCODE_SKILLS=/custom/path uv run scripts/sync_opencode_skills.py
 ```
 
-See [`scripts/README.md`](./scripts/README.md) for per-script details.
+Bob gets skills only — its custom-agent config format isn't publicly documented enough to target confidently. Per-script details: [`scripts/README.md`](./scripts/README.md).
+
+> These are **shared** config directories, not ours alone. Syncing only ever replaces individual skill folders, and agent/plugin pruning is scoped to a `.agent_skills_manifest.json` recording what this tooling wrote. `~/.gemini/config/AGENTS.md` is the one full-overwrite exception — edit it in this repo, not in place.
 
 ### Install manually
 
-Prefer to copy only the skills you want? Run these from the repo root. Swap the destination for `~/.bob/skills/`, `~/.gemini/config/skills/`, or `~/.claude/skills/` to target Bob, Antigravity, or Claude Code instead — all four use the same skill-folder layout.
+Any skill folder works as-is in any of the four platforms — same `SKILL.md` layout everywhere.
 
 ```bash
-# Global — available in all your projects
-
-# Session management skills
-cp -r skills/agent_session_management/init-session ~/.config/opencode/skills/
-cp -r skills/agent_session_management/end-session ~/.config/opencode/skills/
-
-# Learning skills
-cp -r skills/learning/create-learning-repo ~/.config/opencode/skills/
-cp -r skills/learning/author-chapter ~/.config/opencode/skills/
-
-# Development skills
-cp -r skills/development/lean-coder ~/.config/opencode/skills/
-cp -r skills/development/project-planner ~/.config/opencode/skills/
-
-# Content creation skills (LinkedIn)
-cp -r skills/content-creation/Linkedin/linkedin-post-writer ~/.config/opencode/skills/
-
-# Content creation skills (Medium)
-cp -r skills/content-creation/Medium/medium-article-writer ~/.config/opencode/skills/
-cp -r skills/content-creation/Medium/medium-image-prompts ~/.config/opencode/skills/
-
-# Content creation skills (Common)
-cp -r skills/content-creation/Common/idea-research ~/.config/opencode/skills/
-cp -r skills/content-creation/Common/keyword-research ~/.config/opencode/skills/
+cp -r skills/development/lean-coder ~/.config/opencode/skills/   # or ~/.claude/skills/,
+                                                                 # ~/.gemini/config/skills/, ~/.bob/skills/
+cp -r skills/development/lean-coder .opencode/skills/            # per-project (OpenCode)
 ```
+
+Agents are one level deeper, under `agents/orchestrator_mode_agents/` and `agents/ask_mode_agents/`:
 
 ```bash
-# Per-project (OpenCode) — available only in the current project
-cp -r skills/agent_session_management/init-session .opencode/skills/
-cp -r skills/learning/create-learning-repo .opencode/skills/
-cp -r skills/development/lean-coder .opencode/skills/
-cp -r skills/content-creation/Linkedin/linkedin-post-writer .opencode/skills/
-cp -r skills/content-creation/Medium/medium-article-writer .opencode/skills/
+cp agents/orchestrator_mode_agents/orchestrator.md \
+   agents/orchestrator_mode_agents/executor.md \
+   agents/ask_mode_agents/ask.md \
+   ~/.config/opencode/agent/
 ```
 
-OpenCode, Bob, and Antigravity all load skills automatically. Once installed, describe what you want and the agent invokes the right skill.
+### Other harnesses
 
-> **Content-creation skills ship helper scripts** (under `scripts/`) that run on **standard-library Python 3** — no install needed. Optional PNG export in `carousel-builder` uses `cairosvg` or a headless browser if present, and degrades gracefully if not.
+Skills load natively on OpenCode, Claude Code, Antigravity, and Bob. Elsewhere:
 
-### Use with other agents
-
-Each skill's `README.md` has an **Other platforms** section with exact instructions per platform:
-
-| Platform | How to load the skill |
+| Platform | How to load a skill |
 |---|---|
-| **Google Antigravity** | Drop the skill folder into `~/.gemini/config/skills/` — same `SKILL.md` standard, loaded automatically |
-| **Claude Code** | Add content to `CLAUDE.md` under a named section |
 | **Cursor** | Add as `.cursor/rules/<skill-name>.mdc`, type `Agent Requested` |
-| **GitHub Copilot** | Add content to `.github/copilot-instructions.md` |
-| **ChatGPT / Claude (web)** | Paste the skill content as your opening message |
+| **GitHub Copilot** | Append to `.github/copilot-instructions.md` |
+| **ChatGPT / Claude (web)** | Paste `SKILL.md` as your opening message |
 
 The workflow phases and constraints are platform-agnostic — only the loading mechanism differs.
 
 ---
 
-## Skill structure
-
-Each skill lives in a `skills/category/skill-name/` folder:
+## Layout
 
 ```
-skills/
-└── category/
-    └── skill-name/
-        ├── SKILL.md       ← agent-facing skill (SKILL.md format with YAML frontmatter)
-        ├── README.md      ← human-readable guide: triggers, workflow, examples, limitations
-        └── support/       ← optional runtime files the skill reads or runs
+skills/{category}/{skill-name}/
+├── SKILL.md        ← agent-facing prompt, YAML frontmatter + body
+├── README.md       ← human guide: triggers, workflow, limitations
+├── references/     ← optional: guides, checklists, rubrics the skill loads on demand
+├── assets/         ← optional: templates the skill writes from
+└── scripts/        ← optional: stdlib-only Python the skill runs
 ```
 
-The optional support directory varies by category:
+Helper scripts shipped inside skills run on **standard-library Python 3** — no install needed.
 
-| Category | Support dir | Contents |
-|---|---|---|
-| `skills/learning/`, `skills/agent_session_management/` | `reference/` (singular) | Templates, rubrics, quality gates |
-| `skills/development/` | `references/` (plural) | Templates, checklists, command references |
-| `skills/content-creation/Linkedin/`, `skills/content-creation/Medium/` | none (self-contained) | No support folder — craft rules are inlined directly in each `SKILL.md` |
-
-> **Only tested skills belong here.** Skills are added only after being exercised in a real session — no untested stubs.
+> **Only tested skills belong here.** Nothing is added until it has been exercised in a real session.
 
 ---
 
 ## License
 
-MIT — see [LICENSE](./LICENSE) for details.
+MIT — see [LICENSE](./LICENSE).
 
 ---
 

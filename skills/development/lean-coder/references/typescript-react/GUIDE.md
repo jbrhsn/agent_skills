@@ -23,6 +23,16 @@
 - One component = one concern. Split when JSX branches on a boolean prop into two different shapes.
 - Server Components / server actions by default in Next.js; `"use client"` only on the leaf that needs interactivity.
 - Colocate: component, its types, and its test in one folder; no shared `types.ts` dumping ground.
+- Error boundaries per independently-failing region (a widget, a route segment) — not one global catch-all that blanks the whole page. In Next.js, use `error.tsx`/`loading.tsx` at the route segment instead of hand-rolled `isError`/`isLoading` state.
+- Suspense for async boundaries the framework already understands (data fetching, lazy components) instead of manual loading flags layered on top.
+- Lazy/dynamic import (`next/dynamic`, `React.lazy`) for below-the-fold or rarely-used components; don't ship code the initial render never touches.
+- `next/image` or native `loading="lazy"` over an unmanaged `<img>`; avoid passing new object/array/function literals as props on every render where it causes a measurable re-render cascade downstream.
+
+## Accessibility (never cut)
+
+- Semantic HTML elements (`button`, `nav`, `label`) over `div`+ARIA — ARIA is a patch for when semantics run out, not the default.
+- Every form input has an associated `label`; every interactive element is reachable and operable by keyboard alone.
+- Images carry meaningful `alt` text (or `alt=""` when purely decorative) — never omit the attribute.
 
 ## TypeScript
 
