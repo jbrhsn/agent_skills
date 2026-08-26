@@ -9,47 +9,83 @@ Syncs everything to the OpenCode, IBM Bob, Antigravity, and Claude Code configur
 
 The four `--*-only` flags are mutually exclusive. With none of them passed, all four targets sync.
 
+Run everything with **`uv run`** — the scripts carry PEP 723 headers declaring `pyyaml`.
+
 **Usage:**
 ```bash
-python3 scripts/sync_all.py                     # Sync to all four targets
-python3 scripts/sync_all.py --dry-run           # Preview before syncing
-python3 scripts/sync_all.py --opencode-only     # Only OpenCode (skills, agents, plugins)
-python3 scripts/sync_all.py --bob-only          # Only Bob (skills)
-python3 scripts/sync_all.py --antigravity-only  # Only Antigravity (skills)
-python3 scripts/sync_all.py --claude-only       # Only Claude Code (skills)
+uv run scripts/sync_all.py                     # Sync to all four targets
+uv run scripts/sync_all.py --dry-run           # Preview before syncing
+uv run scripts/sync_all.py --opencode-only     # Only OpenCode (skills, agents, plugins)
+uv run scripts/sync_all.py --bob-only          # Only Bob (skills)
+uv run scripts/sync_all.py --antigravity-only  # Only Antigravity (skills)
+uv run scripts/sync_all.py --claude-only       # Only Claude Code (skills)
+
+uv run scripts/sync_all.py --list-plugins                     # List available plugins
+uv run scripts/sync_all.py --plugins search-internet --verify # Install a plugin, then verify
+uv run scripts/sync_all.py                                    # Omit --plugins to uninstall
 ```
+
+**Plugin flags:**
+- `--plugins <a,b>` — install these plugins' runtime files *and* agent overlays (OpenCode only). Omitting the flag uninstalls: previously-synced plugin files are pruned.
+- `--list-plugins` — print available plugins and exit.
+- `--verify` — after syncing, run `opencode debug agent` on each agent and assert its resolved permissions match what was composed.
 
 ### `sync_opencode_skills.py`
 Syncs skills to OpenCode global config (`~/.config/opencode/skills`).
 
 **Usage:**
 ```bash
-python3 scripts/sync_opencode_skills.py           # Sync
-python3 scripts/sync_opencode_skills.py --dry-run # Preview
+uv run scripts/sync_opencode_skills.py           # Sync
+uv run scripts/sync_opencode_skills.py --dry-run # Preview
 ```
 
 **Environment variables:**
 - `OPENCODE_SKILLS` — Override destination (default: `~/.config/opencode/skills`)
 
 ### `sync_opencode_agents.py`
-Syncs the repo's agent definitions (`agents/orchestrator_mode_agents/orchestrator.md` and `agents/orchestrator_mode_agents/executor.md`) to the OpenCode global agent directory (`~/.config/opencode/agent` — note the singular `agent`). The `agents/README.md` is not synced.
+Composes and syncs agent definitions to the OpenCode global agent directory (`~/.config/opencode/agent` — note the singular `agent`). The `agents/README.md` is not synced.
+
+Base agents come from `agents/*/*.md`. When `--plugins` is passed, each selected plugin's overlays are merged in: frontmatter is deep-merged, and the overlay body is appended as a `## Capability: <plugin>` section. Agents with no overlay are copied verbatim. Composition happens in memory — nothing is written back into the repo.
 
 **Usage:**
 ```bash
-python3 scripts/sync_opencode_agents.py           # Sync
-python3 scripts/sync_opencode_agents.py --dry-run # Preview
+uv run scripts/sync_opencode_agents.py                                    # Base agents only
+uv run scripts/sync_opencode_agents.py --dry-run                          # Preview
+uv run scripts/sync_opencode_agents.py --plugins search-internet --verify # Compose + verify
+uv run scripts/sync_opencode_agents.py --plugins search-internet \
+    --print-composed orchestrator                                         # Inspect, write nothing
 ```
 
 **Environment variables:**
 - `OPENCODE_AGENTS` — Override destination (default: `~/.config/opencode/agent`)
+
+### `sync_opencode_plugins.py`
+Syncs the runtime files (e.g. `web-search.js`) of the plugins named in `--plugins` to `~/.config/opencode/plugin` (singular). Reads each plugin's `plugin.json` manifest; with no `--plugins`, installs nothing and prunes anything previously installed.
+
+Running this alone installs a tool **without** the agent overlays that constrain it — the script warns about this. Prefer `sync_all.py`, which drives both.
+
+**Usage:**
+```bash
+uv run scripts/sync_opencode_plugins.py --plugins search-internet
+uv run scripts/sync_opencode_plugins.py --dry-run
+```
+
+**Environment variables:**
+- `OPENCODE_PLUGINS` — Override destination (default: `~/.config/opencode/plugin`)
+
+### `plugins.py`
+Not a sync script — the composition engine imported by the two above. Handles plugin discovery and manifest validation, frontmatter deep-merge with cross-plugin conflict detection, body-section appending, and manifest-scoped pruning.
+
+### `common.py`
+Shared helpers: destination resolution with env-var overrides, skill auto-discovery, the generic skill-copy routine, and exclusion patterns.
 
 ### `sync_bob_skills.py`
 Syncs skills to IBM Bob global config (`~/.bob/skills`).
 
 **Usage:**
 ```bash
-python3 scripts/sync_bob_skills.py           # Sync
-python3 scripts/sync_bob_skills.py --dry-run # Preview
+uv run scripts/sync_bob_skills.py           # Sync
+uv run scripts/sync_bob_skills.py --dry-run # Preview
 ```
 
 **Environment variables:**
@@ -60,8 +96,8 @@ Syncs skills to the Antigravity (Google Antigravity IDE) global config (`~/.gemi
 
 **Usage:**
 ```bash
-python3 scripts/sync_antigravity_skills.py           # Sync
-python3 scripts/sync_antigravity_skills.py --dry-run # Preview
+uv run scripts/sync_antigravity_skills.py           # Sync
+uv run scripts/sync_antigravity_skills.py --dry-run # Preview
 ```
 
 **Environment variables:**
@@ -72,8 +108,8 @@ Syncs skills to Claude Code global config (`~/.claude/skills`). Claude Code auto
 
 **Usage:**
 ```bash
-python3 scripts/sync_claude_skills.py           # Sync
-python3 scripts/sync_claude_skills.py --dry-run # Preview
+uv run scripts/sync_claude_skills.py           # Sync
+uv run scripts/sync_claude_skills.py --dry-run # Preview
 ```
 
 **Environment variables:**
@@ -93,11 +129,20 @@ All 11 skills from the repository (synced to OpenCode, Bob, Antigravity, and Cla
 
 ### Agents (OpenCode only)
 
-- `orchestrator.md`, `executor.md` → `~/.config/opencode/agent/`
+Base agents, always synced → `~/.config/opencode/agent/`:
+- `orchestrator.md` (primary), `executor.md` (subagent), `ask.md` (primary)
 
-### Plugins (OpenCode only)
+Plus, when a plugin is selected, that plugin's net-new agents and its overlays merged into the base agents above.
 
-No plugins are currently maintained in this repository.
+### Plugins (OpenCode only, opt-in)
+
+| Plugin | Adds | Agents affected |
+|---|---|---|
+| `search-internet` | `web_search_tool` (Tavily → Firecrawl → self-hosted fallback) | new `researcher`; overlays on `orchestrator` (deny), `executor`, `ask` |
+
+Plugins sync **only** when named in `--plugins`. See `plugins/README.md` for the composition model.
+
+> A plugin tool is allow-by-default in every agent unless denied, so runtime files and overlays must install together. `--plugins` guarantees this.
 
 ## Build Artifacts Excluded
 
@@ -116,7 +161,7 @@ The following are automatically excluded to save space (~2.5GB total):
 All scripts support `--dry-run` to preview what would be synced without modifying files:
 
 ```bash
-python3 scripts/sync_all.py --dry-run
+uv run scripts/sync_all.py --dry-run
 ```
 
 ## Typical Workflow
@@ -124,11 +169,11 @@ python3 scripts/sync_all.py --dry-run
 1. **Make changes** to skills in the repository
 2. **Preview changes:**
    ```bash
-   python3 scripts/sync_all.py --dry-run
+   uv run scripts/sync_all.py --dry-run
    ```
 3. **Sync when ready:**
    ```bash
-   python3 scripts/sync_all.py
+   uv run scripts/sync_all.py
    ```
 4. **Verify installation** in all locations:
    ```bash
@@ -161,11 +206,23 @@ Make sure the script is executable:
 chmod +x scripts/sync_all.py
 ```
 
-### Python Not Found
-Use `python3` instead of `python`:
+### Python / dependency errors
+Run through `uv`, which resolves the PEP 723 dependency headers automatically:
 ```bash
-python3 scripts/sync_all.py
+uv run scripts/sync_all.py
 ```
+A bare `python3` invocation fails with `ModuleNotFoundError: yaml` unless `pyyaml` is installed in the active environment.
+
+### Plugin conflict error
+`Plugin conflict on '<key>'` means two selected plugins set the same frontmatter key to different values. This is deliberate — permissions are security-relevant, so the sync refuses to silently pick one. Reconcile the overlays, or select only one of the two plugins.
+
+### A plugin's tool isn't available in OpenCode
+Confirm the runtime file landed and the agent resolves it:
+```bash
+ls ~/.config/opencode/plugin/
+opencode debug agent researcher   # look for tools.web_search_tool
+```
+`@opencode-ai/plugin` must be resolvable from `~/.config/opencode/package.json`.
 
 ### Destination Directory Doesn't Exist
 Scripts automatically create destination directories if they don't exist. If you get permission errors, ensure you have write access to `~/.config/`, `~/.bob/`, `~/.gemini/`, and `~/.claude/`.
@@ -173,18 +230,21 @@ Scripts automatically create destination directories if they don't exist. If you
 ### Shared Parent Directories Caution
 `~/.gemini/config/` and `~/.claude/` are **not** skills-only directories — they hold configs, history, and state used by other tooling. Sync scripts therefore only ever remove *individual* destination skill folders immediately before re-copying each skill. Never add a "clean" step that deletes the whole `~/.gemini/config/skills/` or `~/.claude/skills/` parent tree indiscriminately.
 
+The same applies to agent and plugin pruning: each destination holds a `.agent_skills_manifest.json` recording only the files this tooling wrote, and pruning is restricted to that list. Nothing you or another tool placed there is ever touched.
+
 ### Override Destination Paths
 Use environment variables to sync to custom locations:
 ```bash
-OPENCODE_SKILLS=/custom/path python3 scripts/sync_opencode_skills.py
-OPENCODE_AGENTS=/custom/path python3 scripts/sync_opencode_agents.py
-BOB_SKILLS=/custom/path python3 scripts/sync_bob_skills.py
-ANTIGRAVITY_SKILLS=/custom/path python3 scripts/sync_antigravity_skills.py
-CLAUDE_SKILLS=/custom/path python3 scripts/sync_claude_skills.py
+OPENCODE_SKILLS=/custom/path uv run scripts/sync_opencode_skills.py
+OPENCODE_AGENTS=/custom/path uv run scripts/sync_opencode_agents.py
+OPENCODE_PLUGINS=/custom/path uv run scripts/sync_opencode_plugins.py
+BOB_SKILLS=/custom/path uv run scripts/sync_bob_skills.py
+ANTIGRAVITY_SKILLS=/custom/path uv run scripts/sync_antigravity_skills.py
+CLAUDE_SKILLS=/custom/path uv run scripts/sync_claude_skills.py
 ```
 
 ## Maintenance
 
 - Scripts are maintained in `scripts/` directory of the repository
-- Keep them in sync with the main `SKILLS`/`AGENTS` lists if new skills or agents are added
+- Skills, agents, and plugins are all auto-discovered — there are no hardcoded lists to update when adding one
 - Document any changes to the sync behavior in this README

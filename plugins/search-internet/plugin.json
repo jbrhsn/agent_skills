@@ -1,0 +1,13 @@
+{
+  "name": "search-internet",
+  "description": "Multi-tier live web search (Tavily -> Firecrawl -> local tavily-open) exposed as web_search_tool, with a researcher subagent that keeps raw results out of the orchestrator's context.",
+  "targets": ["opencode"],
+  "runtime": ["plugin/web-search.js"],
+  "agents": {
+    "new": ["researcher.md"],
+    "overlays": ["orchestrator.md", "executor.md", "ask.md"]
+  },
+  "env": {
+    "optional": ["TAVILY_API_KEY", "FIRECRAWL_API_KEY", "TAVILY_OPEN_URL"]
+  }
+}

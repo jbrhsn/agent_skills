@@ -176,11 +176,29 @@ commands behind `ask` or `deny`.
 for the correct destination:
 
 ```bash
-python3 scripts/sync_opencode_agents.py            # → ~/.config/opencode/agent/
-python3 scripts/sync_opencode_agents.py --dry-run   # preview only
+uv run scripts/sync_opencode_agents.py            # → ~/.config/opencode/agent/
+uv run scripts/sync_opencode_agents.py --dry-run   # preview only
 ```
 
 Set `OPENCODE_AGENTS` to sync somewhere else (e.g. a per-project `.opencode/agent/`).
+
+### Plugin overlays
+
+The three agents below are the **base** definitions and are always what syncs by
+default. An optional plugin (see [`plugins/`](../plugins/)) may ship *overlays* that
+extend them — adding a permission and appending a `## Capability: <plugin>` section —
+plus net-new agents of its own. Overlays are merged in memory at sync time; the files
+in this directory are never modified by a plugin.
+
+```bash
+uv run scripts/sync_opencode_agents.py --plugins search-internet --verify
+uv run scripts/sync_opencode_agents.py --plugins search-internet \
+    --print-composed orchestrator     # see the merged result, write nothing
+```
+
+Because a plugin's tool is available to every agent unless explicitly denied, an
+overlay that denies it on `orchestrator` is part of the safety model described above —
+which is why plugin runtime files and overlays always install together.
 
 **Manual copy**, if you'd rather not run the script — note the files live one
 level deeper than `agents/`, under `orchestrator_mode_agents/` and
