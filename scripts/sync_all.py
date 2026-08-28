@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["pyyaml"]
 # ///
-"""Sync skills, agents, and plugins to OpenCode, IBM Bob, Antigravity, and Claude Code."""
+"""Sync skills, agents, and plugins to all supported harnesses."""
 
 import argparse
 import subprocess
@@ -20,6 +20,7 @@ TARGETS = {
     "bob": ["sync_bob_skills.py"],
     "antigravity": ["sync_antigravity_skills.py", "sync_antigravity_agents.py"],
     "claude": ["sync_claude_skills.py", "sync_claude_agents.py"],
+    "codex": ["sync_codex_skills.py"],
 }
 PLUGIN_AWARE = {"sync_opencode_agents.py", "sync_opencode_plugins.py"}
 VERIFY_AWARE = {
@@ -30,6 +31,7 @@ VERIFY_AWARE = {
     "sync_antigravity_agents.py",
     "sync_claude_skills.py",
     "sync_claude_agents.py",
+    "sync_codex_skills.py",
 }
 
 

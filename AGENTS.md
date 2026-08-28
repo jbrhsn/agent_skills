@@ -6,7 +6,7 @@ Working guide for agents operating in this repo. Committed — keep it accurate.
 
 ## 1. Overview
 
-**agent_skills** is a curated collection of reusable workflow skills and agent definitions for AI coding agents on OpenCode, IBM Bob, Google Antigravity, and Claude Code. Edit and test skills locally in this repo, then sync to all platforms via Python scripts. This is a distribution repo only — no per-project `opencode.json`.
+**agent_skills** is a curated collection of reusable workflow skills and agent definitions for AI coding agents on OpenCode, IBM Bob, Google Antigravity, Claude Code, and Codex/ChatGPT. Edit and test skills locally in this repo, then sync to all platforms via Python scripts. This is a distribution repo only — no per-project `opencode.json`.
 
 ---
 
@@ -64,7 +64,7 @@ See `agents/README.md` for the full safety model and permission rules.
 1. Edit a skill in `skills/{category}/{skill-name}/SKILL.md` (or `README.md`)
 2. Run `uv run scripts/sync_all.py --dry-run` to preview
 3. Run `uv run scripts/sync_all.py --verify` to sync and verify SHA-256 parity
-4. Optional: `--opencode-only`, `--bob-only`, `--antigravity-only`, or `--claude-only` (mutually exclusive)
+4. Optional: `--opencode-only`, `--bob-only`, `--antigravity-only`, `--claude-only`, or `--codex-only` (mutually exclusive)
 
 **Plugins (OpenCode only, opt-in):**
 ```bash
@@ -102,6 +102,7 @@ uv run scripts/sync_opencode_agents.py --plugins search-internet --print-compose
 - `ANTIGRAVITY_SKILLS=~/.gemini/config/skills`
 - `ANTIGRAVITY_AGENTS=~/.gemini/config/AGENTS.md` (a file, not a directory)
 - `BOB_SKILLS=~/.bob/skills`
+- `CODEX_SKILLS=~/.agents/skills`
 
 > OpenCode's docs say `agents/` and `plugins/` (plural), but 1.18.23 reads the
 > **singular** paths above. Verified empirically — don't "fix" these.
@@ -118,6 +119,7 @@ Where synced files land on each platform:
 | **Claude Code** | `~/.claude/skills/{skill}/` | `~/.claude/agents/executor.md` — translated | — |
 | **Antigravity** | `~/.gemini/config/skills/{skill}/` | `~/.gemini/config/AGENTS.md` — one flat file | — |
 | **IBM Bob** | `~/.bob/skills/{skill}/` | — | — |
+| **Codex / ChatGPT** | `~/.agents/skills/{skill}/` | — | — |
 
 **Plugins are OpenCode-only.** OpenCode agents are composed at sync time: base agents
 from `agents/*/*.md`, plus overlays from any plugin named in `--plugins`. Composed
@@ -134,6 +136,10 @@ destination in full.
 
 **Bob** gets skills only — its custom-agent config format isn't publicly documented
 enough to target confidently.
+
+**Codex / ChatGPT** gets skills only. Its custom subagents use TOML config layers,
+not OpenCode's Markdown agent schema, while repository guidance is discovered from
+`AGENTS.md`. The skills themselves need no translation.
 
 ---
 

@@ -1,11 +1,11 @@
 # Sync Scripts
 
-Automated scripts to sync skills, agents, and plugins from this repository to global OpenCode, IBM Bob, Antigravity, and Claude Code configurations.
+Automated scripts to sync skills, agents, and plugins from this repository to global OpenCode, IBM Bob, Antigravity, Claude Code, and Codex/ChatGPT configurations.
 
 ## Scripts
 
 ### `sync_all.py` (Recommended)
-Syncs everything to all four platforms in one command, running the per-platform scripts in order:
+Syncs everything to all five platforms in one command, running the per-platform scripts in order:
 
 | Target | Scripts run |
 |---|---|
@@ -13,21 +13,23 @@ Syncs everything to all four platforms in one command, running the per-platform 
 | `bob` | `sync_bob_skills.py` |
 | `antigravity` | `sync_antigravity_skills.py`, `sync_antigravity_agents.py` |
 | `claude` | `sync_claude_skills.py`, `sync_claude_agents.py` |
+| `codex` | `sync_codex_skills.py` |
 
 Plugins run before agents on the OpenCode side: `--verify` inspects resolved tools, which needs the runtime already installed.
 
-The four `--*-only` flags are mutually exclusive. With none of them passed, all four targets sync.
+The five `--*-only` flags are mutually exclusive. With none of them passed, all five targets sync.
 
 Run everything with **`uv run`** — the scripts carry PEP 723 headers declaring `pyyaml`.
 
 **Usage:**
 ```bash
-uv run scripts/sync_all.py                     # Sync to all four targets
+uv run scripts/sync_all.py                     # Sync to all five targets
 uv run scripts/sync_all.py --dry-run           # Preview before syncing
 uv run scripts/sync_all.py --opencode-only     # Skills + agents + plugins
 uv run scripts/sync_all.py --claude-only       # Skills + the executor subagent
 uv run scripts/sync_all.py --antigravity-only  # Skills + AGENTS.md
 uv run scripts/sync_all.py --bob-only          # Skills
+uv run scripts/sync_all.py --codex-only        # Skills
 
 uv run scripts/sync_all.py --list-plugins                     # List available plugins
 uv run scripts/sync_all.py --plugins search-internet --verify # Install a plugin, then verify
@@ -50,6 +52,27 @@ uv run scripts/sync_opencode_skills.py --dry-run # Preview
 
 **Environment variables:**
 - `OPENCODE_SKILLS` — Override destination (default: `~/.config/opencode/skills`)
+
+### `sync_codex_skills.py`
+Syncs skills to the user-wide location discovered by Codex CLI, the Codex IDE
+extension, and the ChatGPT desktop harness. The skill folders are copied without
+translation because Codex uses the same `SKILL.md` format and optional
+`scripts/`, `references/`, `assets/`, and `agents/openai.yaml` layout.
+
+**Usage:**
+```bash
+uv run scripts/sync_codex_skills.py
+uv run scripts/sync_codex_skills.py --dry-run
+uv run scripts/sync_codex_skills.py --verify
+```
+
+**Environment variables:**
+- `CODEX_SKILLS` — Override destination (default: `~/.agents/skills`)
+
+This sync intentionally does not translate the Markdown files under `agents/`.
+Codex custom subagents are declared through TOML config layers, so mapping the
+OpenCode permission frontmatter would be lossy. Repository-specific working rules
+remain available through the repo's `AGENTS.md`.
 
 ### `sync_opencode_agents.py`
 Composes and syncs agent definitions to the OpenCode global agent directory (`~/.config/opencode/agent` — note the singular `agent`). The `agents/README.md` is not synced.
@@ -209,6 +232,7 @@ Every script supports `--dry-run`.
    ls ~/.bob/skills/
    ls ~/.gemini/config/skills/ && cat ~/.gemini/config/AGENTS.md
    ls ~/.claude/skills/ && ls ~/.claude/agents/
+   ls ~/.agents/skills/
    ```
 
 ## Environment Setup
@@ -226,6 +250,7 @@ After syncing, content is available in:
 - Antigravity global agent instructions: `~/.gemini/config/AGENTS.md`
 - Claude Code skills: `~/.claude/skills/`
 - Claude Code agents: `~/.claude/agents/`
+- Codex / ChatGPT skills: `~/.agents/skills/`
 
 ## Troubleshooting
 
@@ -248,7 +273,7 @@ opencode debug agent researcher   # look for tools.web_search_tool
 `@opencode-ai/plugin` must be resolvable from `~/.config/opencode/package.json`.
 
 ### Destination Directory Doesn't Exist
-Scripts automatically create destination directories if they don't exist. If you get permission errors, ensure you have write access to `~/.config/`, `~/.bob/`, `~/.gemini/`, and `~/.claude/`.
+Scripts automatically create destination directories if they don't exist. If you get permission errors, ensure you have write access to `~/.config/`, `~/.bob/`, `~/.gemini/`, `~/.claude/`, and `~/.agents/`.
 
 ### Shared Parent Directories Caution
 `~/.gemini/config/` and `~/.claude/` are **not** skills-only directories — they hold configs, history, and state used by other tooling. Sync scripts therefore only ever remove *individual* destination skill folders immediately before re-copying each skill. Never add a "clean" step that deletes the whole `~/.gemini/config/skills/` or `~/.claude/skills/` parent tree indiscriminately.
@@ -268,6 +293,7 @@ ANTIGRAVITY_SKILLS=/custom/path uv run scripts/sync_antigravity_skills.py
 ANTIGRAVITY_AGENTS=/custom/path/AGENTS.md uv run scripts/sync_antigravity_agents.py
 CLAUDE_SKILLS=/custom/path uv run scripts/sync_claude_skills.py
 CLAUDE_AGENTS=/custom/path uv run scripts/sync_claude_agents.py
+CODEX_SKILLS=/custom/path uv run scripts/sync_codex_skills.py
 ```
 
 ## Maintenance

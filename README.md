@@ -4,7 +4,7 @@
 
 **Skills, agents, and plugins for AI coding agents — tested in real sessions, ready to install.**
 
-Repeatable, high-quality behavior for OpenCode, Claude Code, Google Antigravity, and IBM Bob. One repo is the source of truth; sync scripts push it to every platform.
+Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Google Antigravity, and IBM Bob. One repo is the source of truth; sync scripts push it to every platform.
 
 **11 skills** · **3 base agents** · **1 opt-in plugin**
 
@@ -18,7 +18,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Google Antigravity,
 
 | Layer | What it is | Where it syncs |
 |---|---|---|
-| **Skills** | Prompt playbooks the agent loads on demand ([`skills/`](./skills/)) | All four platforms |
+| **Skills** | Prompt playbooks the agent loads on demand ([`skills/`](./skills/)) | All five platforms |
 | **Agents** | Per-mode agent definitions with permission models ([`agents/`](./agents/)) | OpenCode, Claude Code, Antigravity |
 | **Plugins** | Runtime tools bundled with the agent overlays that govern them ([`plugins/`](./plugins/)) | OpenCode only, opt-in |
 
@@ -96,7 +96,7 @@ Base agents are never edited by a plugin — overlays are merged in memory at sy
 Requires [`uv`](https://docs.astral.sh/uv/) — the scripts carry PEP 723 headers and resolve their own dependencies. A bare `python3` invocation fails on `ModuleNotFoundError: yaml`.
 
 ```bash
-uv run scripts/sync_all.py                     # everything, to all four platforms
+uv run scripts/sync_all.py                     # everything, to all five platforms
 uv run scripts/sync_all.py --dry-run           # preview, write nothing
 uv run scripts/sync_all.py --opencode-only     # one platform (flags are mutually exclusive)
 
@@ -114,6 +114,7 @@ uv run scripts/sync_all.py                                      # omit --plugins
 | OpenCode plugins | `~/.config/opencode/plugin/` (singular) | `OPENCODE_PLUGINS` |
 | Claude Code skills | `~/.claude/skills/` | `CLAUDE_SKILLS` |
 | Claude Code agents | `~/.claude/agents/` | `CLAUDE_AGENTS` |
+| Codex / ChatGPT skills | `~/.agents/skills/` | `CODEX_SKILLS` |
 | Antigravity skills | `~/.gemini/config/skills/` | `ANTIGRAVITY_SKILLS` |
 | Antigravity agent rules | `~/.gemini/config/AGENTS.md` | `ANTIGRAVITY_AGENTS` |
 | IBM Bob skills | `~/.bob/skills/` | `BOB_SKILLS` |
@@ -128,10 +129,11 @@ Bob gets skills only — its custom-agent config format isn't publicly documente
 
 ### Install manually
 
-Any skill folder works as-is in any of the four platforms — same `SKILL.md` layout everywhere.
+Any skill folder works as-is in any of the five platforms — same `SKILL.md` layout everywhere.
 
 ```bash
 cp -r skills/development/lean-coder ~/.config/opencode/skills/   # or ~/.claude/skills/,
+                                                                 # ~/.agents/skills/,
                                                                  # ~/.gemini/config/skills/, ~/.bob/skills/
 cp -r skills/development/lean-coder .opencode/skills/            # per-project (OpenCode)
 ```
