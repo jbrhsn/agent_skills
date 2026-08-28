@@ -1,6 +1,6 @@
 # medium-image-prompts
 
-Companion to `medium-article`. Reads a finished, edited article and writes
+Companion to `medium-article-writer`. Reads a finished, edited article and writes
 `image-prompts.md` — one hero prompt plus three to five in-article prompts, each
 with placement, aspect ratio, negative prompt, alt text, and caption.
 
@@ -21,7 +21,7 @@ medium-image-prompts/
 
 ## Install
 
-Same paths as `medium-article` — symlink into `.claude/skills/` and
+Same paths as `medium-article-writer` — symlink into `.claude/skills/` and
 `.agents/skills/` to cover Claude Code, OpenCode, and Antigravity.
 
 ```bash

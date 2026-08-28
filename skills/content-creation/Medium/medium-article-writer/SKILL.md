@@ -1,5 +1,5 @@
 ---
-name: medium-article
+name: medium-article-writer
 description: Turn a rough draft, notes, or dictated thoughts in source.md into a finished, publishable Medium article, plus title options, subtitle, tags, and cover/alt-text notes. Use this whenever the user mentions Medium, publishing an article or blog post, turning notes or a draft into an article, writing up an experience, tutorial, post-mortem, or opinion piece for readers, or is working inside a folder that contains a source.md. Also use when asked to restructure, retitle, tighten, or tag an existing article draft, even if Medium is not named explicitly.
 ---
 # Medium Article

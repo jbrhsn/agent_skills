@@ -1,4 +1,4 @@
-# medium-article
+# medium-article-writer
 
 An Agent Skill that turns a rough draft in `source.md` into a finished,
 publishable Medium article plus a titles/tags/alt-text package.
@@ -9,7 +9,7 @@ dependencies, no agent-specific tooling — plain markdown and relative paths on
 ## Layout
 
 ```
-medium-article/
+medium-article-writer/
 ├── SKILL.md
 ├── references/
 │   ├── do-and-avoid.md          # distribution checklist, read at audit
@@ -37,33 +37,33 @@ Keep one canonical copy and symlink it, so edits propagate everywhere.
 
 ```bash
 mkdir -p ~/skills
-cp -r medium-article ~/skills/
+cp -r medium-article-writer ~/skills/
 
 mkdir -p ~/.claude/skills ~/.agents/skills
-ln -s ~/skills/medium-article ~/.claude/skills/medium-article
-ln -s ~/skills/medium-article ~/.agents/skills/medium-article
+ln -s ~/skills/medium-article-writer ~/.claude/skills/medium-article-writer
+ln -s ~/skills/medium-article-writer ~/.agents/skills/medium-article-writer
 ```
 
 **Per-project:**
 
 ```bash
 mkdir -p .claude/skills .agents/skills
-ln -s ../../skills/medium-article .claude/skills/medium-article
-ln -s ../../skills/medium-article .agents/skills/medium-article
+ln -s ../../skills/medium-article-writer .claude/skills/medium-article-writer
+ln -s ../../skills/medium-article-writer .agents/skills/medium-article-writer
 ```
 
 **Windows** — symlinks need admin or developer mode; copying is simpler:
 
 ```powershell
-Copy-Item -Recurse medium-article "$env:USERPROFILE\.claude\skills\"
-Copy-Item -Recurse medium-article "$env:USERPROFILE\.agents\skills\"
+Copy-Item -Recurse medium-article-writer "$env:USERPROFILE\.claude\skills\"
+Copy-Item -Recurse medium-article-writer "$env:USERPROFILE\.agents\skills\"
 ```
 
 Restart the agent session afterward. Skills are discovered at startup.
 
 ### Verify
 
-Ask the agent what skills it has available. `medium-article` should appear with
+Ask the agent what skills it has available. `medium-article-writer` should appear with
 its description. If it doesn't:
 
 - Confirm the file is named `SKILL.md`, all caps.

@@ -42,9 +42,26 @@ This checklist audits the **documents**. The software is audited by
 - [ ] Every phase file ends with a **Phase exit testing** section containing integration
       checks drawn from the UIUX flows.
 - [ ] If any unit is marked `Automate: Yes`, a Phase 1 unit sets up the test harness.
+      That harness unit's **Done when** includes: the test runner is installed, a sample
+      test passes via the project's verification command, and that command is documented
+      in the plan overview.
 - [ ] `docs/plan/final-test-pass.md` exists and every test ID it cites exists in a unit
       or phase file — the final pass compiles tests, it never invents them.
 - [ ] Every FR and NFR appears in the final pass's requirement coverage sweep.
+
+## Agent execution readiness
+
+- [ ] Phase 1 units collectively cover all **bootstrap expectations** from
+      `references/execution-spec.md`: lockfile committed, linter passing, single
+      verification command documented, `.gitignore` for the stack, environment variable
+      handling.
+- [ ] Every unit has a **Verify with** line naming the exact command or manual steps.
+- [ ] Every unit has an **Execution contract** with isolation, verification, done signal,
+      and scope boundary.
+- [ ] Every unit whose **In scope** overlaps with a dependency's scope has a
+      **Regression check** line listing the dependency's test case IDs to re-run.
+- [ ] The single verification command named in Phase 1 is consistent across all units'
+      execution contracts.
 
 ## Learning mode
 

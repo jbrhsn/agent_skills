@@ -22,7 +22,15 @@ TARGETS = {
     "claude": ["sync_claude_skills.py", "sync_claude_agents.py"],
 }
 PLUGIN_AWARE = {"sync_opencode_agents.py", "sync_opencode_plugins.py"}
-VERIFY_AWARE = {"sync_opencode_agents.py"}
+VERIFY_AWARE = {
+    "sync_opencode_skills.py",
+    "sync_opencode_agents.py",
+    "sync_bob_skills.py",
+    "sync_antigravity_skills.py",
+    "sync_antigravity_agents.py",
+    "sync_claude_skills.py",
+    "sync_claude_agents.py",
+}
 
 
 def run_sync(script_name: str, args: argparse.Namespace) -> int:

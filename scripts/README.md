@@ -37,7 +37,7 @@ uv run scripts/sync_all.py                                    # Omit --plugins t
 **Plugin flags:**
 - `--plugins <a,b>` — install these plugins' runtime files *and* agent overlays (OpenCode only). Omitting the flag uninstalls: previously-synced plugin files are pruned.
 - `--list-plugins` — print available plugins and exit.
-- `--verify` — after syncing, run `opencode debug agent` on each agent and assert its resolved permissions match what was composed.
+- `--verify` — after syncing, verify SHA-256 checksums and exact file parity for all skills across all platforms, verify agent files, and run `opencode debug agent` on OpenCode agents to assert resolved permissions match composition.
 
 ### `sync_opencode_skills.py`
 Syncs skills to OpenCode global config (`~/.config/opencode/skills`).

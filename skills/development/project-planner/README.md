@@ -97,6 +97,7 @@ references/
   uiux-interview.md               surface questions per project type
   uiux-spec.md                    screen/component/state rules, all three surfaces
   plan-spec.md                    phase and unit decomposition, UIUX traceability
+  execution-spec.md               bootstrap, regression guards, execution contracts
   testing-spec.md                 test case format, phase exit tests, final pass
   learning-mode.md                curriculum rules, three topic families
   quality-gates.md                pre-handoff checklist and anti-patterns

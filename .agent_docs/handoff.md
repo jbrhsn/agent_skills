@@ -6,7 +6,7 @@
 
 agent_skills: curated 11-skill distribution repo for OpenCode, IBM Bob, Google Antigravity, and Claude Code, plus 3 base agent definitions (orchestrator, executor, ask) and 1 opt-in OpenCode plugin (search-internet).
 Skill organization: agent_session_management (2), learning (2), development (2), content-creation (5).
-Sync model: scripts/common.py + per-platform scripts, dynamic discovery, PEP 723 + `uv run`. Agents/plugins sync fully to OpenCode (composition engine in scripts/plugins.py handles overlays); executor.md also translates to a Claude Code subagent at ~/.claude/agents/; Antigravity gets one global instructions file at ~/.gemini/config/AGENTS.md. IBM Bob gets skills only (no agent target — config format undocumented).
+Sync model: scripts/common.py + per-platform scripts, dynamic discovery, PEP 723 + `uv run`. Agents/plugins sync fully to OpenCode (composition engine in scripts/plugins.py handles overlays); executor.md also translates to a Claude Code subagent at ~/.claude/agents/; Antigravity gets one global instructions file at ~/.gemini/config/AGENTS.md. IBM Bob gets skills only (no agent target — config format undocumented). Full SHA-256 checksum and parity verification integrated via `sync_all.py --verify`.
 
 ## Cumulative Learnings
 
@@ -24,31 +24,34 @@ Sync model: scripts/common.py + per-platform scripts, dynamic discovery, PEP 723
 - `.gitignore` line 18 is a bare `.*`, which already ignores every dotfile including `.DS_Store` — no separate entry is needed, and none is tracked. `.agent_docs/handoff.md` is nonetheless committed despite `.agent_docs/` being listed, because gitignore has no effect on already-tracked files. Verify with `git check-ignore -v` before re-flagging either as a hygiene gap.
 - The destination/env-var mapping is duplicated across four docs — root `README.md`, `AGENTS.md` §5-6, `scripts/README.md`, and `agents/README.md`. Adding or changing a sync target means editing all four or the docs silently drift; the 2026-08-26 pass found three of them still claiming agents sync to OpenCode only.
 - Repo-only files can live safely at `skills/{category}/` level (category READMEs, notes) — discovery globs `**/SKILL.md` and copies only the containing skill directory, so anything outside a skill dir is never synced anywhere. Verified against a full `--dry-run`.
-- `skills/content-creation/Medium/medium-article-writer/` declares `name: medium-article` in its SKILL.md frontmatter — folder name and frontmatter name disagree. Sync uses the directory name for the destination folder, so harnesses keying off frontmatter and harnesses keying off the directory will resolve different skill names. Unresolved as of 2026-08-26.
+- All 11 skills require exact 1:1 matching between folder name and YAML frontmatter `name:` (e.g., `medium-article-writer`) to ensure multi-platform discovery and invocation consistency.
+- `sync_all.py --verify` performs full SHA-256 tree hashing, file-by-file parity checking, and extra/orphaned directory detection across all four destinations.
+- When adding new reference files to project-planner, split by concern to keep individual files under ~170 lines — the Stage 8 load already pulls 4 files together; bloating any one of them wastes context. Extracted agent-execution material into `execution-spec.md` (69 lines) to avoid plan-spec.md growing to ~200 lines.
 
 ## Last Session
 
-- Documentation accuracy pass across root README, AGENTS.md, agents/README.md and scripts/README.md — agents and plugins were absent from the root README, all invocations said `python3` instead of `uv run`, and three docs still claimed agents sync to OpenCode only.
-- Removed real factual errors: a nonexistent `carousel-builder` skill, a wrong support-folder table, `tests/` listed as a sync exclusion it isn't, and AGENTS.md's false claim that it is gitignored.
-- Fixed two small sync_all.py bugs found while verifying docs: `--help` described skills-only, and unflushed parent prints made `--dry-run` output arrive out of order through a pipe.
-- Deliberately deferred the missing per-category skill READMEs — closed in this session.
+- Fixed frontmatter name mismatch in medium-article-writer; audited all 5 content-creation skill inputs/outputs.
+- Added SHA-256 file hashing, parity verification, and orphan detection to `scripts/common.py` and all sync scripts (`--verify` flag).
+- Verified all 11 skills (364 files) at 100% SHA-256 parity across all 4 platforms.
 
 ## Current Session
 
-**Date:** 2026-08-26
-**Focus:** Category-level READMEs for the three skill categories that lacked them
+**Date:** 2026-08-28
+**Focus:** Evaluated development skills (lean-coder, project-planner) for gaps; implemented 7 improvements across both skills
 
 ### Done
-- Created skills/development/README.md, skills/learning/README.md, and skills/content-creation/README.md, modeled on the existing agent_session_management house style: ASCII flow block, fires-when/produces table, one 'why this category coheres' section, Install.
-- Grounded each in actual SKILL.md frontmatter and grepped output filenames rather than paraphrasing the root README — content-creation's table names the real artifacts (source.md, kresearch.md, linkedin_post.md, linkedin_post_notes.md, medium_article.md, medium_image_prompts.md).
-- Documented the source.md-per-folder convention in content-creation/README.md as the actual handoff format between all five skills, including why being inside such a folder is usually enough to trigger the right skill without naming it.
-- Linked all four category headings in the root README to their category directories.
-- Verified: every relative link in the root README and the three new files resolves, and a full `uv run scripts/sync_all.py --dry-run` (49 sync lines) confirms the category READMEs are not picked up as skills.
+- Thorough evaluation of all files in both development skills — identified 7 genuine improvements (not forced), documented 5 considered-but-rejected items with rationale.
+- lean-coder: expanded `references/production-grade/GUIDE.md` (58→130 lines) with 6 new sections: configuration management, graceful shutdown, health checks, idempotency, rate limiting, concurrency & state safety.
+- project-planner: created new `references/execution-spec.md` (69 lines) covering Phase-1 bootstrap expectations, regression guards, verify-with explanation, and per-unit execution contracts — makes plans agent-executable, not just human-readable.
+- project-planner: updated `references/plan-spec.md` with cross-refs to execution-spec, inline unit format example with all new fields (regression check, verify with, execution contract).
+- project-planner: updated `assets/plan.template.md` unit template with the three new fields.
+- project-planner: strengthened `references/quality-gates.md` with expanded Phase-1 harness check and new "Agent execution readiness" section (5 checks).
+- project-planner: updated `SKILL.md` Stage 8 load list and `README.md` layout to include `execution-spec.md`.
+- Synced all 11 skills to all 4 platforms with `--verify`: 100% SHA-256 parity confirmed.
 
 ### Decisions
-- Category READMEs stay repo-only by construction rather than by an exclusion rule — they sit outside any skill directory, so `**/SKILL.md` discovery never reaches them. No change to EXCLUSIONS was needed.
-- Each category README explains one non-obvious thing rather than restating the root README's skill table: why lean-coder is meant to fire unprompted, why scaffolding and authoring are split, and the source.md convention.
+- Split agent-execution material out of plan-spec.md into execution-spec.md to keep no single file bloated — plan-spec stays focused on decomposition, execution-spec on agent session scoping.
+- Production-grade guide stays as one file at 130 lines (opt-in, loaded only on hardening tasks) — splitting would mean two files loaded together, worse than one coherent file.
 
 ### Open Items
-- [ ] medium-article-writer's SKILL.md declares `name: medium-article` while its folder is `medium-article-writer` — raised with the user, not fixed. Decide which name wins before it causes an invocation miss.
-- [x] Category READMEs and the root README heading links are committed (6b077ec); working tree clean.
+- [ ] Commit and push all changes (production-grade guide expansion, execution-spec, plan-spec/template/quality-gates updates, SKILL.md and README.md updates).

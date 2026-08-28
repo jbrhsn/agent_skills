@@ -55,3 +55,75 @@ settled.
   traces surfaced to a client.
 - Any input crossing a trust boundary (network, file, subprocess, DB) gets
   validated there, not three functions later where it happens to be used.
+
+## Configuration management
+
+- Config from environment variables or a config file, never hardcoded
+  literals. `localhost:3000`, `http://api.example.com`, feature flags — all
+  of these are config.
+- Fail fast on missing config at startup, not at first use. A service that
+  boots successfully and then crashes on the first request because `DB_URL`
+  is unset is worse than one that refuses to start.
+- One config surface: a single module/file that reads all config and
+  exports typed values. No `os.environ["X"]` / `process.env.X` scattered
+  across 12 files.
+- Provide a `.env.example` (or equivalent) listing every variable the
+  service needs, with dummy values. The next developer — or the next
+  agent session — should not have to read code to discover what to set.
+
+## Graceful shutdown & lifecycle
+
+- Handle termination signals (`SIGTERM`, `SIGINT`). Stop accepting new
+  work, finish in-flight requests/jobs, close connections, then exit.
+- A process killed mid-write should not leave corrupt state. Use
+  transactions, write-ahead patterns, or temp-file-then-rename — whatever
+  the stack provides.
+- Long-running background tasks need a cancellation path. A worker that
+  cannot be stopped without `kill -9` is not production-ready.
+
+## Health checks & readiness
+
+- Expose a health endpoint (HTTP `/health`, gRPC health service, CLI
+  `--healthcheck`) that returns quickly and checks only what matters:
+  can the service do its job right now?
+- Distinguish liveness (process is not stuck) from readiness (process can
+  serve traffic). A service that is alive but cannot reach its database
+  is not ready.
+- Do not health-check optional dependencies — a missing analytics
+  service should not make the core service report unhealthy.
+
+## Idempotency
+
+- Any write operation that could be retried — webhooks, queue consumers,
+  API handlers behind a retry-capable client — needs an idempotency
+  strategy. Assume the caller *will* retry.
+- Common patterns: idempotency keys, upserts, conditional writes
+  (`IF NOT EXISTS`, optimistic locking). Pick the one the data store
+  supports natively.
+- A retry that silently creates a duplicate is worse than a retry that
+  fails loudly. Design for the duplicate case first.
+
+## Rate limiting & backpressure
+
+- At every trust boundary that accepts external input: cap the rate.
+  An endpoint with no rate limit is a production incident waiting for
+  a misbehaving client or a retry storm.
+- Backpressure inward: if a downstream service is slow, shed load
+  (return 503, drop from the queue with a dead-letter) rather than
+  queueing unboundedly in memory.
+- Log and alert on rate-limit hits — they are a signal, not just a
+  guard.
+
+## Concurrency & state safety
+
+- Shared mutable state needs synchronization. If two requests can
+  reach the same data structure, protect it (lock, atomic, channel)
+  or make it immutable.
+- Database operations that read-then-write need a transaction or an
+  atomic operation — not two separate queries with a hope that nothing
+  changes between them.
+- File writes use a temp-file-then-rename pattern, not direct
+  overwrite. A crash mid-write should leave the old file intact, not a
+  half-written one.
+- Caches shared across processes need an invalidation strategy decided
+  upfront, not bolted on after the first stale-data bug.

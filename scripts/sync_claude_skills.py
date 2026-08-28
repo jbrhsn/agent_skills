@@ -2,9 +2,10 @@
 """Sync Claude Code skills from agent_skills repo to ~/.claude/skills."""
 
 import sys
-from common import get_dest, parse_dry_run_args, sync_skills
+from common import get_dest, parse_args, sync_skills
 
 if __name__ == "__main__":
-    args = parse_dry_run_args("Sync Claude Code skills to ~/.claude/skills")
+    args = parse_args("Sync Claude Code skills to ~/.claude/skills")
     dest = get_dest("CLAUDE_SKILLS", ".claude/skills")
-    sys.exit(sync_skills("Claude Code", dest, args.dry_run))
+    sys.exit(sync_skills("Claude Code", dest, args.dry_run, args.verify))
+

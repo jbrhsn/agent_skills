@@ -83,6 +83,7 @@ next unit. At the end of each phase, run **Phase exit testing** before moving on
 **Covers:** FR-01
 **Implements:** SC-02 (Empty, Preview), CMP-03
 **Depends on:** <unit ID, or "none">
+**Regression check:** <test IDs from dependency units to re-run, or "none">
 
 **Goal**
 <What exists after this unit that did not before. 1–2 sentences.>
@@ -105,6 +106,16 @@ next unit. At the end of each phase, run **Phase exit testing** before moving on
 | T-P<N>U1-2 | Empty | <…> | <…> | Yes |
 | T-P<N>U1-3 | Error | <…> | <…> | Yes |
 | T-P<N>U1-4 | Edge | <…> | <…> | No — manual |
+
+**Verify with**
+<The project's verification command, or manual steps for manual-only units.>
+
+**Execution contract**
+- Isolation: <branch per unit, commit on green, or project convention>
+- Verification: <the single verification command from Phase 1, or manual steps>
+- Done signal: all test cases pass, regression check passes, lint clean
+- Scope boundary: do not modify files outside what **In scope** names; do not start
+  the next unit
 
 **Watch out for**
 - <Likely failure. Omit this section if there is nothing real to say.>

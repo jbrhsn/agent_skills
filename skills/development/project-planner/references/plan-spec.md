@@ -33,6 +33,8 @@ and test it. That path is what every later unit plugs into.
 Automate column is a wish, not a plan. In learn-by-building mode this is non-negotiable —
 writing tests is one of the things being learned.
 
+Phase 1 also carries **bootstrap expectations** — see `references/execution-spec.md`.
+
 ## Units
 
 A unit is the atom of work: **one sitting — build it, test it, evaluate it, then stop.**
@@ -46,6 +48,11 @@ A unit is sized right when:
 
 Too big: "Build the import feature." Too small: "Create the file." Right: "Accept a CSV
 upload and show the parsed first 5 rows on screen."
+
+### Regression guard
+
+See `references/execution-spec.md`. When a unit touches behavior from a dependency,
+that dependency's test cases re-run as part of this unit — not deferred to phase exit.
 
 ### Slicing against the UIUX doc
 
@@ -68,6 +75,7 @@ For visual and conversational surfaces, let the UIUX doc drive unit boundaries:
 **Covers:** FR-03, FR-04
 **Implements:** SC-02 (Empty, Preview states), CMP-03, CMP-04
 **Depends on:** P1-U3
+**Regression check:** T-P1U3-1, T-P1U3-2 (re-run — this unit modifies the upload handler P1-U3 introduced)
 
 **Goal**
 One or two sentences: what exists after this unit that did not before.
@@ -91,6 +99,18 @@ One or two sentences: what exists after this unit that did not before.
 | T-P2U1-2 | Empty | … | … | Yes |
 | T-P2U1-3 | Error | … | … | No — manual |
 
+**Verify with**
+Run the project's verification command and confirm all test cases in this unit pass.
+For units with only manual tests: start the dev server, walk through each test case,
+and record the result.
+
+**Execution contract**
+- Isolation: work on a branch; commit on green
+- Verification: <the project's single verification command from Phase 1, or manual steps>
+- Done signal: all test cases pass, regression check passes, lint clean
+- Scope boundary: do not modify files outside what **In scope** names; do not start the
+  next unit
+
 **Watch out for**
 - The one or two things most likely to go wrong here. Optional — omit rather than pad.
 ```
@@ -99,9 +119,14 @@ One or two sentences: what exists after this unit that did not before.
 screen ID — "SC-02" tells a build session nothing about whether the error state is in
 scope this sitting. For headless projects, cite the interface IDs (`CS-01`) instead.
 
+**Regression check**, **Verify with**, and **Execution contract** are explained in
+`references/execution-spec.md`. They scope the executing agent's session so it knows how
+to verify, what to re-test, and when to stop.
+
 No code, no file paths that presume an implementation, no library names unless the PRD
 already fixed them as constraints. The plan says *what* and *done when*; the build session
-decides *how*.
+decides *how*. The execution contract says *how to scope and verify the session* — that is
+planning, not implementation.
 
 ## Phase file structure
 

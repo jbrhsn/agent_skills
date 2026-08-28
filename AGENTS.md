@@ -63,7 +63,7 @@ See `agents/README.md` for the full safety model and permission rules.
 
 1. Edit a skill in `skills/{category}/{skill-name}/SKILL.md` (or `README.md`)
 2. Run `uv run scripts/sync_all.py --dry-run` to preview
-3. Run `uv run scripts/sync_all.py` to sync to all platforms
+3. Run `uv run scripts/sync_all.py --verify` to sync and verify SHA-256 parity
 4. Optional: `--opencode-only`, `--bob-only`, `--antigravity-only`, or `--claude-only` (mutually exclusive)
 
 **Plugins (OpenCode only, opt-in):**
@@ -197,8 +197,8 @@ cp -r skills/{category}/{skill-name} ~/.config/opencode/skills/
 
 **Verify sync completed:**
 ```bash
-ls ~/.config/opencode/skills/ && ls ~/.bob/skills/ && ls ~/.gemini/config/skills/ && ls ~/.claude/skills/
-opencode debug agent orchestrator   # resolved permissions + tools map
+uv run scripts/sync_all.py --verify   # SHA-256 parity check across all platforms
+opencode debug agent orchestrator     # resolved permissions + tools map
 ```
 
 **See what will be synced without applying:**

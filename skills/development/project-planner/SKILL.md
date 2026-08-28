@@ -40,7 +40,7 @@ on long interviews.
 | 5 | Surface interview (skip for headless unless underspecified) | `references/uiux-interview.md` |
 | 6 | Write `docs/uiux.md` | `references/uiux-spec.md` + `assets/uiux.template.md` |
 | 7 | **STOP.** User reviews and approves the UIUX doc | — |
-| 8 | Write `docs/plan/` (overview + one file per phase, test cases inline) | `references/plan-spec.md` + `references/testing-spec.md` + `assets/plan.template.md` |
+| 8 | Write `docs/plan/` (overview + one file per phase, test cases inline) | `references/plan-spec.md` + `references/execution-spec.md` + `references/testing-spec.md` + `assets/plan.template.md` |
 | 9 | Learning mode only: write `learnings/` | `references/learning-mode.md` |
 | 10 | Write `docs/plan/final-test-pass.md` (auto, once every phase file exists) | `references/testing-spec.md` + `assets/final-test-pass.template.md` |
 | 11 | Final consistency check | `references/quality-gates.md` |

@@ -1,4 +1,4 @@
-# linkedin-post
+# linkedin-post-writer
 
 Turns a folder's `source.md` (raw notes) into a publication-ready LinkedIn post plus posting notes.
 
@@ -6,11 +6,11 @@ Built for the workflow: one folder per post → dump raw thinking into `source.m
 
 ## Install
 
-Drop the `linkedin-post/` folder into your skills directory:
+Drop the `linkedin-post-writer/` folder into your skills directory:
 
 ```
-~/.config/opencode/skills/linkedin-post/     # OpenCode
-.opencode/skills/linkedin-post/              # or project-local
+~/.config/opencode/skills/linkedin-post-writer/     # OpenCode
+.opencode/skills/linkedin-post-writer/              # or project-local
 ```
 
 For Claude Code, use `~/.claude/skills/` instead. The skill is plain markdown with no dependencies, so it works in any harness that reads `SKILL.md` frontmatter.
@@ -56,7 +56,7 @@ It also triggers on phrasings that never say "LinkedIn" — "polish this up for 
 ## Layout
 
 ```
-linkedin-post/
+linkedin-post-writer/
 ├── SKILL.md                          # Lean orchestrator: workflow + hard rules
 ├── README.md
 ├── references/
