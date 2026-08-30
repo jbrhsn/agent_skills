@@ -20,6 +20,17 @@ Five options, different strategies. Mark the recommended one.
 
 <short phrase, or "none">
 
+## CTA
+
+**Used:** question / soft follow / owned destination / none
+
+**Why:** <one line — why this fit the piece>
+
+**Text:** <the closing question or line as it appears in the article>
+
+Default is a question. Follow, subscribe, and links are only used when the user
+asked for them and supplied the destination. See `references/closing-and-cta.md`.
+
 ## Tags
 
 Ordered. First three narrow, last two broad.
@@ -65,6 +76,7 @@ several publications require a kicker and subtitle.
 - [ ] Add tags in the order above
 - [ ] Verify preview title/subtitle in the three-dot menu
 - [ ] Read the first 150 words on a phone-width screen
+- [ ] Read the last 150 words — the close should land, give a takeaway, and end on the CTA above
 
 ## After publishing
 

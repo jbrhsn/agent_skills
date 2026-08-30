@@ -107,13 +107,14 @@ Use this as a checklist during the self-audit pass. Fix failures in the file.
     said…", "Studies show…" without a link. Either name it or cut it.
 20. **A conclusion that summarizes.** Restating the article back to the reader
     wastes the last thing they read. End on the takeaway, a decision rule, or a
-    genuine open question.
+    genuine open question. This is not a licence to stop mid-air — the article
+    still needs an ending, and `closing-and-cta.md` is where that gets built.
 
 ---
 
 ## Fast audit
 
-Run these six before presenting. If any fails, fix the file.
+Run these eight before presenting. If any fails, fix the file.
 
 - [ ] Would this piece be impossible to write without the user's specific
   experience? If not, it is derivative.
@@ -123,3 +124,7 @@ Run these six before presenting. If any fails, fix the file.
 - [ ] Can a reader who only reads the subheads reconstruct the argument?
 - [ ] Is there a concrete takeaway a reader could act on tomorrow?
 - [ ] Does any paragraph run past three sentences without earning it?
+- [ ] Does the close land, hand over a takeaway, and end on a CTA — without
+  summarizing?
+- [ ] Is every row of the brief’s coverage ledger findable in the finished
+  article, with nothing dropped that the user did not approve?

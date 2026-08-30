@@ -1,11 +1,6 @@
 ---
 name: project-planner
 description: Turns a rough project idea into a validated PRD, a UI/UX (or interaction-contract) spec, and a phase-by-phase, unit-by-unit implementation plan with built-in test cases — written to docs/, plus an optional learning curriculum in learnings/. Use proactively whenever the user describes something they want to build, says "plan this project", "write a PRD", "spec this out", "break this into phases", "scaffold the docs", "design the UI/UX", or "I want to learn X by building Y" — even if they do not use those exact words. Also use when a repo has no docs/prd.md and the user is about to start feature work. This skill only writes Markdown documents; it never writes application code.
-license: MIT
-compatibility: opencode
-metadata:
-  audience: developers
-  outputs: markdown-only
 ---
 
 # Project Planner

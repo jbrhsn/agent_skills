@@ -73,6 +73,51 @@ Strongest format available to a practitioner, because nobody else can write it.
 
 ---
 
+## Placing the user's experience
+
+Most experience gets cut for the same reason: it arrived as a digression. The
+material was fine; the placement made it feel like the article stopped to tell a
+story. Placement is the fix, not deletion.
+
+An anecdote works where it is doing a job the surrounding prose cannot do alone:
+
+- **As the evidence for a claim just made.** State the claim, then the thing that
+  happened. The story is the proof, so it reads as load-bearing rather than as
+  colour.
+- **As the reason a decision was made.** In the section where the choice is
+  explained, not in a separate "background" section.
+- **As the failure section** — "What broke while doing it" in a tutorial, "How it
+  failed" in a post-mortem. Both structures already have a slot built for exactly
+  this.
+- **As the opening**, when the experience *is* the stakes. Two or three
+  paragraphs, concrete, then straight into the piece.
+
+It reads as abrupt when it is any of these:
+
+- Dropped between two sections with no connective sentence.
+- Told at a length the point does not need — a paragraph of setup for one line of
+  payoff.
+- In a different tense or register from the paragraphs around it.
+- Repeating something the reader already understood, so it lands as a story told
+  for its own sake.
+
+Three moves that integrate a stubborn piece of experience:
+
+1. **Split it.** One anecdote can supply the opening's stakes and the later
+   section's evidence. It does not have to appear once, whole.
+2. **Compress it to its specific detail.** Often the only load-bearing part is
+   one number, one error string, or one sentence someone said. Keep that, drop
+   the narration around it.
+3. **Move the claim to the story** rather than the story to the claim. If the
+   experience won't fit under the current subhead, the subhead may be in the
+   wrong place.
+
+If none of the three work, the experience goes in "Proposed to omit" in the
+brief, or — if this is discovered mid-draft — it is raised with the user before
+anything is cut. It is never dropped silently.
+
+---
+
 ## Mode adjustments
 
 ### Writing about writing

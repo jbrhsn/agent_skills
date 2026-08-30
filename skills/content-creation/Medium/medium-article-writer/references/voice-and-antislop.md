@@ -11,8 +11,10 @@ faultlessly balanced prose is exactly what a Medium editor rejects on sight.
 
 ## Where voice comes from
 
-**The source file is the style guide.** Before writing, note how the user actually
-writes: sentence length, whether they swear, whether they use contractions,
+**The source file is the style guide.** Extracting the register is its own step —
+see `voice-inference.md`, read at workflow step 1, which covers the signals, the
+voice card, and the calibration checks. In short: note how the user actually
+writes — sentence length, whether they swear, whether they use contractions,
 whether they hedge or state flatly, what they find funny. Match it. If `source.md`
 is terse and profane, the article is terse and profane.
 
@@ -48,7 +50,8 @@ body text.
 paragraph, "It's worth noting that", "It's important to remember that",
 "That said" used more than once, "At the end of the day."
 
-**Closers:** "In conclusion", "To sum up", "The bottom line is", "Only time will
+**Closers:** (the article still needs a real ending — see `closing-and-cta.md`)
+"In conclusion", "To sum up", "The bottom line is", "Only time will
 tell", "One thing is certain", "The future of X is bright", "Happy coding!",
 "What are your thoughts? Let me know in the comments."
 
@@ -118,6 +121,7 @@ For the data engineering and AI pieces, which is most of them:
 Before presenting, scan for the tells above. Three or more means the voice pass
 failed. Rewrite the affected sections rather than substituting words.
 
-Then ask one question: would a reader who knows the user recognize this as theirs?
+Then run the calibration checks in `voice-inference.md`. The one that decides it:
+would a reader who knows the user recognize this as theirs?
 If the honest answer is "it reads like a competent article about the topic," it
 is not finished.

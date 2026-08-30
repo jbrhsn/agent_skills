@@ -12,13 +12,15 @@ dependencies, no agent-specific tooling — plain markdown and relative paths on
 medium-article-writer/
 ├── SKILL.md
 ├── references/
-│   ├── do-and-avoid.md          # distribution checklist, read at audit
+│   ├── voice-inference.md       # extract the author's register, read at step 1
 │   ├── voice-and-antislop.md    # voice + machine-writing tells, read before drafting
+│   ├── closing-and-cta.md       # how the piece ends + CTA options, read at step 6
+│   ├── do-and-avoid.md          # distribution checklist, read at audit
 │   └── medium-mechanics.md      # titles, tags, images, paste flow
 └── assets/
-    ├── article-structures.md    # skeletons per piece type + finance/writing modes
-    ├── brief-template.md
-    └── publish-template.md
+    ├── article-structures.md    # skeletons per piece type, placing experience, modes
+    ├── brief-template.md        # angle, voice card, coverage ledger, omissions
+    └── publish-template.md      # titles, tags, CTA record, alt text, paste steps
 ```
 
 ## Install
@@ -81,7 +83,8 @@ articles/iceberg-compaction/
 
 Write your draft, notes, or dictated thoughts into `source.md`, then tell the
 agent to turn it into a Medium article. It produces `medium_brief.md` (which it
-pauses on for approval), then `medium_article.md` and `medium_publish.md`.
+pauses on for approval — that gate is also where it tells you what it proposes to
+leave out), then `medium_article.md` and `medium_publish.md`.
 
 ## Design notes
 
@@ -90,6 +93,13 @@ pauses on for approval), then `medium_article.md` and `medium_publish.md`.
   it cannot confirm is surfaced in `medium_brief.md` rather than written around.
 - **No fabricated experience.** Anecdotes, benchmarks, and error messages come
   from you or they don't appear.
+- **No silently dropped experience.** The mirror rule. Everything load-bearing in
+  `source.md` is mapped to a section in `medium_brief.md`; anything that does not
+  fit is listed for your approval before it is cut, and anything that stops fitting
+  mid-draft is raised rather than removed.
+- **Every piece gets a real ending.** A takeaway plus a call to action, which
+  defaults to a genuine question. Follow prompts, subscribe lines, and links are
+  only used if you ask and supply the destination — the skill never invents one.
 - **Finance pieces are framed as experience,** never advice — Medium treats
   unverified financial claims as a rules violation.
 - **Zero dependencies** is deliberate. A linter for paragraph length and banned
