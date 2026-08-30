@@ -32,8 +32,8 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Goog
 
 | Skill | What it does |
 |---|---|
-| [**init-session**](./skills/agent_session_management/init-session/) | Restore project context at session start — reads the handoff log and delivers a concise briefing of open items and last state |
-| [**end-session**](./skills/agent_session_management/end-session/) | Write a high-signal handoff at session end — compacted on every write, never appended to, so read cost stays flat |
+| [**init-session**](./skills/agent_session_management/init-session/README.md) | Restore project context at session start — reads the handoff log and delivers a concise briefing of open items and last state |
+| [**end-session**](./skills/agent_session_management/end-session/README.md) | Write a high-signal handoff at session end — compacted on every write, never appended to, so read cost stays flat |
 
 ### [Learning](./skills/learning/)
 

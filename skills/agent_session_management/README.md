@@ -9,6 +9,11 @@ end-session/    -> writes .agent_docs/handoff.md when you stop work
 init-session/   -> reads it back when you start
 ```
 
+| Skill | Fires when | Produces |
+|---|---|---|
+| [**init-session**](./init-session/README.md) | "catch me up", "resume", "where did we leave this", or you start giving instructions that assume context the agent doesn't have | A five-second recap: what last session ended with, open items verbatim, and only the learnings that bear on them |
+| [**end-session**](./end-session/README.md) | "wrap up", "done for today", "checkpoint this", or a context compaction is about to land | `.agent_docs/handoff.md`, compacted not appended, plus the outgoing session archived under `.agent_docs/archive/` |
+
 ## Install
 
 From this repo, the sync script handles every platform:
