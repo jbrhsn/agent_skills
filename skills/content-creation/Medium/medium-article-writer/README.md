@@ -25,40 +25,37 @@ medium-article-writer/
 
 ## Install
 
-Skill discovery paths differ per agent. Two locations cover all three:
-
-| Agent | Reads |
-|---|---|
-| Claude Code | `.claude/skills/`, `~/.claude/skills/` |
-| OpenCode | `.opencode/skills/`, `.claude/skills/`, `.agents/skills/` (+ `~` equivalents) |
-| Antigravity | `.agents/skills/` (`.agent/skills/` still supported) |
-
-Keep one canonical copy and symlink it, so edits propagate everywhere.
-
-**Global, macOS/Linux:**
+From this repo, the sync script handles every platform:
 
 ```bash
-mkdir -p ~/skills
-cp -r medium-article-writer ~/skills/
-
-mkdir -p ~/.claude/skills ~/.agents/skills
-ln -s ~/skills/medium-article-writer ~/.claude/skills/medium-article-writer
-ln -s ~/skills/medium-article-writer ~/.agents/skills/medium-article-writer
+uv run scripts/sync_all.py            # every skill, all five platforms
 ```
 
-**Per-project:**
+To install this one skill by hand, skill discovery paths differ per platform:
+
+| Platform | Reads |
+|---|---|
+| Claude Code | `~/.claude/skills/` (per-repo: `.claude/skills/`) |
+| OpenCode | `~/.config/opencode/skills/` (per-repo: `.opencode/skills/`) |
+| Codex / ChatGPT | `~/.agents/skills/` |
+| Antigravity | `~/.gemini/config/skills/` |
+| IBM Bob | `~/.bob/skills/` |
+
+Keep one canonical copy and symlink it, so edits propagate everywhere:
 
 ```bash
-mkdir -p .claude/skills .agents/skills
-ln -s ../../skills/medium-article-writer .claude/skills/medium-article-writer
-ln -s ../../skills/medium-article-writer .agents/skills/medium-article-writer
+mkdir -p ~/skills && cp -r medium-article-writer ~/skills/
+
+for d in ~/.claude/skills ~/.config/opencode/skills ~/.agents/skills \
+         ~/.gemini/config/skills ~/.bob/skills; do
+  mkdir -p "$d" && ln -s ~/skills/medium-article-writer "$d/medium-article-writer"
+done
 ```
 
 **Windows** — symlinks need admin or developer mode; copying is simpler:
 
 ```powershell
 Copy-Item -Recurse medium-article-writer "$env:USERPROFILE\.claude\skills\"
-Copy-Item -Recurse medium-article-writer "$env:USERPROFILE\.agents\skills\"
 ```
 
 Restart the agent session afterward. Skills are discovered at startup.

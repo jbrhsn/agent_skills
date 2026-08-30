@@ -59,6 +59,7 @@ exist once the agent file is synced elsewhere.
 | **Claude Code** | `executor.md` only, translated to Claude Code's subagent schema → `~/.claude/agents/`. `orchestrator`/`ask` are `mode: primary`, and Claude Code's own top-level session is that equivalent, governed by `CLAUDE.md` |
 | **Antigravity** | [`ANTIGRAVITY_AGENTS.md`](./ANTIGRAVITY_AGENTS.md) — a separate hand-authored source, *not* a translation of the three above. Antigravity has one global instructions file per workspace, so it carries the same execution/verification standards as standing rules → `~/.gemini/config/AGENTS.md` |
 | **IBM Bob** | Not synced — its custom-agent config format isn't documented publicly enough to target confidently |
+| **Codex / ChatGPT** | Not synced — its subagents use TOML config layers rather than this Markdown agent schema, and repository guidance is discovered from `AGENTS.md`. Skills only |
 
 ## Install
 

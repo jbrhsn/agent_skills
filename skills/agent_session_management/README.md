@@ -1,7 +1,8 @@
 # Agent Session Skills
 
-Two paired skills that carry project context across agent sessions in Open Code Harness,
-Claude Code, Antigravity, or any harness that loads `SKILL.md` files.
+Two paired skills that carry project context across agent sessions in OpenCode,
+Claude Code, Codex/ChatGPT, Antigravity, IBM Bob, or any harness that loads
+`SKILL.md` files.
 
 ```
 end-session/    -> writes .agent_docs/handoff.md when you stop work
@@ -10,13 +11,21 @@ init-session/   -> reads it back when you start
 
 ## Install
 
-Copy both folders into wherever your harness looks for skills:
+From this repo, the sync script handles every platform:
+
+```bash
+uv run scripts/sync_all.py            # every skill in the repo, all five platforms
+```
+
+Or copy both folders into wherever your harness looks for skills:
 
 | Harness | Path |
 |---|---|
-| Claude Code (per-user) | `~/.claude/skills/` |
-| Claude Code (per-repo) | `<repo>/.claude/skills/` |
-| Open Code Harness / Antigravity | your configured skills directory |
+| Claude Code | `~/.claude/skills/` (per-repo: `<repo>/.claude/skills/`) |
+| OpenCode | `~/.config/opencode/skills/` (per-repo: `<repo>/.opencode/skills/`) |
+| Codex / ChatGPT | `~/.agents/skills/` |
+| Antigravity | `~/.gemini/config/skills/` |
+| IBM Bob | `~/.bob/skills/` |
 
 ```bash
 cp -r end-session init-session ~/.claude/skills/

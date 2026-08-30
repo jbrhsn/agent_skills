@@ -5,7 +5,7 @@ description: Read a finished article and generate ready-to-use image generation 
 # Medium Image Prompts
 
 Turn a finished article into a coherent set of image prompts the user can paste
-into an image generation service. Output is a single file, `image-prompts.md`.
+into an image generation service. Output is a single file, `medium_image_prompts.md`.
 
 This runs **after** the article is written and edited. Do not generate prompts
 from a draft, an outline, or a topic — read the actual final text, because

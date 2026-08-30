@@ -1,7 +1,7 @@
 # medium-image-prompts
 
 Companion to `medium-article-writer`. Reads a finished, edited article and writes
-`image-prompts.md` — one hero prompt plus three to five in-article prompts, each
+`medium_image_prompts.md` — one hero prompt plus three to five in-article prompts, each
 with placement, aspect ratio, negative prompt, alt text, and caption.
 
 Service-agnostic: prompts are plain prose with no tool-specific flags. Aspect
@@ -21,13 +21,21 @@ medium-image-prompts/
 
 ## Install
 
-Same paths as `medium-article-writer` — symlink into `.claude/skills/` and
-`.agents/skills/` to cover Claude Code, OpenCode, and Antigravity.
+Same paths as `medium-article-writer` — see its README for the per-platform table.
+From this repo:
+
+```bash
+uv run scripts/sync_all.py            # every skill, all five platforms
+```
+
+Or symlink one canonical copy into each platform's skills directory:
 
 ```bash
 cp -r medium-image-prompts ~/skills/
-ln -s ~/skills/medium-image-prompts ~/.claude/skills/medium-image-prompts
-ln -s ~/skills/medium-image-prompts ~/.agents/skills/medium-image-prompts
+for d in ~/.claude/skills ~/.config/opencode/skills ~/.agents/skills \
+         ~/.gemini/config/skills ~/.bob/skills; do
+  mkdir -p "$d" && ln -s ~/skills/medium-image-prompts "$d/medium-image-prompts"
+done
 ```
 
 Restart the agent session afterward.
@@ -38,7 +46,7 @@ Restart the agent session afterward.
 articles/iceberg-compaction/
 ├── source.md
 ├── medium_article.md ← after your editing pass
-└── image-prompts.md  ← produced here
+└── medium_image_prompts.md  ← produced here
 ```
 
 Run it only once the article is final. Placement and subject matter are derived

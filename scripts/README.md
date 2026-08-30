@@ -177,7 +177,7 @@ uv run scripts/sync_antigravity_agents.py --dry-run # Preview
 
 ### Skills
 
-All 11 skills from the repository (synced to OpenCode, Bob, Antigravity, and Claude Code):
+All 11 skills from the repository (synced to OpenCode, Bob, Antigravity, Claude Code, and Codex/ChatGPT):
 - **2 Agent Session Management**: end-session, init-session
 - **1 Content Creation (LinkedIn)**: linkedin-post-writer
 - **2 Content Creation (Medium)**: medium-article-writer, medium-image-prompts

@@ -31,7 +31,7 @@ written so a bright teenager can follow it.
 ## Install
 
 ```bash
-uv run scripts/sync_all.py            # both skills, all four platforms
+uv run scripts/sync_all.py            # every skill in the repo, all five platforms
 ```
 
 Or copy the folders into whichever skills directory your harness reads:

@@ -36,13 +36,14 @@ is a requirement. See [`agents/README.md`](../../agents/README.md).
 ## Install
 
 ```bash
-uv run scripts/sync_all.py            # both skills, all four platforms
+uv run scripts/sync_all.py            # every skill in the repo, all five platforms
 ```
 
 Or copy a single folder into whichever skills directory your harness reads:
 
 ```bash
 cp -r lean-coder ~/.claude/skills/    # or ~/.config/opencode/skills/,
+                                      # ~/.agents/skills/,
                                       # ~/.gemini/config/skills/, ~/.bob/skills/
 ```
 
