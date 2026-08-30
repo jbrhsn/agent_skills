@@ -20,7 +20,9 @@ Track this across posts. The retrieval layer builds topical authority from consi
 - **Hook type:** [type used, from hook-frameworks.md]
 - **Body pattern:** [pattern used, from structure-and-format.md]
 - **Format:** Text post
-- **Emojis:** [count] · **Bold phrases:** [count] · **Hashtags:** [count or none]
+- **Emojis:** [count] · **Bold phrases:** [count, normally 0] · **Hashtags:** [count or none]
+- **Close:** [real question / takeaway only — and if takeaway only, one clause on why]
+- **Verbatim lines kept:** [count of "keep verbatim" lines from the voice card that survived]
 
 ## First comment
 [If source.md contained URLs, paste the ready-to-post first comment here — a short line of context plus the link. Links in the post body cut reach 50–70%, so they belong here.]
@@ -42,8 +44,17 @@ Track this across posts. The retrieval layer builds topical authority from consi
 
 [If nothing: "No gaps — every claim traces to source.md."]
 
-## Tradeoff made
-[One line naming the main judgment call in the draft: which angle was chosen and what was cut, so the author can push back.]
+## Angle chosen
+[One line: which claim this post builds, and which viable alternative angle was passed over, so the author can redirect it in one message.]
+
+## Cut, and why
+[Everything in source.md that did not make it into the post, one row each. This must match what was agreed at the step 4 angle gate. If something was cut after the gate, it should have been raised with the author first — note here that it was.]
+
+| Cut | Why it didn't fit |
+|---|---|
+| [the experience, opinion, number, or tangent] | [no room / wrong angle / would have split the single idea] |
+
+[If nothing was cut: "Everything in source.md is in the post."]
 
 ## Repurposing
 [Optional, one line. Whether this material would work better or additionally as a carousel/document post — those hold the highest engagement rates because each swipe adds dwell time. Only suggest it when the content is genuinely visual, enumerable, or step-based.]
@@ -54,6 +65,6 @@ Track this across posts. The retrieval layer builds topical authority from consi
 ## Notes on filling this
 
 - **Be specific in "Gaps and flags."** This is the section that protects the author from publishing something they can't defend. Vague entries make it useless.
-- **The tradeoff line is not optional.** Every draft discards a viable angle; naming it makes revision cheap.
+- **"Cut, and why" is not optional.** A 1,400-character post is mostly a subtraction from `source.md`. Listing what went makes revision cheap, and it is the record that no lived experience disappeared without the author seeing it go.
 - **Never recommend engagement pods, comment-for-comment exchanges, or bait tactics** anywhere in this file.
 - Keep the whole file scannable. It's a pre-flight check, not an essay.

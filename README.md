@@ -61,8 +61,8 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Goog
 |---|---|
 | [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Ranked, evidence-backed content ideas from live sources (Hacker News, Reddit, Google Trends, Medium tags) — clustered by beat, scored on recency + velocity + fit + gap |
 | [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Keyless keyword research for a drafted article — search intent, long-tail keywords, Medium tags, and optimization tips |
-| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Notes → posting-ready LinkedIn post: hook engineering, scroll-first structure, no-link-in-body discipline. Also scores a finished post on 5 algorithm-aligned dimensions and emits a refined version |
-| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Notes → publish-ready Medium article grounded in Medium's distribution guidelines, AI-content policy, and earnings mechanics. Also scores a finished article /100 and emits a refined version |
+| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Notes → posting-ready LinkedIn post: hook engineering, scroll-first structure, no-link-in-body discipline, behind an angle gate you approve before it drafts |
+| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Notes → publish-ready Medium article grounded in Medium's distribution guidelines, AI-content policy, and earnings mechanics, behind a brief you approve before it drafts |
 | [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/README.md) | Image-generation prompts for a finished article — one cover plus one per section that earns it, each with alt text, caption, credit, and the mandatory AI-disclosure line |
 
 ---

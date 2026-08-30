@@ -26,6 +26,20 @@ Read `source.md` specifically for these before drafting anything.
 
 **Idiosyncrasies.** Recurring phrases, unusual word choices, a specific way of framing problems. These are the highest-value things to preserve. When choosing between the author's odd word and a smoother synonym, keep the odd word.
 
+**Dictated sources.** If `source.md` reads as dictation — false starts, repeated phrases, "so basically", spoken connectives, sentences that restart mid-thought — that is speech, not the author's writing register. Do not preserve the disfluencies, and do not overcorrect into formal prose either. What transfers is the *cadence*: where they pause, what they emphasise by repeating it, the words they reach for under no editing pressure. Dictation is the highest-signal source available, precisely because nobody edits themselves while talking.
+
+## The voice card
+
+Write these five lines before drafting and keep them in front of you. They take under a minute.
+
+- **Formality:** contractions? slang? asides?
+- **Stance:** flat assertion / hedged / somewhere between
+- **Rhythm:** typical sentence length, and whether it varies
+- **Posture:** I / we / impersonal · **Humor:** kind, or none
+- **Keep verbatim:** the two to four lines from `source.md` that go in untouched
+
+The last line matters most, and it matters more here than in long-form. A post is 1,400 characters — there is no room for a voice to survive on inertia, so it survives on specific sentences or it does not survive at all. Pick the lines where the author said the thing better than a rewrite would, and commit to shipping them as written. Not marked, not set apart, not smoothed into neutrality. A slightly awkward sentence in the author's cadence beats a clean one in nobody's.
+
 ## What to change
 
 Structure, order, and compression are fair game — that's the actual work:
@@ -60,4 +74,4 @@ Before writing the file:
 1. **Substitution test.** Could this post have been written by any of a hundred other people in this field? If yes, the voice got sanded off.
 2. **Reverse test.** If the author read this post cold, would they recognize it as theirs?
 3. **Escalation check.** Did the draft make any claim more confident than `source.md` made it? Walk it back.
-4. **Vocabulary check.** Does the post contain words the author never uses? Replace them with words from the source.
+4. **Vocabulary check.** Does the post contain words the author never uses? Replace them with words from the source. Then check that every line on the "keep verbatim" list actually survived into the post.

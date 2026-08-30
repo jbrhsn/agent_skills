@@ -32,22 +32,25 @@ It also triggers on phrasings that never say "LinkedIn" — "polish this up for 
 | File | Contents |
 |---|---|
 | `linkedin_post.md` | Post body only. No frontmatter, no headings, no commentary. Paste-ready. |
-| `linkedin_post_notes.md` | Topic tag, character count, first-comment link, timing, gaps, tradeoff made. |
+| `linkedin_post_notes.md` | Topic tag, character count, first-comment link, timing, gaps, angle chosen, and the full cut list. |
 
 ## What it actually does
 
 1. Finds the single sharpest claim in `source.md` — a post carries one idea, not a summary of the notes
-2. Infers the author's voice from the source rather than imposing a generic creator tone
-3. Drafts several hooks, kills the predictable ones, keeps the one the body can pay off
-4. Builds hook → re-hook → value → close, targeting 1,200–1,600 characters
-5. Audits against distribution rules and strips AI tells
-6. Writes both files and reports the character count and the tradeoff it made
+2. Infers the author's voice from the source rather than imposing a generic creator tone, and writes a voice card
+3. Drafts five hooks, kills the predictable ones, keeps the two or three the body could pay off
+4. **Stops** and shows you the claim, the surviving hooks, and what it proposes to leave out
+5. Builds hook → re-hook → value → close, targeting 1,200–1,600 characters
+6. Audits against distribution rules and strips AI tells
+7. Writes both files and reports the character count and the full cut list
 
 ## Design decisions
 
 **Voice is inferred, not fixed.** There's no persona baked in. The skill reads register, technical density, sentence rhythm, and hedging out of `source.md` and preserves them. The transformation is structural — reorganize the material, leave the voice alone.
 
-**One post, not variants.** It commits to an angle and names the tradeoff in the notes file so you can redirect it in one message. If `source.md` contains two genuinely separate ideas, it asks rather than merging them.
+**One post, not variants.** It commits to an angle and names the passed-over alternative in the notes file so you can redirect it in one message. If `source.md` contains two genuinely separate ideas, it asks rather than merging them.
+
+**Nothing you lived through gets cut silently.** Turning notes into 1,400 characters is mostly subtraction, and the skill is explicitly told to cut. So the cutting happens in front of you: the step 4 gate lists what this angle has no room for *before* drafting, anything discovered mid-draft gets raised rather than quietly compressed away, and the notes file carries the full cut list afterward. An experience that will not fit the body is usually a hook, and it tries that first.
 
 **Nothing gets fabricated.** Numbers, quotes, and anecdotes must trace to `source.md`. Missing evidence gets flagged in the notes file instead of invented — which matters, since a fabricated stat in a technical post is a credibility event.
 
@@ -60,7 +63,7 @@ linkedin-post-writer/
 ├── SKILL.md                          # Lean orchestrator: workflow + hard rules
 ├── README.md
 ├── references/
-│   ├── algorithm-mechanics.md        # Why the rules exist + the 10-point audit
+│   ├── algorithm-mechanics.md        # Why the rules exist + the 11-point audit
 │   ├── hook-frameworks.md            # Hook types, fold limits, predictability test
 │   ├── structure-and-format.md       # Anatomy, length, formatting, AI-tell removal
 │   └── voice-inference.md            # Reading register out of source.md
@@ -68,7 +71,7 @@ linkedin-post-writer/
     └── post_notes_template.md        # Template for linkedin_post_notes.md
 ```
 
-`SKILL.md` stays under ~90 lines and loads references on demand, so the always-resident cost is small and the detail lives one level down.
+`SKILL.md` stays around 100 lines and loads references on demand, so the always-resident cost is small and the detail lives one level down.
 
 ## The rules it enforces
 
@@ -77,7 +80,7 @@ Derived from how LinkedIn's 2026 LLM-based ranking stack distributes content —
 - **No links in the body.** Body links cut reach ~50–70%. Every URL moves to the suggested first comment.
 - **No engagement bait.** "Comment YES", "tag someone", reaction polling — actively suppressed. Includes the subtle version: a hook promising something the body never delivers.
 - **1,200–1,600 characters,** never padded to reach it.
-- **One bolded phrase at most,** and never on a keyword that matters for search.
+- **Default to zero bold.** The only mechanism is pasted Unicode, which screen readers read as gibberish and search skips. One phrase is the ceiling, on request, never on a keyword that matters for discovery.
 - **Two emojis maximum.** Zero if the source shows an author who doesn't use them.
 - **Zero to three hashtags.** Hashtag weight is close to noise now; natural domain vocabulary in the prose does more.
 

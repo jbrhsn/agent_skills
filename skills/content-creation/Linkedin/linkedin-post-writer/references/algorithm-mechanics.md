@@ -1,6 +1,6 @@
 # Algorithm Mechanics
 
-Why the hard rules exist. Read this when auditing a draft (workflow step 5) and when filling the posting-notes file.
+Why the hard rules exist. Read this when auditing a draft (workflow step 6) and when filling the posting-notes file.
 
 ## Contents
 - [How distribution actually works](#how-distribution-actually-works)
@@ -51,11 +51,12 @@ Run every draft through this before writing files. Treat failures as rewrite tri
 3. **Promise paid?** Does the body deliver exactly what the hook implied? Unpaid promises are bait.
 4. **Dwell-worthy?** Is there a sentence a knowledgeable reader would stop on? If every line is generic, the post has no reason to hold attention.
 5. **Save-worthy?** Is there a reusable rule, framework, or number? If not, is that acceptable for this post's goal?
-6. **Comment-worthy close?** Could a smart person disagree with the closing question in a paragraph? One-word-answerable questions fail.
+6. **Comment-worthy close?** Could a smart person disagree with the closing question in a paragraph? One-word-answerable questions fail. A post ending on a takeaway with no question passes this check — record that choice in the notes file rather than bolting on a weak question to satisfy it.
 7. **Zero URLs in the body?**
 8. **Zero bait phrases?**
 9. **Character count in the 1,200–1,600 band?**
 10. **Facts traceable to `source.md`?** Every number, quote, and anecdote must be in the source. No exceptions.
+11. **Cut list honest?** Does the notes file's "Cut, and why" section account for everything in `source.md` that did not make the post — and was every lived experience on that list either agreed at the step 4 gate or raised with the author before it went? Nothing the author lived through gets cut silently.
 
 ## Timing and the first hour
 

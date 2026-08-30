@@ -1,6 +1,6 @@
 # Structure and Format
 
-How the body is built, shaped, and de-slopped. Read this at workflow step 4.
+How the body is built, shaped, and de-slopped. Read this at workflow step 5.
 
 ## Contents
 - [Post anatomy](#post-anatomy)
@@ -50,7 +50,7 @@ The feed is a skim environment. Readers decide in roughly two seconds based on *
 
 ## Emphasis, emojis, symbols
 
-**Bold: one phrase maximum, often zero.** LinkedIn has no real bold — creators paste Unicode mathematical characters, which screen readers mangle and search indexing skips. Never bold a term that matters for discoverability. Structure should carry emphasis; bold is a last resort.
+**Bold: default zero.** LinkedIn has no real bold. The only mechanism is pasting Unicode mathematical characters, and those are read out as gibberish by screen readers and skipped by search indexing — a real cost, paid by the reader rather than the author. Structure and white space carry emphasis instead, and they cost nothing. One bolded phrase is the ceiling, used only when the author has asked for emphasis and no structural move will do, and never on a term that matters for discoverability.
 
 **Emojis: two maximum.** Acceptable as section markers or a single tonal beat. Not acceptable as bullet points on every line, and not acceptable if `source.md` shows an author who doesn't use them. Zero emojis is always a valid answer.
 
@@ -82,7 +82,7 @@ Two components:
 - ❌ "Comment YES if you've been there." — bait, actively suppressed.
 - ✅ "If you've shipped agents to production, what broke first for you — the model or the plumbing?" — specific, experience-gated, genuinely contested.
 
-A closing question is optional. A post ending on a strong takeaway beats one bolted to a limp question.
+A closing question is optional, but skipping it is a choice rather than an oversight. A post ending on a strong takeaway beats one bolted to a limp question — take that route deliberately when the takeaway is the strongest line in the post, and record it in the notes file so the author can see it was considered.
 
 ## Killing AI tells
 
@@ -123,7 +123,7 @@ Final check: read the draft aloud. If it doesn't sound like the person who wrote
 `linkedin_post.md` contains **the post body and nothing else** — it gets pasted straight into the composer.
 
 - No YAML frontmatter.
-- No markdown headings (`#`), no markdown bold (`**`) — LinkedIn renders neither. If a bolded phrase is genuinely warranted, use Unicode bold characters so it survives the paste.
+- No markdown headings (`#`), no markdown bold (`**`) — LinkedIn renders neither, so both paste through as literal `#` and `**` characters. If the author has explicitly asked for one bolded phrase, Unicode mathematical characters are the only thing that survives the paste: use them for that one phrase, knowing the accessibility cost above. Otherwise the file contains no bold at all.
 - No title line, no "Here's your post:", no commentary, no character count inside the file.
 - Preserve exact line breaks. The blank lines are load-bearing formatting.
 - Hashtags, if any, on a final line after a blank line.
