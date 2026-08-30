@@ -1,13 +1,14 @@
 # Image prompts: <article title>
 
 **Source:** `<file the prompts were generated from>`
+
 **Piece type:** <listicle / tutorial / case study / opinion / explainer / experience>
+
 **Note:** Medium requires AI-generated images to be captioned as AI-generated.
 
 ## Style lock
 
-Repeat these verbatim in every prompt. If you regenerate a single image later,
-reuse this block so it matches the set.
+Repeat these verbatim in every prompt. If you regenerate a single image later, reuse this block so it matches the set.
 
 - **Rendering:** <e.g. flat vector illustration, uniform 2px black outlines, no shading>
 - **Accent colour:** <precise name or hex — e.g. deep slate blue #33475B>
@@ -32,6 +33,7 @@ points, human faces, borders, frames
 ## Hero
 
 **Conveys:** <the article's central claim, in one line>
+
 **Aspect ratio:** 16:9 — generate at 1600×900 or larger
 
 **Prompt**
@@ -51,7 +53,9 @@ points, human faces, borders, frames
 ## Image 1
 
 **Placement:** after the section "<section heading>"
+
 **Conveys:** <what this image does for the reader at this point>
+
 **Aspect ratio:** 3:2
 
 **Prompt**
@@ -84,8 +88,7 @@ points, human faces, borders, frames
 
 ## User-supplied slots
 
-Places where a generated illustration would be the wrong call and a real visual
-is needed. Leave empty if none.
+Places where a generated illustration would be the wrong call and a real visual is needed. Leave empty if none.
 
 | Placement | What it should show | Why generated art won't do |
 |---|---|---|

@@ -25,8 +25,7 @@ Working guide for agents operating in this repo. Committed — keep it accurate.
 All skills live under `skills/{category}/{skill-name}/`:
 - `SKILL.md` — agent-facing prompt with YAML frontmatter (`name`, `description`)
 - `README.md` — human-readable guide (optional but recommended)
-- `references/`, `assets/`, `scripts/` — optional: guides the skill loads on demand,
-  templates it writes from, stdlib-only Python it runs
+- `references/`, `assets/`, `scripts/` — optional: guides the skill loads on demand, templates it writes from, stdlib-only Python it runs
 
 Example: `skills/development/lean-coder/SKILL.md`
 
@@ -72,9 +71,7 @@ uv run scripts/sync_all.py --list-plugins                       # what's availab
 uv run scripts/sync_all.py --plugins search-internet --verify   # install + assert resolved config
 uv run scripts/sync_all.py                                      # omit flag = uninstall, files pruned
 ```
-`--plugins` drives both the runtime file and the agent overlays — never install one
-without the other (see §7). `--verify` shells out to `opencode debug agent` and checks
-each agent's resolved permissions match what was composed.
+`--plugins` drives both the runtime file and the agent overlays — never install one without the other (see §7). `--verify` shells out to `opencode debug agent` and checks each agent's resolved permissions match what was composed.
 
 **Individual script sync:**
 ```bash
@@ -104,8 +101,7 @@ uv run scripts/sync_opencode_agents.py --plugins search-internet --print-compose
 - `BOB_SKILLS=~/.bob/skills`
 - `CODEX_SKILLS=~/.agents/skills`
 
-> OpenCode's docs say `agents/` and `plugins/` (plural), but 1.18.23 reads the
-> **singular** paths above. Verified empirically — don't "fix" these.
+> OpenCode's docs say `agents/` and `plugins/` (plural), but 1.18.23 reads the **singular** paths above. Verified empirically — don't "fix" these.
 
 ---
 
@@ -121,25 +117,15 @@ Where synced files land on each platform:
 | **IBM Bob** | `~/.bob/skills/{skill}/` | — | — |
 | **Codex / ChatGPT** | `~/.agents/skills/{skill}/` | — | — |
 
-**Plugins are OpenCode-only.** OpenCode agents are composed at sync time: base agents
-from `agents/*/*.md`, plus overlays from any plugin named in `--plugins`. Composed
-files exist only at the destination — never written back into the repo.
+**Plugins are OpenCode-only.** OpenCode agents are composed at sync time: base agents from `agents/*/*.md`, plus overlays from any plugin named in `--plugins`. Composed files exist only at the destination — never written back into the repo.
 
-**Claude Code** gets only `mode: subagent` agents (today, just `executor`); its own
-top-level session is the `primary` equivalent, governed by `CLAUDE.md`. Its subagent
-frontmatter has no per-command bash permission map, so `executor`'s allow/ask/deny
-gates become a plain-language note in the body.
+**Claude Code** gets only `mode: subagent` agents (today, just `executor`); its own top-level session is the `primary` equivalent, governed by `CLAUDE.md`. Its subagent frontmatter has no per-command bash permission map, so `executor`'s allow/ask/deny gates become a plain-language note in the body.
 
-**Antigravity** has no per-mode agent files — `agents/ANTIGRAVITY_AGENTS.md` is a
-separate hand-authored source (not a translation) copied verbatim, overwriting the
-destination in full.
+**Antigravity** has no per-mode agent files — `agents/ANTIGRAVITY_AGENTS.md` is a separate hand-authored source (not a translation) copied verbatim, overwriting the destination in full.
 
-**Bob** gets skills only — its custom-agent config format isn't publicly documented
-enough to target confidently.
+**Bob** gets skills only — its custom-agent config format isn't publicly documented enough to target confidently.
 
-**Codex / ChatGPT** gets skills only. Its custom subagents use TOML config layers,
-not OpenCode's Markdown agent schema, while repository guidance is discovered from
-`AGENTS.md`. The skills themselves need no translation.
+**Codex / ChatGPT** gets skills only. Its custom subagents use TOML config layers, not OpenCode's Markdown agent schema, while repository guidance is discovered from `AGENTS.md`. The skills themselves need no translation.
 
 ---
 
@@ -149,18 +135,13 @@ not OpenCode's Markdown agent schema, while repository guidance is discovered fr
 - `~/.gemini/config/` and `~/.claude/` are **not** skills-only. They contain settings, session states, history, projects, and other tool configs.
 - **Never** delete or clear the entire `~/.gemini/config/` or `~/.claude/` directories.
 - Only remove or replace individual skill folders within `skills/`.
-- Plugin/agent pruning is manifest-scoped: each destination carries a
-  `.agent_skills_manifest.json` listing only files this tooling wrote, and prune touches
-  nothing else. Don't replace this with a directory wipe.
+- Plugin/agent pruning is manifest-scoped: each destination carries a `.agent_skills_manifest.json` listing only files this tooling wrote, and prune touches nothing else. Don't replace this with a directory wipe.
 
 **Plugin tools are allow-by-default:**
-- A tool registered by an OpenCode plugin is available to **every** agent unless a
-  permission explicitly denies it (verified on 1.18.23).
-- So a plugin's runtime file and its agent overlays must install together — otherwise
-  the orchestrator silently gains a tool it was designed to delegate instead.
+- A tool registered by an OpenCode plugin is available to **every** agent unless a permission explicitly denies it (verified on 1.18.23).
+- So a plugin's runtime file and its agent overlays must install together — otherwise the orchestrator silently gains a tool it was designed to delegate instead.
 - `--plugins` enforces this by driving both syncs; the standalone plugin script warns.
-- Two plugins setting the same frontmatter key to different values is a **hard error**,
-  not a last-one-wins merge. Resolve it in the overlays.
+- Two plugins setting the same frontmatter key to different values is a **hard error**, not a last-one-wins merge. Resolve it in the overlays.
 
 **Excluded from sync** (`EXCLUSIONS` in `scripts/common.py`):
 - `.venv/`, `__pycache__/`, `*.pyc`, `.pytest_cache/`, `node_modules/`, `.git/`, `.DS_Store`, `*.egg-info/`, `dist/`, `build/`
@@ -170,13 +151,18 @@ not OpenCode's Markdown agent schema, while repository guidance is discovered fr
 - Issues welcome; see `CONTRIBUTING.md`
 
 **Skills are referenced by name, never by path:**
-- Anything that gets synced out (agent files, `ANTIGRAVITY_AGENTS.md`) must say
-  "load the `lean-coder` skill", not `skills/development/lean-coder/SKILL.md`.
-- Skills flatten to `skills/{name}/` at every destination — the category subfolder
-  is gone, and the destination tree is unrelated to whatever project the agent runs in.
+- Anything that gets synced out (agent files, `ANTIGRAVITY_AGENTS.md`) must say "load the `lean-coder` skill", not `skills/development/lean-coder/SKILL.md`.
+- Skills flatten to `skills/{name}/` at every destination — the category subfolder is gone, and the destination tree is unrelated to whatever project the agent runs in.
 
 **Local-only files** (in `.gitignore`):
 - `.agent_docs/`, `.opencode/`, `.cursor/`, `.cursorrules`, `.github/copilot-instructions.md`
+
+**Markdown is unwrapped — one line per paragraph, no hard wrap at a column width:**
+- A single `\n` inside prose is not a line break in CommonMark; it renders as whitespace. Every paragraph, list-item continuation, and blockquote paragraph is one physical line, however long, so a diff shows exactly the sentence that changed instead of a reflowed paragraph.
+- This repo's files are edited by agents doing exact string matching, not by humans in an editor with soft-wrap — hard-wrapping fights that kind of edit and buys nothing a terminal doesn't already do for you.
+- Applies to every `.md` file: `SKILL.md`, `README.md`, `references/`, `assets/*.template.md`, agent definitions, plugin overlays. YAML frontmatter is exempt — its `description` field is one line by necessity, since folding it would corrupt the YAML scalar.
+- Code fences, tables, and headings are never reflowed — join only prose.
+- Corollary worth knowing when hand-editing: two non-blank lines with no blank line between them are already **one CommonMark paragraph**, whatever they look like in the source. Give visually separate lines (a metadata header block of `**Field:** value` lines, a set of one-line examples) a blank line between them, or they silently merge into a run-on paragraph when rendered.
 
 ---
 
@@ -192,8 +178,7 @@ uv run scripts/sync_all.py --dry-run
 uv run scripts/sync_all.py
 ```
 
-**Add a new plugin:** see `plugins/README.md` — write `plugin.json`, put the tool in
-`plugin/`, and add an overlay per base agent whose permissions must change.
+**Add a new plugin:** see `plugins/README.md` — write `plugin.json`, put the tool in `plugin/`, and add an overlay per base agent whose permissions must change.
 
 **Test a skill locally before syncing:**
 ```bash

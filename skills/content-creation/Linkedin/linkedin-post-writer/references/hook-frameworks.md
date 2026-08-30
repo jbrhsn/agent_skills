@@ -64,8 +64,7 @@ Lines 3–5, immediately after the fold. Its job is to convert a "see more" clic
 
 The re-hook makes one **specific promise** about what the reader gets — narrower than the hook, concrete enough to be checkable.
 
-> Hook: Our agent worked perfectly in eval and failed on day one in production.
-> Re-hook: The failure mode had nothing to do with the model, and it's now the first thing I check in every system I build.
+> Hook: Our agent worked perfectly in eval and failed on day one in production. Re-hook: The failure mode had nothing to do with the model, and it's now the first thing I check in every system I build.
 
 The re-hook is not a summary and not a thesis restatement. If it can be deleted without the post losing anything, it was a restatement — rewrite it.
 

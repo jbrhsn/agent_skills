@@ -4,19 +4,13 @@
 
 - **20 questions total**, hard ceiling.
 - **4–6 per turn**, grouped by theme so the user answers in one pass.
-- Typically 3–4 turns. If you are at 20 and still missing something, put it in the PRD's
-  Open Questions rather than asking a 21st.
+- Typically 3–4 turns. If you are at 20 and still missing something, put it in the PRD's Open Questions rather than asking a 21st.
 
-Spend the budget where the answer changes the plan. A question whose answer you could get
-by reading `package.json`, `README.md`, or the directory tree is a wasted question — read
-first, ask second.
+Spend the budget where the answer changes the plan. A question whose answer you could get by reading `package.json`, `README.md`, or the directory tree is a wasted question — read first, ask second.
 
 ## Turn format
 
-Number questions continuously across turns (Q1…Q20) so the user can see the budget being
-spent. Where a sensible default exists, offer it — `Q7: Auth — email/password, OAuth, or
-none for v1? (default: none for v1)`. A user who says "default is fine" has still given
-you an answer you can confirm; a user who says nothing has not.
+Number questions continuously across turns (Q1…Q20) so the user can see the budget being spent. Where a sensible default exists, offer it — `Q7: Auth — email/password, OAuth, or none for v1? (default: none for v1)`. A user who says "default is fine" has still given you an answer you can confirm; a user who says nothing has not.
 
 Keep each question to one line. No preamble paragraphs between questions.
 
@@ -51,8 +45,7 @@ In **learn-by-building mode**, replace the first item with:
 - Roughly how much time per week for learning + building?
 - Is production-readiness a goal, or is this a learning artifact?
 
-The level answer drives the granularity of `learnings/topics.md`. Ask it plainly and do
-not soften it — a beginner told "you probably know X" gets a curriculum with holes in it.
+The level answer drives the granularity of `learnings/topics.md`. Ask it plainly and do not soften it — a beginner told "you probably know X" gets a curriculum with holes in it.
 
 ## Turn 3 — Behaviour and edges
 
@@ -65,15 +58,11 @@ not soften it — a beginner told "you probably know X" gets a curriculum with h
 
 ## Turn 4 — Gaps only
 
-Do not ask a fixed set here. Ask only about contradictions in earlier answers, or areas
-where you cannot write a testable requirement. Two to four questions. If there are none,
-skip this turn entirely and go to confirmation.
+Do not ask a fixed set here. Ask only about contradictions in earlier answers, or areas where you cannot write a testable requirement. Two to four questions. If there are none, skip this turn entirely and go to confirmation.
 
 ## State file
 
-After every batch, write `docs/.planner-state.md`. It survives PRD approval because the
-surface interview (Stage 5) appends to it — delete it only after the UIUX doc is approved
-at Stage 7.
+After every batch, write `docs/.planner-state.md`. It survives PRD approval because the surface interview (Stage 5) appends to it — delete it only after the UIUX doc is approved at Stage 7.
 
 ```markdown
 # Planner state (delete after PRD approval)
@@ -105,7 +94,4 @@ Open questions
   - Max file size — you said "reasonable", need a number
 ```
 
-Ask: "Correct anything that is wrong or missing. I will write the PRD from exactly this
-list." Wait for a reply. A requirement that is vague at this stage produces a unit that
-cannot be tested at Stage 5 — push for a number, a threshold, or an observable outcome
-now rather than discovering it later.
+Ask: "Correct anything that is wrong or missing. I will write the PRD from exactly this list." Wait for a reply. A requirement that is vague at this stage produces a unit that cannot be tested at Stage 5 — push for a number, a threshold, or an observable outcome now rather than discovering it later.

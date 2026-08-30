@@ -29,8 +29,11 @@ The reason this skill exists is that handoff files rot: appended to every sessio
 **3. Decide what is a durable learning.** This is the judgment call that makes or breaks the file. Promote a fact to **Cumulative Learnings** only if it is (a) still true next month, (b) not obvious from reading the code, and (c) would cost real time to rediscover.
 
 Good: `Vitest needs --pool=forks here; the default worker pool deadlocks on the DB mock.`
+
 Good: `Tried moving parsing into the worker — blocked by the SDK's sync-only file handles.`
+
 Bad: `Fixed the login bug.` (a session event, not a durable fact)
+
 Bad: `The project uses TypeScript.` (obvious from the repo — belongs in Snapshot at most)
 
 Then **merge semantically against the existing list** — if a new learning refines an old one, rewrite that line rather than adding a near-duplicate. This dedup is why the file stays bounded, and it is the part no script can do.

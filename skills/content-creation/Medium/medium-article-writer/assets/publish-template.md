@@ -28,8 +28,7 @@ Five options, different strategies. Mark the recommended one.
 
 **Text:** <the closing question or line as it appears in the article>
 
-Default is a question. Follow, subscribe, and links are only used when the user
-asked for them and supplied the destination. See `references/closing-and-cta.md`.
+Default is a question. Follow, subscribe, and links are only used when the user asked for them and supplied the destination. See `references/closing-and-cta.md`.
 
 ## Tags
 
@@ -43,8 +42,7 @@ Ordered. First three narrow, last two broad.
 
 ## Cover image
 
-Direction, not a stock search term. What the image should show and why it fits
-the piece. Note if no cover is the better call.
+Direction, not a stock search term. What the image should show and why it fits the piece. Note if no cover is the better call.
 
 **Alt text:** <describe the image content>
 
@@ -61,8 +59,7 @@ Every image the article references, with alt text and caption.
 1. **<publication>** — <why it fits>
 2. **<publication>** — <why it fits>
 
-Check current submission guidelines before submitting; requirements change and
-several publications require a kicker and subtitle.
+Check current submission guidelines before submitting; requirements change and several publications require a kicker and subtitle.
 
 ## Paste checklist
 
@@ -80,9 +77,6 @@ several publications require a kicker and subtitle.
 
 ## After publishing
 
-If click-through is below ~3% after 48 hours, rewrite the title from the options
-above before writing anything new. Below-3% is a title problem, not a topic
-problem.
+If click-through is below ~3% after 48 hours, rewrite the title from the options above before writing anything new. Below-3% is a title problem, not a topic problem.
 
-**Stats worth tracking:** click-through rate, read ratio, member reading time,
-followers gained. Read ratio and member reading time matter more than views.
+**Stats worth tracking:** click-through rate, read ratio, member reading time, followers gained. Read ratio and member reading time matter more than views.

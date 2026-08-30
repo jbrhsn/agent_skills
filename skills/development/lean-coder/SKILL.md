@@ -46,6 +46,4 @@ Load **only** the file for the language in play. Do not read the others.
 | React Native                 | `references/react-native/GUIDE.md`     |
 | Production-grade (any language) | `references/production-grade/GUIDE.md` |
 
-Polyglot task: load each relevant file at the moment you write that language, not upfront.
-Production-grade guide is opt-in: load it when the task is explicitly about
-hardening or shipping (e.g. "make this production-ready"), not for routine edits.
+Polyglot task: load each relevant file at the moment you write that language, not upfront. Production-grade guide is opt-in: load it when the task is explicitly about hardening or shipping (e.g. "make this production-ready"), not for routine edits.

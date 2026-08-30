@@ -19,19 +19,15 @@ If `source.md` is missing, ask for the folder path rather than guessing. If the 
 
 ## Workflow
 
-**1. Read and mine `source.md`.**
-Identify the single most interesting claim in it — the one thing a peer would argue with, not the summary of everything present. A post carries one idea. Everything else in `source.md` is either supporting evidence or gets cut. If two genuinely separate ideas exist, say so and ask which one to build, rather than merging them into a mushy post.
+**1. Read and mine `source.md`.** Identify the single most interesting claim in it — the one thing a peer would argue with, not the summary of everything present. A post carries one idea. Everything else in `source.md` is either supporting evidence or gets cut. If two genuinely separate ideas exist, say so and ask which one to build, rather than merging them into a mushy post.
 
 While reading, inventory separately everything that is **already the author's**: a personal experience, an opinion, a judgment call, a number they measured, a decision they regret. That material cannot be regenerated from general knowledge, and the gate in step 4 depends on the list being complete.
 
-**2. Infer voice.**
-Read `references/voice-inference.md`, extract the author's register from `source.md` itself, and write the five-line voice card it describes before drafting anything. Never impose a generic LinkedIn-influencer voice — the whole point is that the post sounds like the person who wrote the notes.
+**2. Infer voice.** Read `references/voice-inference.md`, extract the author's register from `source.md` itself, and write the five-line voice card it describes before drafting anything. Never impose a generic LinkedIn-influencer voice — the whole point is that the post sounds like the person who wrote the notes.
 
-**3. Build the hook.**
-Read `references/hook-frameworks.md`. Draft five candidate hooks, apply the predictability test, and keep the two or three that survive. The hook must work inside the mobile fold (~140 characters) and must not be predictable from its own first line. Do not pick a single winner yet — the survivors go to the author in step 4.
+**3. Build the hook.** Read `references/hook-frameworks.md`. Draft five candidate hooks, apply the predictability test, and keep the two or three that survive. The hook must work inside the mobile fold (~140 characters) and must not be predictable from its own first line. Do not pick a single winner yet — the survivors go to the author in step 4.
 
-**4. Show the angle. Stop.**
-Before drafting, show four things and nothing else:
+**4. Show the angle. Stop.** Before drafting, show four things and nothing else:
 
 - **The claim** the post will make, in one sentence.
 - **The surviving hooks** from step 3, numbered, so the author can pick or redirect.
@@ -42,14 +38,11 @@ Keep it under a screen. A rejected angle costs thirty seconds; a rejected post c
 
 If the author says to skip ahead, skip the gate — but still say in one line what you are leaving out, because that decision is theirs whether or not the gate gets shown.
 
-**5. Draft the body.**
-Read `references/structure-and-format.md`. Build hook → re-hook → value → close. Land inside the 1,200–1,600 character band. Cut anything that reads as filler; dwell time comes from substance, not length.
+**5. Draft the body.** Read `references/structure-and-format.md`. Build hook → re-hook → value → close. Land inside the 1,200–1,600 character band. Cut anything that reads as filler; dwell time comes from substance, not length.
 
-**6. Audit before writing files.**
-Read `references/algorithm-mechanics.md` and check the draft against the hard rules below. The audit is where most drafts actually improve — treat it as a rewrite pass, not a checkbox.
+**6. Audit before writing files.** Read `references/algorithm-mechanics.md` and check the draft against the hard rules below. The audit is where most drafts actually improve — treat it as a rewrite pass, not a checkbox.
 
-**7. Write both files.**
-Write `linkedin_post.md` (clean post body only) and `linkedin_post_notes.md` (from the template in `assets/`). Report the final character count, and make sure the notes file's "Cut, and why" section matches what was actually agreed at the gate.
+**7. Write both files.** Write `linkedin_post.md` (clean post body only) and `linkedin_post_notes.md` (from the template in `assets/`). Report the final character count, and make sure the notes file's "Cut, and why" section matches what was actually agreed at the gate.
 
 ## Hard rules
 

@@ -1,11 +1,8 @@
 # medium-image-prompts
 
-Companion to `medium-article-writer`. Reads a finished, edited article and writes
-`medium_image_prompts.md` — one hero prompt plus three to five in-article prompts, each
-with placement, aspect ratio, negative prompt, alt text, and caption.
+Companion to `medium-article-writer`. Reads a finished, edited article and writes `medium_image_prompts.md` — one hero prompt plus three to five in-article prompts, each with placement, aspect ratio, negative prompt, alt text, and caption.
 
-Service-agnostic: prompts are plain prose with no tool-specific flags. Aspect
-ratio is a separate field you translate to whatever your generator expects.
+Service-agnostic: prompts are plain prose with no tool-specific flags. Aspect ratio is a separate field you translate to whatever your generator expects.
 
 ## Layout
 
@@ -21,8 +18,7 @@ medium-image-prompts/
 
 ## Install
 
-Same paths as `medium-article-writer` — see its README for the per-platform table.
-From this repo:
+Same paths as `medium-article-writer` — see its README for the per-platform table. From this repo:
 
 ```bash
 uv run scripts/sync_all.py            # every skill, all five platforms
@@ -49,41 +45,23 @@ articles/iceberg-compaction/
 └── medium_image_prompts.md  ← produced here
 ```
 
-Run it only once the article is final. Placement and subject matter are derived
-from what the sections actually say, so prompts generated from a draft go stale
-the moment you restructure.
+Run it only once the article is final. Placement and subject matter are derived from what the sections actually say, so prompts generated from a draft go stale the moment you restructure.
 
 ## House style
 
-**White seamless background on every image, always.** Medium's reading surface is
-white, so images dissolve into the page instead of sitting in a grey box. The
-skill states this explicitly in every prompt and puts shadows, gradients, and
-vignettes in the negative — models drift toward adding them.
+**White seamless background on every image, always.** Medium's reading surface is white, so images dissolve into the page instead of sitting in a grey box. The skill states this explicitly in every prompt and puts shadows, gradients, and vignettes in the negative — models drift toward adding them.
 
-**Everything else varies by article.** The skill classifies the piece and picks a
-visual track from `references/style-tracks.md`: object series for listicles,
-isometric process art for tutorials, tension-and-resolution for post-mortems, a
-single bold metaphor for opinion pieces, line-art structure for explainers,
-human-scale moments for experience reports. It then locks one accent colour, one
-rendering style, and one perspective, and repeats those clauses verbatim across
-the set so the images read as a series.
+**Everything else varies by article.** The skill classifies the piece and picks a visual track from `references/style-tracks.md`: object series for listicles, isometric process art for tutorials, tension-and-resolution for post-mortems, a single bold metaphor for opinion pieces, line-art structure for explainers, human-scale moments for experience reports. It then locks one accent colour, one rendering style, and one perspective, and repeats those clauses verbatim across the set so the images read as a series.
 
 ## What it won't prompt for
 
 - **Text of any kind.** Image models render lettering badly; labels go in captions.
 - **Logos and brand marks.** Generic forms instead.
 - **Real or identifiable people.** Abstracted figures only.
-- **Charts, graphs, dashboards, or terminal output.** A generated chart shows
-  invented numbers, and Medium treats fabricated figures as a rules violation.
-  Where the article needs one, the skill flags a `[user-supplied]` slot and says
-  what it should show rather than filling it with decoration.
+- **Charts, graphs, dashboards, or terminal output.** A generated chart shows invented numbers, and Medium treats fabricated figures as a rules violation. Where the article needs one, the skill flags a `[user-supplied]` slot and says what it should show rather than filling it with decoration.
 
 ## Notes
 
-Medium requires AI-generated images to be captioned as such. The output file
-carries a reminder; how you apply it is your call.
+Medium requires AI-generated images to be captioned as such. The output file carries a reminder; how you apply it is your call.
 
-Generated art is decoration. It does not replace the architecture diagram or
-screenshot a technical piece actually needs — Medium's guidelines favour images
-that carry information, and the skill is built to flag those moments rather than
-paper over them.
+Generated art is decoration. It does not replace the architecture diagram or screenshot a technical piece actually needs — Medium's guidelines favour images that carry information, and the skill is built to flag those moments rather than paper over them.

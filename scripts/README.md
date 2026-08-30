@@ -54,10 +54,7 @@ uv run scripts/sync_opencode_skills.py --dry-run # Preview
 - `OPENCODE_SKILLS` — Override destination (default: `~/.config/opencode/skills`)
 
 ### `sync_codex_skills.py`
-Syncs skills to the user-wide location discovered by Codex CLI, the Codex IDE
-extension, and the ChatGPT desktop harness. The skill folders are copied without
-translation because Codex uses the same `SKILL.md` format and optional
-`scripts/`, `references/`, `assets/`, and `agents/openai.yaml` layout.
+Syncs skills to the user-wide location discovered by Codex CLI, the Codex IDE extension, and the ChatGPT desktop harness. The skill folders are copied without translation because Codex uses the same `SKILL.md` format and optional `scripts/`, `references/`, `assets/`, and `agents/openai.yaml` layout.
 
 **Usage:**
 ```bash
@@ -69,10 +66,7 @@ uv run scripts/sync_codex_skills.py --verify
 **Environment variables:**
 - `CODEX_SKILLS` — Override destination (default: `~/.agents/skills`)
 
-This sync intentionally does not translate the Markdown files under `agents/`.
-Codex custom subagents are declared through TOML config layers, so mapping the
-OpenCode permission frontmatter would be lossy. Repository-specific working rules
-remain available through the repo's `AGENTS.md`.
+This sync intentionally does not translate the Markdown files under `agents/`. Codex custom subagents are declared through TOML config layers, so mapping the OpenCode permission frontmatter would be lossy. Repository-specific working rules remain available through the repo's `AGENTS.md`.
 
 ### `sync_opencode_agents.py`
 Composes and syncs agent definitions to the OpenCode global agent directory (`~/.config/opencode/agent` — note the singular `agent`). The `agents/README.md` is not synced.

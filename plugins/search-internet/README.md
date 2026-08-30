@@ -1,8 +1,6 @@
 # search-internet
 
-Live web search for OpenCode agents, exposed as the **`web_search_tool`** tool, with a
-multi-tier fallback chain and a `researcher` subagent that keeps raw search output out
-of the orchestrator's context window.
+Live web search for OpenCode agents, exposed as the **`web_search_tool`** tool, with a multi-tier fallback chain and a `researcher` subagent that keeps raw search output out of the orchestrator's context window.
 
 ## Install
 
@@ -48,9 +46,7 @@ Result snippets are capped at 1,500 characters each to bound context cost.
 | `FIRECRAWL_API_KEY` | Firecrawl v2 cloud search | — |
 | `TAVILY_OPEN_URL` | Self-hosted fallback base URL | `http://localhost:8000` |
 
-Keys are read from `process.env` first, then from `~/.secrets` (`export KEY="..."` or
-plain `KEY=...` lines). At least one cloud key **or** a running local instance is
-required. Optional local fallback:
+Keys are read from `process.env` first, then from `~/.secrets` (`export KEY="..."` or plain `KEY=...` lines). At least one cloud key **or** a running local instance is required. Optional local fallback:
 
 ```bash
 git clone https://github.com/jianjungki/tavily-open.git
@@ -61,10 +57,7 @@ cd tavily-open && docker compose up -d
 
 > **Web search runs inside a subagent. Only synthesized findings reach the orchestrator.**
 
-Raw search output is bulky — markdown extracts, boilerplate, URLs. Injecting it straight
-into a primary agent degrades multi-turn reasoning and triggers early context compaction.
-So responsibilities split: the **orchestrator** decides *what* needs investigating; the
-**researcher** executes the search, filters the noise, and returns a short brief.
+Raw search output is bulky — markdown extracts, boilerplate, URLs. Injecting it straight into a primary agent degrades multi-turn reasoning and triggers early context compaction. So responsibilities split: the **orchestrator** decides *what* needs investigating; the **researcher** executes the search, filters the noise, and returns a short brief.
 
 The plugin enforces this through permissions rather than convention:
 
@@ -75,9 +68,7 @@ The plugin enforces this through permissions rather than convention:
 | `executor` | allow | Targeted lookups for cryptic third-party errors, incidental to its task |
 | `ask` | allow | Conversational Q&A about things outside the repo |
 
-**The `deny` on `orchestrator` is the load-bearing one.** Plugin-provided tools are
-*allowed by default* in every agent, so without that overlay the orchestrator would
-silently gain the tool. This is why the runtime file and the overlays install together.
+**The `deny` on `orchestrator` is the load-bearing one.** Plugin-provided tools are *allowed by default* in every agent, so without that overlay the orchestrator would silently gain the tool. This is why the runtime file and the overlays install together.
 
 Verify the resolved state at any time:
 
@@ -95,8 +86,7 @@ opencode debug agent researcher     # → tools.web_search_tool: true
 | `query` | string, required | The search query |
 | `max_results` | number, optional | Clamped to 1–10, default 5 |
 
-Returns formatted text: provider, query, optional synthesized answer, numbered results
-(title / URL / truncated content), and credit usage.
+Returns formatted text: provider, query, optional synthesized answer, numbered results (title / URL / truncated content), and credit usage.
 
 ## Layout
 
@@ -117,5 +107,4 @@ See [../README.md](../README.md) for how overlay composition works in general.
 
 ## Requirements
 
-`@opencode-ai/plugin` must be resolvable from `~/.config/opencode/`. Verified against
-OpenCode 1.18.23 with `@opencode-ai/plugin` 1.18.11.
+`@opencode-ai/plugin` must be resolvable from `~/.config/opencode/`. Verified against OpenCode 1.18.23 with `@opencode-ai/plugin` 1.18.11.

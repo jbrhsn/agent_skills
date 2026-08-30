@@ -1,36 +1,26 @@
 # UIUX spec
 
-Write to `docs/uiux.md`, only after the PRD is approved. Start from the template variant
-in `assets/uiux.template.md` that matches the surface type from Stage 0.
+Write to `docs/uiux.md`, only after the PRD is approved. Start from the template variant in `assets/uiux.template.md` that matches the surface type from Stage 0.
 
 ## Why this document exists
 
-An agent handed "FR-04 | A user can retry a failed import" and nothing else will invent a
-screen, invent the states that screen can be in, and invent a different set of both next
-session. This document removes that freedom. It is the layer between *what the product
-does* (PRD) and *when it gets built* (plan).
+An agent handed "FR-04 | A user can retry a failed import" and nothing else will invent a screen, invent the states that screen can be in, and invent a different set of both next session. This document removes that freedom. It is the layer between *what the product does* (PRD) and *when it gets built* (plan).
 
-It is a **behavior specification, not a visual design**. No wireframes, no ASCII layouts,
-no hex codes, no pixel values, no component library names, no code. If the user has strong
-visual opinions, record them as constraints in prose ("dense table layout, not cards") and
-move on. Anything you cannot state as observable behavior does not belong here.
+It is a **behavior specification, not a visual design**. No wireframes, no ASCII layouts, no hex codes, no pixel values, no component library names, no code. If the user has strong visual opinions, record them as constraints in prose ("dense table layout, not cards") and move on. Anything you cannot state as observable behavior does not belong here.
 
 ## ID scheme
 
 - Screens / pages / views: `SC-01`, `SC-02`, …
-- Components: `CMP-01`, … (numbered globally, not per screen — a component reused on
-  three screens keeps one ID)
+- Components: `CMP-01`, … (numbered globally, not per screen — a component reused on three screens keeps one ID)
 - Conversation states or command surfaces: `CS-01`, …
 - Flows: `FLOW-01`, …
 
-Same permanence rule as the PRD: IDs never get renumbered. Removed items are marked
-`(removed)` and left in place, because plan units cite them.
+Same permanence rule as the PRD: IDs never get renumbered. Removed items are marked `(removed)` and left in place, because plan units cite them.
 
 ## Required structure — visual surfaces (web / mobile / desktop)
 
 ### 1. Surface summary
-Two or three sentences: what kind of interface this is, the navigation model, and the
-single most important thing the user does with it.
+Two or three sentences: what kind of interface this is, the navigation model, and the single most important thing the user does with it.
 
 ### 2. Requirement → surface map
 A table, before any detail, so a reader can see coverage at a glance:
@@ -40,8 +30,7 @@ A table, before any detail, so a reader can see coverage at a glance:
 | FR-01 | SC-02 (Import screen), CMP-03 (File picker) |
 | FR-04 | SC-02, CMP-05 (Retry banner) |
 
-Every FR with a user-facing effect appears here. An FR that surfaces nowhere is either
-genuinely background work (say so explicitly in a note) or a hole in this document.
+Every FR with a user-facing effect appears here. An FR that surfaces nowhere is either genuinely background work (say so explicitly in a note) or a hole in this document.
 
 ### 3. Screen inventory
 One entry per screen, in the order a first-time user meets them:
@@ -74,8 +63,7 @@ One sentence: what the user accomplishes here.
 ```
 
 ### 4. Component inventory
-One entry per component. This is where agentic code most often goes wrong, so each
-component names **every state it can be in and what triggers each transition**:
+One entry per component. This is where agentic code most often goes wrong, so each component names **every state it can be in and what triggers each transition**:
 
 ```markdown
 ### CMP-05 — Retry banner
@@ -100,9 +88,7 @@ One sentence.
 - Failure with no reason available → generic message, never a blank banner.
 ```
 
-Cover, at minimum, for anything that fetches or submits: **default, loading, empty,
-error, success, disabled**. Omit a state only when it genuinely cannot occur, and say why
-in one line rather than leaving it out silently.
+Cover, at minimum, for anything that fetches or submits: **default, loading, empty, error, success, disabled**. Omit a state only when it genuinely cannot occur, and say why in one line rather than leaving it out silently.
 
 ### 5. Flows
 End-to-end paths across screens, including the unhappy ones:
@@ -117,8 +103,7 @@ SC-02 (Working) → SC-03 (Result)
 - File unparseable → SC-02 (Error), FLOW-02 picks up from there.
 ```
 
-At least one failure flow. A UIUX doc with only happy paths is the thing this document
-exists to prevent.
+At least one failure flow. A UIUX doc with only happy paths is the thing this document exists to prevent.
 
 ### 6. Cross-cutting rules
 Only what the user actually stated or confirmed:
@@ -129,8 +114,7 @@ Only what the user actually stated or confirmed:
 - Empty-state convention — what a fresh install looks like before any data exists
 
 ### 7. Open questions
-Same rule as the PRD. An unanswered interaction detail is an open question, never a
-silently invented state.
+Same rule as the PRD. An unanswered interaction detail is an open question, never a silently invented state.
 
 ## Required structure — conversational surfaces (CLI / chatbot)
 
@@ -160,18 +144,12 @@ One entry per command, intent, or input the system handles:
 ```
 
 ### 4. Session state model
-The states a session can be in (idle, awaiting input, working, errored), what moves it
-between them, and what survives across turns versus what resets. Agentic code gets
-conversational state wrong constantly — this section is the fix.
+The states a session can be in (idle, awaiting input, working, errored), what moves it between them, and what survives across turns versus what resets. Agentic code gets conversational state wrong constantly — this section is the fix.
 
 ### 5. Turn flows
-A sample session as an ordered turn list — user turn, system turn, resulting state — plus
-at least one session that goes wrong and recovers. Sample text is illustrative wording,
-not fixed copy; say so.
+A sample session as an ordered turn list — user turn, system turn, resulting state — plus at least one session that goes wrong and recovers. Sample text is illustrative wording, not fixed copy; say so.
 
-Also include, in place of section 6: output formatting conventions (plain text, tables,
-structured output), verbosity levels, whether output is expected to be machine-parseable,
-and what a non-interactive/piped invocation does differently.
+Also include, in place of section 6: output formatting conventions (plain text, tables, structured output), verbosity levels, whether output is expected to be machine-parseable, and what a non-interactive/piped invocation does differently.
 
 ## Required structure — headless
 
@@ -202,11 +180,8 @@ Keep it to what a caller must know to use it correctly. Two pages is plenty.
 
 ## Length
 
-Visual surfaces: typically 2–5 pages for a v1. Conversational: 2–4. Headless: 1–2. If a
-visual UIUX doc is running past 8 pages, v1 has too many screens — say so and propose
-moving screens to the PRD's Later section rather than writing a longer document.
+Visual surfaces: typically 2–5 pages for a v1. Conversational: 2–4. Headless: 1–2. If a visual UIUX doc is running past 8 pages, v1 has too many screens — say so and propose moving screens to the PRD's Later section rather than writing a longer document.
 
 ## Learning mode
 
-No change to the structure. The curriculum in `learnings/` picks up UI/UX topics from
-this document at Stage 9; do not put teaching material here.
+No change to the structure. The curriculum in `learnings/` picks up UI/UX topics from this document at Stage 9; do not put teaching material here.

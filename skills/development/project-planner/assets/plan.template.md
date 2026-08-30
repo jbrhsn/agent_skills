@@ -1,6 +1,4 @@
-Two templates in one file. Split them into `docs/plan/overview.md` and one
-`docs/plan/phase-NN-<slug>.md` per phase. The final test pass has its own template:
-`assets/final-test-pass.template.md`.
+Two templates in one file. Split them into `docs/plan/overview.md` and one `docs/plan/phase-NN-<slug>.md` per phase. The final test pass has its own template: `assets/final-test-pass.template.md`.
 
 ---
 # TEMPLATE A — docs/plan/overview.md
@@ -9,10 +7,15 @@ Two templates in one file. Split them into `docs/plan/overview.md` and one
 # <Project name> — Development Plan
 
 **PRD:** [prd.md](../prd.md)
+
 **UIUX:** [uiux.md](../uiux.md)
+
 **Final test pass:** [final-test-pass.md](final-test-pass.md)
+
 **Mode:** standard | learn-by-building
+
 **Surface:** web | mobile | desktop | conversational | headless
+
 **Curriculum:** [learnings/topics.md](../../learnings/topics.md)  *(learning mode only)*
 
 ## Phases
@@ -44,8 +47,7 @@ Two templates in one file. Split them into `docs/plan/overview.md` and one
 | SC-02 | Working, Error | P2-U2 |
 | CMP-05 | all | P2-U2 |
 
-<List any surface item or state not implemented by a unit, with the reason. A state with
-no unit will not exist in the product.>
+<List any surface item or state not implemented by a unit, with the reason. A state with no unit will not exist in the product.>
 
 ## Testing summary
 
@@ -56,9 +58,7 @@ no unit will not exist in the product.>
 
 ## How to use this plan
 
-Work one unit at a time. Build it, run its **Test cases**, check it against **Done when**,
-then stop and evaluate before starting the next. Do not carry a failing test case into the
-next unit. At the end of each phase, run **Phase exit testing** before moving on.
+Work one unit at a time. Build it, run its **Test cases**, check it against **Done when**, then stop and evaluate before starting the next. Do not carry a failing test case into the next unit. At the end of each phase, run **Phase exit testing** before moving on.
 
 ---
 # TEMPLATE B — docs/plan/phase-NN-<slug>.md
@@ -67,9 +67,13 @@ next unit. At the end of each phase, run **Phase exit testing** before moving on
 # Phase <N> — <n>
 
 **Outcome:** <What exists and is demonstrable when this phase ends.>
+
 **Covers:** FR-01, FR-03, NFR-02
+
 **Implements:** SC-02, CMP-03, CMP-04, CMP-05
+
 **Depends on:** Phase <N-1>
+
 **Units:** <count>
 
 ## Why this phase comes here
@@ -81,12 +85,14 @@ next unit. At the end of each phase, run **Phase exit testing** before moving on
 ### P<N>-U1 — <Unit name>
 
 **Covers:** FR-01
+
 **Implements:** SC-02 (Empty, Preview), CMP-03
+
 **Depends on:** <unit ID, or "none">
+
 **Regression check:** <test IDs from dependency units to re-run, or "none">
 
-**Goal**
-<What exists after this unit that did not before. 1–2 sentences.>
+**Goal** <What exists after this unit that did not before. 1–2 sentences.>
 
 **In scope**
 - <…>
@@ -107,15 +113,13 @@ next unit. At the end of each phase, run **Phase exit testing** before moving on
 | T-P<N>U1-3 | Error | <…> | <…> | Yes |
 | T-P<N>U1-4 | Edge | <…> | <…> | No — manual |
 
-**Verify with**
-<The project's verification command, or manual steps for manual-only units.>
+**Verify with** <The project's verification command, or manual steps for manual-only units.>
 
 **Execution contract**
 - Isolation: <branch per unit, commit on green, or project convention>
 - Verification: <the single verification command from Phase 1, or manual steps>
 - Done signal: all test cases pass, regression check passes, lint clean
-- Scope boundary: do not modify files outside what **In scope** names; do not start
-  the next unit
+- Scope boundary: do not modify files outside what **In scope** names; do not start the next unit
 
 **Watch out for**
 - <Likely failure. Omit this section if there is nothing real to say.>

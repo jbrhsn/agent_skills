@@ -1,14 +1,12 @@
 # <Project name> — Final Test Pass
 
 **PRD:** [prd.md](../prd.md) · **UIUX:** [uiux.md](../uiux.md) · **Plan:** [overview.md](overview.md)
+
 **Last updated:** <YYYY-MM-DD>
 
-Run this once all phases are complete. Work top to bottom and log failures as you go
-rather than fixing mid-pass — a fix applied halfway through can hide a second failure.
+Run this once all phases are complete. Work top to bottom and log failures as you go rather than fixing mid-pass — a fix applied halfway through can hide a second failure.
 
-Every test ID below already exists in a unit or phase file. This document compiles; it
-does not invent. If a scenario here has no owning test case, add it to the unit that owns
-the behavior first.
+Every test ID below already exists in a unit or phase file. This document compiles; it does not invent. If a scenario here has no owning test case, add it to the unit that owns the behavior first.
 
 ## 1. Requirement coverage sweep
 
@@ -36,8 +34,7 @@ the behavior first.
 | T-FINAL-08 | CMP-05 | Retrying | <…> | <…> | ☐ |
 | T-FINAL-09 | SC-02 | Empty | <…> | <…> | ☐ |
 
-<One row per screen state, component state, conversation state, or interface failure mode
-in docs/uiux.md. This is the pass that catches the empty state nobody ever looked at.>
+<One row per screen state, component state, conversation state, or interface failure mode in docs/uiux.md. This is the pass that catches the empty state nobody ever looked at.>
 
 ## 4. Non-functional checks
 
