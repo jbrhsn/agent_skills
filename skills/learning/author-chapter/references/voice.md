@@ -1,6 +1,8 @@
 # Voice
 
-The target is a good teacher writing for a sharp teenager: warm, direct, unhurried, and never condescending. Think of the best explanation you ever got from someone who genuinely wanted you to understand — not a manual, not a lecture transcript, not a blog post trying to sound clever.
+The target is a good teacher writing for an intelligent 28-year-old who knows nothing about this particular field: warm, direct, efficient, and never condescending. Think of the best explanation you ever got from someone who genuinely wanted you to understand — not a manual, not a lecture transcript, not a blog post trying to sound clever.
+
+Two halves, and both matter. **Knows nothing about the field:** no term goes undefined, no step is skipped as obvious, nothing is assumed from prior study. **Intelligent adult:** they have judgement, a job, and things to compare this to. Do not explain how the world works, do not reassure them, and do not pace them. Their scarce resource is time, not capacity.
 
 ## Sentence level
 
@@ -30,4 +32,8 @@ When something is arbitrary, say so: "There's no deep reason for this name — i
 
 ## Length
 
-Write until the concept is genuinely taught, then stop. Do not pad to hit a size, and do not compress a Tier 3 tradeoff because the document is already long. The reader's cost of a too-long module is skimming; the cost of a too-short one is not learning the thing. Bias long.
+**Bias complete per unit, then end the unit.** Write until the idea is genuinely taught, then stop — do not keep going because the topic is interesting, and do not compress a real trade-off because the file is already long.
+
+The two failures are not symmetrical, and neither is fixed by a word count. A unit that stops short leaves the reader unable to do the thing. A unit that runs on leaves them unable to find where it ended. Completeness against the brief decides what goes in; the five-minute target decides only how it is cut up.
+
+If a unit will not fit in roughly five minutes without losing something real, take the extra minutes. If it fits in three, do not stretch it. If it needs fifteen, it is two units.

@@ -2,6 +2,28 @@
 
 The rules here come from how people actually learn hard material. Each one exists because a specific failure is common without it.
 
+## Give the answer first, then earn it
+
+Withholding the conclusion to build suspense is a device from fiction, and it fails here. A reader who knows where the explanation is going can slot each new piece into a frame that already exists; a reader who doesn't has to hold everything in suspension until the payoff arrives, and most of them stop before it does.
+
+So the chapter opens with its takeaway and each unit opens with its claim. This costs nothing pedagogically — stating a conclusion is not the same as justifying it, and a one-line claim is not yet understood. It only changes what the reader does with the next thousand words.
+
+Then keep teaching problem-first underneath. The order inside a unit is still: here is what goes wrong without this, here is the idea, here is one real instance. The takeaway sits above that structure, it does not replace it.
+
+## Mark the vital few
+
+Not everything in a chapter is equally load-bearing, and pretending otherwise is a failure of teaching, not neutrality. A reader facing twelve equally-weighted units cannot allocate attention, so they either read all of it shallowly or none of it.
+
+Decide which units make the reader functional and put those in the core path. Everything else is real but postponable. Say plainly that finishing the core path is a legitimate stopping point — a reader who is told they may stop is far likelier to come back than one who quit at unit four feeling they failed.
+
+Be honest about the split. If two thirds of the chapter is core, you have not made the judgement, and the reader is back where they started.
+
+## Let the reader stop
+
+People learn this material in short sittings, interrupted, over weeks. A unit is the size of one sitting, so it has to survive being the last thing read for a while.
+
+That means each unit ends somewhere stable — an idea completed, not a cliffhanger — and begins without requiring the previous one to be fresh. Name what you are building on rather than assuming recall: "back when we found that indexes have to be updated on every write" costs six words and saves a reread. Signpost forward at the seams so the reader knows what they are returning for.
+
 ## Manage the load, don't reduce the depth
 
 A beginner can hold about three or four new things at once. Depth is not the problem — *simultaneous* novelty is. So:
@@ -12,11 +34,13 @@ A beginner can hold about three or four new things at once. Depth is not the pro
 
 ## Worked examples before independent practice
 
-Beginners learn far more from studying a fully worked solution than from struggling with a problem they lack the tools for. So: mechanics, then a full worked example, then a checkpoint question, and only in Part 3 onward genuine open exercises. As the reader climbs the tiers, fade the support — Tier 3 drills should give a scenario and a reference answer, not a procedure.
+Beginners learn far more from studying a fully worked solution than from struggling with a problem they lack the tools for. So: mechanics, then a full worked example, then a question they answer themselves — and only once they are off the lower rungs, genuinely open exercises. As the reader climbs the ladder, fade the support: a top-rung drill gives a scenario and a reference answer, not a procedure.
 
 ## Retrieval beats rereading
 
-Checkpoints are not decoration. A question the reader has to answer from memory does more for retention than a paragraph of summary. Write checkpoint questions that cannot be answered by pattern-matching the nearest paragraph — ask for prediction ("what happens if..."), for transfer ("where else would this apply"), or for diagnosis ("this system is slow, which of these is the likely cause").
+The closing question of a unit is not decoration. A question the reader has to answer from memory does more for retention than a paragraph of summary. Write questions that cannot be answered by pattern-matching the nearest paragraph — ask for prediction ("what happens if..."), for transfer ("where else would this apply"), or for diagnosis ("this is slow, which of these is the likely cause").
+
+This is also why `quizzies.md` ships with its answers blank, and why filling them in would be a disservice rather than a favour.
 
 Fold answers in `<details><summary>Answer</summary>...</details>` so the reader has to choose to look.
 
@@ -32,9 +56,9 @@ Do not stack analogies. Two competing metaphors for one concept leave the reader
 
 The "trap" section exists because learners construct wrong models actively — you cannot prevent that by being clear, only by naming the wrong model and dismantling it. Write the trap in the learner's own voice ("so it just caches everything, right?"), acknowledge why it's a reasonable inference, then show the specific case where it produces a wrong prediction. A concrete counterexample beats a correction.
 
-## The architect tier is about judgement, not more facts
+## The top rung is about judgement, not more facts
 
-What separates a practitioner from an architect is not extra API surface. It is:
+Whatever the ladder calls it — Architect, Authority, Designer, Edge — the top rung is never more surface area. It is:
 
 - **Tradeoff fluency.** Every design choice bought something and sold something. Name both sides.
 - **Failure prediction.** What breaks first, at what load, with what symptom, and what the misleading symptom is.
@@ -42,13 +66,13 @@ What separates a practitioner from an architect is not extra API surface. It is:
 - **Cost awareness.** Time, money, memory, operational burden, team knowledge. Solutions have prices beyond correctness.
 - **Historical context.** Why the current design carries scars. Most odd behaviour in mature systems is an old constraint fossilised.
 
-If a Tier 3 section could be written without knowing any real system, it is not Tier 3 yet.
+If a top-rung unit could be written without knowing any real system, real practitioner, or real attempt, it is not top-rung yet. `domains.md` says what that means in your field — the shape holds everywhere, but "what breaks at scale" is a load figure for infrastructure, a life event for a habit system, and an audience it stops working on for a piece of writing.
 
 ## Pacing
 
 Difficulty should climb steadily, never step. If a section requires a leap, insert a bridging paragraph that makes the leap explicit: "This next part is harder. It builds on X and Y, so if either feels shaky, reread section N first."
 
-Signpost transitions between parts: recap what the reader can now do, and state what the next part adds and why it's the natural next thing to want.
+Signpost transitions between sections: recap what the reader can now do, and state what the next one adds and why it's the natural next thing to want. The seam between the core path and Going deeper is the most important of these — it is where you tell the reader they have arrived somewhere real.
 
 ## Honesty
 

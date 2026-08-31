@@ -1,110 +1,101 @@
 # Structure
 
-## Document skeleton
+## The spine
 
-Use this order. Section names may be reworded to fit the topic; the sequence and content must not change.
+This is the only fixed shape. Everything inside it — the tier names, the unit headings, the form every example takes — is chosen for the domain and the brief.
 
 ```markdown
-# <Topic>: From Zero to Architect
+# <Chapter>
 
-## Before You Start
-What you'll be able to do at the end (concrete capabilities, not "understand X").
-What you need to know already (be honest and minimal; link out for anything heavy).
-What this module deliberately does not cover, and where to go for it.
-How to read this: the tiers, and the checkpoints.
+**In one minute.** The takeaway, stated flat, before any setup.
+**The mental model.** One bounded analogy, and how this connects to what came before.
 
-## Part 0 — Why This Exists
-The problem that made someone invent this. Told as a situation, not a definition.
-What people did before it, and what specifically went wrong.
-The one-sentence version of the whole topic, which the reader will not fully
-understand yet — and a promise that they will by Part 3.
+## Contents          (only when the chapter runs past ~8 units)
 
-## Part 1 — Foundations
-<concept blocks for every Tier 0 concept>
-### Checkpoint
-3-5 questions. Answers immediately after, folded in a details block.
+## Core path         (the 20% that gives 80%)
+### <Unit> · ~5 min
+### <Unit> · ~5 min
+...
 
-## Part 2 — Mechanics
-<concept blocks for every Tier 1 concept>
-### Checkpoint
+## Going deeper      (the rest, honestly optional-for-now)
+### <Unit> · ~7 min
+...
 
-## Part 3 — Practitioner
-<concept blocks for every Tier 2 concept>
-### Exercises
-3-5 tasks that produce something real. Full worked solutions after each.
-### Checkpoint
-
-## Part 4 — Architect
-<concept blocks for every Tier 3 concept>
-### Case Studies
-2-3 real systems or real incidents. What they chose, why, what it cost them.
-### Design Drills
-Open-ended scenarios with no single right answer. Give a strong reference
-answer that shows the reasoning, and name the tradeoffs it accepted.
-
-## The Whole Picture
-One page that reassembles everything, now that all the vocabulary is available.
-Reread this after finishing; it should feel obvious, and that feeling is the point.
-
+## The whole picture
 ## Glossary
-Every term defined in the module, alphabetical, one line each.
-
-## Spaced Recall
-A list of the questions worth re-answering in a week and in a month, grouped
-by tier, without answers. Point back to the section that covers each.
-
-## Where To Go Next
-Specific books, specs, source code, papers. Say what each one is good for.
+## Spaced recall
+## Sources
+## Where to go next
 ```
 
-## The per-concept block
+### In one minute
 
-Every concept in the inventory gets this block. It is the unit of the module — repeat it, don't improvise around it.
+The first thing on the page, before any framing. State what the reader will be able to do and the single idea the chapter turns on — in three or four lines, in plain language, with no jargon that the chapter itself introduces. Someone who reads only this should come away with something true and useful.
 
-```markdown
-### <Concept name>
+This is not a summary of the document's headings. It is the answer, given up front. The reasoning that earns it follows.
 
-**The problem.** The situation that makes this concept necessary. Something
-goes wrong or is impossible without it. Two to four sentences, concrete.
+### The mental model
 
-**The idea.** The concept in plain language, no jargon, as if explaining to a
-friend on the walk home. One short paragraph.
+One analogy, chosen to map structure rather than mood, and immediately bounded — name the one place it breaks. Then one or two sentences on where this chapter sits relative to the chapter before it and what it unblocks. When the file carries `builds_on` and `enables` frontmatter, this is where they get paid off in prose.
 
-**An analogy.** One analogy, chosen well. Then immediately state where the
-analogy breaks down — an unmarked analogy becomes a misconception later.
+### Core path and Going deeper
 
-**How it actually works.** The precise mechanics. This is where jargon is
-introduced, each term defined at first use. Be technically exact here; the
-earlier sections bought you the right to be dense.
+The split is the point. **Core path** holds the units a reader must have to be functional. **Going deeper** holds everything else — genuinely valuable, genuinely postponable. A reader who stops at the end of the core path has not failed; say so explicitly in one line at the split.
 
-**Worked example.** Real values, real code, real numbers. Walk through it step
-by step, showing intermediate state. The reader should be able to follow it
-with a pen and reproduce the result.
+Be strict about what earns a place in the core path. If everything is core, the split has told the reader nothing. Where the brief supplies per-topic `depth`, use it to decide: topics briefed for working command are core, topics briefed for awareness are not.
 
-**The trap.** The wrong belief learners actually form here. State it in the
-learner's voice, then take it apart. Explain why it's tempting — that's what
-makes the correction stick.
+The two sections still respect the tier ladder — the core path typically carries the lower rungs of every topic, and Going deeper carries the upper rungs. Do not turn the split into "easy chapter, hard chapter"; a top-rung insight belonging to a core topic can sit in the core path if the reader needs it to function.
 
-**Why it's built this way.** The tradeoff. What was given up to get this, what
-the alternatives are, and when the alternative wins. For Tier 3 concepts, add
-the failure mode: what breaks, at what scale, with what symptom.
+### The tier ladder
 
-**Check yourself.** One question the reader can only answer if they got it.
-Answer folded below it.
-```
+When the file has `tiers` in its frontmatter, **those are the rung names and you use them verbatim.** They vary by domain — `Junior → Senior → Architect → Expert`, `Beginner → Practitioner → Voice → Authority`, `Aware → Consistent → Adaptive → Designer`, `Recall → Applied → Scenario → Edge`, or whatever a `custom` plan declared. Never relabel them, and never assume four rungs; `tier_count` may have trimmed the ladder to two or three.
 
-Blocks may be shorter for small concepts, but no part may be dropped. If a concept has no meaningful trap or no meaningful tradeoff, it is probably not a concept — fold it into a neighbouring one.
+Mark each unit with the rung it serves. Every rung on the ladder must be reached by the end of the chapter — that is a completeness requirement, checked in `checklist.md`.
 
-## Diagrams
+**The spine replaces the stub's tier headings.** A scaffolded `learning.md` arrives organised as one `##` section per rung, with a prompt under each. That is stub organisation — a place to hold the assignment — not the shape of a finished chapter. Replace it with the spine above and carry the rung down onto the individual units, because a reader needs the material grouped by what makes them functional, not by what level it is. Keep the frontmatter and the `## Brief` block untouched; everything below the brief is yours to restructure. The rung prompts in the HTML comments are instructions to you and never survive into the delivered file.
 
-Use a Mermaid block when the relationship is genuinely two-dimensional: state machines, request flows, dependency graphs, layered architectures, tree structures. Do not draw a diagram for a linear list of steps — prose or a numbered list is clearer and less likely to render badly.
+Standalone, with no frontmatter, use `Foundations → Mechanics → Practitioner → Architect` and pick a domain-appropriate wording for the top rung.
 
-Every diagram is followed by a sentence explaining what to look at in it. A diagram nobody is told how to read is decoration.
+### The closing sections
 
-## Tables
+**The whole picture** reassembles the chapter now that all the vocabulary exists. It should read as obvious, and that feeling is the point. It is not a list of the headings.
 
-Use tables for comparisons across a fixed set of dimensions (option vs option, tier vs capability, algorithm vs complexity). Do not use tables for explanation — they have no room for reasoning.
+**Glossary:** every term the chapter defined, alphabetical, one line each.
 
-## Code
+**Spaced recall:** questions worth re-answering in a week and in a month, grouped by rung, without answers, each pointing at the unit that covers it.
 
-Code blocks are complete and runnable, with the language tagged. Comments explain *why*, never *what* — the reader can see what. Show the output. If the code is long, show it in pieces and then once in full.
+**Sources:** what you actually read, with the date retrieved and what each one supports. Never a reading list — that is *Where to go next*, which names specific books, specs, papers, or source code and says what each is good for.
+
+## The unit
+
+A unit is one idea, self-contained enough that a reader can stop after it and have gained something whole. Target roughly five minutes of reading; put the estimate in the heading.
+
+Every unit opens with a **one-line takeaway in bold** — the claim of the unit, before the argument for it. Then the body answers these six questions. **They are obligations, not headings.** Do not print them as labels. Do not answer them in this order if the material reads better another way. Do not skip one because it is awkward for your domain — an awkward one usually means the unit is mis-scoped.
+
+**Why does this exist?** The situation that makes the idea necessary — something goes wrong or is impossible without it. Concrete, and told as a situation rather than a definition. This comes before the mechanism: motivation first, always.
+
+**What is it?** The idea in plain language, as you would say it to a friend on the walk home. Then the precise version, with every term defined at first use. The plain version buys you the right to be dense.
+
+**Show me one.** The obligation most often failed, and the one that varies most by domain — read `domains.md` for what it means in yours. Whatever form it takes, it is specific, attributable, and walked through with intermediate state visible. An abstract description restated is not an example.
+
+**Where do people go wrong?** The wrong belief a learner actually forms here, written in their voice ("so it just caches everything, right?"). Acknowledge why it is a reasonable inference, then show the specific case where it produces a wrong prediction. A concrete counterexample beats a correction.
+
+**What did it cost?** Every choice bought something and sold something. Name both sides, and name what you would use instead and when that wins. At the top rung this extends to what breaks — at what scale, with what symptom, and which misleading symptom appears first.
+
+**Can I do it?** One question the reader can only answer if they actually got it — prediction, transfer, or diagnosis, never recall of the nearest paragraph. Fold the answer in `<details><summary>Answer</summary>…</details>` so looking is a choice.
+
+If a unit has no real trap and no real trade-off, it is probably not a unit — fold it into its neighbour.
+
+## Sizing
+
+The unit is a shaping guide, not a limit. A unit that needs nine minutes to be complete takes nine minutes. **Completeness against the brief always wins over the read-time target** — never cut coverage to hit five minutes, and never pad to reach it.
+
+A healthy chapter runs 8–14 units. Past that, see the halt condition in `SKILL.md`: the fix is a smaller chapter in `PLAN.md`, never a thinner one here.
+
+## Diagrams, tables, code
+
+Use a Mermaid block when the relationship is genuinely two-dimensional — state machines, request flows, dependency graphs, layered architectures, trees. Not for a linear list of steps. Follow every diagram with a sentence saying what to look at in it; a diagram nobody is told how to read is decoration.
+
+Tables are for comparisons across a fixed set of dimensions. They have no room for reasoning, so never explain in one.
+
+Code blocks are complete, language-tagged, and show their output. Comments explain *why*; the reader can already see *what*. Long code goes in pieces first, then once in full.
