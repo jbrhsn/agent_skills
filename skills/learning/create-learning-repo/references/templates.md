@@ -1,103 +1,148 @@
 # Stub templates
 
-These are the exact templates `scripts/scaffold.py` emits. Reproduce them verbatim if generating by hand. **Every prompt stays unanswered** — the value of the repo is that the user writes these.
+What `scripts/scaffold.py` emits. Reproduce it verbatim if generating by hand. **Every slot stays unanswered** — the brief says what to write and how deep; it never writes it.
 
-## Topic file — `<topic-slug>.md`
+Six files per chapter, the same six in every profile. Only `learning.md` is bespoke; the other five are one renderer with different labels, so read the shared parts once and the differences are small.
 
-```markdown
+## Shared by all six files
+
+**Frontmatter — identical key set everywhere**, so nothing has to be special-cased by tooling:
+
+```yaml
 ---
-title: {Topic}
-section: {Section}
-module: {Module}
-chapter: {Chapter}
-status: todo          # todo | learning | drafted | mastered
-confidence: 0         # 0-5, self-rated after a recall check
+title: "Builtin Collections"          # chapter name in learning.md; "Practice — Builtin Collections" elsewhere
+section: "Python Core"
+module: "Data Structures"
+chapter: "Builtin Collections"
+position: "1 of 2"                    # within the module, derived
+profile: "technical"
+tiers: ["Junior", "Senior", "Architect", "Expert"]
+serves: "The coding screen's first fifteen minutes."
+builds_on: []
+enables: ["Complexity and Trade-offs"]
+prev: ""                              # derived from plan order
+next: "Complexity and Trade-offs"
+status: "todo"                        # todo | learning | drafted | mastered
+tier_reached: "none"                  # none, or the top rung you could defend out loud
 tags: []
 ---
+```
 
-# {Topic}
+**Header — breadcrumb and arcs**, immediately under the H1:
 
-> **Why this matters:** <!-- Where does this show up in real systems, and what breaks without it? One or two sentences, written after you understand it. -->
+```markdown
+> Python Core › Data Structures · chapter 1 of 2
+> **Section arc:** Rebuild the fluency an interviewer assumes you never lost.
+> **Module arc:** From what the builtins are to why CPython made them that way.
+> **This chapter serves:** The coding screen's first fifteen minutes.
+```
 
-## Mental model
-<!-- Explain it in three sentences with no jargon. If you can't, you don't have it yet. -->
+**Nav footer**, after a `---` rule: sibling files as relative links, plus previous/next chapter pointing at their `learning.md`.
 
-## Core concepts
-<!-- The ideas you must recall cold. Bullets, not prose. -->
+```markdown
+**This chapter:** [examples](examples.md) · [practice](practice.md) · [interview](interview.md) · [thought leadership](thought_leadership.md) · [quizzies](quizzies.md)
+**Previous:** [Builtin Collections](../builtin-collections/learning.md)
+**Next:** [Pipeline Design Round](../../../02-interview-format/01-system-design/pipeline-design-round/learning.md)
+```
 
-## Hands-on
-<!-- Smallest runnable example. Then break it deliberately and record what happened. -->
+## `learning.md`
 
-## Gotchas and trade-offs
-<!-- Cost, limits, failure modes, and when NOT to use this. -->
+The only bespoke template: a full brief, then one section per tier rung.
 
-## Recall check
-<!-- Three questions you should answer without notes. Write them now, answer them later. -->
+```markdown
+## Brief
+
+<!-- Written by the planner from the approved plan. Read it before you write anything
+     below. Do not edit it while learning - amend PLAN.md and re-scaffold instead. -->
+
+**Purpose:** {chapter purpose}
+
+**Depth required:** {depth}
+
+**Style:** {style}
+
+**Assumes you already have:** {builds_on, joined}
+
+**Unblocks later:** {enables, joined}
+
+**Topics to cover:**
+
+1. **Dictionaries** — hashing, collision handling, insertion order, dict views
+   *Depth:* Explain the compact layout; benchmark it, don't just describe it.
+2. **Lists and arrays** — over-allocation, amortised append
+3. **Sets**
+
+## Junior — You use it correctly when someone tells you to.
+
+**Scope here:** Pick the right collection for a stated requirement.
+
+<!-- What each topic *is*, in your own words, plus the vocabulary you need to read anything
+     else about it. Write a three-sentence explanation with no jargon - if you can't, you
+     don't have it yet. -->
+
+## Senior — You choose it under real constraints and know what it costs.
+...
 
 ## Sources
+
 <!-- Links you actually read. -->
 ```
 
-## Chapter interview file — `interview.md`
+Optional brief lines (`Depth required`, `Style`, `Assumes`, `Unblocks`) are omitted entirely when the plan doesn't supply them, rather than emitted empty. `Scope here:` falls back to a prompt when the plan has no `tiers` entry for that rung.
+
+The four tier prompts are fixed and domain-neutral — foundation, working, systemic, frontier. See `profiles.md` for why one set covers every profile.
+
+## The five slot files
+
+Same skeleton, different labels:
 
 ```markdown
----
-title: Interview Questions — {Chapter}
-section: {Section}
-module: {Module}
-chapter: {Chapter}
-status: todo
----
+{frontmatter}
 
-# Interview Questions — {Chapter}
+# {File title} — {Chapter}
 
-<!-- Fill each slot with a question you'd actually be asked at your target level.
-     Mix recall, applied, and design/judgement questions. Answer in your own words. -->
+{breadcrumb block}
 
-## Q1.
-**Type:** <!-- recall | applied | design | debugging -->
-**Answer:**
-**Follow-up they'd ask:**
+**This file's job:** {framing, from the profile}
 
-## Q2.
+**Topics in scope:** {topic names, joined}
+
+**Depth target:** {chapter depth}
+
+## {Item} 1
+
+**{Slot}:**
+**{Slot}:** <!-- hint, when the slot has one -->
 ...
-```
-(Repeats to the configured count, default 12, clamped 10–15.)
 
-## Chapter thought-leadership file — `thought_leadership.md`
-
-```markdown
----
-title: Thought Leadership — {Chapter}
-section: {Section}
-module: {Module}
-chapter: {Chapter}
-status: todo
 ---
 
-# Thought Leadership — {Chapter}
-
-<!-- Ideas for public writing that demonstrate real understanding.
-     Ship only what you've actually done or verified. -->
-
-## Idea 1
-**Angle:** <!-- The non-obvious claim. If it's a summary of the docs, discard it. -->
-**Hook:**
-**Audience:**
-**Platform:** <!-- LinkedIn post | Medium article | conference talk | internal writeup -->
-**Evidence I have:** <!-- Benchmark, incident, code, or migration you can point to. -->
-**Status:** idea
+{nav footer}
 ```
-(Repeats to the configured count, default 4.)
+
+The two-line brief is derived — no extra authoring — so every file knows its own job without the planner writing five briefs.
+
+Default labels (the `technical` baseline; see `profiles.md` for per-profile overrides):
+
+| File | Item | Count | Slots |
+|---|---|---|---|
+| `examples.md` | Example | 3 | Source · Why it works · What to take from it · My annotation |
+| `practice.md` | Task | 4 | Task · Tier · What done looks like · What I actually did · What broke |
+| `interview.md` | Q | 12 | Type · Answer · Follow-up they'd ask |
+| `thought_leadership.md` | Idea | 4 | Angle · Hook · Audience · Platform · Evidence I have |
+| `quizzies.md` | Q | 10 | Question · My answer, from memory · Verified? · Revisit on |
+
+`examples.md` is what you study; `practice.md` is what you do. Keeping them apart is the point — a chapter with four examples and no tasks is a chapter you have read, not learned.
 
 ## Root files
 
-- `README.md` — goal, target, how the repo is organized, how to use the status fields.
-- `PLAN.md` — source of truth: goal, level, horizon, exclusions, assumptions, research notes, full tree.
-- `progress.md` — one table row per chapter (`Section | Module | Chapter | Topics | Status`) plus a topic-level checklist.
+- `README.md` — goal, the six-file layout, the profile's ladder with rung definitions, and how to use `status` / `tier_reached`.
+- `PLAN.md` — source of truth: goal, profile, ladder, exclusions, assumptions, research notes, full tree.
+- `progress.md` — one row per chapter (`Section | Module | Chapter | Topics | Tier reached | Status`) plus a per-chapter checklist of the six files, with topics nested in a `<details>` block under `learning.md`.
 
 ## Editing rules
 
-- Prompts are HTML comments so rendered Markdown stays clean.
-- Keep headings stable across files — the user greps and diffs them.
-- Never pre-fill `status` as anything but `todo`.
+- Prompts are HTML comments so rendered Markdown stays clean. Brief content is visible text — it is instruction the learner needs to see.
+- Keep headings and the frontmatter key set stable across files; the user greps and diffs them.
+- Never pre-fill `status` as anything but `todo`, or `tier_reached` as anything but `none`.
+- Never answer a slot, and never let the brief drift into being the content. "Explain the compact dict layout" is a brief; "the compact layout stores a sparse index array" is content, and belongs to the learner.

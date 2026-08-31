@@ -3,7 +3,7 @@
 Two paired skills for learning a subject properly: one builds the structure, the other fills it in.
 
 ```
-create-learning-repo/  -> goal        → folder tree of empty stubs + a plan
+create-learning-repo/  -> goal        → folder tree of briefed stubs + a plan
 author-chapter/        -> one stub    → a complete zero-to-mastery chapter
 ```
 
@@ -11,7 +11,7 @@ Use them in that order, or use `author-chapter` alone for a standalone module.
 
 | Skill | Fires when | Produces |
 |---|---|---|
-| [**create-learning-repo**](./create-learning-repo/README.md) | "I want to learn X", "structure my learning", "prep me for this interview", or you paste a syllabus and want it turned into files | Sections → modules → chapters → topics, one stub `.md` per topic, plus `interview.md` and `thought_leadership.md` per chapter. **Structure only — no content** |
+| [**create-learning-repo**](./create-learning-repo/README.md) | "I want to learn X", "structure my learning", "prep me for this interview", or you paste a syllabus and want it turned into files | Sections → modules → chapters, six briefed stubs per chapter (`learning`, `examples`, `practice`, `interview`, `thought_leadership`, `quizzies`) on a domain-matched tier ladder. **Structure and assignment only — no content** |
 | [**author-chapter**](./author-chapter/README.md) | "write a chapter on X", "teach me X properly", "deep dive on X" — any request whose deliverable is teaching material | One complete Markdown file taking a total beginner to architect-level on one topic |
 
 ## The split, and why
@@ -32,6 +32,6 @@ Or copy the folders into whichever skills directory your harness reads:
 cp -r create-learning-repo author-chapter ~/.claude/skills/
 ```
 
-`create-learning-repo` ships a stdlib-only `scripts/scaffold.py` that builds the tree from an approved `plan.yaml` — no third-party packages.
+`create-learning-repo` ships `scripts/scaffold.py`, which builds the tree from an approved `plan.yaml`. Run it with `uv run` (a PEP 723 header pulls in PyYAML); plain `python3` works too, and needs no third-party package at all if the plan is JSON.
 
 Both write into the repository you invoke them from, not into this one.

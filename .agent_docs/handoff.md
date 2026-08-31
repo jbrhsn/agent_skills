@@ -10,46 +10,36 @@ Sync model: scripts/common.py + per-platform scripts, dynamic discovery, PEP 723
 
 ## Cumulative Learnings
 
-- Shared helper module (`common.py`) + dynamic skill discovery (`Path.glob('**/SKILL.md')`) eliminates hardcoded lists and reduces multi-platform sync boilerplate by ~75% while keeping CLI backwards compatibility.
-- Compaction on every write (never append) keeps handoff.md read cost bounded even on 100+ session projects.
-- Claude Code on macOS uses `~/.claude/skills/{skill-name}/SKILL.md` for personal skills, with direct drop-in compatibility with OpenCode/Antigravity/Bob format.
-- Codex CLI and ChatGPT desktop harness discover user-wide skills at `~/.agents/skills/{skill-name}/` with identical drop-in layout (SKILL.md, references, assets, scripts); agent translation is omitted as Codex uses TOML layers rather than OpenCode Markdown frontmatter.
-- Evidence-backed ideation (velocity scoring, live sources) outperforms interview-driven brainstorm; users want signals, not questions.
-- LinkedIn algorithm mechanics (dwell time, saves, substantive comments) differ materially from generic engagement; algorithm-informed rules yield better results.
-- OpenCode plugin-provided custom tools are allow-by-default in every agent unless a permission explicitly denies them (verified empirically on 1.18.23) — a plugin's runtime file and its agent permission overlays must install atomically, or the orchestrator silently gains the tool.
-- OpenCode 1.18.23 reads the singular `agent/` and `plugin/` config paths, not the plural `agents/`/`plugins/` its own docs describe — verified empirically, don't 'fix' this.
-- Frontmatter deep-merge across plugin overlays must recurse via `dst.setdefault(key, {})`, not `dst.get(key)` — `.get` lets the first plugin's nested dict win wholesale, so conflict provenance is only recorded on the parent key and a second plugin silently overwrites the leaf with no error.
-- Claude Code subagent frontmatter (confirmed against official docs) has no per-command bash permission map like OpenCode's `permission.bash` patterns — required fields are just `name`+`description`; granular allow/ask/deny gates have to be expressed as a plain-language instruction in the body instead, not faked in frontmatter.
-- Any agent-file instruction that references a skill by literal repo path (e.g. `skills/development/lean-coder/SKILL.md`) breaks once the file is synced to another platform/project — skills flatten to `skills/{name}/` at every destination (no category subfolder) and live in a completely different tree than the target project. Invoke skills by name, never by hardcoded path, in anything that gets synced out.
-- Antigravity has no per-mode agent-file concept — one flat `AGENTS.md` at `~/.gemini/config/AGENTS.md` governs every agent session in the workspace; IBM Bob has real subagents/custom-modes but no publicly documented config file format to target.
-- .gitignore line 18 is a bare `.*`, which already ignores every dotfile including `.DS_Store` — no separate entry is needed, and none is tracked. `.agent_docs/handoff.md` is nonetheless committed despite `.agent_docs/` being listed, because gitignore has no effect on already-tracked files. Verify with `git check-ignore -v` before re-flagging either as a hygiene gap.
-- The destination/env-var mapping is duplicated across four docs — root `README.md`, `AGENTS.md` §5-6, `scripts/README.md`, and `agents/README.md`. Adding or changing a sync target means editing all four or the docs silently drift; the 2026-08-26 pass found three of them still claiming agents sync to OpenCode only.
-- Repo-only files can live safely at `skills/{category}/` level (category READMEs, notes) — discovery globs `**/SKILL.md` and copies only the containing skill directory, so anything outside a skill dir is never synced anywhere. Verified against a full `--dry-run`.
-- All 11 skills require exact 1:1 matching between folder name and YAML frontmatter `name:` (e.g., `medium-article-writer`) to ensure multi-platform discovery and invocation consistency.
-- `sync_all.py --verify` performs full SHA-256 tree hashing, file-by-file parity checking, and extra/orphaned directory detection across all destinations.
-- When adding new reference files to project-planner, split by concern to keep individual files under ~170 lines — the Stage 8 load already pulls 4 files together; bloating any one of them wastes context. Extracted agent-execution material into `execution-spec.md` (69 lines) to avoid plan-spec.md growing to ~200 lines.
+- create-learning-repo redesign (2026-08-31): a chapter is now always six fixed files (learning, examples, practice, interview, thought_leadership, quizzies) - topics live as sections inside learning.md, not as separate per-topic files. One file per topic was the root cause of the original complaint (chapters whose parts never referred to each other); collapsing to one tiered narrative file forces cohesion.
+- create-learning-repo profiles are pure data, not templates: PROFILES dict in scaffold.py holds only a tier ladder + label overrides for the five slot files. Only two renderers exist (learning_stub, slot_stub) - adding a domain is a dict entry, never a new template. A `custom` profile lets the plan declare its own 2-4 tiers with no code change.
+- create-learning-repo cohesion fields: serves/builds_on/enables are authored by the planner; position/prev/next are derived free from plan order. All six chapter files share one frontmatter key set so nothing is special-cased. This is the actual fix for 'topics don't correlate' - not just fewer files, but an explicit dependency graph plus a brief (purpose/depth/style) that scaffold.py refuses to omit (missing `purpose` is a hard validation error; missing depth/style/serves warn as 'thin briefs').
+- sync_skills() in scripts/common.py rmtree's each destination skill directory before copytree - confirmed empirically that a redesign changing file names/counts (9 files -> 10) cannot leave stale files behind after a normal sync_all.py run; no extra cleanup step is ever needed for a skill-shape change.
 
 ## Last Session
 
-- Evaluated dev skills (lean-coder, project-planner) and implemented 7 improvements across references and templates.
-- Expanded lean-coder production-grade guide with 6 new operational hardening sections.
-- Created project-planner execution-spec.md and updated plan templates with per-unit execution contracts.
-- Verified all 11 skills across platforms with SHA-256 parity and committed changes (commit 8cb3d30).
+- Added Codex/ChatGPT desktop harness skill sync support (sync_codex_skills.py, --codex-only, docs) and committed (8cb3d30, d1a1b95) - later pushed.
+- Verified all 11 skills across all 5 platforms with SHA-256 parity.
 
 ## Current Session
 
-**Date:** 2026-08-28
-**Focus:** Added Codex and ChatGPT desktop harness skill sync support and committed changes
+**Date:** 2026-08-31
+**Focus:** Redesigned skills/learning/create-learning-repo: fixed six-file chapter layout, domain profiles (technical/craft/practice/exam/custom), and plan-driven briefs replacing static stubs
 
 ### Done
-- Created `scripts/sync_codex_skills.py` targeting `~/.agents/skills/` with `--verify` and `--dry-run` support.
-- Integrated `codex` target into `scripts/sync_all.py` (`--codex-only` and master sync).
-- Updated `AGENTS.md`, `README.md`, and `scripts/README.md` to document the 5 supported harnesses and `CODEX_SKILLS` env var.
-- Verified dry-run sync across all 5 targets.
-- Committed all changes to `main` (commit `d1a1b95`).
+- Rewrote scripts/scaffold.py end-to-end: PROFILES dict, two generic renderers (learning_stub, slot_stub), brief_block/brief_lite rendering, derived cohesion fields (position/prev/next), thin-brief validation warnings, PEP 723 header for `uv run`
+- New references/profiles.md: four presets (technical, craft, practice, exam) plus custom, tier-ladder semantics, how to choose one
+- Rewrote references/plan-schema.md, templates.md, SKILL.md, interview.md, gap-analysis.md, research.md, bash-fallback.md, and the skill's README.md for the new file set and brief fields
+- Fixed 4 stale descriptions of this skill in sibling docs (root README.md, skills/learning/README.md) that still described the old one-file-per-topic layout
+- Smoke-tested all 4 presets + custom via dry-run and real scaffolds, including tier_count trimming, per-file count overrides, and all three validation error paths
+- Ran uv run scripts/sync_all.py --verify: synced to all 5 platforms (OpenCode, Bob, Antigravity, Claude Code, Codex/ChatGPT) at 100% SHA-256 parity; grepped all 5 destinations for old-version markers (found none) and ran the synced copy end-to-end from ~/.claude/skills to confirm it scaffolds correctly
 
 ### Decisions
-- Codex/ChatGPT sync targets skills only (~/.agents/skills/) without translating Markdown agent files, as Codex uses TOML layers rather than OpenCode Markdown frontmatter.
+- Chosen design: Option C (thin profiles + agent-authored per-chapter brief) over A (full profile packs per domain) and B (no profiles, everything agent-parameterized) - user approved this before implementation
+- Final file-set decision (after a second user round) diverged from the very first draft: filenames stay identical across every profile (interview.md, not per-profile names) - profiles only change the tier ladder and in-file labels/framing, never filenames, because stable filenames keep progress.md/greps/author-chapter's contract uniform
+- thought_leadership.md is still emitted for the exam profile (shrunk to 2 slots, marked optional) rather than dropped, to keep the six-file set truly universal across profiles
+- author-chapter was deliberately not touched this session - its input contract now changes (it should consume the new brief_block as its assignment) and was flagged as the natural next piece of work
 
 ### Open Items
-- [ ] Push local commits (8cb3d30, d1a1b95) to remote repository
+- [ ] All create-learning-repo changes are uncommitted in git (11 modified files + new references/profiles.md) - user has not yet asked to commit
+- [ ] author-chapter not yet updated to read/consume the new learning.md brief format from create-learning-repo
+- [ ] User said 'the two skills are independent, but complementing each other' and named author-chapter as the second target for this same improvement pass - not started

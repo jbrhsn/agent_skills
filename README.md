@@ -41,7 +41,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Goog
 
 | Skill | What it does |
 |---|---|
-| [**create-learning-repo**](./skills/learning/create-learning-repo/README.md) | Turn a learning goal into a folder structure of blank stubs — interviews, researches gaps, drafts a plan (sections → modules → chapters → topics), shows the tree for approval, then scaffolds. Structure only, no content |
+| [**create-learning-repo**](./skills/learning/create-learning-repo/README.md) | Turn a learning goal into a folder structure of briefed stubs — interviews, researches gaps, drafts a plan (sections → modules → chapters), shows the tree for approval, then scaffolds six files per chapter on a domain-matched tier ladder. Structure and assignment only, no content |
 | [**author-chapter**](./skills/learning/author-chapter/README.md) | Populate one Markdown file that teaches a topic from zero to architect level — prerequisites, worked examples, failure modes, misconceptions, Socratic checkpoints |
 
 ### [Development](./skills/development/)
