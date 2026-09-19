@@ -17,7 +17,7 @@ Short, medium-length, and long are editorial descriptions, not fixed character r
 
 Folder workflows produce `x_post.md` or `x_thread.md`, with optional matching notes when sources, assumptions, or editorial decisions merit them. Thread delivery labels identify each post and are excluded from the text to publish. Explicit paths, distinct variant names, and inline-only requests are supported. Original sources and unrelated edits are preserved.
 
-The skill works without any other skill, strategy document, login, or analytics. It can use an optional `x_strategy.md`, idea-research results, keyword research, LinkedIn or Medium drafts, and visual plans. [Handoff guidance](references/handoffs.md) keeps that context optional and makes useful editorial notes available to later workflows.
+The skill works without any other skill, strategy document, login, or analytics. It can use a selected brief from `content_strategy.md`, an optional `x_strategy.md`, idea-research results, keyword research, LinkedIn or Medium drafts, and visual plans. [Handoff guidance](references/handoffs.md) keeps that context optional and makes useful editorial notes available to later workflows.
 
 There are no fixed hook formulas, thread sizes, approval phases, or performance promises. Exact X fit requires a compatible counting method or composer check; an approximate count is labeled. Writing does not authorize publishing, scheduling, account changes, or interaction with other accounts.
 

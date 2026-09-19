@@ -1,10 +1,11 @@
 # Content Creation Skills
 
-Six complementary skills support idea research, discovery, writing, and visual planning. Use the skills needed for the request; they are not a mandatory pipeline.
+Seven complementary skills support idea research, strategy, discovery, writing, and visual planning. Use the skills needed for the request; they are not a mandatory pipeline.
 
 | Skill | Use for | Default artifact |
 |---|---|---|
 | [idea-research](Common/idea-research/README.md) | Research and prioritize angles for an audience/niche | Evidence-backed ideas; optional source scaffolds |
+| [content-strategy](Common/content-strategy/README.md) | Integrated idea research and weekly/monthly planning for one or multiple platforms | content_strategy.md; optional content_research.md |
 | [keyword-research](Common/keyword-research/README.md) | Search intent, query phrasing, and discovery metadata | kresearch.md |
 | [linkedin-post-writer](Linkedin/linkedin-post-writer/README.md) | LinkedIn drafting or revision | linkedin_post.md and useful posting notes |
 | [x-post-writer](X/x-post-writer/README.md) | Short, medium-length, and long X posts, plus connected threads | x_post.md or x_thread.md; useful writing notes |
@@ -21,7 +22,9 @@ References provide adaptable guidance rather than universal word counts, visual 
 
 The writing and prompt workflows prepare artifacts. They do not publish, schedule, submit, or send messages automatically. Actual rendering can continue when requested using the appropriate available tools.
 
-The X writer combines single posts and threads in one independent skill. An optional strategy brief such as `x_strategy.md`, research output, or an existing LinkedIn/Medium draft can inform its work; none is required. Short, medium-length, and long describe editorial depth rather than platform character bands. Its [handoff conventions](X/x-post-writer/references/handoffs.md) explain how optional context and writing notes support collaboration without triggering additional workflows.
+The common content-strategy skill includes idea discovery and prioritization directly; idea-research remains available for focused discovery and optional fetchers. Plans work without writer skills, and individual writer briefs work without a full strategy document. Planning does not automatically launch drafting or publishing.
+
+The X writer combines single posts and threads in one independent skill. An optional strategy brief such as `content_strategy.md` or `x_strategy.md`, research output, or an existing LinkedIn/Medium draft can inform its work; none is required. Short, medium-length, and long describe editorial depth rather than platform character bands. Its [handoff conventions](X/x-post-writer/references/handoffs.md) explain how optional context and writing notes support collaboration without triggering additional workflows.
 
 ## Helpers and validation
 

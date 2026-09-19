@@ -38,7 +38,7 @@ If an essential claim cannot be verified, make its unresolved status visible and
 
 ## Use optional context
 
-Read [handoff conventions](references/handoffs.md) when strategy, research, another writer's artifact, or a multi-piece workflow is in scope. Relevant supplied or clearly associated `x_strategy.md`, `kresearch.md`, and previous drafts can improve the piece but never become mandatory prerequisites. Follow the current request when it overrides older context. Use other skills only if their work is needed and available; do not automatically launch research, strategy creation, or a whole content pipeline.
+Read [handoff conventions](references/handoffs.md) when strategy, research, another writer's artifact, or a multi-piece workflow is in scope. Relevant supplied or clearly associated `content_strategy.md`, `x_strategy.md`, `kresearch.md`, and previous drafts can improve the piece but never become mandatory prerequisites. Follow the current request when it overrides older context. Use other skills only if their work is needed and available; do not automatically launch research, strategy creation, or a whole content pipeline.
 
 ## Check and deliver
 

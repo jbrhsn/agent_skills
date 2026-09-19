@@ -6,7 +6,7 @@
 
 Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Google Antigravity, and IBM Bob. One repo is the source of truth; sync scripts push it to every platform.
 
-**12 skills** · **3 base agents** · **1 opt-in plugin**
+**13 skills** · **3 base agents** · **1 opt-in plugin**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
@@ -60,6 +60,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Goog
 | Skill | What it does |
 |---|---|
 | [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Research and prioritize audience-relevant angles with traceable evidence and optional source scaffolds |
+| [**content-strategy**](./skills/content-creation/Common/content-strategy/README.md) | Research ideas and build feasible weekly or monthly plans for LinkedIn, Medium, X, or multiple platforms |
 | [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Search intent and discovery phrasing for drafts or topics, with transparent provenance and heuristic limitations |
 | [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Draft or revise LinkedIn posts in the author's voice, with factual support and flexible editorial choices |
 | [**x-post-writer**](./skills/content-creation/X/x-post-writer/README.md) | Draft, revise, or adapt short, medium-length, and long X posts and threads, with optional strategy context and platform fit checks |

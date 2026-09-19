@@ -8,7 +8,7 @@ Use relevant material supplied by the user or clearly associated with the curren
 
 | Optional input | Useful context | Boundary |
 |---|---|---|
-| `x_strategy.md` or a strategy brief in any format | Audience, purpose, positioning, pillars, voice, editorial constraints | Current user instructions take precedence; surface material conflicts without rewriting the strategy |
+| `content_strategy.md`, `x_strategy.md`, or a strategy brief in any format | Selected item, audience, purpose, positioning, pillars, voice, editorial constraints | Current user instructions take precedence; surface material conflicts without rewriting the strategy |
 | Idea-research output | Angle, audience problem, links, dates, evidence gaps | Popularity and heuristic scores do not establish truth or expected reach |
 | `kresearch.md` | Reader vocabulary, entities, discovery intent | Use relevant terms naturally; tags and keyword scores are not mandatory writing targets |
 | LinkedIn or Medium draft | Existing argument, evidence, first-person material, useful examples | Adapt within scope; keep the source intact and do not treat every claim as verified |

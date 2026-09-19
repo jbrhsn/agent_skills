@@ -12,7 +12,7 @@ Working guide for agents operating in this repo. Committed — keep it accurate.
 
 ## 2. Architecture
 
-- **12 skills** in 4 categories: agent_session_management (2), learning (2), development (2), content-creation (6)
+- **13 skills** in 4 categories: agent_session_management (2), learning (2), development (2), content-creation (7)
 - **3 base agent definitions**: `agents/orchestrator_mode_agents/` holds `orchestrator.md` (primary, plans & delegates) and `executor.md` (subagent, implements & verifies); `agents/ask_mode_agents/` holds `ask.md` (primary, read-only)
 - **1 optional plugin** in `plugins/`: `search-internet` (OpenCode only, opt-in via `--plugins`)
 - **Sync scripts** in `scripts/`: master `sync_all.py`, per-platform scripts, plus `plugins.py` (composition engine) and `common.py` (shared helpers)
