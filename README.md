@@ -6,7 +6,7 @@
 
 Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Google Antigravity, and IBM Bob. One repo is the source of truth; sync scripts push it to every platform.
 
-**11 skills** · **3 base agents** · **1 opt-in plugin**
+**12 skills** · **3 base agents** · **1 opt-in plugin**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
@@ -62,6 +62,7 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Goog
 | [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Research and prioritize audience-relevant angles with traceable evidence and optional source scaffolds |
 | [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Search intent and discovery phrasing for drafts or topics, with transparent provenance and heuristic limitations |
 | [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Draft or revise LinkedIn posts in the author's voice, with factual support and flexible editorial choices |
+| [**x-post-writer**](./skills/content-creation/X/x-post-writer/README.md) | Draft, revise, or adapt short, medium-length, and long X posts and threads, with optional strategy context and platform fit checks |
 | [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Develop and package long-form articles with coherent structure, source fidelity, and current publication checks |
 | [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/README.md) | Plan useful article visuals and prompts, distinguishing editorial art from exact diagrams, screenshots, and data |
 

@@ -1,12 +1,13 @@
 # Content Creation Skills
 
-Five complementary skills support idea research, discovery, writing, and visual planning. Use the skills needed for the request; they are not a mandatory pipeline.
+Six complementary skills support idea research, discovery, writing, and visual planning. Use the skills needed for the request; they are not a mandatory pipeline.
 
 | Skill | Use for | Default artifact |
 |---|---|---|
 | [idea-research](Common/idea-research/README.md) | Research and prioritize angles for an audience/niche | Evidence-backed ideas; optional source scaffolds |
 | [keyword-research](Common/keyword-research/README.md) | Search intent, query phrasing, and discovery metadata | kresearch.md |
 | [linkedin-post-writer](Linkedin/linkedin-post-writer/README.md) | LinkedIn drafting or revision | linkedin_post.md and useful posting notes |
+| [x-post-writer](X/x-post-writer/README.md) | Short, medium-length, and long X posts, plus connected threads | x_post.md or x_thread.md; useful writing notes |
 | [medium-article-writer](Medium/medium-article-writer/README.md) | Long-form drafting, revision, and packaging | medium_article.md, optional brief/publishing notes |
 | [medium-image-prompts](Medium/medium-image-prompts/README.md) | Article visual directions and prompt text | medium_image_prompts.md |
 
@@ -19,6 +20,8 @@ Ordinary drafting and revision proceed without repeated approval gates. Clarify 
 References provide adaptable guidance rather than universal word counts, visual styles, or algorithm formulas. Platform claims need current evidence. Research scores describe heuristic ordering/provenance; they do not predict reach or measure search volume.
 
 The writing and prompt workflows prepare artifacts. They do not publish, schedule, submit, or send messages automatically. Actual rendering can continue when requested using the appropriate available tools.
+
+The X writer combines single posts and threads in one independent skill. An optional strategy brief such as `x_strategy.md`, research output, or an existing LinkedIn/Medium draft can inform its work; none is required. Short, medium-length, and long describe editorial depth rather than platform character bands. Its [handoff conventions](X/x-post-writer/references/handoffs.md) explain how optional context and writing notes support collaboration without triggering additional workflows.
 
 ## Helpers and validation
 
