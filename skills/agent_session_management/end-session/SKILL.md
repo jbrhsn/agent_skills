@@ -1,77 +1,55 @@
 ---
 name: end-session
-description: Capture the current session into a compact handoff at .agent_docs/handoff.md so the next session resumes instantly with no re-explaining. Use this skill whenever the user signals work is stopping or should be checkpointed — "done for today", "wrap up", "end session", "save context", "checkpoint this", "update the handoff", "I'll continue tomorrow" — even if they never say "handoff" or name this skill. Also use before a context compaction or window reset, and whenever a long working session is about to be interrupted.
+description: Save compact project memory, current work, and two previous sessions in .agent_docs/handoff.md and commit session changes to Git when the user wraps up, requests a checkpoint, or context is about to reset.
 ---
 
 # End Session
 
-Write everything worth carrying forward into `.agent_docs/handoff.md`, then stop.
+Keep `.agent_docs/handoff.md` useful as memory for the whole project, including work outside the latest task. Adapt the detail to what another agent needs to continue accurately. A checkpoint saves context and then continues authorized work; stop only when the user is ending work.
 
-The reason this skill exists is that handoff files rot: appended to every session, they grow until reading them costs more than the context they restore. So this file is **compacted on every write, never appended to**. Full detail is not lost — it is moved to `.agent_docs/archive/` where it costs nothing until someone deliberately looks.
+## Python execution
 
-## The four sections
+Run Python scripts with `uv run`, including these helpers and project Python commands. Check `uv --version` before first use if availability is unknown. If uv is missing, explain that this workflow requires it, ask the user to confirm installation, and wait. After approval, install uv using the official method appropriate to the system and verify `uv --version` before continuing. Existing explicit installation approval counts; do not ask again. If installation is declined or unavailable, use file tools for the handoff and continue independent work; do not silently substitute bare Python.
 
-`handoff.md` always has exactly these, in this order (see `assets/handoff_template.md`):
+## Memory to retain
 
-| Section | Lifetime | Content |
-|---|---|---|
-| **Project Snapshot** | Rewritten only when it changes | What the project is, stack, architecture, how to run and test it |
-| **Cumulative Learnings** | Forever, deduped | Durable non-obvious facts: gotchas, constraints, conventions, dead ends |
-| **Last Session** | Overwritten each session | 3-5 compressed bullets of the session before this one |
-| **Current Session** | Archived, then replaced | Full detail of the session that just ended, plus open items |
+Read the existing handoff before updating it. Use [assets/handoff_template.md](assets/handoff_template.md) as a starting shape. The helper uses these headings; they are a format contract, not a limit on what the agent can remember.
 
-## Workflow
+| Section | Content |
+|---|---|
+| Project Snapshot | Purpose, scope, architecture, important paths, current milestones, and run/test entry points; link to authoritative project docs for detail |
+| Cumulative Learnings | Durable decisions with reasons, user preferences relevant to the project, constraints, pitfalls, rejected approaches and why; merge and correct rather than accumulate duplicates |
+| Previous Session | Concrete summary of the second session before the current one |
+| Last Session | Concrete summary of the session immediately before the current one |
+| Current Session | Latest work, decisions, validation results, and all remaining project work needed to resume |
 
-**1. Read the existing handoff.** `cat .agent_docs/handoff.md` (or use init-session's reader). If it does not exist, this is session one — skip to step 3 and write a Snapshot.
+This means current work **plus two previous sessions**, not two writes. Preserve the window during repeated checkpoints and context compaction in the same session. At the next distinct session, rotate it once. Do not infer session boundaries from dates alone.
 
-**2. Compress the outgoing Current Session into 3-5 bullets.** These become the new **Last Session**; the previous Last Session is discarded, not stacked. Compress toward outcomes and unresolved threads, not activity logs. "Refactored auth to use middleware; token refresh still unverified" earns its place. "Discussed options, tried some things" does not — if a bullet would not change what the next session does, drop it.
+Aim for roughly 1,000–2,000 tokens for the whole handoff as a flexible starting point, not a cutoff. Prefer concrete paths, outcomes, decisions and reasons, exact useful commands, test results, and next actions over transcripts or repeated descriptions. Keep enough detail to distinguish tested, untested, failed, blocked, abandoned, and completed work. Carry unresolved work across sessions until resolved or explicitly dropped, even when unrelated to today's focus. Do not record secrets.
 
-**3. Decide what is a durable learning.** This is the judgment call that makes or breaks the file. Promote a fact to **Cumulative Learnings** only if it is (a) still true next month, (b) not obvious from reading the code, and (c) would cost real time to rediscover.
+Keep project memory current: promote durable facts from older sessions before they rotate out, remove obsolete facts, and link to detailed docs or archives when needed. Avoid copying instruction files already maintained elsewhere. A compact memory is an index and decision record for the project, not a replacement for all its source files.
 
-Good: `Vitest needs --pool=forks here; the default worker pool deadlocks on the DB mock.`
+## Write and verify
 
-Good: `Tried moving parsing into the worker — blocked by the SDK's sync-only file handles.`
-
-Bad: `Fixed the login bug.` (a session event, not a durable fact)
-
-Bad: `The project uses TypeScript.` (obvious from the repo — belongs in Snapshot at most)
-
-Then **merge semantically against the existing list** — if a new learning refines an old one, rewrite that line rather than adding a near-duplicate. This dedup is why the file stays bounded, and it is the part no script can do.
-
-**4. Write the payload and run the script.** Build JSON and pass it to the writer, which archives the outgoing session and re-emits all four sections in fixed order:
+Use the helper at this skill's installed location, with the target project passed explicitly. Paths below are placeholders; resolve them from the loaded skill location, not from the target project's `scripts/` directory.
 
 ```bash
-python scripts/handoff_write.py --input /tmp/handoff_payload.json
+uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /tmp/handoff_payload.json --dry-run
+uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /tmp/handoff_payload.json
 ```
 
-```json
-{
-  "snapshot": "FastAPI service for invoice parsing. Postgres via SQLAlchemy.\nRun: `make dev`. Test: `pytest -q`.",
-  "learnings": [
-    "Vitest needs --pool=forks; default worker pool deadlocks on the DB mock.",
-    "Invoice PDFs from vendor B are scanned — OCR path is mandatory, not optional."
-  ],
-  "last_session": [
-    "Wired up the OCR fallback; vendor B invoices now parse.",
-    "Left the retry backoff hardcoded — needs config."
-  ],
-  "current_session": {
-    "date": "2026-08-23",
-    "focus": "Split the parser into per-vendor strategies",
-    "done": ["Extracted VendorAStrategy and VendorBStrategy", "Added fixtures for both"],
-    "decisions": ["Strategy chosen by issuer VAT number, not filename — filenames are unreliable"],
-    "open_items": [
-      {"text": "Vendor C strategy not started", "done": false},
-      {"text": "Retry backoff still hardcoded to 3s", "done": false}
-    ]
-  }
-}
-```
+See [README.md](README.md) for the payload schema. Supply compact `last_session` and `previous_session` summaries when useful; omitted summaries rotate existing concrete records automatically. On subsequent writes for the same session, add `--checkpoint` to both commands. Include the whole updated current session, not just the checkpoint delta. Omitted snapshot/learnings are preserved; supplied learnings replace that section, so merge existing knowledge first.
 
-Omit `snapshot` or `learnings` to preserve what is already on disk. Always supply `last_session` — the script warns if you skip it, because that silently breaks the rolling window. Use `--dry-run` to preview without touching anything.
+The helper archives the entire prior handoff before replacing it. Archives contain previously recorded detail, not an automatic transcript. Check the preview for lost project facts or open work, then write and verify the result. Direct file editing is also appropriate when the helper is unavailable; preserve equivalent memory and archive behavior.
 
-**5. Confirm briefly.** State where it was written, what was archived, and how many open items carried forward. Two lines. Do not re-print the file the user just watched you write.
+## Commit session changes
 
-## Keep it honest
+After saving memory, create a local Git commit for the session's changes, including at checkpoints, unless the user requested a memory-only save or no commit. This is part of the skill workflow; proceed without a separate confirmation when existing instructions allow it. The handoff helper only writes memory; the agent handles Git.
 
-Record open items as they actually are, including things that were abandoned or that failed. A handoff that reads as uniformly successful is worse than none, because the next session inherits false confidence. If something was left broken, say so plainly in the open items.
+Inspect the repository status and staged and unstaged diffs to identify the session's work. Stage the relevant files or hunks and review the exact commit contents. Preserve unrelated edits and existing staging; do not sweep them into the commit. If unrelated staged changes exist, use a scoped commit that leaves them staged. Ask only if ownership or scope cannot be resolved from the session context.
+
+Include the handoff and archives when project conventions track them. Respect ignore rules; do not force-add `.agent_docs/` or change ignore rules just to create a commit. Commit the project changes even when memory stays local. Use a concise message describing the actual outcome; identify incomplete work as a checkpoint and retain its outstanding checks in the handoff. Run relevant checks as needed, reusing still-valid session results.
+
+Verify the commit succeeded and inspect the remaining working tree. Do not push or amend an existing commit unless separately requested. If there are no eligible changes, skip the empty commit. Outside a Git repository, save memory and report that no commit was possible; do not initialize a repository automatically. If a hook, missing identity, conflict, or permission blocks the commit, retain the saved handoff and report the blocker without bypassing hooks or changing Git identity.
+
+Report the handoff path, commit hash and summary (or why no commit was created), and any material unresolved work. Avoid rewriting a tracked handoff solely to include its own commit hash, which would leave another uncommitted change.

@@ -1,74 +1,24 @@
 # Agent Session Skills
 
-Two paired skills that carry project context across agent sessions in OpenCode, Claude Code, Codex/ChatGPT, Antigravity, IBM Bob, or any harness that loads `SKILL.md` files.
+Two paired skills preserve compact project memory across agent sessions and context resets.
 
-```
-end-session/    -> writes .agent_docs/handoff.md when you stop work
-init-session/   -> reads it back when you start
-```
-
-| Skill | Fires when | Produces |
-|---|---|---|
-| [**init-session**](./init-session/README.md) | "catch me up", "resume", "where did we leave this", or you start giving instructions that assume context the agent doesn't have | A five-second recap: what last session ended with, open items verbatim, and only the learnings that bear on them |
-| [**end-session**](./end-session/README.md) | "wrap up", "done for today", "checkpoint this", or a context compaction is about to land | `.agent_docs/handoff.md`, compacted not appended, plus the outgoing session archived under `.agent_docs/archive/` |
-
-## Install
-
-From this repo, the sync script handles every platform:
-
-```bash
-uv run scripts/sync_all.py            # every skill in the repo, all five platforms
-```
-
-Or copy both folders into wherever your harness looks for skills:
-
-| Harness | Path |
+| Skill | Purpose |
 |---|---|
-| Claude Code | `~/.claude/skills/` (per-repo: `<repo>/.claude/skills/`) |
-| OpenCode | `~/.config/opencode/skills/` (per-repo: `<repo>/.opencode/skills/`) |
-| Codex / ChatGPT | `~/.agents/skills/` |
-| Antigravity | `~/.gemini/config/skills/` |
-| IBM Bob | `~/.bob/skills/` |
+| [init-session](init-session/README.md) | Restore project facts, recent decisions, verification and open work; continue the user's task |
+| [end-session](end-session/README.md) | Save durable project memory, the current session and two previous sessions; create a local Git commit for session changes |
+
+`.agent_docs/handoff.md` is a compact, maintained memory for the entire project. It holds purpose, architecture, important paths, durable decisions and lessons, current project-wide open work, and concrete recent session records. Older recorded snapshots live in `.agent_docs/archive/` and are read only when needed. This preserves useful context without reloading a growing transcript every session.
+
+The agent selects and deduplicates memory; the helpers handle reading, rotation, archiving and writing. Roughly 1,000–2,000 tokens is a useful starting target, not a limit that discards important context. Repeated checkpoints preserve the two previous sessions. Existing four-section handoffs are compatible with the new five-section format.
+
+After saving memory, end-session commits relevant session changes, including at checkpoints, unless the user requests otherwise. The agent handles Git separately from the memory helper, respects ignored memory and unrelated edits, and reports the commit hash or blocker. It does not push automatically.
+
+All Python scripts run through `uv run`. If uv is missing, the agent asks for confirmation before installation, verifies the installation, then proceeds. It can use file tools while installation is pending or declined. Helpers require Python 3.8+ and only the standard library.
+
+Edit canonical skills here and preview distribution with:
 
 ```bash
-cp -r end-session init-session ~/.claude/skills/
+uv run scripts/sync_all.py --dry-run
 ```
 
-Requires Python 3.8+. No third-party packages.
-
-## What gets created in your repo
-
-```
-.agent_docs/
-├── handoff.md              # compacted every write — this is what gets read
-└── archive/
-    └── session-<ts>.md     # full detail of every past session
-```
-
-## The design in one line
-
-`handoff.md` is **compacted on every write, never appended to** — Snapshot + deduped Learnings + a 3-5 bullet Last Session + the current session — so its read cost stays roughly flat no matter how many sessions a project accumulates. Everything trimmed goes to `archive/`, where it costs nothing until you deliberately open it.
-
-`init-session` reports which of `AGENTS.md` / `CLAUDE.md` exist but does **not** print them, since Claude Code already auto-loads `CLAUDE.md`; the agent reads them only when they are not already in context.
-
-## Committing
-
-Commit `.agent_docs/handoff.md` if you want handoffs shared across machines or teammates. To keep them local, add to `.gitignore`:
-
-```
-.agent_docs/
-```
-
-Committing `handoff.md` while ignoring `archive/` is a reasonable middle ground.
-
-## Scripts
-
-Both are usable standalone:
-
-```bash
-python init-session/scripts/handoff_read.py --format text     # human-readable recap
-python init-session/scripts/handoff_read.py --open-only       # just the next tasks
-python end-session/scripts/handoff_write.py --input p.json --dry-run
-```
-
-They locate the repo root by walking up for `.git` or `.agent_docs`, so they work from any subdirectory. A missing handoff exits 0 — a first session is not an error.
+Use the repository's sync workflow to install into supported harnesses. Resolve helper paths from the installed skill directory and use `--repo-root` to select the target project. Keep or share `.agent_docs/` according to project conventions; neither skill changes ignore rules automatically.

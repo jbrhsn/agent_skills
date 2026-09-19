@@ -1,8 +1,8 @@
 # Bash fallback
 
-Use only when Python is unavailable. Slower and much easier to get wrong — prefer `uv run scripts/scaffold.py`, and note that plain `python3` works too if `uv` is missing (convert the plan to JSON if PyYAML isn't installed).
+Use when shell creation is useful and the standard helper is unavailable or unsuitable. For the standard layout, prefer `uv run scripts/scaffold.py`, and note that plain `python3` works too if `uv` is missing (convert the plan to JSON if PyYAML isn't installed).
 
-## Rules to preserve
+## Standard-layout compatibility
 
 - Sections and modules get zero-padded numeric prefixes (`01-`); module numbering restarts inside each section. Chapters get plain slugs.
 - Slugify: lowercase, non-alphanumeric → `-`, collapse repeats, trim.
@@ -10,7 +10,7 @@ Use only when Python is unavailable. Slower and much easier to get wrong — pre
 - All six carry the **same frontmatter key set** — see `references/templates.md`. Getting this wrong is the most likely failure of a hand-run; the keys are what make the repo navigable.
 - `prev`/`next` follow plan order across module and section boundaries, not just within a module.
 - Root gets `README.md`, `PLAN.md`, `progress.md`.
-- Never overwrite an existing file without asking.
+- Inspect existing files and preserve learner work. Make authorized targeted edits; ask only when replacement would exceed the request or discard work without authorization.
 
 ## Pattern
 
@@ -52,8 +52,7 @@ tags: []
 
 ## Brief
 
-<!-- Written by the planner from the approved plan. Read it before you write anything
-     below. Do not edit it while learning - amend PLAN.md and re-scaffold instead. -->
+<!-- Chapter assignment from the plan. Adapt when scope changes, keeping the machine-readable plan and PLAN.md consistent. Preserve existing learner work. -->
 
 **Purpose:** Interviewers open with collections because the answers reveal whether you think about memory or only about syntax.
 
@@ -68,9 +67,7 @@ tags: []
 
 **Scope here:** Pick the right collection for a stated requirement.
 
-<!-- What each topic *is*, in your own words, plus the vocabulary you need to read anything
-     else about it. Write a three-sentence explanation with no jargon - if you can't, you
-     don't have it yet. -->
+<!-- What each topic *is*, in your own words, plus the vocabulary you need to read anything else about it. A short plain-language explanation is a useful starting point. -->
 
 ## Sources
 
@@ -78,7 +75,7 @@ tags: []
 EOF
 ```
 
-The five slot files share one shape, so generate them in a loop rather than by hand. Slots and counts per file are in `references/templates.md`:
+The following illustrates slot rendering only; it is not a complete generator. Create full files with metadata, briefs, and navigation before using this output. Do not append these examples to existing learner files. Slots and counts are in `templates.md`:
 
 ```bash
 slots() {  # slots <item> <count> <slot>...

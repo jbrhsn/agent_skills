@@ -101,7 +101,7 @@ FILES = [
     {
         "stem": "examples", "title": "Examples", "item": "Example", "count": 3,
         "slots": ["Source", "Why it works", "What to take from it", "My annotation"],
-        "framing": "Worked specimens you study and pull apart. Not your own work - that is practice.md.",
+        "framing": "Worked examples or specimens to study, with sources or original-example labels.",
     },
     {
         "stem": "practice", "title": "Practice", "item": "Task", "count": 4,
@@ -119,7 +119,7 @@ FILES = [
     {
         "stem": "thought_leadership", "title": "Thought Leadership", "item": "Idea", "count": 4,
         "slots": ["Angle", "Hook", "Audience", "Platform", "Evidence I have"],
-        "hints": {"Angle": "The non-obvious claim. If it summarises the docs, discard it.",
+        "hints": {"Angle": "A useful claim or synthesis for the intended audience.",
                   "Platform": "LinkedIn post | Medium article | talk | internal writeup",
                   "Evidence I have": "A benchmark, incident, migration, or artefact you can point to."},
         "framing": "Public-writing angles. Ship only what you have actually done or verified.",
@@ -129,21 +129,20 @@ FILES = [
         "slots": ["Question", "My answer, from memory", "Verified?", "Revisit on"],
         "hints": {"Verified?": "yes | no - check against a source, not against your own notes"},
         "framing": "Self-assessment. Write the questions early, answer them later with the "
-                   "notes closed. A question you can already answer is not worth a slot.",
+                   "notes closed. Put model answers separately when useful.",
     },
 ]
 
 # Tier prompts by ladder position, deliberately domain-neutral.
 TIER_PROMPTS = [
     "What each topic *is*, in your own words, plus the vocabulary you need to read anything "
-    "else about it. Write a three-sentence explanation with no jargon - if you can't, you "
-    "don't have it yet.",
+    "else about it. A short plain-language explanation is a useful starting point.",
     "How you actually use it under real constraints. What it costs, where it breaks, and the "
-    "mistakes you personally made getting here.",
+    "mistakes to watch for. Distinguish real experience from illustrative cases.",
     "How it fits into a whole system. What you would choose instead, and the trade-off you "
     "would defend out loud to someone who disagrees.",
     "Where the received wisdom is incomplete, contested, or wrong - and the evidence you have "
-    "for saying so. Nothing here should be findable in the docs.",
+    "for saying so. Established knowledge and open questions can both belong here.",
 ]
 
 
@@ -335,8 +334,8 @@ def brief_block(ctx):
     """The full brief - learning.md only. Says what to write and how deep; never writes it."""
     paras = [
         "## Brief",
-        "<!-- Written by the planner from the approved plan. Read it before you write anything\n"
-        "     below. Do not edit it while learning - amend PLAN.md and re-scaffold instead. -->",
+        "<!-- Chapter assignment from the plan. Adapt when scope changes, keeping the machine-readable "
+        "plan and PLAN.md consistent. Preserve existing learner work. -->",
         f"**Purpose:** {ctx['purpose']}",
     ]
     for label, value in (("Depth required", ctx["depth"]), ("Style", ctx["style"]),
@@ -460,7 +459,7 @@ section/            numbered, broad area
 {file_list}
 ```
 
-Every file is a **stub**. Each one opens with a brief saying what belongs in it and how deep to go; writing the rest is the work.
+Every generated file starts as a **stub**. Its brief guides the content and depth. Adapt the prompts to your goal, and fill the material yourself or with an agent; keep model answers separate from your own attempts.
 
 ## The ladder — `{profile_name}` profile
 
@@ -476,7 +475,7 @@ Every file carries the same frontmatter: `status` (`todo` → `learning` → `dr
 
 ## Files
 
-- `PLAN.md` — the source of truth for scope, exclusions, and structure. Amend it and re-scaffold; don't hand-edit the tree.
+- `PLAN.md` — summary of scope, exclusions, and structure. Keep it consistent with the input plan.yaml or plan.json when changing scope. Prefer targeted edits once files contain learner work; `--force` replaces files and resets generated progress.
 - `progress.md` — tracker.
 {bullets("Out of scope", plan.get("excluded"))}
 ## Structure
@@ -504,8 +503,7 @@ def plan_md(plan, profile_name, tiers, tree):
 {tree}
 ```
 
-<!-- Amend this file when scope changes, then re-run the scaffolder. It is the
-     source of truth; the folder tree is downstream of it. -->
+<!-- Keep this summary and the input plan.yaml or plan.json consistent when scope changes. The scaffolder reads that input, not PLAN.md. Preserve existing learner work when updating files. -->
 """
 
 

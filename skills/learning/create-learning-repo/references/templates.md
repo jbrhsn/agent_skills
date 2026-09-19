@@ -1,6 +1,6 @@
 # Stub templates
 
-What `scripts/scaffold.py` emits. Reproduce it verbatim if generating by hand. **Every slot stays unanswered** — the brief says what to write and how deep; it never writes it.
+This describes the standard output of `scripts/scaffold.py`. Match its metadata and links when compatibility matters; adapt headings and content to the request. The helper creates unanswered stubs. Authoring can fill teaching content and requested model answers while preserving learner response fields.
 
 Six files per chapter, the same six in every profile. Only `learning.md` is bespoke; the other five are one renderer with different labels, so read the shared parts once and the differences are small.
 
@@ -52,8 +52,7 @@ The only bespoke template: a full brief, then one section per tier rung.
 ```markdown
 ## Brief
 
-<!-- Written by the planner from the approved plan. Read it before you write anything
-     below. Do not edit it while learning - amend PLAN.md and re-scaffold instead. -->
+<!-- Chapter assignment from the plan. Adapt when scope changes, keeping the machine-readable plan and PLAN.md consistent. Preserve existing learner work. -->
 
 **Purpose:** {chapter purpose}
 
@@ -76,9 +75,7 @@ The only bespoke template: a full brief, then one section per tier rung.
 
 **Scope here:** Pick the right collection for a stated requirement.
 
-<!-- What each topic *is*, in your own words, plus the vocabulary you need to read anything
-     else about it. Write a three-sentence explanation with no jargon - if you can't, you
-     don't have it yet. -->
+<!-- What each topic *is*, in your own words, plus the vocabulary you need to read anything else about it. A short plain-language explanation is a useful starting point. -->
 
 ## Senior — You choose it under real constraints and know what it costs.
 ...
@@ -137,12 +134,12 @@ Default labels (the `technical` baseline; see `profiles.md` for per-profile over
 ## Root files
 
 - `README.md` — goal, the six-file layout, the profile's ladder with rung definitions, and how to use `status` / `tier_reached`.
-- `PLAN.md` — source of truth: goal, profile, ladder, exclusions, assumptions, research notes, full tree.
+- `PLAN.md` — human-readable summary of the machine-readable plan: goal, profile, ladder, exclusions, assumptions, research notes, full tree.
 - `progress.md` — one row per chapter (`Section | Module | Chapter | Topics | Tier reached | Status`) plus a per-chapter checklist of the six files, with topics nested in a `<details>` block under `learning.md`.
 
-## Editing rules
+## Maintaining the output
 
 - Prompts are HTML comments so rendered Markdown stays clean. Brief content is visible text — it is instruction the learner needs to see.
-- Keep headings and the frontmatter key set stable across files; the user greps and diffs them.
-- Never pre-fill `status` as anything but `todo`, or `tier_reached` as anything but `none`.
-- Never answer a slot, and never let the brief drift into being the content. "Explain the compact dict layout" is a brief; "the compact layout stores a sparse index array" is content, and belongs to the learner.
+- Keep metadata and links consistent when adapting headings or layout.
+- Fresh stubs start at `status: todo` and `tier_reached: none`. Drafted content may use `drafted`; do not invent mastery or reset existing learner progress.
+- Separate the assignment from teaching content. If authoring is requested, populate the appropriate material and put model answers apart from personal attempt and reflection fields.

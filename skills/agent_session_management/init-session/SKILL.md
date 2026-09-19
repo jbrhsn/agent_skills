@@ -1,55 +1,30 @@
 ---
 name: init-session
-description: Restore project context at the start of a session by reading .agent_docs/handoff.md and, only if not already loaded, the repo's AGENTS.md or CLAUDE.md. Use this skill whenever the user opens a project and wants to pick up where they left off — "catch me up", "what were we doing", "resume", "continue where we left off", "load context", "init", "where did we leave this" — even if they never mention handoff.md or name this skill. Also use when the user starts giving instructions that clearly assume prior context you do not have.
+description: Restore project memory and recent session context from .agent_docs/handoff.md when resuming work, recovering after context reset, or handling a request that assumes missing prior context.
 ---
 
 # Init Session
 
-Rebuild just enough context to continue working, then hand control back. The failure mode to avoid is spending the first thousand tokens of a session narrating a file the user already knows the contents of.
+Restore enough context to act on the user's request. The handoff contains project-wide memory, current work, and two earlier sessions; load it once rather than rediscovering the project or replaying it into chat.
 
-## Workflow
+## Python execution
 
-**1. Read the handoff.**
+Run Python scripts with `uv run`, including these helpers and project Python commands. Check `uv --version` before first use if availability is unknown. If uv is missing, explain that this workflow requires it, ask for confirmation to install it, and wait. After approval, use the official installation method appropriate to the system, verify `uv --version`, and continue. Honor existing explicit installation approval. If declined or unavailable, read the handoff with file tools and continue independent work; do not silently fall back to bare Python.
+
+## Restore context
+
+Resolve the helper from this skill's installed directory and pass the target project explicitly:
 
 ```bash
-python scripts/handoff_read.py --format json
+uv run /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --format json
 ```
 
-The script finds the repo root by walking up for `.git` or `.agent_docs`, so it works from any subdirectory. It returns the parsed sections, open items split from completed ones, a list of rule files present with their approximate token cost, and an archived-session count.
+Read the project snapshot and cumulative learnings as durable memory, then the current session and two preceding sessions for concrete context. The helper returns done work, decisions, verification, and open items as well as historical summaries. Read referenced documents or archived snapshots only when the task needs details absent from the handoff. Avoid loading the archive wholesale.
 
-Use `--open-only` when the user just wants the next task rather than a full recap — it is the cheapest possible resume.
+Use `--open-only` for a request that only asks for the next tasks, or when full project memory is already in context. It is not a substitute for restoring missing context before implementation. A missing handoff is a normal first-session state; begin from the current project and request. A read error is different: report it and use accessible project evidence without inventing history.
 
-**2. Handle a missing handoff gracefully.** `handoff_exists: false` is the normal first-session state, not an error. Say so in one line and start work. Do not offer to reconstruct history you do not have, and do not treat it as a problem to solve.
+The helper reports root rule files without printing their contents. Follow the host's instruction discovery rules, including applicable parent and nested instructions. Read applicable files not already loaded; do not reread known content just because a session started. Keep instruction files authoritative for working rules and use the handoff for project state.
 
-**3. Decide whether to read rule files — do not read them reflexively.** The script reports which of `AGENTS.md`, `CLAUDE.md`, `CLAUDE.local.md`, `.cursorrules`, `GEMINI.md` exist, but deliberately does not print their contents, because re-reading a file the host already injected is pure waste.
+Treat remembered state as historical evidence. Before acting, check the relevant files or status; reconcile contradictions with current evidence and the user's latest instructions. Do not require the user to reconfirm everything recorded in memory.
 
-- **Already in your context** (Claude Code auto-loads `CLAUDE.md`; some harnesses auto-load `AGENTS.md`): do not read it again. Check whether you can already recall its actual rules — not just its name.
-- **Not in your context** (typical for Open Code Harness, Antigravity, or a bare API session): read it now with the file tool. This is the case the skill exists for.
-- **Uncertain**: read it. A duplicated small file costs less than silently violating the project's conventions all session.
-
-Rule files govern *how* to work; the handoff records *where the work stands*. They are separate concerns — never copy rules into `handoff.md`, or the two will drift and you will not know which is current.
-
-**4. Give a short recap, then stop.** Aim for something the user can scan in five seconds:
-
-- One line of project identity (only if the snapshot suggests they may have switched projects)
-- What last session ended with
-- **Open items, verbatim** — this is the part that actually matters
-- Any learning that bears directly on those open items — not the whole list
-
-Then ask what to pick up, or if there is one obvious next item, propose it directly.
-
-**Do not** dump the full handoff back into chat, restate every cumulative learning, summarise the rule files, or explain what you just did to load context. The user wrote this file specifically so they would not have to re-read it.
-
-**5. Treat the handoff as stale until confirmed.** It describes the repo as of the last session's end. Anything may have changed since — the user may have committed, reverted, or worked elsewhere. Before acting on an open item, verify the current state of the relevant files rather than assuming the handoff is still accurate. If what you find contradicts the handoff, say so and trust the repo.
-
-## Example recap
-
-> Picking up the invoice parser. Last session split parsing into per-vendor strategies, chosen by issuer VAT number.
->
-> Open:
-> - [ ] Vendor C strategy not started
-> - [ ] Retry backoff still hardcoded to 3s
->
-> Worth knowing for the first one: vendor B invoices are scanned, so the OCR path is mandatory — vendor C may be the same.
->
-> Start with vendor C?
+Give a brief recap if useful: latest outcome, relevant open work, and the next action. Continue work already requested or authorized. Ask what to pick up only when the user asked solely for a recap or there is no clear next task. A context reset does not end or replace the active objective.

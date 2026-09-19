@@ -1,119 +1,49 @@
 # end-session
 
-Writes everything worth carrying forward into `.agent_docs/handoff.md`, then stops.
+Maintains project memory plus the current session and two previous sessions in `.agent_docs/handoff.md`, then creates a local Git commit for session changes. Pair with [init-session](../init-session/README.md) to resume. Use for wrapping up, checkpoints, and context resets; checkpoints do not stop ongoing work.
 
-Pair of [`init-session`](../init-session/README.md), which reads it back.
+See [SKILL.md](SKILL.md) for memory selection and Python execution guidance. Python commands use `uv run`. If uv is absent, the agent asks for installation confirmation before installing it; file tools remain available while installation is pending or declined.
 
-## When to use it
+## Helper contract
 
-When work is stopping, or when a long session is about to be interrupted.
-
-**Practical triggers:**
-- "done for today", "wrap up", "end session", "checkpoint this", "I'll continue tomorrow"
-- Before a context compaction or window reset — the classic case for losing a session's thinking
-- Any time a working session is about to be cut short
-
-## The problem it solves
-
-Handoff files rot. Appended to every session, they grow until reading one costs more context than it restores, and the file quietly becomes a liability.
-
-So `handoff.md` is **compacted on every write, never appended to**. Its read cost stays roughly flat no matter how many sessions a project accumulates. Nothing is lost — the outgoing session is moved to `.agent_docs/archive/session-<ts>.md`, where it costs nothing until someone deliberately opens it.
-
-## The four sections
-
-Fixed order, always present. The parser splits on `##` headings and drops anything it doesn't recognise, so the shape is not negotiable.
-
-| Section | Lifetime | Content |
-|---|---|---|
-| **Project Snapshot** | Rewritten only when it changes | What the project is, stack, architecture, how to run and test it |
-| **Cumulative Learnings** | Forever, deduped | Durable non-obvious facts: gotchas, constraints, conventions, dead ends |
-| **Last Session** | Overwritten each session | 3–5 compressed bullets of the session before this one |
-| **Current Session** | Archived, then replaced | Full detail of the session that just ended, plus open items |
-
-## What you'll get
-
-```
-.agent_docs/
-├── handoff.md              # compacted every write — this is what gets read
-└── archive/
-    └── session-<ts>.md     # full detail of every past session
-```
-
-## How it works
-
-The agent does the judgment; the script does the mechanics.
+Resolve the script from the installed skill directory. Run from any project subdirectory or specify `--repo-root`:
 
 ```bash
-python scripts/handoff_write.py --input payload.json
-python scripts/handoff_write.py --input payload.json --dry-run   # preview, writes nothing
-cat payload.json | python scripts/handoff_write.py               # or pipe it
+uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input payload.json --dry-run
+uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input payload.json
 ```
 
-The script archives the outgoing Current Session, then re-emits all four sections in fixed order so the format cannot drift. It never decides what belongs in the file.
-
-**Payload** — every field optional except `current_session`:
+The stdlib-only helper requires Python 3.8+ via uv. Input may also arrive on stdin. Example payload:
 
 ```json
 {
-  "snapshot": "FastAPI service for invoice parsing. Postgres via SQLAlchemy.",
-  "learnings": ["Vitest needs --pool=forks; default worker pool deadlocks on the DB mock."],
-  "last_session": ["Wired up the OCR fallback; vendor B invoices now parse."],
+  "snapshot": "Invoice parser service. Entry: app/main.py. Roadmap: docs/plan.md. Test: uv run pytest -q.",
+  "learnings": ["Select vendor strategy by issuer VAT number; filenames are unreliable."],
+  "last_session": ["2026-09-18: Added OCR fallback in app/ocr.py; scanned fixture passes. Retry configuration remained open."],
+  "previous_session": ["2026-09-17: Added vendor A strategy and fixture; parser tests passed."],
   "current_session": {
-    "date": "2026-08-23",
-    "focus": "Split the parser into per-vendor strategies",
-    "done": ["Extracted VendorAStrategy and VendorBStrategy"],
-    "decisions": ["Strategy chosen by issuer VAT number, not filename"],
-    "open_items": [{"text": "Vendor C strategy not started", "done": false}]
+    "date": "2026-09-19",
+    "focus": "Vendor B parsing",
+    "done": ["Added VendorBStrategy in app/vendors.py and a scanned invoice fixture."],
+    "decisions": ["Reuse the OCR fallback for scanned vendor B invoices."],
+    "verification": ["uv run pytest -q tests/test_vendors.py: 8 passed; full suite not run."],
+    "open_items": [{"text": "Move the 3s retry backoff into configuration; next edit app/config.py.", "done": false}]
   }
 }
 ```
 
-Omit `snapshot` or `learnings` and whatever is already on disk is preserved, so a partial payload is always safe. Omit `last_session` when a previous session existed and the script **warns**: the outgoing session got archived but never compressed into the rolling window, which silently breaks the chain.
+`current_session` is required and replaces the complete current record. Its date defaults to today. Snapshot and learnings are preserved when omitted; provided learnings replace the whole list. Merge durable knowledge and carry unresolved project work into the new payload before writing.
 
-## Design decisions
+For a distinct new session, the default rotation moves Current Session into Last Session and Last Session into Previous Session. Optional `last_session` and `previous_session` lists replace those records with agent-written compact summaries. Omission retains the outgoing concrete records rather than dropping history. Supply summaries to keep a large file compact; the helper does not perform semantic compression or impose a token cap.
 
-**Dedup is the agent's job, not the script's.** A new learning that refines an old one should rewrite that line, not sit beside it as a near-duplicate. This semantic merge is the only reason the file stays bounded, and no script can do it — which is exactly why the script refuses to try.
+Use `--checkpoint` on repeated saves of the same session, including before compaction; history then remains in place. This flag does not merge current-session deltas. After resuming the same task through a context reset, continue using checkpoint mode if that session was already saved. On a genuinely new session, rotate once. Dates alone do not identify sessions.
 
-**The learning bar is deliberately high.** A fact is promoted to Cumulative Learnings only if it is (a) still true next month, (b) not obvious from reading the code, and (c) expensive to rediscover.
+The five canonical headings appear in the [template](assets/handoff_template.md). Existing custom sections are preserved. Legacy four-section handoffs are accepted; missing history stays empty until enough sessions have been recorded. The helper archives the entire outgoing handoff to `.agent_docs/archive/session-<timestamp>.md` before atomic replacement, aborting if archiving fails. Archives preserve recorded snapshots, not omitted conversation history. `--dry-run` writes nothing. Exit codes: 0 success, 1 invalid input, 2 filesystem failure.
 
-> ✅ `Vitest needs --pool=forks here; the default worker pool deadlocks on the DB mock.`
->
-> ✅ `Tried moving parsing into the worker — blocked by the SDK's sync-only file handles.`
->
-> ❌ `Fixed the login bug.` — a session event, not a durable fact
->
-> ❌ `The project uses TypeScript.` — obvious from the repo
+Read archives only for relevant older evidence. Keep the main file compact by deduplicating and correcting durable facts, retaining actionable project state, and linking detailed references. Choose whether to commit `.agent_docs/` according to project conventions; this skill does not change ignore rules.
 
-Dead ends belong here. Knowing a path was already tried and why it failed is worth as much as knowing what worked.
+## Git commit
 
-**Compress toward outcomes, not activity.** "Refactored auth to use middleware; token refresh still unverified" earns its place. "Discussed options, tried some things" does not. If a bullet wouldn't change what the next session does, drop it.
+The agent commits the session's relevant changes after saving memory; the Python helper does not execute Git. This also applies to checkpoints unless the user asks for a memory-only save or no commit. The agent reviews the commit scope, preserves unrelated edits and staging, follows project checks and commit-message conventions, and reports the resulting hash. Incomplete work can be recorded as a checkpoint with outstanding validation clearly documented.
 
-**Honesty is load-bearing.** Open items are recorded as they actually are, including what was abandoned or left broken. A handoff that reads as uniformly successful is worse than no handoff, because the next session inherits false confidence and finds out the hard way.
-
-**Archive-before-write.** If the archive can't be written the script aborts with exit 2 rather than overwriting the outgoing session. Losing a session to a permissions error is not an acceptable outcome.
-
-## Layout
-
-```
-end-session/
-├── SKILL.md
-├── README.md
-├── assets/
-│   └── handoff_template.md    # the four sections, with inline rules per section
-└── scripts/
-    └── handoff_write.py       # stdlib only; archives, composes, warns
-```
-
-## Install
-
-From the repo root, the sync script covers every platform:
-
-```bash
-uv run scripts/sync_all.py            # every skill in the repo, all five platforms
-```
-
-Or copy this folder into your harness's skills directory — see the [category README](../README.md) for the per-platform paths. Requires Python 3.8+, no third-party packages.
-
-## Committing
-
-Commit `.agent_docs/handoff.md` to share handoffs across machines or teammates. To keep them local, add `.agent_docs/` to `.gitignore`. Committing `handoff.md` while ignoring `archive/` is a reasonable middle ground.
+Ignored memory stays local while eligible project changes are committed. A clean tree produces no empty commit, and a non-Git project receives only the saved memory. Commit blockers are reported without bypassing hooks or changing identity. Pushing and amending require a separate request. See [SKILL.md](SKILL.md) for the complete workflow.

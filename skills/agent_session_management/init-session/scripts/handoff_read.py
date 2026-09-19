@@ -7,7 +7,7 @@ biggest source of wasted context at session start. This script reports that they
 exist and how big they are; the calling agent decides whether reading is warranted.
 
 Usage:
-    python handoff_read.py [--repo-root PATH] [--format json|text] [--open-only]
+    uv run handoff_read.py [--repo-root PATH] [--format json|text] [--open-only]
 
 Always exits 0 when the filesystem is readable — a missing handoff is a normal
 first-session state, not an error, and should not derail the session.
@@ -21,6 +21,7 @@ import sys
 
 SNAPSHOT = "Project Snapshot"
 LEARNINGS = "Cumulative Learnings"
+PREVIOUS = "Previous Session"
 LAST = "Last Session"
 CURRENT = "Current Session"
 
@@ -101,8 +102,7 @@ def collect(root):
     try:
         text = open(path, encoding="utf-8").read()
     except OSError as e:
-        out["handoff_exists"] = False
-        out["note"] = f"Handoff exists but could not be read: {e}"
+        out["error"] = f"Handoff exists but could not be read: {e}"
         return out
 
     sec = parse_sections(text)
@@ -112,16 +112,23 @@ def collect(root):
     for state, label in _OPEN.findall(current_body):
         (done_items if state.lower() == "x" else open_items).append(label)
 
+    details = re.split(r"^###\s+(.+?)\s*$", current_body, flags=re.MULTILINE)
+    details = dict(zip(details[1::2], details[2::2]))
     out.update({
         "bytes": len(text.encode("utf-8")),
         "snapshot": clean(sec.get(SNAPSHOT, "")),
         "learnings": to_list(sec.get(LEARNINGS, "")),
-        "last_session": to_list(sec.get(LAST, "")),
+        "previous_session": clean(sec.get(PREVIOUS, "")),
+        "last_session": clean(sec.get(LAST, "")),
+        "additional_memory": {k: clean(v) for k, v in sec.items() if k not in (SNAPSHOT, LEARNINGS, PREVIOUS, LAST, CURRENT)},
         "current_session": {
             "date": (re.search(r"\*\*Date:\*\*\s*(.+)", current_body) or [None, ""])[1].strip()
                     if re.search(r"\*\*Date:\*\*\s*(.+)", current_body) else "",
             "focus": (re.search(r"\*\*Focus:\*\*\s*(.+)", current_body).group(1).strip()
                       if re.search(r"\*\*Focus:\*\*\s*(.+)", current_body) else ""),
+            "done": to_list(details.get("Done", "")),
+            "decisions": to_list(details.get("Decisions", "")),
+            "verification": to_list(details.get("Verification", "")),
             "open_items": open_items,
             "completed_items": done_items,
         },
@@ -139,9 +146,15 @@ def as_text(d):
             lines += ["", "SNAPSHOT", d["snapshot"]]
         if d.get("learnings"):
             lines += ["", "LEARNINGS"] + [f"- {x}" for x in d["learnings"]]
-        if d.get("last_session"):
-            lines += ["", "LAST SESSION"] + [f"- {x}" for x in d["last_session"]]
+        for key in ("previous_session", "last_session"):
+            if d.get(key):
+                lines += ["", key.upper().replace("_", " "), d[key]]
+        for heading, body in d.get("additional_memory", {}).items():
+            lines += ["", heading, body]
         lines += ["", f"CURRENT SESSION ({cs.get('date', '?')}) {cs.get('focus', '')}".rstrip()]
+        for key in ("done", "decisions", "verification"):
+            if cs.get(key):
+                lines += [key.upper()] + [f"- {x}" for x in cs[key]]
         lines += [f"- [ ] {x}" for x in cs.get("open_items", [])] or ["(no open items)"]
     if d["rule_files"]:
         lines += ["", "RULE FILES: " + ", ".join(
@@ -159,6 +172,10 @@ def main():
 
     root = os.path.abspath(args.repo_root) if args.repo_root else find_repo_root(os.getcwd())
     data = collect(root)
+
+    if data.get("error"):
+        print(json.dumps(data) if args.format == "json" else data["error"])
+        return 2
 
     if args.open_only:
         items = data.get("current_session", {}).get("open_items", [])

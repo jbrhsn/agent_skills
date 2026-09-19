@@ -1,81 +1,62 @@
 ---
 name: create-learning-repo
-description: Scaffolds a goal-based learning repository — sections, modules, chapters, and six briefed stub files per chapter (learning, examples, practice, interview, thought_leadership, quizzies) with a tier ladder matched to the domain. Use whenever the user wants to learn a technology, craft, habit, or exam subject, prepare for an interview, build a study plan or roadmap, "structure my learning", turn a syllabus or curriculum into files, or organize notes for a subject — even if they don't say "repo" or "scaffold". Also use when a user pastes an existing learning plan and wants it turned into a folder structure or reviewed for gaps.
+description: Design or review a learning roadmap, organize a syllabus, or scaffold a learning repository with chapter briefs and progress tracking. Use for requests to plan or structure learning, interview preparation, or exam study; a request to explain a topic alone does not require a repository.
 ---
 
 # Create Learning Repo
 
-Turns a learning goal into a **structure with briefs** — never the learning content itself. Every generated file is a stub whose brief says what belongs in it and how deep to go; the user writes the rest.
+Turn a learning goal into a usable path with clear chapter purposes, appropriate depth, and meaningful ways to assess progress. Deliver a plan, review, or repository according to the request.
 
-## Non-negotiables
+## How to use this guidance
 
-1. **Goal-based.** No scaffolding until the user's concrete goal is known (role, interview, project, promotion, deadline). Vague topic lists are not goals.
-2. **Approval gate.** Show the plan as text and get an explicit yes before creating any file.
-3. **Stubs only.** The brief is instruction — what to cover, why, how deep, in what style. It is never the answer. No explanations, no worked examples, no filled-in questions.
-4. **No scheduling.** Do not map chapters to days/weeks unless the user asks directly.
+Treat the workflow, profiles, sizing heuristics, and layouts as adaptable defaults. Use the user's context and your judgment to choose the amount of planning, research, and structure the task needs. This skill adds no approval gate: a request to create a repository authorizes routine file creation within that scope. If the user asks to review a plan first, present it and wait before implementation.
 
-## What a chapter looks like
+Preserve existing work and explicit scope choices. Ask only about consequential ambiguity that cannot reasonably be resolved from context. A broad interest can be a valid starting goal; a deadline, job title, or detailed interview is not a prerequisite for useful progress.
 
-Six files, the same six in every domain:
+## Understand the goal
 
-| File | Holds |
+Identify the desired outcome, starting level, constraints, and any supplied syllabus or plan. Infer missing details where reasonable and record assumptions that affect the result. Use [interview.md](references/interview.md) as a question bank, not a questionnaire to administer in full.
+
+For an existing plan, preserve the parts that work and use [gap-analysis.md](references/gap-analysis.md) to identify meaningful gaps. A review request calls for findings; an improvement request can authorize the corresponding edits. Avoid replacing the user's direction with a larger curriculum they did not request.
+
+## Build a useful plan
+
+Organize topics around capabilities and prerequisites. Describe what each chapter is for and how deeply it should teach its topics. Choose domain-appropriate progression from [profiles.md](references/profiles.md), or another structure when useful. Scheduling can help when time planning is part of the request; otherwise a sequence and rough effort estimates may be enough.
+
+Research when needed to resolve gaps, verify changing expectations, or satisfy the user's request and environment requirements. [research.md](references/research.md) suggests sources and useful outputs without a query quota. Lack of search access should lead to qualified assumptions, not invented sources or a blanket halt.
+
+For a plan-only request, deliver the plan without creating an unsolicited repository. When file creation is requested, proceed once the direction is sufficiently clear; a preview or dry run can clarify the result without requiring a separate approval round.
+
+## Choose a layout and create it
+
+The bundled helper offers a consistent layout: sections → modules → chapters, with six briefed stubs per chapter:
+
+| File | Intended use |
 |---|---|
-| `learning.md` | The brief, then one section per tier rung, covering all the chapter's topics |
-| `examples.md` | Worked specimens you study and annotate |
-| `practice.md` | Tasks you actually do |
-| `interview.md` | Questions someone else puts to you |
-| `thought_leadership.md` | Public-writing angles |
-| `quizzies.md` | Self-assessment, answered from memory |
+| `learning.md` | Explanation of chapter topics |
+| `examples.md` | Worked examples or specimens to study |
+| `practice.md` | Tasks, success criteria, and learner reflections |
+| `interview.md` | Interview, peer, or examiner questions |
+| `thought_leadership.md` | Optional writing angles and supporting evidence |
+| `quizzies.md` | Self-assessment and recall |
 
-Topics are **sections inside `learning.md`**, not separate files. That is deliberate: one file per topic produced chapters whose parts never referred to each other. One tiered file per chapter forces a single narrative.
+This is the helper's format, not a requirement for every learning project. For a smaller or custom layout, create files directly and keep links and tracking consistent. Do not pass unsupported layout options to the helper.
 
-The **profile** (`technical`, `craft`, `practice`, `exam`, `custom`) sets the tier ladder and the labels inside those files — never their names.
+For the standard layout, read [plan-schema.md](references/plan-schema.md) and create `plan.yaml` or `plan.json`. The script requires chapter `purpose` and other schema fields; warnings about missing optional depth or style are useful review signals, not automatic blockers.
 
-## Workflow
+Run the helper from this skill's directory, or resolve its path relative to this skill rather than the user's project:
 
-```
-Intake → Interview → Research (conditional) → Draft PLAN → Approve → Scaffold → Report
-```
-
-### 1. Intake — classify the input
-
-| Input | Do this |
-|---|---|
-| Vague ("learn Python for a senior DE interview in 20 days") | Full interview → research → draft plan |
-| Partial plan / topic list | Interview on gaps only → research to fill gaps → draft plan |
-| Complete plan | **Do not rewrite it.** Analyze for gaps, present findings, ask follow-ups, then scaffold their plan + agreed additions |
-
-### 2. Interview
-Read `references/interview.md`. Ask in one or two batched rounds, not a drip. Stop when goal, scope, level, depth, and **profile** are pinned.
-
-### 3. Research — only if the plan has gaps or no plan was given
-Read `references/research.md`. Research must return per-chapter depth notes, not just topic names — those notes become the brief. Skip entirely when the user supplied a complete plan and no gaps were agreed.
-
-### 4. Draft the plan
-Read `references/plan-schema.md` and `references/profiles.md`. Write `plan.yaml` (or `plan.json`), then present it as a readable tree — sections → modules → chapters — plus the goal statement, the chosen profile and ladder, and any deliberate exclusions. Ask for approval.
-
-Every chapter needs a `purpose` or the scaffolder refuses to run. Chapters missing `depth`, `style`, or `serves` are reported as **thin briefs** — fix them before scaffolding rather than shipping a stub nobody knows how to fill.
-
-### 5. Scaffold
 ```bash
-uv run scripts/scaffold.py plan.yaml --out ./<repo-name>
+uv run scripts/scaffold.py /path/to/plan.yaml --out /path/to/learning-repo --dry-run
+uv run scripts/scaffold.py /path/to/plan.yaml --out /path/to/learning-repo
 ```
 
-`python3 scripts/scaffold.py plan.json` also works; YAML input then needs PyYAML installed. Add `--dry-run` to print the tree without writing. The script refuses to overwrite existing files unless `--force` is passed.
+`python3 scripts/scaffold.py /path/to/plan.json` works without third-party dependencies. YAML input requires PyYAML. If the helper is unavailable or unsuitable, create the requested files with available tools; [templates.md](references/templates.md) describes its output and [bash-fallback.md](references/bash-fallback.md) offers a shell option.
 
-If Python is unavailable entirely, fall back to `references/bash-fallback.md`.
+The helper skips existing files unless `--force` is used. Inspect existing content before replacement; prefer targeted edits for a repository with learner work. Keep the machine-readable plan, `PLAN.md`, links, and `progress.md` consistent when changing scope. `PLAN.md` is a human-readable summary, not an input format the script reads.
 
-### 6. Report
-Print the tree, counts (sections / modules / chapters / files), the profile and ladder in use, any thin-brief warnings, and where `PLAN.md` and `progress.md` live. Do not summarize the learning content — there isn't any.
+## Continue to the requested outcome
 
-## Reference map
+Scaffolding normally produces briefs and empty study slots. If the request also includes teaching content, continue authoring it; use the `author-chapter` skill if available and useful, or write it directly. The distinction between planning and authoring organizes work rather than imposing a stopping point.
 
-| File | Read when |
-|---|---|
-| `references/interview.md` | Step 2 — question banks by input type, profile detection |
-| `references/research.md` | Step 3 — what to search, how to weight sources |
-| `references/profiles.md` | Step 4 — choosing the profile, ladders, `tier_count`, `custom` |
-| `references/plan-schema.md` | Step 4 — schema, brief fields, cohesion fields, sizing |
-| `references/gap-analysis.md` | User supplied a plan — checklist for finding what's missing |
-| `references/templates.md` | Editing stub templates or generating files by hand |
-| `references/bash-fallback.md` | No Python available |
+Report the plan or files created, important assumptions, and material gaps or skipped files. For a standard repository, include the location of the plan and progress tracker; include a tree and counts when they help the user navigate.

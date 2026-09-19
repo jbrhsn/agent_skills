@@ -1,8 +1,8 @@
 # Profiles
 
-Every chapter gets the same six files, in every domain. A profile changes only the **tier ladder** and the **labels inside those files** — never their names. Stable filenames mean `progress.md`, greps, and `author-chapter` have one contract to honour, and a new domain can never fork the layout.
+In the bundled helper, every chapter gets six files. A profile changes the tier ladder and file labels, counts, slots, and framing, but not filenames. These are implementation details of the standard layout; create a different layout directly when it better fits the task.
 
-Set it once at the top of `plan.yaml`. Default is `technical`.
+Set it once at the top of `plan.yaml`. The helper default is `technical`; select the profile that fits the goal.
 
 ```yaml
 profile: technical    # technical | craft | practice | exam | custom
@@ -44,7 +44,7 @@ Only labels, and only where the difference is real:
 | `practice` | `examples.md` items are Cases; `practice.md` becomes Experiments with hypothesis/setup/result slots; `interview.md` is *Hard Questions*, framed as what breaks your system three months in. |
 | `exam` | `practice.md` becomes timed Drills; `interview.md` is *Examiner Questions* (15 of them); `quizzies.md` grows to 15; `thought_leadership.md` shrinks to 2 and is marked optional. |
 
-Note what is *not* on that list: which topics, why they matter, how deep to go, what style to write in. Those come from the per-chapter brief in the plan, which is where domain difference actually belongs. Do not reach for a new profile because the content differs — only when the *shape* does.
+Note what is *not* on that list: which topics, why they matter, how deep to go, what style to write in. Those come from the per-chapter brief in the plan, which is where domain difference actually belongs. Use a custom profile when the presets do not describe the intended progression.
 
 ## Choosing one
 
@@ -55,7 +55,7 @@ Ask what a person at the top of the ladder has that a person at the bottom doesn
 - *A system they run without willpower* → `practice`
 - *A score on a fixed date* → `exam`
 
-Goals are often mixed ("learn Rust **and** blog about it"). Don't split the repo — pick the profile matching the terminal goal and let `thought_leadership.md` carry the secondary one.
+Goals are often mixed ("learn Rust **and** blog about it"). A single dominant profile is often sufficient; use a custom progression or another layout when both goals need substantial treatment.
 
 ## `tier_count`
 
@@ -65,7 +65,7 @@ Plan-level, clamped 2–4, default 4. Trims the ladder from the top.
 tier_count: 3    # stop at Architect / Voice / Adaptive / Scenario
 ```
 
-Use it when the horizon is short. Scaffolding an Expert section nobody will reach in three weeks just teaches the learner to leave headings empty.
+Use fewer rungs when the requested scope does not call for the full ladder. Treat the names as learning milestones, not promises of professional expertise on a deadline.
 
 ## `custom`
 
@@ -83,4 +83,4 @@ Two to four rungs, each a name plus a one-line test the learner can apply honest
 
 ## Adding a preset
 
-Add an entry to `PROFILES` in `scripts/scaffold.py` — a `tiers` list, plus a `files` dict overriding `item`, `title`, `count`, `slots`, or `framing` for any of the five slot files — and a row to the tables above. Do not add a template: `learning_stub` and `slot_stub` render every file in every profile. If a domain seems to need a third renderer, the renderers are wrong and should be fixed rather than bypassed.
+Add an entry to `PROFILES` in `scripts/scaffold.py` — a `tiers` list, plus a `files` dict overriding `item`, `title`, `count`, `slots`, or `framing` for any of the five slot files — and a row to the tables above. The existing `learning_stub` and `slot_stub` renderers usually suffice; change implementation only when the requested behavior needs it.

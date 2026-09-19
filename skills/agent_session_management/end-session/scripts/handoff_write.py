@@ -1,31 +1,9 @@
 #!/usr/bin/env python3
-"""Compose .agent_docs/handoff.md from structured JSON, archiving the outgoing session.
+"""Write compact project memory and a rolling session window.
 
-All judgment (what counts as a learning, how to compress a session) happens in the
-calling agent. This script only does the mechanical part: parse the existing file,
-move the outgoing "Current Session" into the archive, and re-emit the four canonical
-sections in a fixed order so the format can never drift.
-
-Usage:
-    python handoff_write.py --input payload.json [--repo-root PATH] [--dry-run]
-    cat payload.json | python handoff_write.py
-
-Payload schema (every field optional except current_session):
-    {
-      "snapshot": "markdown string",          # omitted -> existing snapshot preserved
-      "learnings": ["bullet", ...],           # omitted -> existing learnings preserved
-                                              # provided -> REPLACES the list wholesale
-      "last_session": ["bullet", ...],        # omitted -> existing preserved (warns)
-      "current_session": {
-        "date": "2026-08-23",                 # omitted -> today
-        "focus": "one line",
-        "done": ["bullet", ...],
-        "decisions": ["bullet", ...],
-        "open_items": ["text", {"text": "...", "done": true}, ...]
-      }
-    }
-
-Exit codes: 0 ok, 1 bad input, 2 filesystem problem.
+Usage: uv run handoff_write.py --input payload.json [--repo-root PATH] [--dry-run]
+Use --checkpoint to update the same session without rotating history.
+See ../README.md for the payload contract. Exit codes: 0 ok, 1 input, 2 filesystem.
 """
 
 import argparse
@@ -34,12 +12,15 @@ import json
 import os
 import re
 import sys
+import tempfile
+from pathlib import Path
 
 SNAPSHOT = "Project Snapshot"
 LEARNINGS = "Cumulative Learnings"
+PREVIOUS = "Previous Session"
 LAST = "Last Session"
 CURRENT = "Current Session"
-SECTION_ORDER = [SNAPSHOT, LEARNINGS, LAST, CURRENT]
+SECTION_ORDER = [SNAPSHOT, LEARNINGS, PREVIOUS, LAST, CURRENT]
 
 DOC_TITLE = "# Project Handoff"
 HEADER_NOTE = (
@@ -103,18 +84,20 @@ def render_current(cs):
     parts = [f"**Date:** {date}"]
     focus = str(cs.get("focus", "")).strip()
     if focus:
-        parts.append(f"**Focus:** {focus}")
+        parts.extend(["", f"**Focus:** {focus}"])
     parts.append("")
     parts.append("### Done")
-    parts.append(bullets(cs.get("done"), "_Nothing recorded._"))
+    parts.extend(["", bullets(cs.get("done"), "_Nothing recorded._")])
     decisions = cs.get("decisions") or []
     if decisions:
-        parts += ["", "### Decisions", bullets(decisions)]
-    parts += ["", "### Open Items", checkboxes(cs.get("open_items"))]
+        parts += ["", "### Decisions", "", bullets(decisions)]
+    if cs.get("verification"):
+        parts += ["", "### Verification", "", bullets(cs["verification"])]
+    parts += ["", "### Open Items", "", checkboxes(cs.get("open_items"))]
     return "\n".join(parts)
 
 
-def compose(snapshot, learnings, last, current):
+def compose(snapshot, learnings, previous, last, current):
     blocks = [
         DOC_TITLE,
         "",
@@ -127,6 +110,10 @@ def compose(snapshot, learnings, last, current):
         f"## {LEARNINGS}",
         "",
         learnings or "_None recorded yet._",
+        "",
+        f"## {PREVIOUS}",
+        "",
+        previous or "_No prior session._",
         "",
         f"## {LAST}",
         "",
@@ -145,6 +132,7 @@ def main():
     ap.add_argument("--input", help="Path to JSON payload. Reads stdin if omitted.")
     ap.add_argument("--repo-root", default=None, help="Project root. Auto-detected if omitted.")
     ap.add_argument("--dry-run", action="store_true", help="Print result; write nothing.")
+    ap.add_argument("--checkpoint", action="store_true", help="Update the same session without rotating history.")
     args = ap.parse_args()
 
     try:
@@ -157,10 +145,22 @@ def main():
         print(f"ERROR: payload is not valid JSON: {e}", file=sys.stderr)
         return 1
 
+    if not isinstance(payload, dict):
+        print("ERROR: payload must be an object.", file=sys.stderr)
+        return 1
     cs = payload.get("current_session")
     if not isinstance(cs, dict):
         print("ERROR: 'current_session' is required and must be an object.", file=sys.stderr)
         return 1
+
+    for key in ("learnings", "last_session", "previous_session"):
+        if key in payload and (not isinstance(payload[key], list) or not all(isinstance(x, str) for x in payload[key])):
+            print(f"ERROR: {key} must be a list of strings.", file=sys.stderr)
+            return 1
+    for key in ("done", "decisions", "verification", "open_items"):
+        if key in cs and not isinstance(cs[key], list):
+            print(f"ERROR: current_session.{key} must be a list.", file=sys.stderr)
+            return 1
 
     root = os.path.abspath(args.repo_root) if args.repo_root else find_repo_root(os.getcwd())
     docs_dir = os.path.join(root, ".agent_docs")
@@ -168,9 +168,11 @@ def main():
     handoff_path = os.path.join(docs_dir, "handoff.md")
 
     existing = {}
+    old_text = None
     if os.path.exists(handoff_path):
         try:
-            existing = parse_sections(open(handoff_path, encoding="utf-8").read())
+            old_text = Path(handoff_path).read_text(encoding="utf-8")
+            existing = parse_sections(old_text)
         except OSError as e:
             print(f"ERROR: cannot read existing handoff: {e}", file=sys.stderr)
             return 2
@@ -189,18 +191,19 @@ def main():
         learnings = strip_comments(existing.get(LEARNINGS, ""))
         warnings.append("no 'learnings' supplied; existing list preserved unchanged")
 
+    # A missing summary retains the outgoing concrete record rather than losing it.
+    last = strip_comments(existing.get(LAST, "")) if args.checkpoint else prev_current
+    previous = strip_comments(existing.get(PREVIOUS if args.checkpoint else LAST, ""))
     if "last_session" in payload:
         last = bullets(payload["last_session"], "_No prior session._")
-    elif prev_current:
-        last = strip_comments(existing.get(LAST, ""))
-        warnings.append(
-            "no 'last_session' supplied but a previous session existed; "
-            "the outgoing session was archived but NOT compressed into 'Last Session'"
-        )
-    else:
-        last = strip_comments(existing.get(LAST, ""))
+    if "previous_session" in payload:
+        previous = bullets(payload["previous_session"], "_No prior session._")
 
-    new_doc = compose(snapshot, learnings, last, render_current(cs))
+    new_doc = compose(snapshot, learnings, previous, last, render_current(cs))
+    # Preserve custom project memory rather than silently dropping unknown headings.
+    for heading, body in existing.items():
+        if heading not in SECTION_ORDER:
+            new_doc += f"\n## {heading}\n\n{body}\n"
 
     if args.dry_run:
         sys.stdout.write(new_doc)
@@ -215,22 +218,28 @@ def main():
         return 2
 
     archived = None
-    if prev_current:
-        stamp = _dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    if old_text is not None:
+        stamp = _dt.datetime.now().strftime("%Y%m%d-%H%M%S-%f")
         archived = os.path.join(archive_dir, f"session-{stamp}.md")
         try:
-            with open(archived, "w", encoding="utf-8") as fh:
-                fh.write(f"# Archived Session — {stamp}\n\n{prev_current}\n")
+            with open(archived, "x", encoding="utf-8") as fh:
+                fh.write(old_text)
         except OSError as e:
             print(f"ERROR: cannot write archive (aborting to avoid data loss): {e}", file=sys.stderr)
             return 2
 
+    temporary = None
     try:
-        with open(handoff_path, "w", encoding="utf-8") as fh:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=docs_dir, delete=False) as fh:
+            temporary = fh.name
             fh.write(new_doc)
+        os.replace(temporary, handoff_path)
     except OSError as e:
         print(f"ERROR: cannot write handoff: {e}", file=sys.stderr)
         return 2
+    finally:
+        if temporary and os.path.exists(temporary):
+            os.unlink(temporary)
 
     result = {
         "handoff": handoff_path,

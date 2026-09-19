@@ -54,7 +54,16 @@ See `agents/README.md` for the full safety model and permission rules.
 
 ---
 
-## 5. Sync Workflow
+## 5. Working Rules
+
+- Edit canonical sources in this repository only: skills under `skills/`, base agents under `agents/`, and plugin manifests, runtimes, or overlays under `plugins/`. Never edit synced files in user config directories as a repository change.
+- Treat paths as case-sensitive and repository-relative from `/Users/jbrhsn/Documents/Projects/agent_skills`; confirm a path with file search or directory listing before reading it, and do not infer file contents after a read failure.
+- Keep Markdown unwrapped: one physical line per prose paragraph, list-item continuation, and blockquote paragraph. Preserve YAML frontmatter, tables, and code fences.
+- For a skill change, inspect its `SKILL.md`, `README.md`, and any referenced asset or reference before editing; update documentation only when the behavior or workflow changed.
+- Validate sync-affecting changes with `uv run scripts/sync_all.py --dry-run`; use `--verify` when the local environment has the target harnesses available. For helper-script changes, run the narrowest relevant script with `--dry-run` first.
+- Do not add a skill to the collection until it has been exercised in a real session; keep platform-specific behavior in the relevant sync script or agent source rather than duplicating it across generated destinations.
+
+## 6. Sync Workflow
 
 **Always run via `uv run`** — the scripts carry PEP 723 headers (they need `pyyaml`).
 
@@ -105,7 +114,7 @@ uv run scripts/sync_opencode_agents.py --plugins search-internet --print-compose
 
 ---
 
-## 6. Destination Mappings
+## 7. Destination Mappings
 
 Where synced files land on each platform:
 
@@ -129,7 +138,7 @@ Where synced files land on each platform:
 
 ---
 
-## 7. Important Constraints
+## 8. Important Constraints
 
 **Shared config destination caution:**
 - `~/.gemini/config/` and `~/.claude/` are **not** skills-only. They contain settings, session states, history, projects, and other tool configs.
@@ -166,7 +175,7 @@ Where synced files land on each platform:
 
 ---
 
-## 8. Typical Tasks & Commands
+## 9. Typical Tasks & Commands
 
 **Add a new skill:**
 ```bash
