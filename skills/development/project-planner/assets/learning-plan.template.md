@@ -1,51 +1,23 @@
-# Learning Plan — <Project name>
+# <Project> — Learn by Building
 
-**Topics:** [topics.md](topics.md)
+**Topics:** <link>
 
-**Plan:** [docs/plan/overview.md](../docs/plan/overview.md)
+**Implementation plan:** <link>
 
-**UIUX:** [docs/uiux.md](../docs/uiux.md)
+## <Unit ID> — <Outcome>
 
-For each unit: read the listed topics first, then use this as the map while you build it with the agent. No code here on purpose — writing it is the exercise.
+**Learn first:** <topic links or existing knowledge>
 
----
+**Contract and acceptance:** <links to authoritative plan/test cases>
 
-## Phase 1 — <Phase name>
+**Approach:** <how to reason about this unit, with examples/code/hints suited to the user's request>
 
-### P1-U1 — <Unit name>
+**Practice steps:** <decisions and actions that build toward the outcome>
 
-**Learn first:** T01, T02, T03
+**Common traps:** <task-specific misunderstandings or failure modes>
 
-**Plan reference:** [phase-01-<slug>.md](../docs/plan/phase-01-<slug>.md)
+**Verification:** <checks, environment, commands where known; distinguish proposed from runnable>
 
-**Interface reference:** [uiux.md](../docs/uiux.md) § SC-0n, CMP-0n
+**Reflection:** <explain the tradeoff, diagnose a failure, or vary the implementation to demonstrate understanding>
 
-**How to think about this unit** <A short paragraph framing the problem the way an experienced developer in this framework would frame it. What shape does the solution take, and why that shape?>
-
-**How to approach the interface** <How this stack handles the states this unit implements — where state lives, what re-renders, how the error path differs from the happy path. Omit for units with no interface work.>
-
-**High-level steps**
-1. <A decision or a move, not a line of code.>
-2. <…>
-3. <…>
-4. <…>
-
-**How to verify it** <One line on how to run these in this stack — test runner command, or "manual for now".>
-
-| ID | Type | Steps | Expected result | Automate |
-|---|---|---|---|---|
-| T-P1U1-1 | Happy | <…> | <…> | Yes |
-| T-P1U1-2 | Error | <…> | <…> | Yes |
-
-<Copied verbatim from the plan file — same IDs, same wording. If these drift, the learner ends up testing something the plan never asked for.>
-
-**Where people get stuck**
-- <Trap specific to this framework and this task.>
-
-**You are done when** <Mirror the Done-when list from the plan unit, same wording.>
-
----
-
-### P1-U2 — <Unit name>
-
-<Same shape.>
+<Repeat for relevant units. Avoid duplicating acceptance tables unless the exercise must stand alone.>

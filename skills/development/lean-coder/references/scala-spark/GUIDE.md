@@ -1,58 +1,21 @@
-# Scala / Spark — Lean Rules
+# Scala and Spark
 
-## Language first
+Read the job, schemas, Spark/Scala versions, cluster configuration, and sink contract before changing execution. Use [data engineering](../data-engineering/GUIDE.md) for grain, replay, backfill, and quality guarantees.
 
-| Need | Use | Not |
-|---|---|---|
-| Data holder | `case class` | class + constructor + equals + toString |
-| Optionality | `Option`, `getOrElse`, `fold` | null checks |
-| Errors | `Either` / `Try` | exceptions for control flow |
-| Chained transforms | `for`-comprehension | nested `flatMap` pyramids |
-| Pattern dispatch | `match` | if/else chains on type |
-| Constants set | `sealed trait` + objects, or `enum` (Scala 3) | string literals |
-| Default config | default parameter values | builder classes |
+## Transformations
 
-## Spark
+Prefer built-in SQL/DataFrame expressions when they express the semantics and allow optimizer visibility. Use UDFs or lower-level APIs when justified; test their null, serialization, and performance behavior. Keep transformations separable from reads/writes but test all three boundaries.
 
-- Stay in the DataFrame/Dataset API — Catalyst optimizes it; RDDs and Python-style UDFs are opaque to it.
-- No UDF if a built-in `functions._` expression exists. If a UDF is unavoidable, make it a typed one and test it as a plain function.
-- `select` only needed columns immediately after read — column pruning is free LOC and free money.
-- Filter before join; broadcast the small side explicitly when it fits.
-- One `cache()` at most, and only if the DataFrame is reused; `unpersist` after.
-- Never `collect()` to driver except for a bounded, known-small result. `take(n)` for inspection.
-- Partition on the column you filter on. Avoid `repartition` unless you measured skew.
-- Chain transformations in one pipeline value rather than reassigning `var df` at each step.
+Choose explicit schemas and deterministic tie-breakers for deduplication/latest-event logic. Verify join cardinality, null behavior, timezone conversions, and decimals. Do not treat success of a Spark action as proof of data correctness.
 
-## Cut
+## Execution
 
-- `var` — use `val` and a transformation chain
-- Explicit type annotations where inference is obvious (keep them on public method signatures)
-- Getter methods on `case class` fields
-- Companion-object factories that only call `apply`
-- `.map(x => f(x))` → `.map(f)`
-- Try/catch around Spark actions that only rethrows
+Inspect the physical plan and runtime metrics for skew, shuffle, spills, partition pruning, and task imbalance. Broadcast only when the build side fits executor memory under realistic concurrency. Cache reused expensive computations when measurements justify the memory cost, and unpersist when no longer needed; there is no universal cache-count limit.
 
-## Security (never cut)
+Avoid collecting unbounded data on the driver. Partition and file sizes should fit workload, storage, and downstream access; indiscriminate repartitioning or coalesce(1) can create bottlenecks. Bound external calls from partitions and account for task retries/speculative execution duplicating side effects.
 
-- Read secrets from the secret manager or env, never from code or notebook cells.
-- No PII in `.show()`, `explain()`, or driver logs.
-- Validate schema explicitly on read (`.schema(expected)`) — `inferSchema` on untrusted input is an availability and correctness risk.
-- Restrict output paths and table names to an allowlist when they come from parameters.
+## Streaming and verification
 
-## Testability
+Match watermarks, state retention, output mode, and checkpoint compatibility to late-data semantics. Test restarts and failures around sink commits. foreachBatch does not itself guarantee exactly-once effects; deduplication/transactional sink logic must establish that guarantee. See [Spark's streaming guide](https://spark.apache.org/docs/3.5.6/structured-streaming-programming-guide.html) and the project's matching version.
 
-- Split every job into: `read` → `transform(df): DataFrame` → `write`. Only `transform` gets tested, and it needs no cluster mocking.
-- Pure `transform` functions take and return DataFrames — no reads, no writes, no `spark` global inside.
-- One shared local `SparkSession` fixture per test suite; do not create one per test.
-- Assert on `collect()` of a tiny fixture, comparing `Seq[case class]`, not string output.
-
-## Example
-
-```scala
-// before: 9 lines with var, UDF, collect
-// after: 3
-def topEventPerUser(events: DataFrame): DataFrame =
-  events.select($"user_id", $"event", $"ts")
-    .withColumn("rn", row_number().over(Window.partitionBy($"user_id").orderBy($"ts".desc)))
-    .filter($"rn" === 1).drop("rn")
-```
+Use local Spark fixtures for transform semantics plus integration tests for source/sink, replay, and publication. Cluster performance requires representative volume, skew, and configuration. Redact sensitive rows from logs and inspection output.

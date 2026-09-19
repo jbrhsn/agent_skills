@@ -50,20 +50,20 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Goog
 
 | Skill | What it does |
 |---|---|
-| [**lean-coder**](./skills/development/lean-coder/README.md) | The least code that correctly and safely solves the problem. Fires on writing, refactoring, review, and debugging; 9 per-language guides plus a production-grade checklist |
-| [**project-planner**](./skills/development/project-planner/README.md) | Plan and spec a project before coding — produces spec, design, roadmap, and backlog docs under `docs/` |
+| [**lean-coder**](./skills/development/lean-coder/README.md) | Implement, review, optimize, and debug production software with focused language and domain guidance for web, data, Web3, and mobile |
+| [**project-planner**](./skills/development/project-planner/README.md) | Turn project or feature requirements into adaptable interface contracts, implementation plans, and verification/release guidance |
 
 ### [Content Creation](./skills/content-creation/)
 
-> Source notes → posting-ready piece, with review gates and matching visual prompts.
+> Research, draft, revise, and plan visuals with adaptable guidance and traceable evidence.
 
 | Skill | What it does |
 |---|---|
-| [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Ranked, evidence-backed content ideas from live sources (Hacker News, Reddit, Google Trends, Medium tags) — clustered by beat, scored on recency + velocity + fit + gap |
-| [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Keyless keyword research for a drafted article — search intent, long-tail keywords, Medium tags, and optimization tips |
-| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Notes → posting-ready LinkedIn post: hook engineering, scroll-first structure, no-link-in-body discipline, behind an angle gate you approve before it drafts |
-| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Notes → publish-ready Medium article grounded in Medium's distribution guidelines, AI-content policy, and earnings mechanics, behind a brief you approve before it drafts |
-| [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/README.md) | Image-generation prompts for a finished article — one cover plus one per section that earns it, each with alt text, caption, credit, and the mandatory AI-disclosure line |
+| [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Research and prioritize audience-relevant angles with traceable evidence and optional source scaffolds |
+| [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Search intent and discovery phrasing for drafts or topics, with transparent provenance and heuristic limitations |
+| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Draft or revise LinkedIn posts in the author's voice, with factual support and flexible editorial choices |
+| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Develop and package long-form articles with coherent structure, source fidelity, and current publication checks |
+| [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/README.md) | Plan useful article visuals and prompts, distinguishing editorial art from exact diagrams, screenshots, and data |
 
 ---
 

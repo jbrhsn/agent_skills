@@ -1,64 +1,25 @@
-# Solidity — Lean Rules
+# Solidity and EVM contracts
 
-Brevity here is secondary to safety and gas. Never remove a check to save a line.
+Start with assets at risk, invariants, roles, compiler/EVM target, deployed storage, and external protocol assumptions. Use maintained, version-compatible libraries for established standards; library reuse does not prove the integration safe. Read [Web3](../web3/GUIDE.md) for signing and transaction lifecycle.
 
-## Audited libraries first (never hand-roll)
+## Security and semantics
 
-| Need | Use | Not |
-|---|---|---|
-| Tokens | OpenZeppelin `ERC20`/`ERC721`/`ERC1155` | custom implementation |
-| Access control | `Ownable`, `AccessControl` | your own role mapping |
-| Reentrancy | `ReentrancyGuard` + checks-effects-interactions | custom mutex |
-| Safe transfers | `SafeERC20` | raw `transfer` return value ignored |
-| Signatures | `ECDSA`, `EIP712` | manual `ecrecover` |
-| Merkle proofs | `MerkleProof` | hand-rolled hashing |
-| Upgrades | UUPS proxy from OZ | bespoke delegatecall |
-| Math | native checked arithmetic (0.8+) | SafeMath |
+Differentiate permissionless entry points from privileged administration. Enforce the intended authorization and accounting on each operation; do not add owner-only restrictions to public token transfers or deposits.
 
-## Cut
+Analyze reentrancy across functions/contracts, including callbacks and observable intermediate state. Apply checks-effects-interactions and suitable guards where they uphold the invariant. Validate external-call results and account for token behavior such as missing return values, transfer fees, rebasing, and callbacks.
 
-- SafeMath on ^0.8 — arithmetic is checked by default
-- Getters for `public` state variables (auto-generated)
-- Custom `Ownable` reimplementations
-- Events nobody indexes; keep the ones off-chain consumers actually read
-- Redundant `require` re-checking a modifier's condition
-- Storage variables that are only read once from an immutable value → `immutable`/`constant`
+For signatures, check domain/chain binding, nonces, expiry, and replay. Never use tx.origin for authorization. Consider oracle freshness, decimals, bounds, manipulation, rounding direction, slippage, and transaction ordering where relevant.
 
-## Gas = lines saved twice
+Bound user-driven loops and gas growth. Preserve events needed for accounting, governance, debugging, and indexing even when no current consumer is known.
 
-- `immutable` for constructor-set values, `constant` for literals.
-- Pack storage into 32-byte slots; order struct fields by size.
-- Cache storage reads in memory inside loops (`uint256 len = arr.length;`).
-- `calldata` over `memory` for external function array/string params.
-- `unchecked { ++i; }` in loops where overflow is impossible.
-- Custom errors (`error Unauthorized();` + `revert`) over `require` strings.
+## Changes and upgrades
 
-## Security (never cut)
+Do not introduce proxies by default. For existing upgradeable contracts, verify storage compatibility, initializer/reinitializer behavior, implementation locking, and upgrade authority. Do not reorder deployed storage to save gas. Use the applicable validation tooling and [OpenZeppelin upgrade guidance](https://docs.openzeppelin.com/upgrades-plugins/writing-upgradeable); do not bypass storage checks.
 
-- Checks → Effects → Interactions, in that order, every function.
-- Access control on every state-mutating external function; default deny.
-- No unbounded loops over user-growable arrays — pull-over-push for payouts.
-- Validate external call return values; assume any external contract is hostile.
-- Never use `tx.origin` for auth; never use `block.timestamp` for randomness.
-- Oracle prices: check staleness and bounds; use TWAP where spot is manipulable.
-- Add a pause path only if you also add the access control and tests for it.
+Optimize gas using measurements under the project's compiler settings. Use unchecked arithmetic only with a demonstrated bound and invariant; brevity is not a proof. Identify governance and recovery limitations for irreversible changes.
 
-## Testability
+## Verification
 
-- Keep logic in `internal pure`/`view` functions — those are directly unit-testable and fuzzable.
-- Foundry: unit tests for happy path, `invariant_` tests for supply/balance conservation, fuzz tests on every numeric input.
-- Test the revert, not just the success: `vm.expectRevert(Unauthorized.selector)`.
-- Fork-test any integration with a live protocol; do not mock it.
+Test unauthorized administration and legitimate permissionless access, reverts, adversarial callbacks, boundary values, rounding, and state transitions. Use fuzz/property and invariant tests for asset/accounting properties, with harnesses exposing internal behavior as needed. Use pinned-block fork tests for external integration and deterministic fakes for adversarial failures.
 
-## Example
-
-```solidity
-// after
-error NotOwner();
-function withdraw(uint256 amount) external {
-    if (msg.sender != owner) revert NotOwner();
-    balance -= amount;                       // effect
-    (bool ok,) = msg.sender.call{value: amount}(""); // interaction
-    require(ok);
-}
-```
+Record compiler/optimizer versions, test evidence, gas changes when relevant, and security-review limitations. Passing tests is not an audit, and preparation does not authorize broadcasting deployments or upgrades.

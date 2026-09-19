@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Create articles/<slug>/source.md for ONE approved idea.
 
-The agent must have explicit user confirmation before calling this. The script
-refuses to overwrite anything and never runs in bulk by design.
+Use when scaffolding is within the user's request. The script refuses overwrite.
 """
 
 import argparse
@@ -45,12 +44,16 @@ def main():
     ap.add_argument("--hook", default="", help="working title / hook")
     ap.add_argument("--angle", default="", help="one-line angle")
     ap.add_argument("--platform", default="", help="Medium | LinkedIn | Reddit")
+    ap.add_argument("--dry-run", action="store_true", help="preview path and content without writing")
     args = ap.parse_args()
 
     idea = find_idea(args.id)
-    folder = Path(args.root) / (args.slug or idea["slug"])
+    slug = args.slug if args.slug is not None else idea["slug"]
+    if not isinstance(slug, str) or not slug.strip() or slug in {".", ".."} or "/" in slug or "\\" in slug:
+        ap.error("slug must be a single non-empty folder name")
+    folder = Path(args.root) / slug
 
-    if folder.exists():
+    if folder.exists() or folder.is_symlink():
         sys.exit(f"REFUSING: {folder} already exists. Pick another slug or edit "
                  f"the existing source.md by hand.")
     if not TEMPLATE.exists():
@@ -66,13 +69,16 @@ def main():
         score=idea["score"],
         recency=c["recency"], velocity=c["velocity"],
         beat_fit=c["beat_fit"], gap=c["gap"],
-        gap_checked="yes" if idea.get("gap_checked") else "NOT VERIFIED",
+        gap_checked="yes" if idea.get("gap_checked") else "no",
         sources=", ".join(idea["sources"]),
         evidence=render_evidence(idea),
         date=date.today().isoformat(),
         idea_id=idea["id"],
     )
 
+    if args.dry_run:
+        print(f"Would create {folder / 'source.md'}\n\n{body}")
+        return 0
     folder.mkdir(parents=True)
     (folder / "source.md").write_text(body)
     print(f"Created {folder / 'source.md'}")

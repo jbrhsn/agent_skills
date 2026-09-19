@@ -1,56 +1,39 @@
 ---
 name: keyword-research
-description: Run keyless keyword research for a drafted article and write a kresearch.md next to its source.md. Use this whenever the user mentions keyword research, SEO keywords, search intent, long-tail keywords, article tags, Medium tags, LinkedIn hashtags, "what should I title this", "how do I make this rank", or asks to optimize a draft for discovery — even if they never say the words "keyword research". Also use it whenever a source.md exists in an article folder and the user asks what to do next. Requires no API key, no login, no paid tool.
+description: Research search intent, query phrasing, and discovery terms for an article or defined topic. Use for keyword research, SEO framing, search-focused titles, and relevant platform tags, with explicit evidence limitations.
 ---
 
-# Keyword Research (keyless)
+# Keyword Research
 
-Turns a rough draft (`source.md`) into a ranked, source-labelled keyword report (`kresearch.md`) in the same folder, using only free public APIs and undocumented public autocomplete endpoints.
+Help the right reader find content that answers their question. Keyword selection follows the article's substance; do not add unsupported sections or distort a thesis to chase a score.
 
-## Folder contract
+## Establish intent
 
-```
-articles/<article-slug>/
-├── source.md      # input — the rough draft (required)
-└── kresearch.md   # output — written by this skill
-```
+Read the named draft or supplied text. A nearby `source.md` is a useful convention, not a prerequisite. For topic-only requests, establish the audience and angle, then label recommendations provisional until a draft exists. Identify useful seeds, entities, language/region, and the reader's task. Ask only when plausible interpretations would materially change research.
 
-Never write `kresearch.md` anywhere except beside the `source.md` it was derived from. If no `source.md` exists, stop and ask for one — this skill researches a specific draft, not a bare topic, and guessing the angle produces generic output.
+Default file output is `kresearch.md` beside the source; follow explicit output paths or respond in conversation when appropriate. Preserve source material and existing user edits.
 
-## Prerequisites
+## Research
 
-`curl` and `jq` must be on PATH. Check with `command -v curl jq`. If `jq` is missing, say so and stop rather than parsing JSON by hand.
-
-## Workflow
-
-**1. Read `source.md`.** Extract, and write down before doing anything else:
-- the working thesis in one sentence
-- one **seed term** (2–4 words, the phrase a reader would actually type)
-- 3–6 **entities** (named tools, models, frameworks, concepts the draft leans on)
-- the **reader** (who is searching for this and what they already know)
-
-Do not skip this. Every downstream query is derived from these, and a vague seed produces a report full of terms the article can't credibly rank for.
-
-**2. Confirm the seed with the user** if the draft is broad or covers several topics. One clarifying question here saves a full useless run.
-
-**3. Fetch.** Read `references/endpoints.md` first — it documents each endpoint's parameters, response shape, and known failure modes. Then run:
+Read [methodology](references/methodology.md) and relevant [endpoint details](references/endpoints.md). The optional Bash helper needs curl and jq; missing dependencies do not prevent browser-based research. Installation requires applicable authorization. Resolve its absolute path from this skill's installed location and use a dedicated run directory for artifacts.
 
 ```bash
-scripts/kwfetch.sh all "<seed>" -e "<entity1>" -e "<entity2>" -o raw.tsv
-scripts/kwfetch.sh score raw.tsv > scored.tsv
+bash /absolute/keyword-research/scripts/kwfetch.sh all "seed phrase" -e "entity" --gl US --hl en -o raw.tsv
+bash /absolute/keyword-research/scripts/kwfetch.sh score raw.tsv
 ```
 
-The script degrades gracefully: any endpoint that fails is skipped and reported on stderr. A partial run is fine and normal — record which sources answered, because the confidence grades in the report depend on it.
+Choose only useful sources or expansion options; `all` is a convenience, not an obligatory workflow. Retain source diagnostics, query/locale/date, and raw observations needed to audit the report. Respect blocks and rate limits; do not repeatedly retry denied access.
 
-**4. Cluster and grade.** Read `references/methodology.md` for the clustering procedure and `references/scoring.md` for what the numeric score does and does not mean. The script's score is a heuristic ranking, not search volume — never present it as volume.
+Public keyless sources are the default. User-provided analytics or authorized tools can add evidence; identify their measurement and coverage. Do not send private manuscript text to search services; query only the minimum non-sensitive terms.
 
-**5. Write the report.** Copy `assets/kresearch_template.md` into the article folder as `kresearch.md` and fill every section. Read `references/output-schema.md` for what each field must contain.
+## Interpret honestly
 
-## Non-negotiables
+Read [scoring](references/scoring.md) before reporting helper scores. A/B/C/D describe provenance, not confidence in ranking, search demand, or accuracy. Autocomplete rank, semantic similarity, Wikipedia views, and community votes measure different things. Never relabel them as search volume, difficulty, CPC, or expected traffic.
 
-These exist because a keyword report that overstates its own certainty is worse than no report — it gets acted on.
+Cluster by intent and retain terms the draft can actually answer. A relevant low-score or inferred term can be preferable to an irrelevant high-score phrase. Mark platform tags/hashtags as editorial suggestions unless an identified source actually measures them.
 
-- **Label every claim with a confidence grade** (A–D, defined in `references/scoring.md`). No unlabelled rows.
-- **Never invent a search volume, difficulty score, or CPC.** None of these sources provide them. If the user wants real volume, tell them plainly that it requires a paid tool or a Google Ads account.
-- **Never present Medium tags or LinkedIn hashtags as measured.** No public data source exists for either platform. They are inferred from the keyword clusters and must be marked grade D.
-- **Report dead or blocked sources honestly** in the Source log. Silence about a 403 makes the report look better-sourced than it is.
+## Deliver
+
+Use [output guidance](references/output-schema.md) and the adaptable [report template](assets/kresearch_template.md). Explain recommended primary/secondary phrases, their fit, useful placements, evidence, uncertainty, and sources that failed or were not queried. Avoid tag quotas and keyword stuffing.
+
+Keep raw evidence when useful for reproducibility; remove only disposable artifacts owned by this run when appropriate. Report material missing evidence. Do not promise ranking or treat research as authorization to rewrite or publish the article.

@@ -1,75 +1,40 @@
-# <Project name> — Product Requirements
+# <Project> — Requirements
 
-**Status:** Draft | Approved
+**Status:** Draft | Reviewed | Approved (only when explicitly approved)
 
-**Last updated:** <YYYY-MM-DD>
+**Updated:** <date>
 
-**Mode:** standard | learn-by-building
+**Scope:** <new product / feature / migration>
 
-**Surface:** web | mobile | desktop | conversational | headless
+Use relevant sections; replace placeholders and omit instructions from the finished document. Link related interface/plan documents when they exist.
 
-**UIUX:** [docs/uiux.md](uiux.md)  *(add this link once Stage 6 has written the file)*
+## Outcome and scope
 
-**Plan:** [docs/plan/overview.md](plan/overview.md)
+<Users or consumers, problem, requested result, and observable success.>
 
-## 1. Problem and goal
+<Explicit exclusions or deferrals, if any. Do not shrink the user's scope merely to fit this template.>
 
-<What is broken or missing, and what this project does about it. 2–4 sentences.>
+## Requirements
 
-## 2. Users and jobs
+| ID | Behavior or property | Acceptance evidence | Basis |
+|---|---|---|---|
+| FR-01 | <observable outcome> | <input/action/result> | <request / existing contract / proposal> |
+| NFR-01 | <relevant reliability/performance/security property> | <workload, environment, metric, target> | <confirmed or assumed> |
 
-- **<User type>** — hires this to <job>.
+## Constraints and decisions
 
-## 3. Scope for v1
+<Existing stack/contracts, supported targets, deployment, cost, dependencies, decisions and rationale. Distinguish fixed constraints from proposals.>
 
-<The smallest version worth shipping, in a few bullets.>
+## Data and trust boundaries
 
-### Out of scope for v1
+<Entities/grain/keys, ownership, sensitive data, lifecycle, state invariants, roles and authorization. Include diagrams or schemas when useful.>
 
-- <Explicitly excluded. Name the things a reader would otherwise assume are included.>
+## Operation and release
 
-### Later
+<Applicable compatibility, migration, observability, rollout, recovery, and environment requirements.>
 
-- <Deferred, not rejected.>
+## Assumptions and open decisions
 
-## 4. Functional requirements
-
-```
-FR-01 | <Requirement, one sentence, user-observable.>
-        Verify: <How you would check it.>
-
-FR-02 | <…>
-        Verify: <…>
-```
-
-## 5. Non-functional requirements
-
-```
-NFR-01 | <Threshold, number, or measurable property.>
-         Verify: <…>
-```
-
-## 6. Technical constraints
-
-```
-CON-01 | <Decided stack, required infra, or forbidden choice. "Open — decided in Phase 1"
-          is a valid entry.>
-```
-
-## 7. Data model sketch
-
-<Entities and how they relate. Prose or bullets. No schemas.>
-
-## 8. Success criteria
-
-- <How the user will know v1 worked.>
-
-## 9. Open questions
-
-| # | Question | Who answers |
-|---|---|---|
-| 1 | <…> | <…> |
-
-## 10. Assumptions
-
-- <Anything inferred rather than confirmed. Keep short and honest.>
+| Item | Basis or proposed default | Impact / blocked work | Owner or evidence needed |
+|---|---|---|---|
+| <…> | <…> | <…> | <…> |

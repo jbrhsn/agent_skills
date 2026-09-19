@@ -1,58 +1,25 @@
-# Swift — Lean Rules
+# Swift and iOS
 
-## Platform first
+Inspect the deployment target, Swift version, existing SwiftUI/UIKit architecture, persistence, and dependencies. Use platform capabilities where they fit without forcing a framework migration.
 
-| Need | Use | Not |
-|---|---|---|
-| JSON | `Codable` + `CodingKeys` | manual dictionary parsing |
-| HTTP | `URLSession` + `async/await` | Alamofire for basic requests |
-| Local storage | `SwiftData` / Core Data / `UserDefaults` (settings only) | custom file format |
-| Formatting | `.formatted()`, `FormatStyle` | `DateFormatter` instances everywhere |
-| Reactive state | `@Observable`, `@State`, `@Binding` | Combine pipelines for simple state |
-| Concurrency | `async let`, `TaskGroup`, `actor` | DispatchQueue juggling, completion handlers |
-| Collections | `map`/`filter`/`reduce`/`compactMap` | index loops |
+## State and lifecycle
 
-## SwiftUI
+Choose a clear state owner and appropriate actor isolation for mutable state. Keep UI updates on the required actor and expensive work off the main thread. Match observation APIs to supported OS versions; avoid introducing availability failures.
 
-- View bodies stay short: extract a subview only when it is reused or the body exceeds a screen — not to hit an arbitrary line count.
-- One source of truth. `@State` private to the view, `@Binding` down, `@Observable` model for shared state.
-- No ViewModel for a view that only renders and calls one async function — put the call in a `.task {}`.
-- Modifiers over conditionals: `.opacity(isOn ? 1 : 0)` instead of two `if` branches returning near-identical views.
-- Let `struct` + `Identifiable` drive `ForEach`; no manual index bookkeeping.
+Tie tasks to intended lifetimes and prevent stale responses from overwriting newer state. Cancellation is cooperative: propagate it and check it during long work. Account for navigation, backgrounding, termination, restoration, and offline retry; a view task is not a durable background job.
 
-## Cut
+Validate HTTP status and response shape before treating decoded data as success. Distinguish network, server, decoding, and cancellation outcomes. Test persistence migrations and recovery from interrupted writes.
 
-- `init` that only assigns stored properties (memberwise init exists)
-- Getters wrapping private stored properties
-- Protocols with one conformer
-- `guard let x = x else { return }` chains → `if let` shorthand `if let x`
-- `self.` where not required
-- Explicit types where inference is clear
-- Completion-handler versions of functions that now have async equivalents
+## Platform and security
 
-## Security (never cut)
+Use Keychain for appropriate secrets with accessibility settings matched to required background access. Consider file protection, backups, logout cleanup, and locked-device behavior. Bundled configuration cannot hold server secrets.
 
-- Tokens and keys in Keychain, never `UserDefaults`, never in code or `.plist`.
-- ATS on; no arbitrary-loads exception. Pin certs for high-value endpoints.
-- Biometric/`LocalAuthentication` result must be verified server-side too — local success alone is not authorization.
-- Mark sensitive fields `.privacy(.private)` in `Logger`; default `os_log` interpolation of strings is redacted, but check.
-- Validate deep-link and universal-link parameters before acting on them.
-- File writes with `.completeFileProtection`.
+Validate deep/universal links and authorization before sensitive actions. Local biometric success gates local access; backend actions still require server authorization. Use normal TLS/ATS protections; pinning requires a threat model and rotation/recovery plan rather than being a default.
 
-## Testability
+Support Dynamic Type, VoiceOver, focus, safe areas, permission denial/revocation, and meaningful offline/error states. Verify current platform/store requirements when release work touches them.
 
-- Business logic in plain `struct`s with pure methods — testable without a host app.
-- Inject `URLSession` (or a `protocol` with one real + one stub conformer) instead of calling `.shared` inside the type.
-- Swift Testing (`@Test`, `#expect`) with parameterized arguments over duplicated test funcs.
-- Keep `View` bodies free of logic so snapshot/UI tests stay unnecessary.
+## Verification
 
-## Example
+Test business/state logic and network/persistence boundaries, plus selected UI tests for navigation, accessibility, and lifecycle. Use appropriate XCTest or Swift Testing conventions already present. Exercise supported OS/device configurations and release builds when affected; simulator evidence does not cover every hardware, performance, or background-execution property.
 
-```swift
-// before — 18 lines: ViewModel + completion handler + manual JSON
-// after — 4
-func loadUsers() async throws -> [User] {
-    let (data, _) = try await URLSession.shared.data(from: usersURL)
-    return try JSONDecoder().decode([User].self, from: data)
-}
-```
+See [Apple's Task documentation](https://developer.apple.com/documentation/swift/task/) for cancellation and structured concurrency details.

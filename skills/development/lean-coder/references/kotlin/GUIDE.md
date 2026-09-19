@@ -1,59 +1,23 @@
-# Kotlin — Lean Rules
+# Kotlin and Android
 
-## Language and stdlib first
+Inspect minimum/target SDK, Kotlin/toolchain versions, and the project's Compose/View architecture. Preserve existing conventions unless changing them is part of the task.
 
-| Need | Use | Not |
-|---|---|---|
-| Data holders | `data class` | class + equals/hashCode/toString |
-| Null safety | `?.`, `?:`, `let` | manual null checks / `!!` |
-| Errors | sealed `Result`-style class | exceptions across layers |
-| Collections | `map`/`filter`/`groupBy`/`associateBy` | loops with mutable lists |
-| Concurrency | coroutines, `Flow`, `viewModelScope` | RxJava, `AsyncTask`, threads |
-| DI | constructor injection; Hilt only if the graph is real | a container for 3 objects |
-| Serialization | `kotlinx.serialization` | Gson + manual TypeToken |
-| Constants | `enum class` / `sealed interface` | string keys |
-| Extensions | extension functions | Utils classes with static methods |
+## State and lifecycle
 
-## Android / Compose
+Give screen state a clear owner and collect observable state with lifecycle-aware APIs. Hoist state where shared ownership helps; do not remove ViewModels or interfaces based on size alone.
 
-- `@Composable` state hoisted upward; stateless composables take data + lambdas. That alone deletes most ViewModel glue.
-- One `StateFlow<UiState>` per screen, `UiState` a single data class — not five `LiveData` fields.
-- `collectAsStateWithLifecycle()`; no manual lifecycle observers.
-- No `Fragment` + `View` + XML for a screen Compose renders in one function.
-- Repository returns `Flow`; ViewModel maps it; UI renders it. No callbacks in between.
+Use structured coroutine scopes appropriate to operation lifetime. Propagate cancellation rather than swallowing it in broad exception handlers. Move blocking I/O and CPU work to appropriate dispatchers. Avoid duplicate requests or collectors during recreation and navigation.
 
-## Cut
+Distinguish configuration recreation, process death, and durable work. Use saved state for appropriate UI state and persistent storage/schedulers for work that must survive process loss. Define offline retries, duplicate prevention, permission denial, and restoration behavior. Test database migrations and concurrent updates.
 
-- `findViewById` / `ViewBinding` boilerplate once on Compose
-- Interfaces with one implementation (very common in Android DI cargo cult)
-- `Builder` classes — named + default arguments replace them
-- `object Utils` holders → top-level or extension functions
-- `if (x != null) { x.y() }` → `x?.y()`
-- Explicit `return` types on obvious one-expression functions
-- Getters/setters; `companion object` constants that only wrap a literal
+## Security and UX
 
-## Security (never cut)
+Keep secrets out of APK resources and build constants. Use a maintained secure-storage approach and Android Keystore for key protection where appropriate; plaintext preferences/DataStore are not encrypted secret storage. The old security-crypto APIs are deprecated; check supported replacements and migration needs rather than introducing EncryptedSharedPreferences by default. See [Android cryptography guidance](https://developer.android.com/privacy-and-security/cryptography).
 
-- No secrets in `BuildConfig`, source, or `strings.xml` — they ship in the APK.
-- `EncryptedSharedPreferences` / Keystore for tokens.
-- `exported="false"` by default on components; validate every `Intent` extra and deep link.
-- Cleartext traffic off; use the network security config; pin for high-value APIs.
-- `PendingIntent` with `FLAG_IMMUTABLE`.
-- Never log tokens or PII; strip logs in release via ProGuard/R8 rules.
+Limit exported components, validate intents/deep links, scope PendingIntent capabilities, and keep TLS validation enabled. Pinning needs an operational rotation/recovery plan; consult [network security configuration](https://developer.android.com/privacy-and-security/security-config).
 
-## Testability
+Support TalkBack, text scaling, focus, touch targets, system insets, and relevant device sizes. Handle permission revocation, background restrictions, and process restart without losing committed work.
 
-- ViewModels take repositories via constructor — a fake repo is 5 lines and needs no mocking framework.
-- Pure mapper functions (`Dto -> UiState`) hold the real logic and test as plain JVM unit tests.
-- `runTest` + `TestDispatcher` injected, never `Dispatchers.Main` hardcoded.
-- Turbine for `Flow` assertions; assert on emitted `UiState` values, not on view state.
+## Verification
 
-## Example
-
-```kotlin
-// before — 15 lines: LiveData fields, null checks, callback
-// after — 3
-val uiState: StateFlow<UiState> = repo.users()
-    .map { UiState(users = it, loading = false) }
-    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState())
-```
+Use JVM tests for logic, coroutine test dispatchers for deterministic scheduling, and instrumentation/Compose/View tests for platform behavior. Test process recreation, offline recovery, persistence upgrades, and relevant API levels. Validate release builds where shrinking/obfuscation, manifests, signing, or build configuration differs. Profile startup, jank, memory, and battery on representative devices when performance is in scope.

@@ -1,279 +1,69 @@
-Three variants in one file. Use the one matching the surface type from Stage 0 and delete the rest. Output goes to `docs/uiux.md`.
+# Interface specification template
 
----
-# VARIANT A — visual surfaces (web / mobile / desktop)
----
+Select applicable sections for visual, conversational, and/or headless systems. Combine variants for mixed products; remove instructional text and unused fields. Use existing naming and document locations.
 
-# <Project name> — UI/UX Specification
+# <Project> — <Interface / UI/UX / Interaction Contract>
 
-**Status:** Draft | Approved
+**Status:** Draft | Reviewed | Approved (only when approved)
 
-**Last updated:** <YYYY-MM-DD>
+**Requirements:** <link>
 
-**Surface:** web | mobile | desktop
+**Implementation plan:** <link when present>
 
-**PRD:** [prd.md](prd.md) · **Plan:** [plan/overview.md](plan/overview.md)
+## Consumers and primary flows
 
-Behavior, not visuals. No wireframes, no colours, no measurements — this document says what exists, what state it can be in, and what moves it between states.
+<Who uses/calls this, entry points, main outcome, and relevant requirements.>
 
-## 1. Surface summary
+## Visual surfaces (if applicable)
 
-<Two or three sentences: what kind of interface this is, the navigation model, and the single most important thing a user does with it.>
+### <Screen or component ID/name>
 
-## 2. Requirement → surface map
+**Purpose and entry/exit:** <user goal, navigation, requirement references>
 
-| Requirement | Where it surfaces |
-|---|---|
-| FR-01 | SC-02 (<name>), CMP-03 (<name>) |
-| FR-02 | <…> |
+**Layout and behavior:** <existing design system, hierarchy, responsive/platform behavior; diagram or wireframe if useful>
 
-<Note any FR that deliberately surfaces nowhere, and why.>
-
-## 3. Screens
-
-### SC-01 — <Screen name>
-
-**Covers:** FR-01
-
-**Reached from:** <entry point, or "app launch">
-
-**Leads to:** <SC-0n on success; where it goes on failure>
-
-**Purpose** <One sentence: what the user accomplishes here.>
-
-**What's on it**
-- CMP-01 — <name>
-- CMP-02 — <name> *(conditional: <when>)*
-
-**Screen states**
-- **<State>** — <what is true, what is active, what is disabled.>
-- **<State>** — <…>
-
-**Not on this screen**
-- <Thing a reader would assume is here> — SC-0n.
-
----
-
-### SC-02 — <Screen name>
-
-<Same shape.>
-
-## 4. Components
-
-### CMP-01 — <Component name>
-
-**Used on:** SC-01, SC-02
-
-**Covers:** FR-01
-
-**Purpose** <One sentence.>
-
-**States**
-
-| State | When it shows | What the user sees | What they can do |
+| State | Trigger / condition | What the user sees | Available actions / next state |
 |---|---|---|---|
-| Default | <…> | <…> | <…> |
-| Loading | <…> | <…> | <…> |
-| Empty | <…> | <…> | <…> |
-| Error | <…> | <…> | <…> |
-| Disabled | <…> | <…> | <…> |
+| <meaningful state> | <…> | <…> | <…> |
 
-**Behavior rules**
-- <Rule that is not obvious from the state table.>
+<Relevant validation, focus/accessibility, double submission, stale data, session expiry, offline and permission behavior.>
 
-**Edge cases**
-- <What happens at the boundary.>
+## Commands or conversations (if applicable)
 
----
+### <Command / intent>
 
-### CMP-02 — <Component name>
+**Invocation and inputs:** <syntax, defaults, validation, authorization>
 
-<Same shape.>
+**Output:** <human or machine-readable contract, error/exit semantics>
 
-## 5. Flows
+**State:** <what persists, expires, resets, or can be cancelled>
 
-### FLOW-01 — <Happy path name>
+<Representative success and recovery flows; mark illustrative wording.>
 
-**Covers:** FR-01, FR-03 SC-01 → <action> → SC-02 (<state>) → <action> → SC-03
+## APIs, events, jobs, or library contracts (if applicable)
 
-**Where it can break**
-- <Failure> → <state>, picked up by FLOW-02.
+### <Entry point / topic / job>
 
----
+**Caller and authorization:** <who can invoke/read it>
 
-### FLOW-02 — <Failure path name>
+**Input/output:** <schema or concrete example where useful>
 
-<Same shape. At least one failure flow is required.>
+**Side effects:** <what changes and when it becomes visible>
 
-## 6. Cross-cutting rules
-
-- **Responsive / platform:** <what the user stated>
-- **Accessibility floor:** <keyboard reach, focus visibility, labels, contrast>
-- **Loading convention:** <spinner | skeleton | blocking, applied where>
-- **Error convention:** <inline | banner | toast, and tone>
-- **Empty-state convention:** <what a fresh install shows>
-
-## 7. Open questions
-
-| # | Question | Who answers |
-|---|---|---|
-| 1 | <…> | <…> |
-
----
-# VARIANT B — conversational surfaces (CLI / chatbot)
----
-
-# <Project name> — Interaction Specification
-
-**Status:** Draft | Approved
-
-**Last updated:** <YYYY-MM-DD>
-
-**Surface:** conversational (CLI | chatbot | voice)
-
-**PRD:** [prd.md](prd.md) · **Plan:** [plan/overview.md](plan/overview.md)
-
-## 1. Surface summary
-
-<What kind of interface, how a session starts and ends, and the one thing it is for.>
-
-## 2. Requirement → surface map
-
-| Requirement | Where it surfaces |
-|---|---|
-| FR-01 | CS-02 (<command/intent>) |
-
-## 3. Commands and intents
-
-### CS-01 — <What the user is trying to do>
-
-**Covers:** FR-01
-
-**Invoked by:** `<command syntax>` / "<natural phrasing>", "<variant>"
-
-**Inputs it needs**
-- <Input> — <what happens if it is missing: ask, default, or refuse.>
-
-**Responses**
-
-| Situation | What comes back | Session state after |
-|---|---|---|
-| <Valid input> | <…> | <…> |
-| <Missing input> | <…> | Awaiting input |
-| <Invalid input> | <…> | <…> |
-| <Wrong state> | <…> | Unchanged |
-
-**Behavior rules**
-- <Rule, especially anything about never partially succeeding.>
-
----
-
-### CS-02 — <…>
-
-<Same shape.>
-
-## 4. Session state model
-
-| State | Meaning | Entered by | Exits to |
+| Condition | Result / error | Committed effects | Recovery / retry |
 |---|---|---|---|
-| Idle | <…> | <…> | <…> |
-| Awaiting input | <…> | <…> | <…> |
-| Working | <…> | <…> | <…> |
-| Errored | <…> | <…> | <…> |
+| <success or failure> | <…> | <…> | <…> |
 
-**Persists across turns:** <…>
+<Relevant ordering, pagination, idempotency, concurrency, deadlines, compatibility, data grain/keys, freshness/finality, and partial-success semantics.>
 
-**Resets each turn:** <…>
+## Integrated flows
 
-**Persists across sessions:** <…>
+<Trace important success and failure/recovery paths across surfaces and external systems.>
 
-## 5. Turn flows
+## Shared conventions
 
-### FLOW-01 — <Happy session>
-1. User: <…> → system: <…> → state: <…>
-2. <…>
+<Accessibility, privacy, errors, configuration, observability, platform/version constraints relevant to these interfaces.>
 
-### FLOW-02 — <Session that goes wrong and recovers>
-<Same shape. Required.>
+## Decisions and uncertainty
 
-<Sample wording is illustrative, not fixed copy.>
-
-## 6. Output and invocation conventions
-
-- **Format:** <plain text | tables | structured output>
-- **Verbosity:** <levels, and the default>
-- **Machine-readable mode:** <flag/behavior, or "none">
-- **Non-interactive / piped invocation:** <what differs>
-- **Accessibility:** <screen-reader friendliness, colour independence>
-
-## 7. Open questions
-
-| # | Question | Who answers |
-|---|---|---|
-| 1 | <…> | <…> |
-
----
-# VARIANT C — headless (library / API / pipeline)
----
-
-# <Project name> — Interaction Contract
-
-**Status:** Draft | Approved
-
-**Last updated:** <YYYY-MM-DD>
-
-**Surface:** headless
-
-**PRD:** [prd.md](prd.md) · **Plan:** [plan/overview.md](plan/overview.md)
-
-No end-user interface. This document is the contract a caller programs against, in plain terms — no schemas, no type signatures, no code.
-
-## 1. Surface summary
-
-<What consumes this, and how.>
-
-## 2. Requirement → surface map
-
-| Requirement | Where it surfaces |
-|---|---|
-| FR-01 | CS-01 (<entry point>) |
-
-## 3. Interfaces
-
-### CS-01 — <Entry point name>
-
-**Covers:** FR-01
-
-**Called by:** <who or what, and when>
-
-**Takes** <What the caller supplies, described in plain terms.>
-
-**Returns** <What comes back on success.>
-
-**Failure behavior**
-
-| Failure | What the caller gets | Side effects |
-|---|---|---|
-| <…> | <…> | <…> |
-
-**Behavior rules**
-- <Idempotency, ordering, partial-success semantics.>
-
----
-
-### CS-02 — <…>
-
-<Same shape.>
-
-## 4. Cross-cutting rules
-
-- **Error signalling:** <exceptions | codes | result objects>
-- **Versioning:** <how breaking changes are handled, or "v1 only">
-- **Observability:** <what is logged or emitted, if the user cares>
-- **Configuration surface:** <env vars, config file, arguments>
-
-## 5. Open questions
-
-| # | Question | Who answers |
-|---|---|---|
-| 1 | <…> | <…> |
+<Confirmed choices, proposals, assumptions, and open questions with impact.>

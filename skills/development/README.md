@@ -1,39 +1,18 @@
 # Development Skills
 
-Two skills covering the two halves of building software: deciding what to build, and writing the code well.
+Two complementary skills support production software work. Use either independently; planning is helpful when it resolves real uncertainty, not a prerequisite for every code edit.
 
-```
-project-planner/  -> rough idea      → PRD, UX spec, phased plan under docs/
-lean-coder/       -> any coding work → the least code that is correct and secure
-```
-
-They compose in that order — plan first, then implement against the plan — but neither depends on the other.
-
-| Skill | Fires when | Produces |
+| Skill | Use for | Result |
 |---|---|---|
-| [**project-planner**](./project-planner/README.md) | You describe something you want to build, or say "write a PRD", "spec this out", "break this into phases" | Markdown only: `docs/prd.md`, a UI/UX or interaction-contract spec, and a phase-by-phase implementation plan with test cases. Never application code |
-| [**lean-coder**](./lean-coder/README.md) | Writing, refactoring, reviewing a diff, or debugging — including "clean this up", "is this good code", "make this production-ready", "why is this slow" | Edits to your code, plus a `before → after` LOC delta on refactors |
+| [project-planner](project-planner/README.md) | Product/feature planning, requirements, interface contracts, migrations, learning roadmaps | Actionable documents with dependencies, acceptance evidence, and relevant release/recovery considerations |
+| [lean-coder](lean-coder/README.md) | Implementation, review, refactoring, optimization, troubleshooting, debugging | Focused changes when authorized, or evidence-backed findings, with proportionate verification |
 
-## lean-coder is meant to fire unprompted
+Both cover web, data engineering, Web3, Android/iOS, and troubleshooting. Domain guidance addresses actual failure modes: authorization and cache isolation, replay and partial writes, signatures and reorgs, mobile lifecycle and offline recovery, and causal debugging.
 
-Most code bloat enters in small snippets nobody thought to review, so the skill is written to trigger on *any* coding activity rather than waiting for "keep it short". Its discipline is a fixed loop — Delete, Stdlib, Inline, Secure, Production-grade, Test — where fewer lines is the tiebreaker, never the goal. Security code and anything a test asserts on are never cut.
+The instructions support agent judgment. They do not impose line-count targets, blanket abstraction bans, fixed interviews, or automatic approval stops. The planner can continue into implementation when the user has already authorized it. Reviews and diagnoses preserve their requested scope.
 
-It ships nine per-language guides (Python, SQL, Scala/Spark, TypeScript/React/Next.js, Solidity, Rust, Swift, Kotlin, React Native) plus a cross-language production-grade checklist. Only the guide for the language in play is loaded.
+Detailed references load only when relevant. Templates adapt to the project; production checks scale with the consequences of failure. Repository executor agents load lean-coder according to their own instructions; see [agent documentation](../../agents/README.md).
 
-This repo's `executor` agent mandates loading it before any coding work — a good skill description is a suggestion to the harness's matcher, an agent instruction is a requirement. See [`agents/README.md`](../../agents/README.md).
+## Distribution
 
-## Install
-
-```bash
-uv run scripts/sync_all.py            # every skill in the repo, all five platforms
-```
-
-Or copy a single folder into whichever skills directory your harness reads:
-
-```bash
-cp -r lean-coder ~/.claude/skills/    # or ~/.config/opencode/skills/,
-                                      # ~/.agents/skills/,
-                                      # ~/.gemini/config/skills/, ~/.bob/skills/
-```
-
-`project-planner` writes into `docs/` (and optionally `learnings/`) in whatever repo you invoke it from. `lean-coder` writes nothing on its own — it changes how the agent edits your code.
+Edit canonical sources here, preview with `uv run scripts/sync_all.py --dry-run`, and synchronize through the repository scripts when requested. See the [repository guide](../../README.md) for destinations and verification.

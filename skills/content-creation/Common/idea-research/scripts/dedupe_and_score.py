@@ -10,12 +10,10 @@ import json
 import math
 import re
 import sys
-from collections import defaultdict
+import time
 from pathlib import Path
 
 from common import RAW_DIR, load_beats, tokenize
-
-MEDIUM_SATURATION_PENALTY = 6  # per existing Medium post in the cluster, capped
 
 
 def slugify(text, maxlen=60):
@@ -27,10 +25,37 @@ def load_raw():
     if not RAW_DIR.exists():
         sys.exit("No .idea-research/raw/ directory — run the fetchers first.")
     items = []
+    seen = set()
+    now = time.time()
     for path in sorted(RAW_DIR.glob("*.json")):
         try:
-            items.extend(json.loads(path.read_text()))
-        except (json.JSONDecodeError, OSError) as exc:
+            records = json.loads(path.read_text())
+            if not isinstance(records, list):
+                raise ValueError("expected a JSON array")
+            for record in records:
+                if not isinstance(record, dict) or not all(
+                    isinstance(record.get(key), str) and record[key].strip()
+                    for key in ("source", "title", "url")
+                ):
+                    print(f"  [warn] skipping invalid item in {path}", file=sys.stderr)
+                    continue
+                key = (record["source"], record["url"])
+                if key in seen:
+                    continue
+                try:
+                    timestamp = record.get("created_utc")
+                    age = max(0.0, (now - float(timestamp)) / 3600) if timestamp is not None else None
+                    score = max(0, int(record.get("score") or 0))
+                    comments = max(0, int(record.get("comments") or 0))
+                    if timestamp is not None and not math.isfinite(float(timestamp)):
+                        raise ValueError("non-finite timestamp")
+                except (TypeError, ValueError, OverflowError):
+                    print(f"  [warn] skipping invalid metrics in {path}", file=sys.stderr)
+                    continue
+                seen.add(key)
+                items.append({**record, "age_hours": age, "score": score,
+                              "comments": comments})
+        except (ValueError, OSError) as exc:
             print(f"  [warn] could not read {path}: {exc}", file=sys.stderr)
     if not items:
         sys.exit("All sources returned empty. Nothing to score — check network "
@@ -43,11 +68,13 @@ def match_beat(title, beats, extra_keywords):
     text = title.lower()
     best, best_hits = None, 0
     for name, cfg in beats.items():
-        hits = sum(1 for kw in cfg["keywords"] if kw in text)
+        hits = sum(1 for kw in cfg["keywords"]
+                   if re.search(r"(?<!\w)" + re.escape(kw) + r"(?!\w)", text))
         if hits > best_hits:
             best, best_hits = name, hits
     if best and extra_keywords:
-        if any(kw in text for kw in extra_keywords):
+        if any(re.search(r"(?<!\w)" + re.escape(kw) + r"(?!\w)", text)
+               for kw in extra_keywords):
             best_hits += 1
     return best, best_hits
 
@@ -80,13 +107,15 @@ def velocity_points(items):
     """Engagement per hour, log-normalised, plus a cross-source bonus."""
     rate = 0.0
     for it in items:
-        if it["source"] == "medium":
-            continue  # saturation signal, not engagement
-        age = max(it.get("age_hours") or 24.0, 1.0)
+        if it["source"] not in {"hn", "reddit"} or it.get("age_hours") is None:
+            continue  # traffic estimates and unknown-age counts are not velocity
+        age = max(it["age_hours"], 1.0)
         rate += (it.get("score", 0) + 2 * it.get("comments", 0)) / age
     base = min(30.0, 10.0 * math.log10(1 + rate)) if rate > 0 else 0.0
 
-    distinct = {it["source"] for it in items if it["source"] != "medium"}
+    distinct = {it["source"] for it in items if it["source"] in {"hn", "reddit"}
+                and it.get("age_hours") is not None
+                and (it.get("score", 0) or it.get("comments", 0))}
     bonus = min(10, 5 * max(0, len(distinct) - 1))
     return round(min(30.0, base + bonus), 1)
 
@@ -128,7 +157,7 @@ def score_cluster(cl, gap_default):
     beat = beat_points(max(i["hits"] for i in items))
 
     medium_hits = sum(1 for i in items if i["source"] == "medium")
-    gap = gap_default - min(gap_default, MEDIUM_SATURATION_PENALTY * medium_hits)
+    gap = gap_default  # feed presence alone does not establish coverage quality
 
     lead = max(items, key=lambda i: i.get("score", 0) + 2 * i.get("comments", 0))
     return {
@@ -166,7 +195,11 @@ def main():
     ap.add_argument("--gap-overrides", help="JSON dict or path: {\"idea-3\": 19}")
     ap.add_argument("--gap-default", type=float, default=10.0)
     ap.add_argument("--out", default=".idea-research/scored.json")
+    ap.add_argument("--beats", help="project-specific beats table; defaults to bundled beats")
+    ap.add_argument("--dry-run", action="store_true", help="preview ranking without writing")
     args = ap.parse_args()
+    if not 0 <= args.gap_default <= 20 or args.top < 1:
+        ap.error("--gap-default must be 0..20 and --top must be positive")
 
     extra = []
     if args.keywords and Path(args.keywords).exists():
@@ -174,7 +207,7 @@ def main():
                  Path(args.keywords).read_text().splitlines() if l.strip()]
         print(f"Keyword expansion active: {len(extra)} terms (terms only, no volume).")
 
-    beats = load_beats()
+    beats = load_beats(args.beats) if args.beats else load_beats()
     clusters = cluster(load_raw(), beats, extra)
     ideas = [score_cluster(c, args.gap_default) for c in clusters]
     ideas.sort(key=lambda x: -x["score"])
@@ -184,6 +217,17 @@ def main():
         idea["slug"] = slugify(idea["title"])
 
     overrides = load_overrides(args.gap_overrides)
+    if not isinstance(overrides, dict):
+        ap.error("--gap-overrides must be an object mapping idea IDs to 0..20")
+    try:
+        overrides = {key: float(value) for key, value in overrides.items()}
+    except (TypeError, ValueError):
+        ap.error("gap overrides must be numeric")
+    if any(not 0 <= value <= 20 for value in overrides.values()):
+        ap.error("gap overrides must be in 0..20")
+    unknown = set(overrides) - {idea["id"] for idea in ideas}
+    if unknown:
+        ap.error(f"unknown idea IDs: {', '.join(sorted(unknown))}")
     for idea in ideas:
         if idea["id"] in overrides:
             new_gap = float(overrides[idea["id"]])
@@ -196,8 +240,9 @@ def main():
     shown = [i for i in ideas if i["score"] >= args.min_score][:args.top]
 
     out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(ideas, indent=2, ensure_ascii=False))
+    if not args.dry_run:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(ideas, indent=2, ensure_ascii=False))
 
     print(f"\n{len(ideas)} ideas clustered, {len(shown)} above threshold "
           f"{args.min_score}\n")
@@ -208,9 +253,9 @@ def main():
         srcs = ",".join(i["sources"])[:19]
         print(f"{i['id']:<9}{i['score']:>6}  {i['beat']:<20}"
               f"{srcs:<20}{i['title'][:44]}{flag}")
-    print("\n* gap score not yet verified — check Medium/LinkedIn coverage and "
+    print("\n* gap judgment not supplied — inspect relevant coverage and "
           "re-run with --gap-overrides (see references/scoring.md).")
-    print(f"Full detail: {out}")
+    print(f"{'Would write' if args.dry_run else 'Full detail'}: {out}")
     return 0
 
 

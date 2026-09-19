@@ -4,7 +4,7 @@
 #
 # Usage:
 #   kwfetch.sh all "<seed>" [-e entity]... [-o out.tsv] [--deep] [--ddg]
-#                           [--gl US] [--hl en] [--se-site stackoverflow]
+#                           [--gl US] [--hl en] [--se-site stackoverflow] [--dry-run]
 #   kwfetch.sh score <raw.tsv>
 #   kwfetch.sh suggest "<query>"      # single Google+Bing lookup
 #   kwfetch.sh related "<term>"       # Datamuse only
@@ -19,6 +19,7 @@ set -uo pipefail
 UA="${KW_UA:-kwfetch/1.0 (keyword-research skill; contact: set KW_UA env var)}"
 HL="en"; GL="US"; SE_SITE="stackoverflow"
 DEEP=0; DDG=0; SLEEP="${KW_SLEEP:-0.4}"
+DRY_RUN=0
 OUT=""; ENTITIES=()
 
 log()  { printf '%s\n' "$*" >&2; }
@@ -28,7 +29,7 @@ for dep in curl jq; do
   have "$dep" || { log "FATAL: '$dep' is required but not installed."; exit 2; }
 done
 
-GET() { curl -sS -m 15 -A "$UA" "$@" 2>/dev/null; }
+GET() { curl -fsS -m 15 -A "$UA" "$@"; }
 
 # ---------------------------------------------------------------- Tier 2
 
@@ -65,12 +66,13 @@ wiki_titles() {
 }
 
 pv_window() { # sets PV_START / PV_END = last 12 full months
-  if date -u -d "1 month ago" +%Y%m01 >/dev/null 2>&1; then
-    PV_START=$(date -u -d "13 months ago" +%Y%m01)
-    PV_END=$(date -u -d "1 month ago" +%Y%m01)
+  local month_start; month_start=$(date -u +%Y-%m-01)
+  if date -u -d "$month_start -1 month" +%Y%m01 >/dev/null 2>&1; then
+    PV_START=$(date -u -d "$month_start -12 months" +%Y%m01)
+    PV_END=$(date -u -d "$month_start -1 month" +%Y%m01)
   else
-    PV_START=$(date -u -v-13m +%Y%m01)
-    PV_END=$(date -u -v-1m +%Y%m01)
+    PV_START=$(date -u -v1d -v-12m +%Y%m01)
+    PV_END=$(date -u -v1d -v-1m +%Y%m01)
   fi
 }
 
@@ -82,7 +84,7 @@ wiki_views() { # $1=article title -> "mean<TAB>first<TAB>last"
 }
 
 stackx() { # $1=query -> "title<TAB>votes"
-  curl -sS -m 20 --compressed -A "$UA" -G \
+  curl -fsS -m 20 --compressed -A "$UA" -G \
     --data-urlencode "q=$1" --data-urlencode "order=desc" \
     --data-urlencode "sort=votes" --data-urlencode "site=${SE_SITE}" \
     --data-urlencode "pagesize=25" \
@@ -93,7 +95,7 @@ stackx() { # $1=query -> "title<TAB>votes"
 # ---------------------------------------------------------------- harvest
 
 MODIFIERS_SUFFIX=(for vs with without "how" "why" "what" "is" "can" best tools
-                  tutorial example alternatives guide explained "not working" 2026)
+                  tutorial example alternatives guide explained "not working" "$(date -u +%Y)")
 MODIFIERS_PREFIX=("how to" "why" "what is" "best" "when to" "should i")
 ALPHA=(a b c d e f g h i j k l m n o p q r s t u v w x y z)
 
@@ -205,6 +207,11 @@ cmd_score() {
       breadth[term]++
       srcs[term] = srcs[term] (srcs[term]==""?"":",") src
     }
+    family=(src=="wikipedia" || src=="pageviews") ? "wikimedia" : src
+    if (!((term SUBSEP family) in families)) {
+      families[term SUBSEP family]=1
+      family_count[term]++
+    }
     if (src=="google" || src=="bing" || src=="ddg") {
       if (metric>0 && (!(term in rank) || metric<rank[term])) rank[term]=metric
       tier2[term]=1
@@ -222,7 +229,7 @@ cmd_score() {
       pos = (r>=1 && r<=10) ? (11-r)/10 : 0.3
       s = 45*(breadth[t]/maxb) + 30*pos + 25*spec
 
-      if (pv[t] || (breadth[t]>=2 && tier1[t])) g="A"
+      if (family_count[t]>=2 && tier1[t])     g="A"
       else if (tier1[t] && !tier2[t])            g="B"
       else if (tier2[t])                         g="C"
       else                                       g="D"
@@ -240,19 +247,36 @@ CMD="$1"; shift
 ARG=""
 while [ $# -gt 0 ]; do
   case "$1" in
+    -e|-o|--gl|--hl|--se-site)
+      [ $# -ge 2 ] && [ -n "$2" ] && [[ "$2" != -* ]] || {
+        log "FATAL: missing value for '$1'"; exit 2;
+      } ;;
+  esac
+  case "$1" in
     -e) ENTITIES+=("$2"); shift 2 ;;
     -o) OUT="$2"; shift 2 ;;
     --deep) DEEP=1; shift ;;
     --ddg) DDG=1; shift ;;
+    --dry-run) DRY_RUN=1; shift ;;
     --gl) GL="$2"; shift 2 ;;
     --hl) HL="$2"; shift 2 ;;
     --se-site) SE_SITE="$2"; shift 2 ;;
     -h|--help) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
-    *) [ -z "$ARG" ] && ARG="$1"; shift ;;
+    -*) log "FATAL: unknown option '$1'"; exit 2 ;;
+    *) [ -z "$ARG" ] || { log "FATAL: unexpected argument '$1'"; exit 2; }
+       ARG="$1"; shift ;;
   esac
 done
 
 [ -z "$ARG" ] && { log "FATAL: missing argument for '$CMD'"; exit 2; }
+case "$CMD" in
+  all|score|suggest|related|entity|questions) ;;
+  *) log "FATAL: unknown command '$CMD'"; exit 2 ;;
+esac
+if [ "$DRY_RUN" -eq 1 ]; then
+  printf 'Would run %s for %s (locale %s/%s, site %s); output: %s\n' "$CMD" "$ARG" "$HL" "$GL" "$SE_SITE" "${OUT:-stdout}"
+  exit 0
+fi
 
 run() {
   case "$CMD" in
@@ -265,7 +289,11 @@ run() {
                wiki_titles "$ARG" | while IFS= read -r t; do
                  [ -z "$t" ] && continue
                  v=$(wiki_views "$t")
-                 printf 'pageviews\t%s\t%s\n' "$t" "${v:-0}"
+                 if [ -n "$v" ]; then
+                   printf 'pageviews\t%s\t%s\n' "$t" "$(printf '%s' "$v" | cut -f1)"
+                 else
+                   log "  unavailable wikimedia-pageviews: $t"
+                 fi
                done ;;
     questions) stackx "$ARG" | emit stackexchange ;;
     *) log "FATAL: unknown command '$CMD'"; exit 2 ;;

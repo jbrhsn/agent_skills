@@ -13,7 +13,7 @@
 
 ## Hook candidates
 
-Concrete beats vague. Use a number, a named tool, or a verifiable outcome. Target 7–10% CTR; under 3% means the title is unclear, not that the topic is wrong.
+State a useful promise supported by the material. Numbers and first-person outcomes need real evidence; no universal CTR target applies.
 
 1. {title}
 2.
@@ -21,11 +21,11 @@ Concrete beats vague. Use a number, a named tool, or a verifiable outcome. Targe
 
 ## Why now
 
-What makes this timely *this week*? Name the news anchor, release, or thread that makes a reader feel they're getting something current.
+If timely, name the event and its date. An evergreen reader problem is also a valid reason to write.
 
 ## What I actually know first-hand
 
-The part no one else can write. Specific numbers, real failures, actual tools, what surprised me. Generic coverage gets deprioritized — this section is what clears curation.
+Author input needed: real observations, results, decisions, or experiences, if relevant. Do not treat these prompts as facts about the author.
 
 -
 -
@@ -34,7 +34,7 @@ The part no one else can write. Specific numbers, real failures, actual tools, w
 
 {evidence}
 
-**Signal breakdown:** recency {recency} · velocity {velocity} · beat fit {beat_fit} · curation gap {gap} (verified: {gap_checked}) · sources: {sources}
+**Heuristic breakdown:** recency {recency} · engagement-rate proxy {velocity} · beat fit {beat_fit} · gap judgment {gap} (override supplied: {gap_checked}) · sources: {sources}. This is prioritization, not predicted reach or verification of the underlying claims.
 
 ## Prior coverage / the gap
 
@@ -50,8 +50,8 @@ What already exists on Medium and LinkedIn, and what it misses. If several stron
 
 ## Derived pieces
 
-- [ ] Medium — 1,200–3,000 words, H2 every 300–500 words, short paragraphs
-- [ ] LinkedIn — niche and conversation-starting; first hour of engagement matters
+- [ ] Medium — depth and length appropriate to the reader's task
+- [ ] LinkedIn — a useful professional angle in the author's voice
 - [ ] Reddit — community-first, no pitch, expect scrutiny
 
 ## Open questions

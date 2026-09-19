@@ -55,11 +55,9 @@ def make_item(source, title, url, score=0, comments=0, created_utc=None,
     }
 
 
-def load_beats(path="references/beats.md"):
+def load_beats(path=None):
     """Parse the beats table. Returns {beat: {keywords, subreddits, tags}}."""
-    p = Path(path)
-    if not p.exists():
-        p = Path(__file__).resolve().parent.parent / "references" / "beats.md"
+    p = Path(path) if path else Path(__file__).resolve().parent.parent / "references" / "beats.md"
     beats = {}
     for line in p.read_text().splitlines():
         if not line.startswith("|"):

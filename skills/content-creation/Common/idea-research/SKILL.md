@@ -1,94 +1,48 @@
 ---
 name: idea-research
-description: Research and generate ranked, evidence-backed content ideas for Medium, LinkedIn, and Reddit across AI, data engineering, finance, personal finance, writing, productivity, product reviews, and thought leadership. Use this skill whenever the user asks what to write about, wants article or post ideas, asks for trending or viral topics, wants to refill their content pipeline, mentions their `source.md` article workflow, or asks to research a niche for content opportunities — even if they don't say the word "skill" or name a specific platform. Uses only free, no-login public sources.
+description: Research and prioritize content ideas for a chosen audience or niche, with source-backed angles and optional article scaffolds. Use for topic discovery, trend research, or planning a content pipeline for Medium, LinkedIn, or Reddit.
 ---
 
 # Idea Research
 
-Generates ranked content ideas from live public sources, then (only after the user approves) scaffolds a `source.md` stub per approved idea.
+Find useful angles the author can credibly develop. Distinguish observed interest, editorial judgment, and original brainstorming; a popularity score is neither truth nor a promise of reach.
 
-**Hard constraints — never violate:**
-- No authentication, API keys, logins, OAuth, or MCP connectors. Public endpoints only.
-- Never create folders or files without explicit user confirmation.
-- Every idea must cite a live source. No idea invented from memory.
+## Establish direction
 
-## Workflow
+Use the request and available writing samples to identify audience, purpose, platform, niche, geography/language, and relevant time window. Ask only about consequential ambiguity. The [beats](references/beats.md) are optional defaults, not a limit on the user's topics.
 
-### 1. Set up the environment (once per project)
+For timely claims, research live sources and check event dates as well as publication dates. Evergreen and experience-led ideas are valid without a trend anchor; label them as editorial proposals rather than measured trends. Do not invent the author's experience, expertise, results, or opinions.
 
-```bash
-bash scripts/setup_env.sh
-```
+## Gather proportionate evidence
 
-Read the script's output and act on it:
-- **uv found** → run all scripts as `uv run scripts/<name>.py`. Continue.
-- **uv missing** → STOP and ask the user: *"`uv` isn't installed. Install it from https://docs.astral.sh/uv/getting-started/installation/, or should I proceed with plain `python3` instead?"* Only fall back to `python3 scripts/<name>.py` after the user explicitly says yes. Never silently fall back.
+Choose relevant sources instead of fetching every platform by default. Prefer primary evidence for factual claims and community discussion for audience questions. Read [sources](references/sources.md) before using the bundled fetchers. Public keyless access is their default; use other available sources when authorized and useful. Respect access controls and rate limits.
 
-Scripts are stdlib-only, so there is nothing to `pip install` either way.
+Resolve helper paths from this skill's installed directory. Run them from an isolated research working directory so old raw files cannot silently enter a new ranking. Python runs through `uv run`; if uv is missing, ask before installation, then verify it. Do not substitute bare Python. Browser research remains available if helpers cannot run.
 
-### 2. Fetch raw signals
-
-Run all four fetchers. They write JSON into `.idea-research/raw/`.
+Example, with paths resolved for the actual environment:
 
 ```bash
-uv run scripts/fetch_hn.py
-uv run scripts/fetch_reddit.py
-uv run scripts/fetch_trends.py
-uv run scripts/fetch_medium_tags.py
+uv run /absolute/idea-research/scripts/fetch_hn.py --days 7
+uv run /absolute/idea-research/scripts/fetch_reddit.py --subs dataengineering --window week
+uv run /absolute/idea-research/scripts/dedupe_and_score.py --top 10 --min-score 0
 ```
 
-A fetcher that fails is not fatal — the pipeline runs on whatever succeeded. Report which sources came back empty so the user knows the coverage. See `references/sources.md` for endpoints, rate limits, and failure modes.
+The scorer reads `.idea-research/raw/` under the working directory and writes `.idea-research/scored.json`. The [scoring guide](references/scoring.md) explains biases and overrides. Scripts are optional aids; direct research may fit a niche better. Do not run keyword research unless query expansion would help the requested task.
 
-### 3. Optional: expand keywords
+## Select and develop angles
 
-If a keyword-research skill is available in this environment, call it now with the beats from `references/beats.md` as seeds, save the returned terms to `.idea-research/keywords.txt` (one per line), and pass it in step 4 with `--keywords .idea-research/keywords.txt`.
+Inspect promising candidates beyond headlines. Check source identity, claim support, duplicated coverage, audience relevance, and whether the author can add a useful distinction, example, investigation, or experience. Search visibility is incomplete; absence from search is not proof nobody has covered a topic.
 
-That skill returns **terms only, no volume or competition metrics** — treat it as query expansion, never as a scoring input. **If it is unavailable, skip this step entirely.** The pipeline must never depend on it.
+For each selected idea, give a working title, reader problem, angle, platform fit, supporting links with dates, evidence limitations, and what original material would be needed. Use engagement counts only as dated observations, not transferable audience estimates. Rank by a stated editorial rationale; do not fabricate numerical precision when research is qualitative.
 
-### 4. Cluster and score
+## Deliver and optionally scaffold
+
+A request for ideas can be answered directly. If the user asks to save or scaffold selected ideas, that is authorization; do not ask for a second confirmation of the same work. Without a selection, present options and ask which to develop only if file creation depends on that choice.
+
+The scaffold helper creates one folder per invocation and refuses overwrite. Preview with `--dry-run`, then run the same command without it from the working directory holding the scored file:
 
 ```bash
-uv run scripts/dedupe_and_score.py --top 15
+uv run /absolute/idea-research/scripts/scaffold_article.py --id idea-1 --root /absolute/articles --hook "Working title" --angle "Proposed angle" --dry-run
 ```
 
-Outputs a ranked table to stdout and `.idea-research/scored.json`. Scoring is recency + engagement velocity + beat fit + a curation-gap slot. Read `references/scoring.md` before interpreting or explaining scores.
-
-### 5. Close the curation gap (agent work, not scriptable)
-
-The script leaves `gap_score` at a neutral default. For the top candidates only, web-search `site:medium.com <topic>` and check LinkedIn coverage, then adjust:
-
-- Hot topic, no good recent coverage → raise the gap score, this is the opportunity
-- Covered well and recently → lower it, or find a differentiated angle
-- Large audience but the best existing piece is months old → raise it, strongest signal
-
-Apply adjustments with `--gap-overrides` (see `references/scoring.md`).
-
-### 6. Write the angle, not just the topic
-
-A bare topic is not an idea. For each idea presented, produce:
-
-- **Hook/title** — specific and concrete, with a number, named tool, or verifiable claim. Vague curiosity hooks underperform.
-- **Angle** — the argument or story, ideally where the user's own experience meets the trend.
-- **Platform** — Medium (long-form, 1,200–3,000 words, depth), LinkedIn (niche, conversation-starting, thought leadership), or Reddit (community-first, no pitch).
-- **Evidence** — the source URL and its engagement numbers.
-
-Read `references/scoring.md` § *What actually drives pickup* before writing hooks.
-
-### 7. Present, then ask before writing anything
-
-Show the ranked table in the conversation. Then ask which ideas to scaffold — never scaffold automatically, never scaffold the whole list, never assume a high score is consent.
-
-Once the user names specific ideas, echo the exact folder paths that will be created and wait for a final yes. Then, per approved idea:
-
-```bash
-uv run scripts/scaffold_article.py --id <idea-id> --root articles/
-```
-
-This creates `articles/<slug>/source.md` from `assets/source_template.md`. It refuses to overwrite an existing folder.
-
-## Reference files
-
-- `references/beats.md` — the user's topic beats and the subreddits/tags per beat
-- `references/sources.md` — endpoints, headers, rate limits, what to do when one dies
-- `references/scoring.md` — the scoring formula, thresholds, and what drives pickup
-- `assets/source_template.md` — the `source.md` scaffold
+Use [source_template.md](assets/source_template.md) for manual scaffolds or non-script research. Preserve provenance and clearly separate prompts for future author input from known facts. Report source gaps and created paths. This workflow does not publish or contact anyone.

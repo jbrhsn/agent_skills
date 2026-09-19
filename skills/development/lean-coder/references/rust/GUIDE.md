@@ -1,56 +1,21 @@
-# Rust — Lean Rules
+# Rust
 
-## Stdlib and derives first
+Use the repository's edition, minimum supported Rust version, features, runtime, and dependency conventions. Prefer clear ownership and explicit error contracts over eliminating every clone, trait, or match.
 
-| Need | Use | Not |
-|---|---|---|
-| Boilerplate impls | `#[derive(Debug, Clone, PartialEq, Default)]` | hand-written impls |
-| Errors | `thiserror` for libs, `anyhow` for bins | custom error enum + 5 `From` impls |
-| Conversions | `From`/`Into`, `?` | manual match-and-map |
-| Optionality | `Option` combinators (`map`, `unwrap_or`, `ok_or`) | if-let ladders |
-| Iteration | iterator chains, `collect::<Result<Vec<_>,_>>()` | index loops with `push` |
-| Constructors | `Default` + struct update syntax | builder for <5 fields |
-| Concurrency | `Arc<Mutex<T>>`, channels, `tokio::join!` | bespoke sync primitives |
+## Design and concurrency
 
-## Cut
+Borrow where lifetimes remain understandable; owned values and clones are appropriate at task boundaries or when they simplify correct ownership at acceptable cost. Use enums/newtypes for real domain distinctions. Retain traits for meaningful contracts and substitution even with one production implementation.
 
-- `match` with only `Some`/`None` arms → `if let` or a combinator
-- `.clone()` added to appease the borrow checker — restructure or borrow
-- `return` on the last expression; `else` after `return`
-- Trait definitions with one implementor
-- `mod.rs` re-export shims
-- `unwrap()` in library code — propagate with `?`
-- Explicit lifetimes the compiler infers
+Use Result for expected failure and preserve context without leaking secrets. Do not turn malformed input into panics; a proven internal invariant may justify an assertion. Select checked arithmetic or documented saturation according to domain semantics; overflow behavior depends on build settings.
 
-## Rules
+For async tasks, define cancellation, join/error ownership, bounded channels, and shutdown. Avoid blocking the executor or holding synchronization guards across await when it can deadlock or serialize work. Separate CPU work when measurements justify it.
 
-- Take `&str`/`&[T]` in parameters, return owned types.
-- Make illegal states unrepresentable: newtypes and enums instead of validation branches sprinkled at call sites. This deletes code.
-- `#[non_exhaustive]` on public enums; `pub(crate)` by default.
-- One `unsafe` block, documented with its invariant, or none at all.
+Keep unsafe code as small as practical and document each safety invariant, including aliasing, lifetimes, initialization, and concurrency. A safety comment alone is not proof; inspect callers and use suitable dynamic checks where applicable.
 
-## Security (never cut)
+## Security and verification
 
-- No `unsafe` without a `// SAFETY:` comment stating the upheld invariant.
-- Parse, don't validate: convert untrusted bytes into a typed struct at the edge (`serde` with `deny_unknown_fields`).
-- Bound allocations from untrusted length prefixes; set read/decompression limits.
-- Use checked/saturating arithmetic where input drives the value — release builds wrap.
-- `zeroize` for key material; `constant_time_eq` for secret comparison.
-- `cargo audit` and `cargo deny` in CI.
+Bound parsing, allocation, decompression, and recursion for untrusted data. Use maintained cryptographic primitives and appropriate secret handling; do not invent protocols. Deserialization strictness must fit compatibility requirements rather than rejecting unknown fields universally.
 
-## Testability
+Use unit and public-API integration tests, property/fuzz tests for parsers/state machines when useful, and repository fmt/clippy/test/security checks as configured. Build relevant feature combinations and targets.
 
-- `#[cfg(test)] mod tests` in-file for unit tests; `tests/` for public-API integration tests.
-- Depend on traits only where a second implementation genuinely exists (real + test fake).
-- `proptest` on parsers and numeric code instead of a dozen hand-written cases.
-- Assert on `Result` variants, not on error message strings.
-
-## Example
-
-```rust
-// before — 11 lines of match/push
-// after — 3
-fn active_names(users: &[User]) -> Vec<&str> {
-    users.iter().filter(|u| u.active).map(|u| u.name.as_str()).collect()
-}
-```
+For on-chain programs, also use [Web3](../web3/GUIDE.md) and chain-specific documentation: validate signer/owner relationships, account derivation, permitted cross-program calls, arithmetic, and resource limits. Rust memory safety does not establish contract authorization or economic safety.

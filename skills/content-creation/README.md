@@ -1,63 +1,29 @@
 # Content Creation Skills
 
-Five skills that take a topic from "what should I write about" to a posting-ready piece with matching visuals, for LinkedIn and Medium.
+Five complementary skills support idea research, discovery, writing, and visual planning. Use the skills needed for the request; they are not a mandatory pipeline.
 
-```
-Common/      idea-research/          -> what to write        → ranked ideas + a source.md per idea
-             keyword-research/       -> how it gets found    → kresearch.md
-Linkedin/    linkedin-post-writer/   -> source.md            → linkedin_post.md
-Medium/      medium-article-writer/  -> source.md            → medium_article.md
-             medium-image-prompts/   -> finished article     → medium_image_prompts.md
-```
-
-## The `source.md` convention
-
-Every skill here operates on **one folder per piece**, with raw notes in `source.md` at its root. That is the handoff format between them — `idea-research` scaffolds it, the writers consume it, and everything else lands beside it:
-
-```
-my-piece/
-├── source.md                  # raw notes, dictation, rough draft
-├── kresearch.md               # keyword-research
-├── linkedin_post.md           # linkedin-post-writer
-├── linkedin_post_notes.md     # linkedin-post-writer
-├── medium_brief.md            # medium-article-writer (the approval gate)
-├── medium_article.md          # medium-article-writer
-├── medium_publish.md          # medium-article-writer
-└── medium_image_prompts.md    # medium-image-prompts
-```
-
-Because of this, each skill also fires simply from you being *inside* such a folder and saying what you want next — you rarely have to name the skill.
-
-## The skills
-
-| Skill | Fires when | Produces |
+| Skill | Use for | Default artifact |
 |---|---|---|
-| [**idea-research**](./Common/idea-research/README.md) | "what should I write about", "give me post ideas", "what's trending", "refill my pipeline" | Ranked, evidence-backed ideas from free public sources (Hacker News, Reddit, Google Trends, Medium tags), clustered by beat and scored on recency + velocity + fit + gap, plus a scaffolded `source.md` per approved idea |
-| [**keyword-research**](./Common/keyword-research/README.md) | "SEO keywords", "what should I title this", "how do I make this rank", or a `source.md` exists and you ask what's next | `kresearch.md`: search intent, long-tail keywords, Medium tags, LinkedIn hashtags, optimization tips. No API key, no login |
-| [**linkedin-post-writer**](./Linkedin/linkedin-post-writer/README.md) | "turn this into a post", "make this publishable", or you mention LinkedIn | `linkedin_post.md` + `linkedin_post_notes.md` — hook engineering, scroll-first structure, no-link-in-body discipline, behind an angle gate you approve before it drafts |
-| [**medium-article-writer**](./Medium/medium-article-writer/README.md) | "write this up as an article", "restructure/retitle/tag this draft", or you mention Medium | `medium_article.md` plus title options, subtitle, tags, cover and alt-text notes — grounded in Medium's distribution guidelines, AI-content policy, and earnings mechanics, behind a `medium_brief.md` you approve before it drafts |
-| [**medium-image-prompts**](./Medium/medium-image-prompts/README.md) | "cover art", "article visuals", "this is done, it needs images" | `medium_image_prompts.md`: one hero prompt plus three to five in-article prompts, each with placement, aspect ratio, negative prompt, alt text, and a caption carrying credit and the mandatory AI-disclosure line. **Prompt text only — nothing is rendered** |
+| [idea-research](Common/idea-research/README.md) | Research and prioritize angles for an audience/niche | Evidence-backed ideas; optional source scaffolds |
+| [keyword-research](Common/keyword-research/README.md) | Search intent, query phrasing, and discovery metadata | kresearch.md |
+| [linkedin-post-writer](Linkedin/linkedin-post-writer/README.md) | LinkedIn drafting or revision | linkedin_post.md and useful posting notes |
+| [medium-article-writer](Medium/medium-article-writer/README.md) | Long-form drafting, revision, and packaging | medium_article.md, optional brief/publishing notes |
+| [medium-image-prompts](Medium/medium-image-prompts/README.md) | Article visual directions and prompt text | medium_image_prompts.md |
 
-## Review gates are not optional
+## Shared conventions
 
-Both writers stop before drafting and make you approve the angle — Medium writes a `medium_brief.md`, LinkedIn shows the claim, the surviving hooks, and what it proposes to leave out. The gate exists because both skills compress hard, and neither should get to decide on its own which of your experiences does not survive the compression. Whatever is dropped is named before it is dropped, and both writers carry a standing rule against cutting something you lived through without asking.
+A folder per piece with raw notes in `source.md` makes handoffs convenient, but supplied text, other filenames, topic briefs, and explicit output paths are supported. A source filename alone does not choose a platform or trigger every skill. Preserve original notes and unrelated user edits.
 
-Neither writer scores a finished piece. The audit passes are rewrite triggers inside the workflow, not a grade — a number on a draft you just wrote is self-marking.
+Ordinary drafting and revision proceed without repeated approval gates. Clarify material ambiguity or changes to the author's meaning; distinguish evidence, personal experience, illustrative examples, and editorial choices. Never fabricate anecdotes, metrics, quotes, sources, or test results.
 
-What is platform-specific is the advice itself: LinkedIn's dwell time, saves, and substantive comments behave nothing like Medium's read ratio and distribution rules. That is the point of splitting them rather than shipping one "write a post" skill.
+References provide adaptable guidance rather than universal word counts, visual styles, or algorithm formulas. Platform claims need current evidence. Research scores describe heuristic ordering/provenance; they do not predict reach or measure search volume.
 
-None of these skills post anything anywhere. They write Markdown files next to your notes; publishing stays a deliberate manual step.
+The writing and prompt workflows prepare artifacts. They do not publish, schedule, submit, or send messages automatically. Actual rendering can continue when requested using the appropriate available tools.
 
-## Install
+## Helpers and validation
 
-```bash
-uv run scripts/sync_all.py            # every skill in the repo, all five platforms
-```
+Idea research has standard-library Python helpers, run with `uv run`; missing uv requires confirmation before installation. Keyword research has a Bash helper requiring curl and jq. Browser research remains a fallback when helpers or endpoints are unavailable.
 
-Or copy individual folders into whichever skills directory your harness reads:
+Preview helper writes with supported `--dry-run` options and keep research runs isolated. Run `uv run scripts/test_content_research.py` from the distribution repository for offline regression checks using local fixtures.
 
-```bash
-cp -r Common/idea-research Medium/medium-article-writer ~/.claude/skills/
-```
-
-`idea-research` and `keyword-research` ship stdlib-only Python under `scripts/` — no third-party packages, no keys.
+Preview repository distribution with `uv run scripts/sync_all.py --dry-run`; synchronize via the repository scripts when requested.

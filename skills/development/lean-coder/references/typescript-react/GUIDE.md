@@ -1,76 +1,23 @@
-# TypeScript / React / Next.js — Lean Rules
+# TypeScript, React, and Next.js
 
-## Platform first (do not npm install for these)
+Follow the installed framework/router/runtime and existing data, form, state, and design-system choices. Do not migrate architecture for an incidental change. Add [web guidance](../web/GUIDE.md) for HTTP, security, caching, and accessibility.
 
-| Need | Use | Not |
-|---|---|---|
-| HTTP | `fetch` | axios |
-| Dates | `Intl.DateTimeFormat`, `Temporal` where available | moment, date-fns for one format |
-| IDs | `crypto.randomUUID()` | uuid |
-| Deep clone | `structuredClone` | lodash.clonedeep |
-| Grouping | `Object.groupBy` / `Map` | lodash.groupby |
-| Query params | `URLSearchParams` | qs |
-| Debounce | `AbortController` + `setTimeout` (6 lines) | lodash.debounce |
-| Validation | one `zod` schema shared by type + runtime | separate interface and validator |
-| State | `useState`, `useReducer`, URL params | Redux for <10 pieces of state |
-| Forms | uncontrolled inputs + `FormData` | form library for 3 fields |
+## Types and state
 
-## React
+Use runtime validation for external data and narrow unknown values. Model meaningful states with types that prevent invalid combinations; avoid assertions that merely hide errors. Keep explicit public contracts where helpful and infer local types when clear.
 
-- Derive, don't store: if it can be computed from props/state during render, do not put it in `useState`.
-- `useEffect` is for external synchronization only. Not for computing values, not for reacting to prop changes, not for fetching in an app that has server components or a data library.
-- No `useMemo`/`useCallback` until a profiler says so. Each one is 2 lines and a dependency array to get wrong.
-- One component = one concern. Split when JSX branches on a boolean prop into two different shapes.
-- Server Components / server actions by default in Next.js; `"use client"` only on the leaf that needs interactivity.
-- Colocate: component, its types, and its test in one folder; no shared `types.ts` dumping ground.
-- Error boundaries per independently-failing region (a widget, a route segment) — not one global catch-all that blanks the whole page. In Next.js, use `error.tsx`/`loading.tsx` at the route segment instead of hand-rolled `isError`/`isLoading` state.
-- Suspense for async boundaries the framework already understands (data fetching, lazy components) instead of manual loading flags layered on top.
-- Lazy/dynamic import (`next/dynamic`, `React.lazy`) for below-the-fold or rarely-used components; don't ship code the initial render never touches.
-- `next/image` or native `loading="lazy"` over an unmanaged `<img>`; avoid passing new object/array/function literals as props on every render where it causes a measurable re-render cascade downstream.
+Derive values from current props/state when practical. Effects synchronize external systems and need dependency, cleanup, and race handling. Use framework data loading or established cache libraries when they fit; account for cache keys, invalidation, cancellation, stale responses, and mutation rollback.
 
-## Accessibility (never cut)
+Extract components/hooks to clarify ownership or isolate behavior, including single-use ones. Memoization should address a demonstrated cost or required identity contract, not a quota. Stable list keys represent identity rather than current array position when items can move.
 
-- Semantic HTML elements (`button`, `nav`, `label`) over `div`+ARIA — ARIA is a patch for when semantics run out, not the default.
-- Every form input has an associated `label`; every interactive element is reachable and operable by keyboard alone.
-- Images carry meaningful `alt` text (or `alt=""` when purely decorative) — never omit the attribute.
+## Rendering and security
 
-## TypeScript
+Place client/server boundaries according to required interactivity and data ownership. Check hydration consistency, serialization, error boundaries, and framework-specific cache behavior. Keep secrets server-side and authorize server handlers/actions independently of rendered controls.
 
-- Infer return types; annotate only exported signatures and empty containers.
-- `type` unions over `enum`. Discriminated unions over optional-field soup.
-- `unknown` at boundaries, narrowed once — never `any`, never `as` to silence an error.
-- Derive types (`Pick`, `Awaited<ReturnType<typeof f>>`) instead of restating shapes.
+Validate external inputs before using them. Sanitize rich HTML when needed, parameterize database access, and return only intended fields. TypeScript does not enforce authorization or sanitize data.
 
-## Cut
+Use semantic elements, labels, focus management, keyboard behavior, and meaningful loading/error states. Measure bundle cost, waterfalls, rendering, and interaction delays before adding lazy loading or broad memoization.
 
-- `index.ts` barrel files that only re-export
-- Interfaces implemented once
-- Try/catch that only `console.error`s
-- Prop drilling wrappers that pass everything through
-- `useState(false)` for a value only read in an event handler
-- Class components; `React.FC`; `PropTypes`
+## Verification
 
-## Security (never cut)
-
-- Never `dangerouslySetInnerHTML` on user content; if unavoidable, sanitize first.
-- Secrets are server-only. Anything in `NEXT_PUBLIC_*` is published — treat it as such.
-- Validate request bodies with the shared schema in every route handler and server action; a server action is a public endpoint.
-- Authorize inside the action/handler, not in the component that renders the button.
-- Escape/parameterize DB queries; no template-literal SQL.
-- `rel="noopener noreferrer"` on `target="_blank"`; set CSP headers.
-
-## Testability
-
-- Pure functions in `lib/`, components that only render props → test the logic without a DOM.
-- Test through the accessible interface (`getByRole`, user events), not implementation details or snapshots.
-- MSW at the network boundary rather than mocking `fetch` per call site.
-- If a component needs 3 providers to render in a test, it is doing 3 jobs.
-
-## Example
-
-```tsx
-// before — 12 lines: state + effect + memo
-// after — 2
-const visible = items.filter(i => i.name.includes(query));
-return <ul>{visible.map(i => <li key={i.id}>{i.name}</li>)}</ul>;
-```
+Test observable behavior through accessible roles and user actions; use API/integration tests for server contracts and selected browser tests for critical flows. Reuse providers/fakes that mirror the actual app without mocking away the contract under test. Check production builds when rendering/runtime differences matter.
