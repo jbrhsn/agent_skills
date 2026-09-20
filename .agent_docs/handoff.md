@@ -4,7 +4,7 @@
 
 ## Project Snapshot
 
-agent_skills is a curated distribution repository with 15 canonical skills under skills/, 3 base agent definitions under agents/, and the optional OpenCode search-internet plugin under plugins/. Canonical content syncs to OpenCode, IBM Bob, Antigravity, Claude Code, and Codex/ChatGPT through scripts/sync_all.py and platform-specific scripts. Python tooling uses PEP 723 and must run with uv run. Primary validation: UV_CACHE_DIR=/private/tmp/agent-skills-uv-cache uv run scripts/sync_all.py --dry-run; use --verify when destination harnesses are available. Skills flatten from category directories to destination skills/{name}/. Repository rules live in AGENTS.md; root README.md and category READMEs describe the public collection.
+agent_skills is a curated distribution repository with 16 canonical skills under skills/, 3 base agent definitions under agents/, and the optional OpenCode search-internet plugin under plugins/. Canonical content syncs to OpenCode, IBM Bob, Antigravity, Claude Code, and Codex/ChatGPT through scripts/sync_all.py and platform-specific scripts. Python tooling uses PEP 723 and must run with uv run. Primary validation: uv run scripts/sync_all.py --dry-run; use --verify when destination harnesses are available. Skills flatten from category directories to destination skills/{name}/. Repository rules live in AGENTS.md; root README.md and category READMEs describe the public collection.
 
 ## Cumulative Learnings
 
@@ -18,43 +18,44 @@ agent_skills is a curated distribution repository with 15 canonical skills under
 - Platform capability claims must be sourced and dated. X longer-post documentation has differing limits across publishing flows, so plans label account/client capability uncertainty rather than assuming a limit.
 - LinkedIn, X, and Medium writers use a five-proposal hook-and-structure review for new drafts and substantial rewrites, research comparable performance evidence, recommend a faithful direction, and wait for author confirmation before producing their two output files.
 - content-fact-checker replaces evidence-preserving-refinement. It improves claim reliability and attribution without changing the author's core message, opinions, voice, or tone. Remotion infographics needs an approved or delegated visual direction before it renders a project, MP4, and exact-final-frame hero PNG.
+- video-production skill (skills/content-creation/Common/video-production/) uses Kokoro ONNX (local TTS via kokoro-onnx) and Whisper (local timestamps via openai-whisper), all run with uv via PEP 723 scripts. Model assets (~500 MB total) go in {repo-root}/.video_production_assets/kokoro/, gitignored. 03_scaffold.py is re-run safe and never overwrites existing scene TSX files. sync_all.py discovers and syncs new skill folders automatically; no script changes are needed when adding a skill.
 
 ## Previous Session
 
-- 2026-09-19: Added x-post-writer for short, medium-length, and long single posts plus threads, with composition, X mechanics, handoff, and publishing-note references. Exercised all formats, corrected unsupported numerical claims, and passed validation, local-link checks, and sync dry-run.
+- 2026-09-19: Created content-strategy as platform-neutral superset of planning and idea research. Added x-post-writer for single posts plus threads with five-proposal workflow. Both skills exercised; sync dry-run and live sync passed.
 
 ## Last Session
 
-- 2026-09-19: Created and exercised the independent content-strategy skill for weekly and monthly LinkedIn, Medium, and X planning. It integrates research, prioritization, feasibility, calendar, and writer handoffs while retaining idea-research as a focused standalone skill. Current-session deployment resolved its pending live sync.
+- 2026-09-20: Refined LinkedIn, Medium, and X writers (five-proposal review gate), renamed evidence-preserving-refinement to content-fact-checker, expanded remotion-infographics with retention research, six style variants, theme/palette gate, workspace, MP4+hero PNG delivery and verification. Added manifest-scoped safe pruning, duplicate-name detection, sync regression tests. Ran full live sync --plugins search-internet --verify: all 15 canonical skills verified across all 5 platforms.
 
 ## Current Session
 
 **Date:** 2026-09-20
 
-**Focus:** Refine the content-creation skill suite, align its documentation and synchronization, then deploy it to all supported harnesses.
+**Focus:** Add video-production skill — a 7-phase narrated, audio-synchronized multi-scene pipeline: Kokoro TTS + Whisper timestamps + Remotion.
 
 ### Done
 
-- Refined LinkedIn, Medium, and X writers so new drafts and substantial rewrites compare five hook-and-structure proposals against web research, recommend a preserving direction, obtain author confirmation, and then write paired post/article and publishing-note files.
-- Renamed evidence-preserving-refinement to content-fact-checker and expanded its claim-level web-research, revision, attribution, and unresolved-claim workflow.
-- Expanded remotion-infographics with researched retention guidance, six style variants, theme/palette confirmation, a local remotion-infographic workspace, MP4 plus final-frame PNG delivery, and rendering verification.
-- Updated root, content-creation, and sync READMEs; added missing READMEs for content-fact-checker and remotion-infographics; updated the public collection count to 15 skills.
-- Added manifest-scoped safe pruning for renamed or removed skills, duplicate flattened-name detection, and sync regression coverage in scripts/test_sync_skills.py. Corrected sync_all.py to report failures accurately and verification to allow unmanaged shared-destination skills.
-- Ran the full live sync with --plugins search-internet --verify. All 15 canonical skills verified on OpenCode, IBM Bob, Antigravity, Claude Code, and Codex/ChatGPT; all agents verified, including resolved composed OpenCode agents; the selected plugin was installed.
+- Created skills/content-creation/Common/video-production/ with 8 files: SKILL.md (7-phase agent prompt, 4 user review gates), README.md (prereqs, layout, pipeline table), references/video-production-pipeline.md (script I/O contracts, storyboard JSON schema, Remotion TypeScript templates, render commands, audio sync checklist), references/kokoro-voices.md (54 Kokoro v1.0 voices), scripts/01_tts.py (Kokoro ONNX synthesizer, PEP 723), scripts/02_timestamps.py (Whisper word-level extractor, PEP 723), scripts/03_scaffold.py (Remotion scaffolder, stdlib, re-run safe), scripts/04_setup_assets.sh (one-time HF model downloader).
+- Original remotion-infographics skill confirmed untouched.
+- Ran uv run scripts/sync_all.py --verify: 16 skills x 100% SHA-256 parity on all 5 platforms.
 
 ### Decisions
 
-- The skill manifest never claims ownership of existing untracked destination folders, so initial synchronization preserves manually installed skills; later removals only prune manifest-owned folders.
-- Remotion's requested legacy remotion-graphic ignore patterns are kept alongside the actual remotion-infographic workspace patterns because neither spelling covers the other.
-- No live publishing, scheduling, video rendering, or repository push was performed as part of skill refinement and deployment.
+- video-production is a parallel skill; remotion-infographics remains unchanged as the fast silent-infographic path.
+- Kokoro assets are NOT auto-downloaded; 04_setup_assets.sh requires explicit user invocation to avoid silent large downloads.
+- Whisper default is openai-whisper base with word_timestamps=True (lowest friction); skill notes whisper-timestamped and WhisperX as upgrade options.
+- 03_scaffold.py never overwrites existing scene TSX files, making re-runs safe after storyboard edits.
 
 ### Verification
 
-- UV_CACHE_DIR=/private/tmp/agent-skills-uv-cache uv run scripts/test_sync_skills.py: 5 tests passed.
-- UV_CACHE_DIR=/private/tmp/agent-skills-uv-cache uv run scripts/test_content_research.py: 13 tests passed.
-- quick_validate.py passed for content-fact-checker and remotion-infographics; git diff --check passed.
-- UV_CACHE_DIR=/private/tmp/agent-skills-uv-cache uv run scripts/sync_all.py --plugins search-internet --verify: all canonical skills, agents, and the selected plugin synchronized and verified successfully.
+- py_compile: 01_tts.py, 02_timestamps.py, 03_scaffold.py — all pass.
+- bash -n: 04_setup_assets.sh — pass.
+- SKILL.md frontmatter (name + description): valid.
+- All 5 JSON schema examples in video-production-pipeline.md: valid JSON.
+- uv run scripts/sync_all.py --verify: 16 skills x 100% SHA-256 parity across all 5 platforms.
 
 ### Open Items
 
-- [ ] No implementation work remains from this session. The local commit is the final pending handoff step.
+- [ ] video-production has not been exercised in a real production session yet; per AGENTS.md rules, it should be before being considered fully mature.
+- [ ] Category README.md skill count may need updating from 15 to 16 if a skill count is explicitly tracked there.
