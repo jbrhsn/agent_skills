@@ -3,6 +3,7 @@
 import argparse
 import fnmatch
 import hashlib
+import json
 import os
 import shutil
 from pathlib import Path
@@ -21,6 +22,8 @@ EXCLUSIONS = {
     "dist",
     "build",
 }
+
+SKILL_MANIFEST_NAME = ".agent_skills_skills_manifest.json"
 
 
 def file_hash(path: Path) -> str:
@@ -48,20 +51,54 @@ def get_dest(env_var: str, default_relpath: str) -> Path:
 
 def discover_skills() -> list[Path]:
     """Find all skill directories containing a SKILL.md file, sorted by name."""
-    return sorted((p.parent for p in (REPO_ROOT / "skills").glob("**/SKILL.md")), key=lambda p: p.name)
+    skills = sorted((p.parent for p in (REPO_ROOT / "skills").glob("**/SKILL.md")), key=lambda p: p.name)
+    names = [skill.name for skill in skills]
+    duplicates = sorted({name for name in names if names.count(name) > 1})
+    if duplicates:
+        raise ValueError(f"Duplicate flattened skill name(s): {', '.join(duplicates)}")
+    return skills
+
+
+def read_skill_manifest(dest_dir: Path) -> set[str]:
+    """Return skill folders this sync previously installed, or an empty set."""
+    manifest = dest_dir / SKILL_MANIFEST_NAME
+    try:
+        payload = json.loads(manifest.read_text()) if manifest.is_file() else {}
+    except (json.JSONDecodeError, OSError):
+        return set()
+    folders = payload.get("folders", [])
+    return {name for name in folders if isinstance(name, str) and Path(name).name == name}
+
+
+def write_skill_manifest(dest_dir: Path, folders: set[str]) -> None:
+    """Record only the folders owned by this skill sync for safe later pruning."""
+    payload = {
+        "version": 1,
+        "note": "Written by agent_skills sync. Lists skill folders it owns.",
+        "folders": sorted(folders),
+    }
+    (dest_dir / SKILL_MANIFEST_NAME).write_text(json.dumps(payload, indent=2) + "\n")
+
+
+def prune_stale_skills(dest_dir: Path, keep: set[str], dry_run: bool = False) -> list[str]:
+    """Remove only manifest-owned skill folders that no longer exist in source."""
+    stale = sorted(name for name in read_skill_manifest(dest_dir) - keep if (dest_dir / name).is_dir())
+    if not dry_run:
+        for name in stale:
+            shutil.rmtree(dest_dir / name)
+    return stale
 
 
 def verify_skills(target_name: str, dest_dir: Path) -> int:
-    """Verify exact checksum and file parity between source skills and destination."""
+    """Verify canonical skill parity without rejecting unrelated installed skills."""
     print(f"\n🔎 Verifying {target_name} skills parity...")
     skills = discover_skills()
     source_names = {s.name for s in skills}
-    dest_names = {d.name for d in dest_dir.iterdir() if d.is_dir()} if dest_dir.exists() else set()
 
     failures = []
-    extra_dirs = dest_names - source_names
-    if extra_dirs:
-        failures.append(f"Extra unknown skill directories in destination: {', '.join(sorted(extra_dirs))}")
+    stale_managed = read_skill_manifest(dest_dir) - source_names
+    if stale_managed:
+        failures.append(f"Stale manifest-owned skill directories: {', '.join(sorted(stale_managed))}")
 
     for src in skills:
         name = src.name
@@ -107,7 +144,7 @@ def verify_skills(target_name: str, dest_dir: Path) -> int:
             print(f"  - {line}")
         return 1
 
-    print(f"✅ All {len(skills)} {target_name} skills verified (100% parity)")
+    print(f"✅ All {len(skills)} canonical {target_name} skills verified (100% parity)")
     return 0
 
 
@@ -142,6 +179,13 @@ def sync_skills(target_name: str, dest_dir: Path, dry_run: bool = False, verify:
             print(f"✗ {name}: {e}")
             skipped += 1
 
+    for stale in prune_stale_skills(dest_dir, {skill.name for skill in skills}, dry_run):
+        action = "Would remove" if dry_run else "🗑  Removed"
+        print(f"→ {action} (no longer synced): {stale}")
+
+    if not dry_run and not skipped:
+        write_skill_manifest(dest_dir, {skill.name for skill in skills})
+
     mode_str = "🔍 DRY RUN: No files were modified" if dry_run else "✅ Sync complete!"
     print(f"\n{mode_str}\n  Synced:  {synced} skills\n  Skipped: {skipped} skills\n")
     print(f"📍 {target_name} skills: {dest_dir}")
@@ -162,4 +206,3 @@ def parse_args(description: str) -> argparse.Namespace:
 
 # Backward compatibility alias
 parse_dry_run_args = parse_args
-

@@ -39,7 +39,7 @@ uv run scripts/sync_all.py                                    # Omit --plugins t
 **Plugin flags:**
 - `--plugins <a,b>` — install these plugins' runtime files *and* agent overlays (OpenCode only). Omitting the flag uninstalls: previously-synced plugin files are pruned.
 - `--list-plugins` — print available plugins and exit.
-- `--verify` — after syncing, verify SHA-256 checksums and exact file parity for all skills across all platforms, verify agent files, and run `opencode debug agent` on OpenCode agents to assert resolved permissions match composition.
+- `--verify` — after syncing, verify SHA-256 checksums and file parity for every canonical skill across all platforms, verify agent files, and run `opencode debug agent` on OpenCode agents to assert resolved permissions match composition. Unmanaged skills in shared destinations are left alone and do not fail verification.
 
 ### `sync_opencode_skills.py`
 Syncs skills to OpenCode global config (`~/.config/opencode/skills`).
@@ -118,7 +118,7 @@ uv run scripts/sync_bob_skills.py --dry-run # Preview
 - `BOB_SKILLS` — Override destination (default: `~/.bob/skills`)
 
 ### `sync_antigravity_skills.py`
-Syncs skills to the Antigravity (Google Antigravity IDE) global config (`~/.gemini/config/skills`). Antigravity uses the same directory-of-skill-folders standard as OpenCode and Bob, so the same 11 skill folders are copied verbatim.
+Syncs skills to the Antigravity (Google Antigravity IDE) global config (`~/.gemini/config/skills`). Antigravity uses the same directory-of-skill-folders standard as OpenCode and Bob, so every discovered canonical skill folder is copied verbatim.
 
 **Usage:**
 ```bash
@@ -171,12 +171,12 @@ uv run scripts/sync_antigravity_agents.py --dry-run # Preview
 
 ### Skills
 
-All 13 skills from the repository (synced to OpenCode, Bob, Antigravity, Claude Code, and Codex/ChatGPT):
+All 15 skills from the repository are discovered from `skills/**/SKILL.md` and synced to OpenCode, Bob, Antigravity, Claude Code, and Codex/ChatGPT:
 - **2 Agent Session Management**: end-session, init-session
 - **1 Content Creation (LinkedIn)**: linkedin-post-writer
 - **1 Content Creation (X)**: x-post-writer
 - **2 Content Creation (Medium)**: medium-article-writer, medium-image-prompts
-- **3 Content Creation (Common)**: idea-research, content-strategy, keyword-research
+- **5 Content Creation (Common)**: idea-research, content-strategy, keyword-research, content-fact-checker, remotion-infographics
 - **2 Development**: lean-coder, project-planner
 - **2 Learning**: author-chapter, create-learning-repo
 
@@ -206,6 +206,12 @@ Plugins sync **only** when named in `--plugins`. See `plugins/README.md` for the
 ## Build Artifacts Excluded
 
 Never copied into a destination: `.venv/`, `__pycache__/`, `*.pyc`, `.pytest_cache/`, `node_modules/`, `.git/`, `.DS_Store`, `*.egg-info/`, `dist/`, `build/` (the set lives in `EXCLUSIONS` in `common.py`).
+
+## Skill rename and removal safety
+
+Each skills destination receives `.agent_skills_skills_manifest.json`, which records only folders previously installed by this repository's skill sync. On a later sync, folders in that manifest that no longer exist in the canonical source are pruned. This keeps renamed and removed skills aligned while preserving manually installed skill folders and other shared configuration. A first sync creates the manifest; it does not infer ownership of unrelated existing folders. Verification checks every canonical skill and reports stale manifest-owned folders, while allowing unmanaged skill folders in these shared destinations.
+
+Skill names flatten at the destination, so the sync rejects duplicate folder names across categories before writing. `--dry-run` reports planned stale-folder removal without changing a destination.
 
 ## Typical Workflow
 

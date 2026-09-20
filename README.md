@@ -6,7 +6,7 @@
 
 Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Google Antigravity, and IBM Bob. One repo is the source of truth; sync scripts push it to every platform.
 
-**13 skills** · **3 base agents** · **1 opt-in plugin**
+**15 skills** · **3 base agents** · **1 opt-in plugin**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
@@ -62,9 +62,11 @@ Repeatable, high-quality behavior for OpenCode, Claude Code, Codex/ChatGPT, Goog
 | [**idea-research**](./skills/content-creation/Common/idea-research/README.md) | Research and prioritize audience-relevant angles with traceable evidence and optional source scaffolds |
 | [**content-strategy**](./skills/content-creation/Common/content-strategy/README.md) | Research ideas and build feasible weekly or monthly plans for LinkedIn, Medium, X, or multiple platforms |
 | [**keyword-research**](./skills/content-creation/Common/keyword-research/README.md) | Search intent and discovery phrasing for drafts or topics, with transparent provenance and heuristic limitations |
-| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Draft or revise LinkedIn posts in the author's voice, with factual support and flexible editorial choices |
-| [**x-post-writer**](./skills/content-creation/X/x-post-writer/README.md) | Draft, revise, or adapt short, medium-length, and long X posts and threads, with optional strategy context and platform fit checks |
-| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Develop and package long-form articles with coherent structure, source fidelity, and current publication checks |
+| [**content-fact-checker**](./skills/content-creation/Common/content-fact-checker/README.md) | Validate and refine drafts with claim-level web research, specific evidence, and attribution while preserving the author’s message and tone |
+| [**remotion-infographics**](./skills/content-creation/Common/remotion-infographics/README.md) | Create a fast-paced 10–30 second Remotion infographic MP4 and matching final-frame hero PNG from an article or post idea |
+| [**linkedin-post-writer**](./skills/content-creation/Linkedin/linkedin-post-writer/README.md) | Propose, research, and confirm a LinkedIn post direction before delivering post and publishing-note files |
+| [**x-post-writer**](./skills/content-creation/X/x-post-writer/README.md) | Propose, research, and confirm X posts or threads before delivering copy and publishing guidelines |
+| [**medium-article-writer**](./skills/content-creation/Medium/medium-article-writer/README.md) | Propose, research, and confirm a long-form article direction before delivering article and publishing-guideline files |
 | [**medium-image-prompts**](./skills/content-creation/Medium/medium-image-prompts/README.md) | Plan useful article visuals and prompts, distinguishing editorial art from exact diagrams, screenshots, and data |
 
 ---

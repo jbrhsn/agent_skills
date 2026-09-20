@@ -74,7 +74,8 @@ def main() -> int:
             if run_sync(script, args) != 0:
                 exit_code = 1
 
-    print(f"\n{'=' * 79}\n✅ All syncs complete!\n{'=' * 79}\n")
+    outcome = "✅ All syncs complete!" if exit_code == 0 else "✗ One or more syncs failed."
+    print(f"\n{'=' * 79}\n{outcome}\n{'=' * 79}\n")
     return exit_code
 
 

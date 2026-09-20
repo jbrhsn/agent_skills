@@ -1,65 +1,60 @@
 ---
 name: remotion-infographics
-description: Create or revise short Remotion infographic animations for article and social-post ideas, including a final-frame hero PNG. Use when a content piece needs an animated explanatory visual, not a static illustration or a full narrative video.
+description: Create or revise 10- to 30-second Remotion infographic videos from articles or social-post ideas, delivering an MP4 and a final-frame hero PNG. Use for concise visual explanations with researched engagement patterns, theme and palette selection, and complete local rendering.
 ---
 
 # Remotion Infographics
 
-Create a clear, reusable Remotion scene from the content material the user names. The result should explain one idea visually and work as an article embed or social video.
+Turn the supplied article, source.md, draft, or idea into one valuable visual explanation. Deliver a complete Remotion project, a 10- to 30-second MP4, and a PNG of its final frame. Preserve the author's core message, opinions, voice, factual scope, and uncertainty while improving visual clarity and pacing. Explicit user duration or format requests override defaults.
 
-## Establish the message
+## Understand and research
 
-Read the relevant source, article, and post drafts before designing. Identify:
+Read the relevant source and repository instructions. Identify the audience, destination, single takeaway, supporting evidence, and concepts best explained through motion. Ask for missing source material when necessary; do not fabricate statistics, product behavior, experiences, or claims to strengthen a hook. Keep visible copy concise and free of raw URLs; retain necessary qualifications and short source credits, with full links in project notes.
 
-- the one claim the animation must make;
-- the audience and destination;
-- the concepts that need visual structure rather than more prose;
-- factual wording that must remain attributed or qualified.
+Read [references/retention-and-styles.md](references/retention-and-styles.md) before designing. Research current platform guidance and recent relevant examples for the audience, region, and destination on each new project. Prefer examples from the last 30–90 days when available, recording publication dates, observation date, links, and the actual evidence available. Inspect the source or video itself when possible; distinguish observed visual patterns from descriptions you could not verify. Use platform trend tools and original creator examples, not unsupported lists of viral formulas. Adapt storytelling patterns without copying another creator's script or branding.
 
-Do not invent statistics, product behavior, customer stories, or personal experience. Keep visible text concise, accurate, and free of raw URLs. Follow repository copy constraints, including any prohibition on em dashes.
+Separate platform guidance, creator experience, observed popularity, and measured retention. Likes, views, ad recall, and click-through rates do not establish organic retention or causation. Recommend a pattern based on content fit and evidence, with limitations; never promise virality or invent a performance ranking. If current research is inaccessible, disclose that and offer established styles as design options, not verified current trends.
 
-## Choose the scene
+## Confirm the creative direction
 
-Honor the requested duration and aspect ratio. If the user does not specify them, use a 16:9 1920 by 1080 composition at 30 fps and keep the scene between 10 and 20 seconds.
+Ask the user for a visual theme and color scheme unless already supplied. To make the decision concrete, present at least five distinct style options from the reference, adapted to the article, and recommend one. For each, briefly give the opening hook, visual treatment, intended attention mechanism, and fit or tradeoff. Offer two or three palettes with hex colors and background/text/accent roles, or apply the user's brand palette. Do not claim universal psychological meanings for colors.
 
-Use a visual sequence that fits the material. For an argument or explainer, a useful progression is:
+Include the recommended duration, aspect ratio, audio approach, and a compact timed storyboard showing the hook, explanation, practical payoff, and final hero composition. Explain the research behind the recommendation with direct source links and identify design hypotheses separately. Ask for approval or revisions to the theme, palette, and direction before implementation. Continue independent research while waiting, but do not treat silence as approval. Existing approval, a supplied complete direction, or explicit delegation to choose is sufficient; do not repeat the gate for routine revisions within that direction.
 
-1. State the claim.
-2. Animate the model, contrast, or relationship that explains it.
-3. Reveal the practical implications.
-4. Close with a concise takeaway that can stand alone as the final frame.
+Default to 20 seconds at 30 fps. Use 1080 × 1920 for vertical social feeds and 1920 × 1080 for article embeds; honor supplied platform requirements. If the destination is unknown, include it in the creative-direction question. Use one approved master aspect ratio for both deliverables; additional crops are optional and require layout adaptation, not stretching.
 
-Avoid decorative motion that does not clarify the point. Build readable hierarchy, adequate contrast, and safe spacing for social crops. Prefer code-native shapes, typography, and diagrams. Use external images or generated assets only when they add information the scene cannot express more clearly.
+## Design for attention and understanding
 
-## Build in the content folder
+- Make the first frame meaningful. Show the central tension, result, or useful question immediately; avoid an opening logo slate or slow title reveal.
+- Use a truthful curiosity gap and resolve it. Reveal value throughout, rather than withholding the answer until a final CTA.
+- Aim for a meaningful visual development every 1–3 seconds as a starting heuristic, not a mandatory cut rate. Use highlights, diagram steps, comparisons, and camera reframing to direct attention. Hold dense evidence longer and remove content that cannot be read comfortably.
+- Give each beat one focal point and one explanatory job. Pair related text and graphics spatially; retain enough visual continuity to make relationships understandable. Choose the mechanism that fits this video: contrast for comparisons, progressive reveal for processes, expectation and resolution for misconceptions, or a worked example for abstract ideas.
+- Prefer a small number of useful facts and a concrete implication over a compressed article summary. Ensure chart axes, units, baselines, and animated values remain honest. Do not show invented intermediate values as observations.
+- Keep the explanation understandable muted. If using narration, add accurate synchronized captions; use music and effects only when they support the content and rights permit use in the exported file. A platform's trending sound is not automatically licensed for an external MP4.
+- Reserve the final 2–3 seconds for a settled, self-contained hero composition with a takeaway and the essential diagram or evidence. Make the exact last frame complete and readable without the preceding animation. Do not end on black, a transition, a CTA-only card, or a loop reset. An optional loop must preserve this ending.
 
-Create or update a self-contained `remotion-infographic/` folder beside the relevant article or post. Do not create a shared root video project unless the user asks.
+## Initialize the local project
 
-For a new project, include:
+After the creative direction is confirmed, create or update `remotion-infographic/` beside the relevant content. Use it as the Remotion working directory. Inspect an existing project before editing and preserve unrelated files, dependencies, and outputs. Do not create a shared root project or nested Git repository by default.
 
-- `src/index.ts` that registers the Remotion root;
-- `src/Root.tsx` with the composition dimensions, frame rate, and duration;
-- one or more scene components;
-- `package.json` with development, render, typecheck, and hero-frame scripts;
-- `README.md` with the composition details and render commands;
-- `.gitignore` for `node_modules/`, `out/`, and Remotion caches when those artifacts should remain local.
+Before generating artifacts, update the containing repository's `.gitignore` without replacing existing rules or duplicating entries. Add the requested legacy-name rules and the actual working-folder rules:
 
-If a project already exists, inspect its composition and preserve the existing naming and structure unless the user requests a redesign.
-
-## Render and verify
-
-Install or update dependencies only when needed and within the user's project scope. Request approval before a network download or any action that needs elevated access.
-
-Render the video into `out/`. Always render the final composition frame as a PNG for the article hero image. The final frame is `durationInFrames - 1`, not `durationInFrames`.
-
-Provide a script such as:
-
-```json
-"render:hero": "remotion still src/index.ts <composition-id> out/<name>-hero.png --frame=<last-frame>"
+```gitignore
+# Local Remotion infographic workspaces
+**/remotion-graphic
+**/remotion-graphic/*
+**/remotion-infographic/
+**/remotion-infographic/*
 ```
 
-Run type checking and render the MP4. Inspect at least one representative still when visual layout matters. Use ffprobe or an equivalent check to verify the final video dimensions, frame rate, and duration. Do not claim visual verification if the render was not inspected.
+The two names differ: the `remotion-graphic` rules alone do not ignore `remotion-infographic/`. If there is no Git repository, put these rules in the content folder's `.gitignore`; do not initialize Git just for this task. Check representative paths with `git check-ignore -v --no-index` when Git is available. Ignore rules do not remove tracked files; report any tracked workspace files without unstaging or deleting them automatically.
 
-## Deliver
+Read [references/remotion-production.md](references/remotion-production.md) for setup, deterministic animation, render commands, and verification. Include the composition, source components, TypeScript configuration, package scripts, lockfile, and a concise project `README.md`. Keep the approved brief, storyboard, research links and limitations, asset credits, and reproduction commands in that README rather than scattering extra deliverables. Keep dependencies and caches local to the project. Use available permissions for required installation and rendering; request escalation only when the environment requires it.
 
-Report the project path, MP4 path, hero PNG path, dimensions, duration, and checks that passed. Explain any remaining limitation, such as platform-specific crop requirements or unverified font availability. Drafting and rendering do not authorize publishing or uploading the video.
+## Render, inspect, and deliver
+
+Complete implementation and render both outputs after approval; do not stop at a storyboard, scaffold, or commands for the user to run. Default paths are `remotion-infographic/out/infographic.mp4` and `remotion-infographic/out/infographic-hero.png`. Render the hero from the same composition and props at `durationInFrames - 1`; never substitute a separately designed poster.
+
+Run type checking, render the MP4 and PNG, inspect the opening, a dense beat, transitions, and the final still, and review playback when supported. Verify mobile-size readability, safe areas, contrast, factual labels, timing, asset loading, and audio/caption alignment when present. Check actual media metadata and confirm the hero matches the last composition frame. Fix observed defects and rerender affected outputs. If execution is blocked, report the exact blocker and what remains unverified; do not claim the artifacts exist or were watched.
+
+Deliver links to the MP4, hero PNG, and editable project, plus dimensions, frame rate, duration, selected style and palette, and checks performed. State whether verification covered stills only or playback as well. Publishing or uploading requires separate authorization. If analytics are later supplied, use them to refine the hook or a specific confusing beat; retention improvement remains unmeasured until real audience data exists.
