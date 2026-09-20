@@ -18,8 +18,8 @@ These inputs can be produced by other skills or written by the user. Refer to in
 
 ## Context out
 
-For substantial folder workflows, optional writing notes can record the source/version, audience, purpose, angle or pillar when known, chosen format and rationale, sources and their status, material omissions, account assumptions, count method, and outstanding checks. Include only useful fields; the [notes template](../assets/writing-notes-template.md) is a starting point.
+For full folder workflows, `x_publish.md` records the confirmed hook and structure, proposal comparison and research rationale, source/version, audience, purpose, format, publishing recommendations, sources and their status, account assumptions, count method, and outstanding checks. Use the [notes template](../assets/writing-notes-template.md).
 
-Keep the publishable copy separate from editorial notes. Default names are `x_post.md` with `x_post_notes.md`, or `x_thread.md` with `x_thread_notes.md`. Use distinct descriptive filenames when several requested pieces share a folder. Respect explicit paths, inline delivery, and existing drafts.
+Keep the publishable copy separate from publishing notes. Default names are `x_post.md` and `x_publish.md` for both single posts and threads; label the individual posts within a thread's copy file. Use distinct descriptive filenames when several requested pieces share a folder. Respect explicit paths, inline delivery, and existing drafts.
 
 A later strategy or research workflow can read these notes to identify follow-up ideas and source gaps. Drafts alone provide no performance evidence: do not invent results or update strategy as if the content had been published. Creating a draft does not automatically trigger another skill.

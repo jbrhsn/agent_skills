@@ -11,7 +11,7 @@ Choose from the actual material:
 - A direct announcement explaining who benefits and how.
 - A contrast that illuminates a real tradeoff rather than manufacturing controversy.
 
-Generate alternatives when the angle is uncertain or the user requests options; no fixed number is required. Keep the most useful promise near the beginning. Feed truncation varies by device, format, and interface; verify preview behavior instead of treating a character threshold as universal.
+For the pre-draft review, generate five distinct hook-and-structure pairs as described in SKILL.md. Each opening must lead naturally into its paired outline while preserving the same message and authorial voice. Keep the most useful promise near the beginning. Feed truncation varies by device, format, and interface; verify preview behavior instead of treating a character threshold as universal.
 
 If the next paragraph adds needed context, use it. A mandatory “re-hook” often repeats the opening. Check that title/opening, body, and close form one argument.
 

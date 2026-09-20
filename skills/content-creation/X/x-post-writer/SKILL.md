@@ -1,6 +1,6 @@
 ---
 name: x-post-writer
-description: Draft, revise, or adapt content for X (Twitter), including short, medium-length, and long single posts and connected threads. Use for X copy from notes, topics, articles, or existing drafts, preserving voice and factual meaning.
+description: Draft, revise, or adapt X (Twitter) single posts and threads while preserving the author's message and voice. For drafting, research and compare five hook-and-structure proposals for author confirmation, then deliver the copy and publishing guidelines.
 ---
 
 # X Post Writer
@@ -13,7 +13,7 @@ Read the supplied text, named source, and relevant existing draft. Accept a topi
 
 Use explicit preferences and the author's own prose as voice evidence. Distinguish quotations and copied research from the author's writing. Preserve I/we attribution, uncertainty, technical detail that matters to the reader, and the author's position. With sparse input, use a clear, direct voice rather than inventing personality or experience.
 
-Proceed with ordinary editorial choices. Ask only when missing information materially affects meaning or feasibility, such as an essential personal result, contradictory required claims, or incompatible format and account constraints. A topic alone can support an explanatory or opinion draft without fabricating a first-person story. Do not impose a hook-selection or outline-approval gate.
+Treat the author's message, ideas, voice, and style as fixed constraints. Alternatives may change the opening and order of presentation, but must preserve substance, emphasis, qualifications, and attribution. Ask when missing information materially affects meaning or feasibility, such as an essential personal result, contradictory required claims, or incompatible format and account constraints. A topic alone can support an explanatory or opinion draft without fabricating a first-person story.
 
 ## Choose the format
 
@@ -28,7 +28,18 @@ These are editorial descriptions, not fixed character bands. Short and medium dr
 
 Read [X mechanics](references/x-mechanics.md) when establishing limits or account requirements, checking final fit, or advising on platform behavior. If a requested longer single post requires unconfirmed account capability, draft it and flag that requirement outside the copy. If the user explicitly lacks that capability, explain the conflict and offer compression or a thread; do not silently change an explicitly requested format.
 
+## Propose, research, and confirm before drafting
+
+1. Generate exactly five distinct proposals within the chosen format, each pairing a candidate hook with a brief structure through the close. For threads, outline the connected sequence; for short posts, describe the compact progression without padding. These are planning options, not five finished drafts. Do not vary format against the author's explicit request.
+2. Then research the web for evidence of performing X hooks and structures relevant to the audience, topic, format, and purpose. Prefer transparent studies and comparable posts with visible results; use author analytics if supplied. Inspect sources rather than relying on search snippets. Record links, dates, available metrics, and limits such as audience size, sample, paid promotion when known, and observation window. Distinguish measured performance from advice and isolated examples; views or likes alone do not establish that the opening or structure caused the result.
+3. Compare all five proposals against the supported patterns and recommend the closest fit that fully preserves the author's message, ideas, voice, and style. Explain why its hook and structure fit both the source and the evidence, why alternatives fit less well, and how confident the recommendation is. Never trade fidelity for predicted engagement. If web access or credible performance evidence is unavailable, disclose the gap and label the recommendation as editorial judgment.
+4. Present the five proposals, source-linked findings, and recommendation. Ask for author confirmation and suggestions, then wait before writing the full post/thread or either output file. A short hook may itself be a complete thought; present it as a candidate, not a finished deliverable. The author may approve, choose another option, or refine the proposal. Incorporate suggestions and resolve any remaining material ambiguity before drafting. Do not treat silence as confirmation or leave selection to the author without a recommendation.
+
+Apply this review to new drafts and substantial rewrites or adaptations. Make narrow edits to existing copy or publishing notes directly without restarting the process. An already confirmed direction in the current conversation does not need repeated approval.
+
 ## Write and substantiate
+
+After author confirmation, write from the agreed hook and structure, incorporating suggestions.
 
 Make the opening's promise specific and fulfill it. Preserve useful nuance during compression. For a thread, write connected units rather than cutting prose at the character boundary; keep essential qualifications with the claims they limit. Follow the selected format guidance without mandatory hook formulas, thread counts, hashtag quotas, or calls to action.
 
@@ -44,6 +55,6 @@ Read [handoff conventions](references/handoffs.md) when strategy, research, anot
 
 Compare the final copy with the source for meaning, attribution, omissions, and support. Check voice, opening payoff, accessibility, and format fit. For threads, inspect both the sequence and each post in isolation; measure every post after final edits, including any published numbering and links. Follow the counting method and fallback in [X mechanics](references/x-mechanics.md); never label a guessed or ordinary string count as a verified X count.
 
-For a folder workflow, save a single post as `x_post.md` or a thread as `x_thread.md`. Single-post files contain only the copy. In thread files use `## Post 1`, `## Post 2`, and so on as delivery labels, with paste-ready text under each; those labels are not published text. Optional in-copy numbering must be counted. Use distinct filenames for requested variants and preserve existing user work. Explicit paths and inline-only requests take precedence.
+For a full folder workflow, deliver exactly two Markdown files beside the source or in the requested output folder: `x_post.md` and `x_publish.md`, for both single posts and threads. Single-post files contain only the copy. For a thread in `x_post.md`, use `## Post 1`, `## Post 2`, and so on as delivery labels, with paste-ready text under each; those labels are not published text. Optional in-copy numbering must be counted. Use distinct filenames for explicitly requested multiple pieces or variants and preserve existing user work. Explicit paths and inline-only requests take precedence; narrow edits do not require a new artifact set.
 
-Create `x_post_notes.md` or `x_thread_notes.md` only when useful, adapting [the notes template](assets/writing-notes-template.md). Keep counts, sources, capability assumptions, material editorial choices, and unresolved checks outside the copy. Note whether media/alt text is provisional or based on an inspected asset. Report paths or deliver the requested inline text, with any material readiness limitation. Drafting does not authorize publishing, scheduling, replying, or account changes.
+Create `x_publish.md` using [the notes template](assets/writing-notes-template.md). Include the confirmed direction, proposal comparison and research rationale, relevant hashtags and any suggested mentions, image/media recommendations and placement, and publishing checks. Include a publishing time/window with audience timezone and evidence or a clearly labeled experimental assumption; state missing audience information rather than inventing precision. Explicitly recommend no tags or media when appropriate; do not force an article-style subtitle onto X copy. Keep counts, sources, capability assumptions, material editorial choices, and unresolved checks outside the copy. Note whether media/alt text is provisional or based on an inspected asset. Report paths or deliver the requested inline text, with any material readiness limitation. Drafting does not authorize publishing, scheduling, replying, or account changes.

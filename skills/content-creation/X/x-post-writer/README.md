@@ -15,11 +15,13 @@ Short, medium-length, and long are editorial descriptions, not fixed character r
 
 ## Outputs and cooperation
 
-Folder workflows produce `x_post.md` or `x_thread.md`, with optional matching notes when sources, assumptions, or editorial decisions merit them. Thread delivery labels identify each post and are excluded from the text to publish. Explicit paths, distinct variant names, and inline-only requests are supported. Original sources and unrelated edits are preserved.
+Full folder workflows produce exactly two files for either a single post or a thread: `x_post.md` with the copy and `x_publish.md` with publishing guidelines. Publishing notes include the confirmed direction and research rationale, tags and suggested mentions, image/media recommendations, publishing time/timezone, sources, counts, account assumptions, and checks. Thread delivery labels identify each post inside `x_post.md` and are excluded from the text to publish. Explicit paths, distinct names for requested multiple pieces, and inline-only requests are supported; narrow edits need no extra artifact set. Original sources and unrelated edits are preserved.
 
 The skill works without any other skill, strategy document, login, or analytics. It can use a selected brief from `content_strategy.md`, an optional `x_strategy.md`, idea-research results, keyword research, LinkedIn or Medium drafts, and visual plans. [Handoff guidance](references/handoffs.md) keeps that context optional and makes useful editorial notes available to later workflows.
 
-There are no fixed hook formulas, thread sizes, approval phases, or performance promises. Exact X fit requires a compatible counting method or composer check; an approximate count is labeled. Writing does not authorize publishing, scheduling, account changes, or interaction with other accounts.
+For a new draft, substantial rewrite, or adaptation, the skill generates five hook-and-structure proposals within the chosen format, then researches relevant X performance evidence. It compares all five and recommends the closest supported fit without changing the author's message, ideas, voice, or style. It presents source-linked reasoning and limitations, then waits for author confirmation and suggestions before writing the full copy or output files. Narrow edits and already confirmed directions do not restart the review.
+
+Research distinguishes measured performance from advice and anecdotes; unavailable web access or weak evidence is disclosed, and any fallback recommendation is labeled editorial judgment. There are no fixed hook formulas, thread sizes, or performance promises. Exact X fit requires a compatible counting method or composer check; an approximate count is labeled. Writing does not authorize publishing, scheduling, account changes, or interaction with other accounts.
 
 See [SKILL.md](SKILL.md) for the workflow and [composition guidance](references/composition.md) for the different writing modes.
 
