@@ -1,190 +1,64 @@
 ---
 name: video-production
-description: Produce a narrated, audio-synchronized multi-scene video from an article or idea. Generates a voiceover transcript, synthesizes speech with Kokoro TTS (local), extracts word-level timestamps with Whisper (local), designs a scene-by-scene storyboard, scaffolds and composes a Remotion project with captions, renders scene previews for approval, then merges into a final MP4 and hero PNG.
+description: Produce or revise narrated Remotion videos for horizontal YouTube and vertical short-form, with engagement-focused direction, original motion graphics, animated scene transitions, local Kokoro speech, captions, optional media and sound, review previews, MP4, and a final-frame PNG.
 ---
 
 # Video Production
 
-Turn the supplied article, `source.md`, draft, or idea into a narrated, multi-scene video. Deliver a merged MP4, a hero PNG from the exact final frame, and an editable Remotion project. All synthesis (TTS) and transcription (Whisper) run locally; no external audio APIs are used. Preserve the author's core message, opinions, voice, factual scope, and uncertainty throughout every phase.
+Deliver an editable Remotion project, narrated MP4, and hero PNG from the exact last composition frame. Preserve the source's message, evidence, qualifications, and voice. Speech synthesis and transcription run locally after dependency/model downloads.
 
-Read [references/video-production-pipeline.md](references/video-production-pipeline.md) at the start of each new project and before writing any code. It contains the definitive technical contracts for every script, the storyboard JSON schema, the Remotion TypeScript patterns, and asset management rules. Load the `lean-coder` skill before writing or editing any code.
+## Scope and review
 
----
+Honor the user's requested folder, duration, aspect ratio, and existing approvals. Default to 20–45 seconds, 4–8 scenes, 30 fps, vertical 1080 × 1920 if unspecified. Estimate narration at about 2.5 words/second; use measured audio durations for production.
 
-## Phase 1 — Transcript draft and voiceover synthesis
+Read [engagement direction](references/engagement-direction.md) before scripting: define the audience's situation, opening promise, intermediate discoveries, and final takeaway. Use the principles as editorial guidance, not guaranteed psychology or retention outcomes. For platform/aspect-ratio choices or adaptations, read [platform composition](references/platform-composition.md). Horizontal YouTube needs deliberate spatial staging and pacing; vertical versions need their own readable composition. Re-stage rather than merely crop.
 
-### 1a. Draft the voiceover transcript
+For a new creative project, present the full transcript and a compact proposed visual direction together for review before synthesis. If the user delegates choices or requests an autonomous test, choose reasonable defaults and proceed. Do not repeat approvals already given. Render all scene previews before asking for review as a batch; offer individual review if requested. A separate storyboard-JSON approval is unnecessary when it implements an approved direction. Publishing or uploading requires separate authorization.
 
-Read the source material. Identify the audience, the single most valuable takeaway, and the evidence or story that supports it. Draft a narration script as plain prose — no bullet lists, no raw URLs. Divide it into scenes with a `---` separator on its own line. Each scene should take 3–8 seconds to speak at a natural pace (~2.5 words per second). Aim for 4–8 scenes for a 20–45 second video; longer videos require explicit user direction.
+For debugging or improving this skill, reproduce the failure, repair the relevant scripts/instructions, and validate with isolated fixtures and a real smoke test when feasible. Do not apply creative approval gates to engineering tests. Preserve existing authored work.
 
-Present the full transcript to the user with a scene-by-scene breakdown (scene number, approximate duration in seconds, first and last sentence). Ask for approval or revision before proceeding. Do not treat silence as approval. An explicit "looks good" or "proceed" is required.
+## Preflight and assets
 
-### 1b. Synthesize audio
+Read [the pipeline reference](references/video-production-pipeline.md) before running scripts or writing scene code. Resolve script paths relative to this skill, never the caller's working directory. Check uv, Node/npm, ffmpeg/ffprobe, and the selected phonemizer's system requirements. Use lean-coder if available for implementation, but the pipeline must not depend on a separately installed skill.
 
-After transcript approval, check that the Kokoro assets exist:
+Choose the workspace root explicitly: nearest containing Git root (including worktree .git files), otherwise the user-designated workspace. A globally installed skill's directory is not the target workspace. Create or reuse a dedicated environment with `uv venv`; run every Python script with `uv run` using that environment as described in the pipeline reference. Do not use system Python or bare pip.
 
-```
-{repo-root}/.video_production_assets/kokoro/kokoro-v1.0.onnx
-{repo-root}/.video_production_assets/kokoro/voices-v1.0.bin
-```
+Inventory creative media under WORKSPACE/.video_production_assets: images, B-roll, videos, and sound effects. Inspect relevant images, sample footage, and check media durations before selecting them. Existing kokoro/ and whisper/ subdirectories are runtime model caches, not creative media. Keep them separate from the creative inventory. Missing media never limits the work to text slides: create original animation, motion graphics, diagrams, illustrated action, or spatial visual metaphors in code. Use media when it strengthens the explanation, not to fill an asset quota.
 
-If either file is missing, instruct the user to run `scripts/04_setup_assets.sh` from the skill directory and wait for confirmation before continuing.
+Run scripts/04_setup_assets.sh with that workspace root when Kokoro models are absent or invalid; it does not download creative media. Run authorized setup directly; request environment escalation only if necessary. Downloads are roughly 354 MB total. The compatible model and bundled voice archive come from the kokoro-onnx release, not the onnx-community Transformers/JS layout. A successful exit or file existence alone is not evidence of valid model contents.
 
-Write the approved transcript to a plain text file at `{project-dir}/transcript.txt`, using `---` as the scene separator.
+Add .video_production_assets/, node_modules/, and output/cache paths to the appropriate .gitignore, preserving existing rules. Keep project source editable and versionable; do not ignore the entire project by default.
 
-Run the TTS synthesizer. Replace `{voice}` with the user's chosen voice or the recommended default `af_heart`. Replace `{repo-root}` and `{project-dir}` with the actual paths:
+## Narration and timestamps
 
-```bash
-uv run scripts/01_tts.py \
-  --text {project-dir}/transcript.txt \
-  --voice {voice} \
-  --assets-dir {repo-root}/.video_production_assets \
-  --out-dir {project-dir}/public/audio
-```
+Write the approved/delegated narration to PROJECT/transcript.txt, separating scenes with a line containing only ---.
+Read [audio direction](references/audio-direction.md) for phrasing, scene-to-scene cadence, optional mixing, and readable captions. Use supported voice controls and audition joins; do not invent speech-engine capabilities.
+Use scripts/01_tts.py with --assets-dir WORKSPACE/.video_production_assets and --out-dir PROJECT/public/audio. Default voice: af_heart; see [voice guidance](references/kokoro-voices.md). Confirm every WAV is nonempty, finite, nonsilent, and matches metadata. Report measured scene durations.
 
-Confirm that `public/audio/scene-N.wav` files and `public/audio/metadata.json` exist and are non-empty before proceeding. Report the duration of each audio file from `metadata.json`.
+Run scripts/02_timestamps.py sequentially for each WAV with --model base, --language en for English narration, and --model-dir WORKSPACE/.video_production_assets/whisper. Check words against the approved transcript; recognition is not forced alignment. Inspect and correct mistranscriptions without inventing timing. Short clips under 0.5 seconds produce an empty words array; empty captions for longer narration require investigation.
 
----
+## Visual direction and composition
 
-## Phase 2 — Timestamp extraction
+Choose a visual language for this audience, topic, and emotional arc. Possibilities include documentary footage with graphic interventions, illustrated storytelling, simulations, tactile collage, character/object animation, cinematic environments, and kinetic typography. These are possibilities, not a menu or mandatory formula. Motion graphics and original animation remain available with or without supplied media. Avoid inheriting the previous project's palette, card layout, pacing, or vibe by habit. Establish coherent art direction while varying shot scale, staging, and rhythm where the story benefits. Use a meaningful first frame and a settled final takeaway. Keep the explanation understandable muted.
 
-Run the Whisper timestamp extractor for each scene audio file. Use model `base` unless the user specifies otherwise. Run sequentially; do not skip scenes with audio shorter than 0.5 s (they will produce an empty words array, which is valid):
+For a publishable project, consult current primary platform guidance and relevant examples where useful. Distinguish observed popularity from measured retention; do not promise virality. A functional smoke test needs no trend research.
 
-```bash
-uv run scripts/02_timestamps.py \
-  --audio {project-dir}/public/audio/scene-N.wav \
-  --model base \
-  --out {project-dir}/public/audio/scene-N-timestamps.json
-```
+Write PROJECT/storyboard.json as a scene-wise directorial brief using the pipeline reference. Describe what the audience sees and understands, the hook, payoff, visual atmosphere and action, background treatment, sound intent, and purposeful media usage. Do not specify element trees, coordinates, font sizes, fixed layouts, or animation keyframes here. Write enough to inspire execution without dictating its construction. Asset references are optional and must identify real inspected files when selected; explicitly allow original code visuals when no media fits.
 
-This phase is fully automated — no user gate is needed. Confirm each `scene-N-timestamps.json` is valid JSON with a `words` array before moving on.
+After the storyboard, optionally write PROJECT/scene-design.md for execution decisions that improve quality: composition, typography, palette, visual hierarchy, shot timing, masks, camera paths, media trims, sound levels, and caption safe areas. This is a revisable project-specific design pass, not a universal scene template or a second approval gate. Simple scenes can go straight to code. Keep mechanical timing in audio metadata/edit plans/generated config, separate from directorial intent. Narration uses ceil(duration_s * fps). Explicit edit-plan holds extend scene spans; the compiled timeline determines TOTAL_FRAMES and final PNG frame TOTAL_FRAMES - 1.
 
----
+Read [transitions](references/transitions.md) before composing scene joins. Choose transitions by the relationship between ideas: cuts, fades, directional slides, masks, or authored shared-object/camera continuity. Favor a coherent vocabulary over an effect quota. New projects separate visual scenes from narration/captions; visual overlap must not overlap voices or advance captions. An optional version-1 edit plan controls joins, holds, safe areas, and sound cues. Missing transition entries mean cuts, not a requirement to animate every boundary.
 
-## Phase 3 — Visual direction and storyboard
+Run scripts/03_scaffold.py with the storyboard and --audio-metadata PROJECT/public/audio/metadata.json; choose --profile youtube-horizontal or vertical and optionally --edit-plan PROJECT/edit-plan.json. Author src/scenes/SceneN.tsx to realize the direction; replace placeholders before delivery. The scaffold does not translate creative prose into a fixed layout. Existing structural files cause a safe refusal; inspect before using --refresh-generated. It preserves authored scenes, caption and timeline helpers. Existing complete-scene projects retain their renderer; migrating them to visual-only scenes is explicit. Legacy storyboards remain readable; do not reuse their element schema for new work.
 
-### 3a. Research and creative direction
+Stage selected media in PROJECT/public/media with traceable source paths. Combine footage or imagery with animation where useful; choose crops and motion around the subject, and avoid stretching or unintentional looping. Mute source-video audio unless deliberately used. Place sound effects on meaningful actions, control peaks, and keep narration intelligible. Silence is a valid creative decision. Never claim generated graphics are real footage or invent assets that are not available. See the pipeline reference for media implementation and review guidance.
 
-Read [references/retention-and-styles.md](../remotion-infographics/references/retention-and-styles.md) before designing. Apply the same research standards as the `remotion-infographics` skill: separate platform guidance from observed popularity, prefer examples from the last 30–90 days, disclose when current research is inaccessible.
+Use frame-driven animation, deterministic randomness, and local assets. In new visual-only scenes, use contentFrame for normal action and rawContentFrame for deliberate transition handles; the master owns narration and captions on the speech clock. The included WordCaptions groups phrases by punctuation, pauses, and a width heuristic with optional word highlighting; inspect real font bounds. @remotion/captions contains utilities, not a ready-made Captions React component. Other caption styles require implementation and preview verification. Do not suppress TypeScript errors to make templates appear valid.
 
-Ask the user for a visual theme and color scheme unless already supplied. Present at least five distinct style options, recommend one, and include a compact timed storyboard for the recommended direction. Offer two or three palettes with hex colors and background/text/accent roles. Describe caption style options (`word-highlight`, `popping-word`, `moving-pill`). Ask for approval or revisions before writing any files.
+## Verification and delivery
 
-### 3b. Build the storyboard JSON
+Read [creative review](references/creative-review.md). Run npm run typecheck, render scene and boundary previews, and inspect opening, dense, and final frames for readability, clipping, missing elements, and caption timing. Boundary previews use the actual master mix and visual overlap; isolated scenes cannot establish smooth joins. Check whether visuals demonstrate the idea, each beat adds understanding, and the payoff fulfills the hook. Check media crops, sound alignment, safe areas, and voice clarity. Review muted, audio-only, and combined playback when available; metadata/stills alone do not prove audible or synchronized playback. Apply revisions and rerender affected scenes and boundaries. scripts/05_review_bundle.py prepares commands/report; --render executes them. Honor a user's requested pause before testing or rendering.
 
-After the direction is approved, write `{project-dir}/storyboard.json` following the exact schema in [references/video-production-pipeline.md](references/video-production-pipeline.md). One object per scene; derive `duration_s` from `metadata.json`; derive `duration_frames` as `Math.round(duration_s * fps)`. Populate `visual_direction.elements` with concrete animation cues — not vague descriptions.
+Render the full composition and exact final-frame PNG. Check audio/video streams, dimensions, fps, duration, and the final frame using ffprobe and decoded frames. Compare with compiled TOTAL_FRAMES / fps, including explicit holds; narration quantization contributes less than one frame per scene beyond summed WAV duration. Check each narration mounts once and survives visual transitions intact. When authorized analytics are available, map observations to master beats and propose controlled revisions; otherwise report editorial hypotheses, not measured retention gains.
 
-Present the storyboard JSON to the user as a summary table (scene, title, duration, key elements). Ask for a final check before proceeding to code. A second silence after previous approval on direction is not sufficient — confirm the storyboard JSON explicitly.
-
----
-
-## Phase 4 — Remotion project scaffold
-
-Read [references/video-production-pipeline.md](references/video-production-pipeline.md) — specifically the scaffold and TypeScript template sections — before running this phase.
-
-Run the scaffold script. Set `--fps`, `--width`, and `--height` to match the approved direction (default: 30 fps, 1080 × 1920 vertical):
-
-```bash
-uv run scripts/03_scaffold.py \
-  --project-dir {project-dir} \
-  --fps 30 \
-  --width 1080 \
-  --height 1920 \
-  --storyboard {project-dir}/storyboard.json
-```
-
-After the scaffold runs, confirm the following files exist and are non-empty: `package.json`, `tsconfig.json`, `src/config.ts`, `src/index.ts`, `src/Root.tsx`, and one `src/scenes/SceneN.tsx` stub per scene.
-
-Update the containing repository's `.gitignore` if not already done, adding:
-
-```gitignore
-# Video production assets (large models, not for version control)
-.video_production_assets/
-
-# Local Remotion video production workspaces
-**/remotion-infographic/
-**/remotion-infographic/*
-```
-
-Do not replace existing rules or duplicate entries. Check with `git check-ignore -v --no-index` when Git is available.
-
----
-
-## Phase 5 — Scene-by-scene composition
-
-Read the TypeScript template section in [references/video-production-pipeline.md](references/video-production-pipeline.md) before writing any `.tsx` file. Load the `lean-coder` skill and its TypeScript/React reference for this phase.
-
-For each scene N, implement `src/scenes/SceneN.tsx`:
-- Import `useCurrentFrame`, `useVideoConfig`, `interpolate`, `spring` from `remotion`.
-- Import `Audio` from `@remotion/media` and `Captions` from `@remotion/captions`.
-- Import the scene's timestamp data from the JSON file (use a static import or `staticFile` as appropriate for the Remotion version).
-- Mount `<Audio src={staticFile("audio/scene-N.wav")} />` at frame 0 of the local sequence.
-- Mount `<Captions words={...} currentFrame={frame} fps={fps} style={captionStyle} />` with the selected caption style from the storyboard.
-- Implement all `visual_direction.elements` from the storyboard using frame-driven animation only — no CSS transitions, no wall-clock timing, no unseeded randomness.
-- Reserve the last `hold_frames` (default 15) in a static hold matching the final frame of the element animations.
-
-Keep `src/Root.tsx` updated: the `<Series>` master composition (`id="VideoFull"`) includes every scene; each scene also has its own composition (`id="SceneN"`) registered independently for preview rendering.
-
-Run TypeScript checking after implementing all scenes before moving to Phase 6:
-
-```bash
-cd {project-dir} && npx tsc --noEmit
-```
-
-Fix all type errors before proceeding. Do not skip type checking.
-
----
-
-## Phase 6 — Scene-by-scene review and approval
-
-For each scene N, in order:
-
-1. Render the scene preview:
-   ```bash
-   cd {project-dir} && npx remotion render src/index.ts SceneN out/scenes/scene-N-preview.mp4 --codec=h264 --pixel-format=yuv420p
-   ```
-2. Inspect the rendered frames: opening, midpoint, and final frame.
-3. Verify: audio exists in the output, captions are visible and timed correctly, all visual elements from the storyboard are present, text is readable at mobile size, no black frames, last frame holds the intended composition.
-4. Report findings and present the path to the preview MP4.
-5. **Wait for explicit user approval** ("approve", "looks good", or "proceed to scene N+1") or a revision note. Do not advance to the next scene without approval.
-
-For a revision: apply the requested change to `SceneN.tsx`, re-run `tsc --noEmit`, re-render only `SceneN`, and repeat the review loop for that scene. Do not re-render approved scenes unless they are directly affected by a change.
-
----
-
-## Phase 7 — Final merge and delivery
-
-Only begin Phase 7 after every scene has been explicitly approved in Phase 6.
-
-### 7a. Render the full video
-
-```bash
-cd {project-dir} && npx remotion render src/index.ts VideoFull out/video.mp4 --codec=h264 --pixel-format=yuv420p
-```
-
-### 7b. Render the hero PNG
-
-Derive the last frame index from `metadata.json` total duration and the configured fps. Do not hard-code it:
-
-```bash
-cd {project-dir} && npx remotion still src/index.ts VideoFull out/video-hero.png --frame={last-frame}
-```
-
-### 7c. Verify
-
-Use `ffprobe` or equivalent to confirm codec, pixel dimensions, fps, and duration match the composition. Check the PNG dimensions and that it matches the expected last composition frame.
-
-Inspect the opening, a dense mid-section, and the final frame of the merged MP4. Confirm audio is audible throughout, captions are correctly synchronized, and the hero PNG is the settled final hero composition — not a transition or an empty frame.
-
-Fix any defects and rerender affected outputs. If playback tools are unavailable, report that explicitly; do not claim playback was verified from a still inspection.
-
-### 7d. Deliver
-
-Report:
-- Links to `out/video.mp4`, `out/video-hero.png`, and the editable project directory
-- Dimensions, fps, total duration, number of scenes
-- Selected style, palette, voice, and caption style
-- Checks performed (type check, per-scene preview, full render, metadata inspection, playback if available)
-- Any unverified items with their specific blockers
-
-Publishing or uploading requires separate authorization. Do not perform either automatically.
-
+Deliver links to MP4, PNG, editable project, dimensions/fps/duration, style/voice/captions, and verification results. Clearly distinguish a technical smoke test from a finished creative video. State any remaining blockers without claiming incomplete checks passed.

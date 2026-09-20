@@ -1,436 +1,122 @@
-# Video Production Pipeline — Technical Reference
+# Video production pipeline
 
-Agent-facing technical reference for the `video-production` skill. Load this at the start of every new project and before writing any code.
+## Paths and commands
 
----
+SKILL means this skill directory; WORKSPACE is the explicit target repository/workspace; PROJECT is the user's selected video project. Run commands with real, quoted paths. Never infer WORKSPACE from the installation path of this skill.
 
-## 1. Asset management
+Create a dedicated environment once (reuse it on later runs). In these examples replace SKILL, WORKSPACE, and PROJECT with actual paths; quote paths containing spaces.
 
-### Cache directory convention
-
-All reusable model assets live under `{repo-root}/.video_production_assets/` — at the root of the repository the user is working in. This directory is gitignored and shared across all video projects in that repo.
-
-```
-{repo-root}/.video_production_assets/
-└── kokoro/
-    ├── kokoro-v1.0.onnx          ← FP32 ONNX model (~330 MB)
-    └── voices-v1.0.bin           ← all 54 voices (~200 MB)
+```bash
+uv venv --python 3.11 WORKSPACE/.venv-video-production
+uv pip install --python WORKSPACE/.venv-video-production/bin/python 'kokoro-onnx>=0.4.0' 'soundfile>=0.12.1' 'numpy>=1.26' 'openai-whisper>=20231117'
+bash SKILL/scripts/04_setup_assets.sh WORKSPACE
+uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python SKILL/scripts/01_tts.py --text PROJECT/transcript.txt --voice af_heart --assets-dir WORKSPACE/.video_production_assets --out-dir PROJECT/public/audio
+uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python SKILL/scripts/02_timestamps.py --audio PROJECT/public/audio/scene-1.wav --model base --language en --model-dir WORKSPACE/.video_production_assets/whisper --out PROJECT/public/audio/scene-1-timestamps.json
+uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python SKILL/scripts/03_scaffold.py --project-dir PROJECT --storyboard PROJECT/storyboard.json --audio-metadata PROJECT/public/audio/metadata.json --fps 30 --width 1080 --height 1920
 ```
 
-Always resolve the repo root by walking up from the current working directory to find the `.git` folder (or the first directory containing `AGENTS.md`, `.opencode.json`, or similar). Never hard-code an absolute path to the assets directory in a script or config file.
+Use the environment's Scripts/python.exe on Windows. Add .venv-video-production/ to workspace ignores. All Python execution, including tests and ad hoc checks, goes through `uv run` with this interpreter. The explicit `python SCRIPT` form uses the created venv instead of letting inline script metadata select a separate ephemeral environment. Inline dependency metadata remains available for standalone users. For scaffold-only work no ML dependencies are needed.
 
-### Gitignore rules
+For horizontal YouTube use `--profile youtube-horizontal` without explicit dimensions; vertical is the default profile. Width/height flags override profile dimensions. Add `--edit-plan PROJECT/edit-plan.json` for transitions, explicit holds, safe-area insets, and optional sound cues; see [transition contracts](transitions.md). Stage referenced sound assets before scaffolding. Revisit frame-based edit choices whenever fps changes.
 
-Add the following to the containing repository's `.gitignore`. Check for existing entries before adding; do not duplicate:
+Run timestamp extraction for every scene, sequentially. Whisper needs ffmpeg. Model downloads require network access once; cached synthesis/transcription run locally. Use workspace-local caches or normal environment escalation when required.
 
-```gitignore
-# Video production assets (large models, not for version control)
-.video_production_assets/
+## Compatible Kokoro assets
 
-# Local Remotion video production workspaces
-**/remotion-infographic/
-**/remotion-infographic/*
-```
+The [kokoro-onnx upstream setup](https://github.com/thewh1teagle/kokoro-onnx) links the [model-files-v1.0 release](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0):
+- kokoro-v1.0.onnx: 325532387 bytes.
+- voices-v1.0.bin: 28214398 bytes; NumPy archive, not a single raw voice array.
 
----
+Setup checks exact release sizes, downloads to a temporary sibling, fails on HTTP errors, and replaces a cached invalid file only after a successful complete download. Interrupted/failed transfers never become valid cache entries. Release sizes are truncation checks, not cryptographic verification; upstream publishes no digest for these assets. TTS verifies the voice archive and loads the model through ONNX Runtime. Do not substitute the onnx-community model/individual voices without checking runtime compatibility.
 
-## 2. Kokoro TTS — `scripts/01_tts.py`
+## Audio and timestamp contracts
 
-### CLI contract
+transcript.txt uses a standalone --- line between scenes. Inline dashes are narration. Empty sections are skipped; wholly empty input fails.
 
-```
-uv run 01_tts.py \
-  --text path/to/transcript.txt \
-  --voice VOICE_ID \
-  --assets-dir path/to/.video_production_assets \
-  --out-dir path/to/remotion-infographic/public/audio
-```
-
-### Transcript format
-
-The input `transcript.txt` uses `---` on its own line as the scene separator. Scenes are numbered from 1. Whitespace-only content between separators is skipped.
-
-```
-This is the narration for scene one. It covers the hook.
----
-Scene two builds on the hook with supporting evidence.
----
-Scene three delivers the practical takeaway.
-```
-
-### Output contract
-
-For N scenes the script writes:
-
-- `public/audio/scene-1.wav` … `scene-N.wav` — 24 kHz, mono, normalized float32 WAV
-- `public/audio/metadata.json` — structured synthesis metadata
-
-`metadata.json` schema:
-
+01_tts.py writes scene-N.wav (24 kHz mono float WAV, peak normalized to -1 dBFS) and metadata.json:
 ```json
-{
-  "voice": "af_heart",
-  "generated_at": "2025-09-20T08:00:00Z",
-  "scenes": [
-    {
-      "scene": 1,
-      "file": "scene-1.wav",
-      "duration_s": 4.23,
-      "text": "This is the narration for scene one. It covers the hook."
-    }
-  ]
-}
+{"voice":"af_heart","lang":"en-us","generated_at":"ISO-8601 UTC","scenes":[{"scene":1,"file":"scene-1.wav","duration_s":4.23,"text":"Narration."}]}
 ```
+Invalid assets, unavailable voice IDs, empty/silent/non-finite synthesis, or unexpected sample rates fail. Treat failed generation as incomplete; do not consume old metadata from an earlier run.
 
-### Error handling
-
-The script exits with a non-zero code and a clear message if:
-- The assets directory is missing or incomplete (instructs user to run `04_setup_assets.sh`)
-- A scene produces zero audio samples (empty text after stripping)
-- The output directory cannot be created
-
----
-
-## 3. Whisper timestamps — `scripts/02_timestamps.py`
-
-### CLI contract
-
-```
-uv run 02_timestamps.py \
-  --audio path/to/public/audio/scene-N.wav \
-  --model base \
-  --out path/to/public/audio/scene-N-timestamps.json
-```
-
-Supported `--model` values: `tiny`, `base`, `small`, `medium`, `large`. Default: `base`. The model downloads automatically to `~/.cache/whisper/` on first use.
-
-### Output schema
-
+02_timestamps.py writes:
 ```json
-{
-  "scene": "scene-1",
-  "audio_file": "scene-1.wav",
-  "duration_s": 4.23,
-  "words": [
-    { "word": "This",    "start": 0.00, "end": 0.18 },
-    { "word": "is",      "start": 0.20, "end": 0.28 },
-    { "word": "the",     "start": 0.30, "end": 0.36 },
-    { "word": "hook.",   "start": 0.38, "end": 0.60 }
-  ]
-}
+{"scene":"scene-1","audio_file":"scene-1.wav","duration_s":4.23,"language":"en","words":[{"word":"Narration.","start":0.1,"end":0.9}]}
 ```
+Times are seconds relative to the WAV, with four decimal places. Duration comes from the audio file, not the last recognized word. Clips under 0.5 seconds skip model loading and return empty words; longer speech yielding no words fails. --model-dir controls model cache location. Compare recognized words with the approved narration.
 
-Timing values are in seconds (floats, two decimal places). The `words` array may be empty for scenes with audio shorter than 0.5 s; this is valid and the captions component will simply render nothing.
+## Directorial storyboard and technical timing
 
----
-
-## 4. Storyboard JSON schema
-
-Write this file to `{project-dir}/storyboard.json` after the creative direction is approved. Derive `duration_s` and `duration_frames` from `metadata.json`.
-
+A nonempty array with consecutive integer scene IDs starting at 1:
 ```json
 [
   {
     "scene": 1,
-    "title": "Hook",
-    "duration_s": 4.23,
-    "duration_frames": 127,
-    "audio_file": "scene-1.wav",
-    "timestamps_file": "scene-1-timestamps.json",
-    "narration": "This is the narration for scene one. It covers the hook.",
-    "hold_frames": 15,
-    "visual_direction": {
-      "background": "#0f172a",
-      "palette": {
-        "primary": "#38bdf8",
-        "text": "#f0f9ff",
-        "muted": "#94a3b8"
-      },
-      "layout": "full-bleed-text",
-      "caption_style": "word-highlight",
-      "caption_position": "bottom",
-      "elements": [
-        {
-          "type": "heading",
-          "text": "The Hook Statement",
-          "style": { "fontSize": 64, "fontWeight": "bold", "color": "#f0f9ff" },
-          "animation": "fade-up",
-          "enter_frame": 0,
-          "exit_frame": null
-        },
-        {
-          "type": "subtext",
-          "text": "A supporting detail",
-          "style": { "fontSize": 36, "color": "#94a3b8" },
-          "animation": "fade-up",
-          "enter_frame": 12,
-          "exit_frame": null
-        }
-      ],
-      "camera_move": null
+    "title": "Attention has a direction",
+    "direction": {
+      "audience_sees": "A restless swarm of signals resolves into one purposeful movement.",
+      "hook": "An apparently chaotic scene suddenly becomes easy to follow.",
+      "value": "Motion can guide attention and reveal meaning.",
+      "visual_approach": "Expressive object animation with a tactile, spacious atmosphere; let the transformation carry the explanation.",
+      "background": "An environment that feels busy at first, then recedes as the important action becomes clear.",
+      "sound": "If a suitable local effect exists, use a restrained accent at the reveal; otherwise let narration carry it.",
+      "assets": [],
+      "progression": "Move from distraction to focus, then leave time for the insight to register."
     }
   }
 ]
 ```
 
-### Element types
+Only scene IDs are mechanical identifiers. Direction fields are prompts for useful decisions, not a closed vocabulary: combine or extend them as the story needs. Describe the intended audience experience; do not prescribe JSX trees, coordinates, font sizes, layout IDs, or per-element keyframes. Do not force every scene into hook/body/CTA or every video into this example's aesthetic. Narration lives in transcript.txt and audio metadata.
 
-| `type` | Description |
-|---|---|
-| `heading` | Large display text |
-| `subtext` | Smaller supporting text |
-| `stat` | A big number or metric with an optional label |
-| `diagram` | SVG-based flow or relationship diagram |
-| `comparison` | Side-by-side before/after or A vs B layout |
-| `list` | Staggered bullet or numbered list |
-| `image` | Raster image from `public/` |
-| `highlight-box` | Colored card or callout background |
+When media is selected, assets entries identify an actual workspace-relative source path, its narrative purpose, and intended usage in plain language (for example, how a B-roll action relates to the explanation). Empty assets means an intentional original-visual treatment, not an incomplete scene. Background and sound direction can describe absence or restraint. Never list nonexistent files as selected assets.
 
-### Animation values
+Pass --audio-metadata to join TTS metadata with storyboard scene IDs. The scaffold requires matching scene counts/IDs and derives duration_frames = ceil(duration_s * fps), audio_file from metadata's file, and timestamps_file from that filename's stem plus -timestamps.json. An optional timestamps_file in an audio metadata scene supports custom filenames. It does not parse or render directorial prose. Existing combined technical storyboards still work without --audio-metadata for compatibility.
 
-`"fade-up"`, `"fade-in"`, `"scale-in"`, `"slide-left"`, `"slide-right"`, `"stagger"` (for list items), `"none"`.
+Exact timing belongs in metadata/edit plans/generated config and scene code. An optional scene-design.md may settle shot beats, typography, composition, camera motion, media trims, caption placement, sound mixing, and visual holds. Revise it after previewing; do not turn it into a mandatory element schema. In-content visual holds do not extend audio duration. Explicit edit-plan holds append frames after narration and shift later starts. Legacy hold_frames stays within duration_frames and does not extend the master. Useful optional direction fields are viewer_question, new_understanding, payoff, and continuity_to_next; see [engagement direction](engagement-direction.md).
 
-`enter_frame` is relative to the scene's local frame 0. `exit_frame: null` means the element stays until the end of the scene.
+## Creative media and motion
 
----
+Inventory images, B-roll, video, and sound effects recursively under WORKSPACE/.video_production_assets. Exclude runtime models under kokoro/ and whisper/. Check images visually; use ffprobe for clip dimensions, duration, frame rate, and audio streams, then inspect representative frames or playback. Select assets based on narrative fit. Existing source assets stay intact; copy only chosen media to PROJECT/public/media and record their source and role in the storyboard or scene-design.md.
 
-## 5. Remotion project structure
+Compose each scene around its action or insight. Without supplied media, use original SVG/React illustration, diagrams that transform, particles, procedural environments, object/character motion, simulated interactions, and camera-like staging as appropriate. With media, consider live-action footage with tracked-looking callouts, image parallax, collage, masks, or graphic overlays. These are examples, not required ingredients. Do not use repetitive text cards as the fallback for an empty asset folder. Asset availability does not gate animation or motion graphics.
 
-### `src/config.ts`
+Use Remotion local-media primitives with staticFile paths, frame-driven transforms, and scene-local sequences. Verify APIs against the installed version when implementing footage trims or advanced effects. Define deliberate crops, trim ranges, and playback speeds; ensure source duration covers the shot, and loop only when intentional. Mute embedded clip audio unless selected for the mix. Cue effects to meaningful actions, fade edges where needed, and balance the mix under narration without clipping. If no suitable sound effect exists, omit it or deliberately synthesize one within available capabilities; do not reference a missing file. External asset acquisition or generation uses available tools within the user's authorization.
 
-```typescript
-// src/config.ts
-// Auto-generated by 03_scaffold.py — edit to adjust timing or dimensions.
-export const VIDEO_CONFIG = {
-  fps: 30,
-  width: 1080,
-  height: 1920,
-} as const;
+## Scaffold and captions
 
-// Scene timing — derived from storyboard.json. Update if you re-synthesize audio.
-export const SCENES: Array<{
-  id: string;
-  durationFrames: number;
-  audioFile: string;
-  timestampsFile: string;
-}> = [
-  { id: "Scene1", durationFrames: 127, audioFile: "audio/scene-1.wav", timestampsFile: "audio/scene-1-timestamps.json" },
-  // …additional scenes
-];
+03_scaffold.py pins Remotion, @remotion/cli, and @remotion/media to the same published version (currently 4.0.526), React 18.3.1, TypeScript 5.4.5. Package publication has been verified; generated-project compatibility must still be checked by typechecking and rendering. --remotion-version accepts another exact 4.0.x version; verify compatibility before changing. npm install creates a lockfile. --skip-install supports offline structural tests.
 
-export const TOTAL_FRAMES = SCENES.reduce((sum, s) => sum + s.durationFrames, 0);
-export const LAST_FRAME = TOTAL_FRAMES - 1;
-```
+Generated files: package.json, tsconfig.json, src/config.ts, src/index.ts, src/Root.tsx, src/WordCaptions.tsx, and scene components. New visual-only projects also get src/timeline-contract.json, src/edit-plan.json, src/timeline-data.json, and src/Timeline.tsx. Assets in public/audio must exist before typechecking. The storyboard's filenames are honored. The compiled timeline is the single authority for starts, spans, overlaps, boundary previews, and total length.
 
-### `src/index.ts`
+The default refuses to overwrite structural files; --refresh-generated explicitly replaces them. Existing scenes, WordCaptions.tsx, and Timeline.tsx are preserved and may need manual updates. Saved src/edit-plan.json choices are reused unless --edit-plan supplies a replacement. Existing scenes without a timeline-contract marker keep their legacy renderer and reject edit plans; see [migration guidance](transitions.md). The script only adds node_modules/ and out/ ignores inside PROJECT; the caller manages workspace model ignores.
 
-```typescript
-import { registerRoot } from "remotion";
-import { Root } from "./Root";
-registerRoot(Root);
-```
+The local WordCaptions groups phrases using punctuation, pauses, word count, and a width-based character budget. It supports optional word highlighting and safe-area fractions, and hides captions in gaps. The heuristic is not font measurement; inspect actual text bounds. Existing projects preserve their authored caption component. See [Remotion caption utilities](https://www.remotion.dev/docs/captions/) for advanced layouts; do not import a nonexistent Captions component.
 
-### `src/Root.tsx`
+New visual-only scenes receive contentFrame, rawContentFrame, durationFrames, fps, width, and height. contentFrame clamps at content endpoints during handles/holds; rawContentFrame allows authored pre/post action. The master mounts @remotion/media Audio and captions once per narration segment, independent of visual overlap. Captions receive speech-local time = frame / fps. Optional sound cues have separate gain/fade/duck envelopes; see [audio direction](audio-direction.md). Legacy scenes still own local-frame-zero audio/captions. No CSS transitions or wall-clock animation. JSON imports use resolveJsonModule; no @ts-expect-error is needed.
 
-```tsx
-import React from "react";
-import { Composition, Series } from "remotion";
-import { VIDEO_CONFIG, SCENES, TOTAL_FRAMES } from "./config";
-import { Scene1 } from "./scenes/Scene1";
-// import additional scene components
+## Rendering and checks
 
-const VideoFull: React.FC = () => (
-  <Series>
-    <Series.Sequence durationInFrames={SCENES[0].durationFrames}>
-      <Scene1 />
-    </Series.Sequence>
-    {/* Additional Series.Sequence entries per scene */}
-  </Series>
-);
-
-export const Root: React.FC = () => (
-  <>
-    {/* Master composition — full video */}
-    <Composition
-      id="VideoFull"
-      component={VideoFull}
-      durationInFrames={TOTAL_FRAMES}
-      fps={VIDEO_CONFIG.fps}
-      width={VIDEO_CONFIG.width}
-      height={VIDEO_CONFIG.height}
-    />
-    {/* Per-scene compositions for isolated preview */}
-    <Composition
-      id="Scene1"
-      component={Scene1}
-      durationInFrames={SCENES[0].durationFrames}
-      fps={VIDEO_CONFIG.fps}
-      width={VIDEO_CONFIG.width}
-      height={VIDEO_CONFIG.height}
-    />
-    {/* Additional scene compositions */}
-  </>
-);
-```
-
-### `src/scenes/SceneN.tsx` — template
-
-```tsx
-import React from "react";
-import { Audio, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
-import { staticFile } from "remotion";
-// @ts-expect-error — JSON import; ensure resolveJsonModule:true in tsconfig
-import timestampData from "../../public/audio/scene-N-timestamps.json";
-import { Captions } from "@remotion/captions";
-
-// Derive frame timing from storyboard values
-const HOLD_FRAMES = 15;
-
-export const SceneN: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps, width, height } = useVideoConfig();
-
-  // Heading fade-up
-  const headingOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const headingY = interpolate(frame, [0, 12], [30, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-
-  return (
-    <div style={{ width, height, background: "#0f172a", position: "relative", overflow: "hidden", fontFamily: "sans-serif" }}>
-      {/* Voiceover audio — plays from local frame 0 */}
-      <Audio src={staticFile("audio/scene-N.wav")} />
-
-      {/* Heading element */}
-      <div
-        style={{
-          position: "absolute",
-          top: "20%",
-          left: 48,
-          right: 48,
-          opacity: headingOpacity,
-          transform: `translateY(${headingY}px)`,
-          fontSize: 64,
-          fontWeight: "bold",
-          color: "#f0f9ff",
-          lineHeight: 1.2,
-        }}
-      >
-        Scene heading text
-      </div>
-
-      {/* Word-highlight captions — bottom third */}
-      <div style={{ position: "absolute", bottom: 160, left: 32, right: 32 }}>
-        <Captions
-          words={timestampData.words}
-          currentTime={frame / fps}
-          // Style props depend on @remotion/captions version; see its docs
-        />
-      </div>
-    </div>
-  );
-};
-```
-
-Replace placeholder values (`scene-N`, heading text, positions, colors) with scene-specific values from `storyboard.json`. Keep all animation values derived from `frame` — never from `Date.now()` or CSS transitions.
-
-### `tsconfig.json`
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react",
-    "strict": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "outDir": "dist"
-  },
-  "include": ["src"]
-}
-```
-
-### `package.json` (pinned dependencies)
-
-```json
-{
-  "name": "video-production",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "studio": "npx remotion studio src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "render": "npx remotion render src/index.ts VideoFull out/video.mp4 --codec=h264 --pixel-format=yuv420p",
-    "hero": "npx remotion still src/index.ts VideoFull out/video-hero.png --frame=LAST_FRAME_PLACEHOLDER",
-    "preview-scene": "npx remotion render src/index.ts"
-  },
-  "dependencies": {
-    "remotion": "4.0.0",
-    "@remotion/media": "4.0.0",
-    "@remotion/captions": "4.0.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
-  },
-  "devDependencies": {
-    "typescript": "5.4.0",
-    "@types/react": "18.3.1"
-  }
-}
-```
-
-Pin `remotion` and all `@remotion/*` packages to the same version. Check the [Remotion changelog](https://www.remotion.dev/docs/changelog) for the current stable release before scaffolding a new project.
-
----
-
-## 6. Render commands
-
-### Preview a single scene
-
+From PROJECT:
 ```bash
-cd remotion-infographic
-npx remotion render src/index.ts SceneN out/scenes/scene-N-preview.mp4 --codec=h264 --pixel-format=yuv420p
+npm run typecheck
+npx remotion render src/index.ts Scene1 out/scenes/scene-1-preview.mp4 --codec=h264 --pixel-format=yuv420p
+npm run render
+npm run hero
+ffprobe -v error -show_streams -show_format -of json out/video.mp4
 ```
+Repeat preview rendering for each scene and BoundaryN composition. VideoFull uses the compiled timeline in new projects and Series.Sequence for legacy projects. SafeAreaReview adds inset guides. BoundaryN slices the actual master including its mix; SceneN isolates speech/visuals without global music/effects.
 
-### Full video
+New TOTAL_FRAMES = sum(contentFrames + explicit hold frames); visual overlap does not shorten speech or the total. Legacy TOTAL_FRAMES = sum(scene.duration_frames). LAST_FRAME = TOTAL_FRAMES - 1. Regenerate timing/config/hero commands after edit changes. Compare output duration to TOTAL_FRAMES / fps, allowing container/audio encoder rounding. Narration quantization adds less than one frame per scene; explicit holds are additional intentional duration.
 
+Inspect opening, dense middle, transitions, and last decoded video frame; compare hero content with the latter allowing H.264 compression differences. Check audio presence and nonzero samples, caption alignment, readability, contrast, safe areas, asset loading, and final settled takeaway. Report still inspection separately from playback listening.
+
+## Regression tests
+
+Prepare a review bundle with `uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python SKILL/scripts/05_review_bundle.py --project-dir PROJECT`. It writes commands and a pending-review report. Add `--render` to execute scene/boundary/full renders and stills, make a contact sheet, and capture ffprobe metadata. The manifest records completion or partial failure, never claiming listening or creative review occurred. See [creative review](creative-review.md) for editorial checks and optional analytics-based iteration. Honor any requested pause before testing/rendering.
+
+Run from the workspace:
 ```bash
-cd remotion-infographic
-npx remotion render src/index.ts VideoFull out/video.mp4 --codec=h264 --pixel-format=yuv420p
+uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python SKILL/scripts/test_pipeline.py
 ```
-
-### Hero PNG
-
-Derive `LAST_FRAME` as `TOTAL_FRAMES - 1`. Never hard-code; derive it from `metadata.json` total duration × fps − 1.
-
-```bash
-cd remotion-infographic
-npx remotion still src/index.ts VideoFull out/video-hero.png --frame=<LAST_FRAME>
-```
-
-### Verify with ffprobe
-
-```bash
-ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,duration -of json out/video.mp4
-```
-
----
-
-## 7. Audio synchronization checklist
-
-- Each `SceneN.tsx` mounts `<Audio src={staticFile("audio/scene-N.wav")} />` at the start of the scene's local timeline (frame 0 after the enclosing `<Series.Sequence>` shifts the origin).
-- Do not use `from` or `trimBefore` on the Audio component unless the WAV has intentional leading silence.
-- All caption timing uses `currentTime = frame / fps` in seconds, matching the timestamps extracted by Whisper from the same WAV file.
-- If the audio duration and `durationFrames` differ by more than 0.1 s, re-derive `durationFrames` from `metadata.json` and update `storyboard.json` and `src/config.ts`.
-- Whisper's `word_timestamps=True` timestamps are relative to the start of the audio file — they align directly with frame 0 of the scene.
-
----
-
-## 8. Verification steps
-
-Follow the verification checklist in [../remotion-infographics/references/remotion-production.md](../remotion-infographics/references/remotion-production.md) §Verification and completion for rendering standards. Additional checks specific to narrated video:
-
-1. After rendering each scene preview: confirm audio is audible, captions appear and advance word-by-word, no black frames at start or end.
-2. After the full merge: use `ffprobe` to confirm total duration matches `sum(scene.duration_s)` within ±0.1 s.
-3. The hero PNG must be the settled final hero frame. Decode the MP4's last frame and compare visually; expect H.264 compression differences from the PNG, not content differences.
-4. Do not claim audio playback was verified from a still-frame inspection alone.
-
+Tests use temporary directories and mock external synthesis/transcription where appropriate. A real integration smoke test should additionally run download, TTS, timestamps, npm install/typecheck, and a small MP4/hero render under the requested test folder. Unit tests alone do not establish end-to-end media quality.

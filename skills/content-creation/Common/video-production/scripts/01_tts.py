@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -59,30 +60,33 @@ def check_assets(assets_dir: Path) -> tuple[Path, Path]:
     voices_path = kokoro_dir / "voices-v1.0.bin"
 
     missing: list[str] = []
-    if not model_path.exists():
+    if not model_path.is_file() or model_path.stat().st_size != 325532387:
         missing.append(str(model_path))
-    if not voices_path.exists():
+    if not voices_path.is_file() or voices_path.stat().st_size != 28214398:
         missing.append(str(voices_path))
 
     if missing:
-        print("ERROR: Kokoro model assets not found:", file=sys.stderr)
+        print("ERROR: Kokoro model assets missing or invalid:", file=sys.stderr)
         for m in missing:
             print(f"  Missing: {m}", file=sys.stderr)
         print(
             "\nRun the one-time setup script to download them:\n"
-            "  bash skills/content-creation/Common/video-production/scripts/04_setup_assets.sh\n"
+            f"  bash {Path(__file__).with_name('04_setup_assets.sh')} {assets_dir.parent}\n"
             f"\nExpected asset directory: {kokoro_dir}",
             file=sys.stderr,
         )
         sys.exit(1)
 
+    with np.load(voices_path, allow_pickle=False) as voices:
+        if not voices.files:
+            raise ValueError("Voice archive is empty; rerun asset setup")
     return model_path, voices_path
 
 
 def parse_transcript(text_path: Path) -> list[str]:
     """Split transcript on '---' separator lines; skip empty scenes."""
     raw = text_path.read_text(encoding="utf-8")
-    scenes = [s.strip() for s in raw.split("---")]
+    scenes = [s.strip() for s in re.split(r"(?m)^\s*---\s*$", raw)]
     scenes = [s for s in scenes if s]  # drop empty segments
     if not scenes:
         print("ERROR: transcript.txt contains no non-empty scenes.", file=sys.stderr)
@@ -110,10 +114,10 @@ def synthesize_scene(
     samples, sr = kokoro.create(text, voice=voice, lang=lang)
     samples = np.array(samples, dtype=np.float32)
 
-    if samples.size == 0:
-        print(f"WARNING: Kokoro returned zero samples for scene text: {text[:60]!r}", file=sys.stderr)
-        # Write 0.5 s of silence rather than an unreadable empty file
-        samples = np.zeros(int(SAMPLE_RATE * 0.5), dtype=np.float32)
+    if samples.size == 0 or not np.isfinite(samples).all() or not np.any(samples):
+        raise ValueError(f"TTS produced empty, silent, or non-finite audio: {text[:60]!r}")
+    if sr != SAMPLE_RATE:
+        raise ValueError(f"Unexpected sample rate {sr}; expected {SAMPLE_RATE}")
 
     samples = normalize_audio(samples)
     sf.write(str(out_path), samples, SAMPLE_RATE, subtype="FLOAT")
@@ -134,6 +138,9 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     scenes = parse_transcript(text_path)
+    with np.load(voices_path, allow_pickle=False) as voices:
+        if args.voice not in voices.files:
+            raise ValueError(f"Unknown voice {args.voice!r}. Available: {', '.join(voices.files)}")
     print(f"Loading Kokoro model from: {model_path}")
     kokoro = Kokoro(str(model_path), str(voices_path))
     print(f"Voice: {args.voice}  |  Language: {args.lang}  |  Scenes: {len(scenes)}")
@@ -158,7 +165,7 @@ def main() -> None:
     metadata = {
         "voice": args.voice,
         "lang": args.lang,
-        "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "scenes": metadata_scenes,
     }
     meta_path = out_dir / "metadata.json"
@@ -168,4 +175,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

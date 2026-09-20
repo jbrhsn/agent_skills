@@ -3,6 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = [
 #   "openai-whisper>=20231117",
+#   "soundfile>=0.12.1",
 # ]
 # ///
 """
@@ -45,6 +46,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out", required=True, help="Path to write the output JSON file.")
     p.add_argument("--language", default=None,
                    help="Force a specific language code (e.g. 'en'). Auto-detected if omitted.")
+    p.add_argument("--model-dir", default=None, help="Explicit Whisper model cache directory.")
     return p.parse_args()
 
 
@@ -67,13 +69,9 @@ def extract_words(result: dict) -> list[dict]:
 
 
 def get_audio_duration(audio_path: Path) -> float:
-    """Return duration in seconds using soundfile if available, else fall back to Whisper's result."""
-    try:
-        import soundfile as sf  # optional; not in PEP 723 deps to keep this script lean
-        info = sf.info(str(audio_path))
-        return round(info.duration, 4)
-    except ImportError:
-        return 0.0
+    """Measure the complete WAV duration, including trailing silence."""
+    import soundfile as sf
+    return round(sf.info(str(audio_path)).duration, 4)
 
 
 def main() -> None:
@@ -87,22 +85,29 @@ def main() -> None:
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading Whisper model '{args.model}' (downloads on first use to ~/.cache/whisper/)...")
-    model = whisper.load_model(args.model)
+    duration_s = get_audio_duration(audio_path)
+    if duration_s <= 0:
+        raise ValueError("Audio has no samples")
+    if duration_s >= 0.5:
+        print(f"Loading Whisper '{args.model}' into {args.model_dir or '~/.cache/whisper'}...")
+    model = whisper.load_model(args.model, download_root=args.model_dir) if duration_s >= 0.5 else None
 
-    transcribe_kwargs: dict = {"word_timestamps": True}
+    transcribe_kwargs: dict = {"word_timestamps": True, "fp16": False}
     if args.language:
         transcribe_kwargs["language"] = args.language
 
     print(f"Transcribing: {audio_path.name}")
-    result = model.transcribe(str(audio_path), **transcribe_kwargs)
+    result = model.transcribe(str(audio_path), **transcribe_kwargs) if model else {"segments": []}
 
     words = extract_words(result)
 
-    # Derive duration: prefer soundfile info; fall back to last word end time
-    duration_s = get_audio_duration(audio_path)
-    if duration_s == 0.0 and words:
-        duration_s = words[-1]["end"]
+    if duration_s >= 0.5 and not words:
+        raise ValueError("Whisper produced no words; inspect narration before continuing")
+    previous_start = 0.0
+    for word in words:
+        if not (previous_start <= word["start"] <= word["end"] <= duration_s):
+            raise ValueError(f"Invalid word timing: {word}")
+        previous_start = word["start"]
 
     # Derive scene name from the audio filename (e.g. "scene-2.wav" → "scene-2")
     scene_name = audio_path.stem  # filename without extension
@@ -122,4 +127,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
