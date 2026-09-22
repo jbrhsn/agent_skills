@@ -7,5 +7,6 @@ from common import get_dest, parse_args, sync_skills
 if __name__ == "__main__":
     args = parse_args("Sync Antigravity skills to ~/.gemini/config/skills")
     dest = get_dest("ANTIGRAVITY_SKILLS", ".gemini/config/skills")
-    sys.exit(sync_skills("Antigravity", dest, args.dry_run, args.verify))
+    sf = [s.strip() for s in args.skills.split(",") if s.strip()] if args.skills else None
+    sys.exit(sync_skills("Antigravity", dest, args.dry_run, args.verify, skills_filter=sf))
 

@@ -9,4 +9,5 @@ from common import get_dest, parse_args, sync_skills
 if __name__ == "__main__":
     args = parse_args("Sync skills to Codex and ChatGPT's ~/.agents/skills")
     dest = get_dest("CODEX_SKILLS", ".agents/skills")
-    sys.exit(sync_skills("Codex / ChatGPT", dest, args.dry_run, args.verify))
+    sf = [s.strip() for s in args.skills.split(",") if s.strip()] if args.skills else None
+    sys.exit(sync_skills("Codex / ChatGPT", dest, args.dry_run, args.verify, skills_filter=sf))

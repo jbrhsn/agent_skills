@@ -89,17 +89,31 @@ def prune_stale_skills(dest_dir: Path, keep: set[str], dry_run: bool = False) ->
     return stale
 
 
-def verify_skills(target_name: str, dest_dir: Path) -> int:
-    """Verify canonical skill parity without rejecting unrelated installed skills."""
-    print(f"\n🔎 Verifying {target_name} skills parity...")
+def verify_skills(
+    target_name: str,
+    dest_dir: Path,
+    skills_filter: list[str] | None = None,
+) -> int:
+    """Verify canonical skill parity without rejecting unrelated installed skills.
+
+    When *skills_filter* is given, only those skills are checked; stale-manifest
+    detection is skipped because a partial sync never rewrites the manifest.
+    """
+    label = f"{target_name} skills" + (f" ({', '.join(skills_filter)})" if skills_filter else "")
+    print(f"\n🔎 Verifying {label} parity...")
     skills = discover_skills()
-    source_names = {s.name for s in skills}
+
+    if skills_filter:
+        skills = [s for s in skills if s.name in skills_filter]
+    else:
+        source_names = {s.name for s in skills}
+        stale_managed = read_skill_manifest(dest_dir) - source_names
+        if stale_managed:
+            print(f"\n✗ {target_name} skills verification failed:")
+            print(f"  - Stale manifest-owned skill directories: {', '.join(sorted(stale_managed))}")
+            return 1
 
     failures = []
-    stale_managed = read_skill_manifest(dest_dir) - source_names
-    if stale_managed:
-        failures.append(f"Stale manifest-owned skill directories: {', '.join(sorted(stale_managed))}")
-
     for src in skills:
         name = src.name
         dest = dest_dir / name
@@ -139,21 +153,47 @@ def verify_skills(target_name: str, dest_dir: Path) -> int:
             print(f"✓ {name} ({len(src_files)} files, SHA256 verified)")
 
     if failures:
-        print(f"\n✗ {target_name} skills verification failed:")
+        print(f"\n✗ {label} verification failed:")
         for line in failures:
             print(f"  - {line}")
         return 1
 
-    print(f"✅ All {len(skills)} canonical {target_name} skills verified (100% parity)")
+    print(f"✅ All {len(skills)} {label} verified (100% parity)")
     return 0
 
 
-def sync_skills(target_name: str, dest_dir: Path, dry_run: bool = False, verify: bool = False) -> int:
-    """Sync all discovered skills to target destination."""
-    dest_dir.mkdir(parents=True, exist_ok=True)
-    skills = discover_skills()
+def sync_skills(
+    target_name: str,
+    dest_dir: Path,
+    dry_run: bool = False,
+    verify: bool = False,
+    skills_filter: list[str] | None = None,
+) -> int:
+    """Sync skills to *dest_dir*.
 
-    print(f"🔄 Syncing {target_name} skills...")
+    When *skills_filter* is given (a list of flattened skill names), only those
+    skills are synced.  Unknown names produce an error and exit non-zero before
+    touching the filesystem.  Stale-skill pruning and manifest rewrite are
+    suppressed in filtered mode so the manifest always reflects the full owned set.
+    """
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    all_skills = discover_skills()
+    all_names = {s.name for s in all_skills}
+
+    if skills_filter:
+        unknown = sorted(set(skills_filter) - all_names)
+        if unknown:
+            print(f"✗ Unknown skill(s): {', '.join(unknown)}")
+            print(f"  Available: {', '.join(sorted(all_names))}")
+            return 1
+        skills = [s for s in all_skills if s.name in skills_filter]
+        filtered = True
+    else:
+        skills = all_skills
+        filtered = False
+
+    filter_label = f" (filter: {', '.join(skills_filter)})" if filtered else ""
+    print(f"🔄 Syncing {target_name} skills{filter_label}...")
     print(f"  Source:      {REPO_ROOT}")
     print(f"  Destination: {dest_dir}\n")
 
@@ -179,21 +219,26 @@ def sync_skills(target_name: str, dest_dir: Path, dry_run: bool = False, verify:
             print(f"✗ {name}: {e}")
             skipped += 1
 
-    for stale in prune_stale_skills(dest_dir, {skill.name for skill in skills}, dry_run):
-        action = "Would remove" if dry_run else "🗑  Removed"
-        print(f"→ {action} (no longer synced): {stale}")
+    if not filtered:
+        for stale in prune_stale_skills(dest_dir, all_names, dry_run):
+            action = "Would remove" if dry_run else "🗑  Removed"
+            print(f"→ {action} (no longer synced): {stale}")
 
-    if not dry_run and not skipped:
-        write_skill_manifest(dest_dir, {skill.name for skill in skills})
+    if not dry_run and not skipped and not filtered:
+        write_skill_manifest(dest_dir, all_names)
 
     mode_str = "🔍 DRY RUN: No files were modified" if dry_run else "✅ Sync complete!"
     print(f"\n{mode_str}\n  Synced:  {synced} skills\n  Skipped: {skipped} skills\n")
     print(f"📍 {target_name} skills: {dest_dir}")
-    print(f"   Installed: {len(list(dest_dir.glob('*')))}/{len(skills)} skills")
+    installed_count = len(list(dest_dir.glob("*")))
+    total_count = len(all_skills)
+    print(f"   Installed: {installed_count}/{total_count} skills")
 
     if skipped:
         return 1
-    return verify_skills(target_name, dest_dir) if verify and not dry_run else 0
+    if verify and not dry_run:
+        return verify_skills(target_name, dest_dir, skills_filter=skills_filter if filtered else None)
+    return 0
 
 
 def parse_args(description: str) -> argparse.Namespace:
@@ -201,6 +246,14 @@ def parse_args(description: str) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--dry-run", action="store_true", help="Preview without modifying files")
     parser.add_argument("--verify", action="store_true", help="Verify checksum and file parity after syncing")
+    parser.add_argument(
+        "--skills",
+        default="",
+        metavar="NAMES",
+        help="Comma-separated skill names to sync (default: all). "
+             "Unknown names are an error. Pruning and manifest rewrite are "
+             "suppressed when this flag is used.",
+    )
     return parser.parse_args()
 
 

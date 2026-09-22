@@ -33,6 +33,14 @@ VERIFY_AWARE = {
     "sync_claude_agents.py",
     "sync_codex_skills.py",
 }
+# Scripts that sync skill folders and therefore accept --skills
+SKILLS_AWARE = {
+    "sync_opencode_skills.py",
+    "sync_bob_skills.py",
+    "sync_antigravity_skills.py",
+    "sync_claude_skills.py",
+    "sync_codex_skills.py",
+}
 
 
 def run_sync(script_name: str, args: argparse.Namespace) -> int:
@@ -43,6 +51,8 @@ def run_sync(script_name: str, args: argparse.Namespace) -> int:
         cmd += ["--plugins", args.plugins]
     if args.verify and script_name in VERIFY_AWARE:
         cmd.append("--verify")
+    if args.skills and script_name in SKILLS_AWARE:
+        cmd += ["--skills", args.skills]
     print(f"\n{'=' * 79}\nRunning: {script_name}\n{'=' * 79}\n", flush=True)
     return subprocess.run(cmd, cwd=SCRIPTS_DIR.parent).returncode
 
@@ -53,6 +63,14 @@ def main() -> int:
     parser.add_argument("--plugins", default="", help="Comma-separated plugins to install (OpenCode only)")
     parser.add_argument("--list-plugins", action="store_true", help="List available plugins and exit")
     parser.add_argument("--verify", action="store_true", help="Check resolved agent config after syncing")
+    parser.add_argument(
+        "--skills",
+        default="",
+        metavar="NAMES",
+        help="Comma-separated skill names to sync (default: all). "
+             "Passed only to skill-sync scripts; agent and plugin scripts are unaffected. "
+             "Unknown names are an error. Pruning and manifest rewrite are suppressed.",
+    )
     group = parser.add_mutually_exclusive_group()
     for target in TARGETS:
         group.add_argument(f"--{target}-only", action="store_true", help=f"Sync only to {target.title()}")

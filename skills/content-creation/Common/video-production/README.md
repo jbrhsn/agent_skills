@@ -1,8 +1,12 @@
 # Video Production
 
-Local narrated-video skill: directorial storyboards, original animation and motion graphics, optional local footage/images/sound effects, Kokoro speech, Whisper word timestamps, editable Remotion scenes, MP4, and exact final-frame PNG. Storyboards describe audience experience; optional scene-design.md handles project-specific execution choices.
+Local narrated-video skill: reviewed narration, measured scene audio/timestamps, voiceover-to-visual asset planning, approved execution playbooks, editable Remotion scenes, Studio feedback, MP4, and exact final-frame PNG. Storyboards describe audience experience; implementation-plan.md specifies execution. Original animation and code visuals remain available alongside supplied media.
+
+Follow [collaborative production](references/collaborative-production.md): transcript → audio → timestamps → narration approval; creative/asset planning → user asset handoff → refined-plan approval; one scene at a time → user Studio review → final master/export approval. Copy templates at the relevant stage. V2 production-state.json retains scoped approvals and file snapshots; execution-plan.json maps exact words and events to timed actions and acceptance criteria. Scaffold and generated npm exports enforce recorded prerequisites. Quality, rights and playback still require review.
 
 Start with [SKILL.md](SKILL.md) for workflow and [the pipeline reference](references/video-production-pipeline.md) for executable commands and contracts. [Voice guidance](references/kokoro-voices.md) describes selection and compatibility.
+
+Optional [whiteboard production](references/whiteboard-production.md) adds original SVG doodles, draw-on animation, camera framing, and chart helpers through `--visual-style whiteboard`. [Long-form production](references/long-form-production.md) covers chapters and asset continuity; [data explainers](references/data-explainers.md) includes a tested illustrative calculation helper. Supplied voice recordings can enter the same pipeline through `06_import_narration.py`. These support production work; the starter art is not a finished professional illustration library.
 
 Prerequisites: uv, Python 3.11+, current supported Node/npm, ffmpeg/ffprobe, and phonemizer requirements for the selected language. Create/reuse a dedicated environment with uv venv and execute Python with uv run as shown in the pipeline reference; JavaScript dependencies belong to the generated project.
 

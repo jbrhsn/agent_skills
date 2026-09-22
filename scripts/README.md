@@ -31,6 +31,12 @@ uv run scripts/sync_all.py --antigravity-only  # Skills + AGENTS.md
 uv run scripts/sync_all.py --bob-only          # Skills
 uv run scripts/sync_all.py --codex-only        # Skills
 
+# Selective skill sync — push only named skills, to all or selected platforms
+uv run scripts/sync_all.py --skills video-production                        # one skill → all platforms
+uv run scripts/sync_all.py --skills video-production,lean-coder             # two skills → all platforms
+uv run scripts/sync_all.py --skills video-production --antigravity-only     # one skill → one platform
+uv run scripts/sync_all.py --skills video-production --dry-run              # preview filter
+
 uv run scripts/sync_all.py --list-plugins                     # List available plugins
 uv run scripts/sync_all.py --plugins search-internet --verify # Install a plugin, then verify
 uv run scripts/sync_all.py                                    # Omit --plugins to uninstall
@@ -41,13 +47,17 @@ uv run scripts/sync_all.py                                    # Omit --plugins t
 - `--list-plugins` — print available plugins and exit.
 - `--verify` — after syncing, verify SHA-256 checksums and file parity for every canonical skill across all platforms, verify agent files, and run `opencode debug agent` on OpenCode agents to assert resolved permissions match composition. Unmanaged skills in shared destinations are left alone and do not fail verification.
 
+**Selective skill sync flag:**
+- `--skills <name[,name…]>` — comma-separated list of flattened skill names (e.g. `video-production,lean-coder`). Only those skills are synced; unknown names are an error. Stale-skill pruning and manifest rewrite are suppressed — the manifest always reflects the full owned set. Combine freely with any `--*-only` flag to target one or more platforms. Agent and plugin syncs are unaffected.
+
 ### `sync_opencode_skills.py`
 Syncs skills to OpenCode global config (`~/.config/opencode/skills`).
 
 **Usage:**
 ```bash
-uv run scripts/sync_opencode_skills.py           # Sync
-uv run scripts/sync_opencode_skills.py --dry-run # Preview
+uv run scripts/sync_opencode_skills.py                            # Sync
+uv run scripts/sync_opencode_skills.py --dry-run                  # Preview
+uv run scripts/sync_opencode_skills.py --skills video-production  # One skill only
 ```
 
 **Environment variables:**
@@ -61,6 +71,7 @@ Syncs skills to the user-wide location discovered by Codex CLI, the Codex IDE ex
 uv run scripts/sync_codex_skills.py
 uv run scripts/sync_codex_skills.py --dry-run
 uv run scripts/sync_codex_skills.py --verify
+uv run scripts/sync_codex_skills.py --skills video-production
 ```
 
 **Environment variables:**
@@ -110,8 +121,9 @@ Syncs skills to IBM Bob global config (`~/.bob/skills`).
 
 **Usage:**
 ```bash
-uv run scripts/sync_bob_skills.py           # Sync
-uv run scripts/sync_bob_skills.py --dry-run # Preview
+uv run scripts/sync_bob_skills.py                            # Sync
+uv run scripts/sync_bob_skills.py --dry-run                  # Preview
+uv run scripts/sync_bob_skills.py --skills video-production  # One skill only
 ```
 
 **Environment variables:**
@@ -122,8 +134,9 @@ Syncs skills to the Antigravity (Google Antigravity IDE) global config (`~/.gemi
 
 **Usage:**
 ```bash
-uv run scripts/sync_antigravity_skills.py           # Sync
-uv run scripts/sync_antigravity_skills.py --dry-run # Preview
+uv run scripts/sync_antigravity_skills.py                            # Sync
+uv run scripts/sync_antigravity_skills.py --dry-run                  # Preview
+uv run scripts/sync_antigravity_skills.py --skills video-production  # One skill only
 ```
 
 **Environment variables:**
@@ -134,8 +147,9 @@ Syncs skills to Claude Code global config (`~/.claude/skills`). Claude Code auto
 
 **Usage:**
 ```bash
-uv run scripts/sync_claude_skills.py           # Sync
-uv run scripts/sync_claude_skills.py --dry-run # Preview
+uv run scripts/sync_claude_skills.py                            # Sync
+uv run scripts/sync_claude_skills.py --dry-run                  # Preview
+uv run scripts/sync_claude_skills.py --skills video-production  # One skill only
 ```
 
 **Environment variables:**
