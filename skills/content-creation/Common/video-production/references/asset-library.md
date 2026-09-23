@@ -38,7 +38,7 @@ Do not mistake an asset's presence in the workspace for permission to publish it
 Name files descriptively with lowercase hyphens, retain the original where possible, and inspect media before selection. Add human judgment to `library.json` and collection-specific inventories. Then generate a technical report:
 
 ```bash
-uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python \
+uv run --python WORKSPACE/.venv/bin/python python \
   SKILL/scripts/07_index_assets.py --assets-dir WORKSPACE/.video_production_assets
 ```
 
@@ -49,12 +49,14 @@ The report is `inventory.generated.json`, which can be regenerated at any time. 
 Before preparing a storyboard, read `library.json`, collection inventories, and run a small number of topic/visual-beat searches:
 
 ```bash
-uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python \
+uv run --python WORKSPACE/.venv/bin/python python \
   SKILL/scripts/08_search_assets.py --assets-dir WORKSPACE/.video_production_assets \
   --query "focus distraction desk" --include-unusable
 ```
 
 The command performs transparent token matching against curated metadata and collection details. `--include-unusable` makes `unknown` and `reference-only` entries visible for review; it does not make them usable. Inspect shortlisted files, confirm project-specific rights, and mention only real, suitable selected assets in the storyboard. When none fits, propose code visuals or acquisition/generation at the asset handoff and await the user's choice unless already explicitly delegated. Do not use a code-only fallback to bypass that gate. Inventory scarcity must not shrink the narrative, dictate style, or turn the video into generic text slides.
+
+For every production, run `review_asset_inventory.py` after its route and initial beat map are known. It records the collections checked, focused beat queries, library digests, and candidate lists in `PROJECT/analysis/asset-library-review.json`. Add a selected/rejected/reference-only/no-fit disposition before approving the creative plan. This review is required even when the suitable outcome is original code or a new asset request.
 
 ## Selecting media for a project
 

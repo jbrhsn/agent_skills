@@ -15,7 +15,7 @@ using the Kokoro ONNX model, and writes one WAV per scene plus a
 metadata.json summary into the output directory.
 
 Usage:
-    uv run 01_tts.py \\
+    uv run --python WORKSPACE/.venv/bin/python python SKILL/scripts/01_tts.py \\
         --text path/to/transcript.txt \\
         --voice af_heart \\
         --assets-dir path/to/.video_production_assets \\
@@ -39,6 +39,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 from kokoro_onnx import Kokoro
+from model_cache import ensure
 
 SAMPLE_RATE = 24_000  # Kokoro v1.0 native output sample rate
 
@@ -134,6 +135,9 @@ def main() -> None:
         print(f"ERROR: transcript file not found: {text_path}", file=sys.stderr)
         sys.exit(1)
 
+    if assets_dir.name != ".video_production_assets":
+        raise ValueError("--assets-dir must name WORKSPACE/.video_production_assets")
+    ensure(assets_dir, ["kokoro"], allow_download=True)
     model_path, voices_path = check_assets(assets_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 

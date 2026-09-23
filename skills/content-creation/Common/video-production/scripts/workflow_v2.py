@@ -7,6 +7,8 @@ import math
 import re
 from pathlib import Path
 
+from asset_library import validate_review
+
 
 def text(value):
     return isinstance(value, str) and bool(value.strip())
@@ -71,7 +73,8 @@ def snapshot(project, scope):
     if scope != "narration":
         paths.update(project / name for name in ("storyboard.json", "asset-plan.md", "asset-manifest.json",
                                                  "design-system.json", "implementation-plan.md",
-                                                 "execution-plan.json", "edit-plan.json"))
+                                                 "execution-plan.json", "edit-plan.json",
+                                                 "analysis/asset-library-review.json"))
         for folder in ("assets", "public/media"):
             paths.update((project / folder).rglob("*"))
     if scope == "video" or scope.startswith("scene:"):
@@ -220,9 +223,15 @@ def validate_design_system(project):
             or not all(text(motion.get(key)) for key in ("easing", "cameraRule"))
             or not isinstance(motion.get("transitions"), list) or not motion["transitions"]):
         raise ValueError("Design system motion tokens are incomplete")
-    if (not isinstance(captions, dict) or set(captions) != {"fontFamily", "text", "background", "active", "radius"}
+    caption_required = {"fontFamily", "text", "background", "active", "radius"}
+    caption_optional = {"fontScale", "paddingX", "paddingY", "bottomInset"}
+    if (not isinstance(captions, dict) or not caption_required.issubset(captions)
+            or set(captions) - caption_required - caption_optional
             or not text(captions["fontFamily"]) or type(captions["radius"]) not in (int, float)
-            or not all(re.fullmatch(r"#[0-9A-Fa-f]{6}", captions[key]) for key in ("text", "background", "active"))):
+            or not all(re.fullmatch(r"#[0-9A-Fa-f]{6}", captions[key]) for key in ("text", "background", "active"))
+            or any(type(captions.get(key)) not in (int, float) or captions[key] <= 0
+                   for key in caption_optional if key in captions)
+            or any(captions[key] >= 1 for key in ("fontScale", "bottomInset") if key in captions)):
         raise ValueError("Design system caption tokens are incomplete")
     if not isinstance(design["avoid"], list) or not design["avoid"] or not all(text(item) for item in design["avoid"]):
         raise ValueError("Design system requires a concrete avoid list")
@@ -255,6 +264,11 @@ def validate_asset_manifest(project):
             if not isinstance(expected, str) or not re.fullmatch(r"[a-f0-9]{64}", expected) or expected != actual:
                 raise ValueError(f"Asset {item['id']}: SHA-256 does not match the staged file")
     return manifest
+
+
+def validate_asset_library_review(project):
+    return validate_review(local_file(project, "analysis/asset-library-review.json"),
+                           {"faceless-standard", "faceless-editorial"})
 
 
 def validate_execution(project, scene_ids):
@@ -344,6 +358,7 @@ def check_v2(project, state, stage, scene_ids, scene=None):
                 local_file(project, name)
             validate_design_system(project)
             validate_asset_manifest(project)
+            validate_asset_library_review(project)
             validate_execution(project, scene_ids)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         errors.append(f"Artifact check: {exc}")

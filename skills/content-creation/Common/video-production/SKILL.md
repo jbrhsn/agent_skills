@@ -1,83 +1,99 @@
 ---
 name: video-production
-description: Produce or revise narrated Remotion videos for horizontal YouTube and vertical short-form, including long-form explainers and illustrated whiteboard videos, with original motion graphics, local or recorded narration, captions, review previews, MP4, and a final-frame PNG.
+description: Create faceless, recorded, or hybrid editorial Remotion videos through deterministic source, editorial, style, timeline, quality, review, and delivery artifacts.
 ---
 
-# Video Production
+# AI-native video production
 
-Deliver an editable Remotion project, narrated MP4, and hero PNG from the exact last composition frame. Preserve the source's message, evidence, qualifications, and voice. Speech synthesis and transcription run locally after dependency/model downloads.
+Build an editable Remotion project, master MP4, exact final-frame PNG, captions when requested, source/provenance manifest, and QC evidence. The system converts editorial decisions into inspectable artifacts. It does not claim that a successful render proves creative quality, factual correctness, rights, privacy, or listening review.
 
-## Required sequential gates
+## Run Python, model caches, and asset discovery consistently
 
-Read [collaborative production](references/collaborative-production.md) before starting. New productions default to v2 state and sequential user review. At each gate, present the concrete review target, end the turn, and wait. Do not create next-stage artifacts while waiting. “Proceed” approves only the stage just presented; explicit delegation is scoped.
+Use `uv run` with the workspace-local `.venv` for every top-level Python program. The legacy `.venv-video-production` is a temporary compatibility fallback. Never use inline Python; store reusable ad hoc scripts in `WORKSPACE/.video_production_tmp/scripts/`. Before loading Kokoro or Whisper, run `scripts/model_cache.py` so required files are checksum-verified in `WORKSPACE/.video_production_assets`; missing files are atomically cached there and never in a home-directory cache. After routing and before creative planning, record a route- and beat-aware inventory review with `scripts/review_asset_inventory.py`. Read [runtime preflight](references/runtime-preflight.md).
 
-1. Write transcript → generate/import scene audio → create/check timestamps. Present the narration package and STOP for approval before creative planning. An extra transcript-only gate is optional if requested.
-2. After approval, create creative direction, storyboard, design system and beat-level asset requests. Ask for external assets/choices and STOP; do not silently switch to code-only visuals to avoid the handoff.
-3. Inspect submissions, resolve alternatives, and finalize timed execution/playbook files. Present the refined plan and STOP for approval before scaffold or JSX.
-4. Implement only the active scene and typecheck. Ask the user to run `npm run studio`, specifying SceneN and frame checkpoints. STOP for feedback; record and apply it until approved before implementing the next scene. Start Studio yourself only if requested.
-5. After all scenes, review joins and VideoFull in Studio. STOP for export approval, then render scene exports, master and final PNG.
+## Route the production before planning
 
-Run `09_check_production.py` for plan/implement/scene/render preflight. Scaffold and generated npm exports require version-2 state. Raw CLI exports must not bypass pending review. Read the reference for snapshot-based approvals and engineering test exceptions.
+Use `scripts/route_production.py` to select one route from explicit inputs. Store the result in `project.json`, validated by `scripts/contracts.py`.
 
-## Scope and review
+| Route | Use when | Primary clock |
+|---|---|---|
+| `faceless-standard` | New narration needs designed/original visuals | Measured narration |
+| `faceless-editorial` | New narration benefits from layered evidence, collage, maps, data, or documents | Measured narration |
+| `recorded-edit` | Recorded media carries the story | Selected dialogue/source timeline |
+| `hybrid-editorial-edit` | Recorded media needs generated explanations during speech | Selected dialogue/source timeline |
 
-Honor the user's requested folder, duration, aspect ratio, and existing approvals. Default to 20–45 seconds, 4–8 scenes, 30 fps, vertical 1080 × 1920 if unspecified. Estimate narration at about 2.5 words/second; use measured audio durations for production.
+Choose `guided`, `producer`, or `autonomous` execution deliberately. Guided production requires review of source/narration, editorial thesis, style and asset plan, pilot/scene, master, and export. Producer mode requires creative direction, rough master, and export review. Autonomous mode requires explicit delegated scope, enabled detectors, bounded repair policy, and a complete evidence report. Publishing, external purchasing, and account actions always need separate authorization.
 
-For multi-minute explainers or a reference with a sustained argument, read [long-form production](references/long-form-production.md). The short defaults are not limits. Plan chapters and visual beats, maintain recurring identities and a shared asset inventory, and validate a representative sequence before scaling production. For reference matching, distinguish inspected frames/captions from actual motion and listening review; never infer production methods or sound quality from stills.
+## Keep three sources of truth
 
-Read [engagement direction](references/engagement-direction.md) before scripting: define the audience's situation, opening promise, intermediate discoveries, and final takeaway. Use the principles as editorial guidance, not guaranteed psychology or retention outcomes. For platform/aspect-ratio choices or adaptations, read [platform composition](references/platform-composition.md). Horizontal YouTube needs deliberate spatial staging and pacing; vertical versions need their own readable composition. Re-stage rather than merely crop.
+1. **Source truth:** immutable originals, stream properties, hashes, derivatives, rights/provenance, transcript evidence, and source-coordinate tracking.
+2. **Editorial intent:** route, edit thesis, selected style, beat map, accepted timeline, visual events, asset plan, sound plan, and review decisions.
+3. **Render state:** compiled schedule, previews, QC findings, output probes, and delivery artifacts.
 
-Use asset-plan.md for exact spoken-beat coverage, layer roles, filenames, prompts, provenance and visible action. Required execution-plan.json holds checked word/frame ranges, real layer references, before/action/after states, ordered coding steps and observable acceptance. implementation-plan.md supplies the reviewed design system and construction playbook. Whole-scene summaries do not satisfy the beat contract. Preserve actual user feedback and scoped approvals in production-state.json.
+Never replace source truth with renderer output or use a compiled timeline as an editable editorial plan.
 
-If the user explicitly delegates choices or requests an autonomous test, choose reasonable defaults and proceed within that scope; record delegation when using production state. Do not impose collaborative approval pauses on engineering tests. A separate storyboard-JSON approval is unnecessary when it implements an approved direction. Publishing or uploading requires separate authorization.
+## Canonical artifacts
 
-For debugging or improving this skill, reproduce the failure, repair the relevant scripts/instructions, and validate with isolated fixtures and a real smoke test when feasible. Do not apply creative approval gates to engineering tests. Preserve existing authored work.
+New projects use these versioned artifacts. Refer to them by paths declared in `project.json`; do not maintain competing editable copies.
 
-## Preflight and assets
+```text
+project.json
+source/manifest.json
+analysis/editorial-analysis.json
+editorial/timeline.json
+editorial/visual-events.json
+style/resolved-style.json
+assets/manifest.json
+timeline/render.json
+qc/report.json
+production-state.json
+delivery/
+```
 
-Read [the pipeline reference](references/video-production-pipeline.md) before running scripts or writing scene code. Resolve script paths relative to this skill, never the caller's working directory. Check uv, Node/npm, ffmpeg/ffprobe, and the selected phonemizer's system requirements. Use lean-coder if available for implementation, but the pipeline must not depend on a separately installed skill.
+`source/manifest.json` uses source-manifest v3. It records each stream separately, including source video frame rate and audio layout, and never forces B-roll, cameras, audio, or generated media into a screen/presenter role. `editorial/timeline.json` uses editorial-timeline v2: independent audio, video, generated graphics, music, and effect tracks with source/stream trims, occurrence IDs, constant positive playback rates, explicit freeze stills, z-order, and master positions. Repeated source ranges are separate clip occurrences. Captions follow primary dialogue occurrences, not picture cuts.
 
-Choose the workspace root explicitly: nearest containing Git root (including worktree .git files), otherwise the user-designated workspace. A globally installed skill's directory is not the target workspace. Create or reuse a dedicated environment with `uv venv`; run every Python script with `uv run` using that environment as described in the pipeline reference. Do not use system Python or bare pip.
+Compile only with:
 
-Inventory reusable creative media under WORKSPACE/.video_production_assets and project submissions under PROJECT/assets/. Read [asset library](references/asset-library.md) for intake, filename confirmation, prompts, source/licensing and AI disclosure, and inspection. Before preparing a storyboard, search any available curated inventory with topic and visual-beat terms and inspect suitable candidates. List only selected real assets in the storyboard; planned filenames belong in `asset-plan.md`. Candidate search informs art direction without forcing reuse. Keep kokoro/ and whisper/ model caches separate from creative media. Missing media never limits the work to text slides: plan original animation, diagrams, illustrated action, or spatial metaphors in code where suitable. When an approved required asset is unavailable or unsuitable, ask the user to choose an alternative, omission, or redesign unless already delegated; update dependent scenes and transitions before declaring readiness.
+```bash
+uv run --python WORKSPACE/.venv/bin/python python \
+  SKILL/scripts/compile_timeline.py \
+  --timeline PROJECT/editorial/timeline.json \
+  --sources PROJECT/source/manifest.json --visual-events PROJECT/editorial/visual-events.json \
+  --out PROJECT/timeline/render.json
+```
 
-When using Kokoro, run scripts/04_setup_assets.sh with that workspace root if its models are absent or invalid; it does not download creative media. Supplied narration needs no Kokoro setup. Run authorized setup directly; request environment escalation only if necessary. Downloads are roughly 354 MB total. The compatible model and bundled voice archive come from the kokoro-onnx release, not the onnx-community Transformers/JS layout. A successful exit or file existence alone is not evidence of valid model contents.
+The compiler rejects unbounded trims, ambiguous stream bindings, overlapping primary dialogue, and clocks it cannot represent. It quantizes the master schedule once and produces the final total frame count. The final PNG uses `totalFrames - 1`.
 
-Add .video_production_assets/, node_modules/, and output/cache paths to the appropriate .gitignore, preserving existing rules. Keep project source editable and versionable; do not ignore the entire project by default.
+## Editorial intelligence and hybrid explanation
 
-## Narration and timestamps
+Analyze speech and media before editing. Record measured signals separately from judgments: silence, sentence boundaries, repeated phrases, speakers, source changes, and low-confidence regions are evidence; hook value, emotional peaks, likely removals, and explanation opportunities are candidates for a producer or delegated agent to decide.
 
-Write narration to PROJECT/transcript.txt, separating scenes with a line containing only ---. Complete audio/timestamps before the default narration-package approval gate; honor an earlier transcript review if requested.
-For supplied recordings, use `scripts/06_import_narration.py` as described in [audio direction](references/audio-direction.md), then use the same timestamp and scaffold pipeline. Imported recordings do not require Kokoro models. Audition the chosen voice before generating a long script.
-Read [audio direction](references/audio-direction.md) for phrasing, scene-to-scene cadence, optional mixing, and readable captions. Use supported voice controls and audition joins; do not invent speech-engine capabilities.
-Use scripts/01_tts.py with --assets-dir WORKSPACE/.video_production_assets and --out-dir PROJECT/public/audio. Default voice: af_heart; see [voice guidance](references/kokoro-voices.md). Confirm every WAV is nonempty, finite, nonsilent, and matches metadata. Report measured scene durations.
+When the source cannot explain an abstract relationship, plan a visual event. Every event names its dialogue occurrence, master frame range, editorial purpose, presentation mode, background/midground/foreground assets or code visuals, visible sequence, acceptance check, and exact source re-entry. Generated scenes do not restart or duplicate speech, create unplanned time, or detach captions from dialogue.
 
-Run scripts/02_timestamps.py sequentially for each WAV with --model base, --language en for English narration, and --model-dir WORKSPACE/.video_production_assets/whisper. Check words against the narration transcript; recognition is not forced alignment. Inspect and correct mistranscriptions without inventing timing, then present the narration package for approval. Short clips under 0.5 seconds produce an empty words array; empty captions for longer narration require investigation.
+Read [editorial intelligence](references/editorial-intelligence.md), [hybrid editing](references/hybrid-editorial-editing.md), and [visual-event contract](references/visual-event-contract.md) before using these paths.
 
-## Visual direction and composition
+## Styles are production grammars
 
-Read [visual direction](references/visual-direction.md) after narration approval. Recommend two treatments that fit the editorial job, then record the approved recipe and project-specific tokens in `design-system.json`. Professional process, editorial evidence, doodle, collage, flat character/object, screen tutorial, data/system, documentary hybrid, kinetic type and intentional dark are starting grammars—not mandatory layouts. `custom` requires equivalent concrete decisions. Do not let scaffold defaults select a dark background, or replace that habit with a universal beige style. Vary shot scale and staging while preserving coherent object behavior. Use a meaningful first frame and settled payoff. Keep the explanation understandable muted.
+Resolve format, energy, visual language, platform, brand rules, and project overrides into one `resolved-style` artifact. The profile governs editorial pace ranges, visual and layer grammar, caption behavior, motion, sound policy, and QA defaults. It is not a list of colors and transitions.
 
-For doodle/whiteboard direction, read [whiteboard production](references/whiteboard-production.md). Scaffold with `--visual-style whiteboard` to copy an original SVG starter kit and reveal/camera/chart helpers. This is independent of aspect ratio; it supplies building blocks, not finished illustration or automatic storyboard rendering. For numerical comparisons, read [data explainers](references/data-explainers.md); generate chart values from explicit assumptions and tested calculations rather than hand-entering animated totals.
+Use `scripts/style_profile.py` with the supplied catalog as the first library. Record the resolved digest and field provenance. Brand restrictions remain constraints; an override needs an explicit recorded exception. Read [style system](references/style-system.md).
 
-For a publishable project, consult current primary platform guidance and relevant examples where useful. Distinguish observed popularity from measured retention; do not promise virality. A functional smoke test needs no trend research.
+## Asset, motion, sound, and QA discipline
 
-Write PROJECT/storyboard.json as a scene-wise directorial brief using the pipeline reference. Describe what the audience sees and understands, the hook, payoff, visual atmosphere and action, background treatment, sound intent, and purposeful media usage. Do not specify element trees, coordinates, font sizes, fixed layouts, or animation keyframes here. Write enough to inspire execution without dictating its construction. Asset references are optional and must identify real inspected files when selected; explicitly allow original code visuals when no media fits.
+Use inspected assets with source, rights basis, transformation lineage, and intended beat role. Stage only selected media. Keep independent parts separate when the planned action needs articulated motion. For each meaningful beat, define initial state, visible action, settled result, caption policy, sound policy, and observable acceptance.
 
-After narration-package approval, map every spoken line to beats in asset-plan.md, including BG/midground/foreground and the action explaining the idea. Allow unused layers, reuse, and named code visuals; do not impose one shot per sentence. Request movable parts/cutouts/recordings according to the action, not an opaque landscape illustration for every layer. Register accepted selected visual/audio media in `asset-manifest.json` with stable IDs, staged paths, provenance, rights and inspection. After asset review, complete implementation-plan.md and execution-plan.json: word/frame ranges, named visual/sound events, design system, initial/action/result, geometry/anchors, masks, easing, continuity, coding steps and observable acceptance. Do not defer timing or construction to implementation. Consolidate existing scene-design.md. Master timing remains in metadata/edit plans/generated config; narration uses ceil(duration_s * fps), holds extend spans, and final PNG is TOTAL_FRAMES - 1.
+Run deterministic QC after compiling and after rendering affected windows. `scripts/qc_production.py` aggregates timeline checks with explicitly instrumented render observations; unavailable or partial detector coverage is reported, never passed silently. `bounded_repair()` only queues enabled mechanical fixes and produces a repair record. Findings include rule, severity, master range, evidence, and coverage. Passing QC means only the checks actually run passed.
 
-Read [transitions](references/transitions.md) before composing scene joins. Choose transitions by the relationship between ideas: cuts, fades, directional slides, masks, or authored shared-object/camera continuity. Favor a coherent vocabulary over an effect quota. Visual scenes separate from narration/captions; visual overlap must not overlap voices or advance captions. Version-2 edit plans anchor music/SFX to checked words, named execution events or timeline boundaries. Missing transition entries mean cuts, not a requirement to animate every boundary.
+Review meaningful event windows, joins, source annotations, muted playback, audio-only playback, combined playback, and the master. Record actual user feedback and scoped approvals in `production-state.json`; implementation is not approval. Read [visual and motion QC](references/visual-motion-qc.md), [editorial collage](references/editorial-collage.md), and [creative review](references/creative-review.md).
 
-Run scripts/03_scaffold.py after refined-plan approval with the approved storyboard, narration metadata, edit plan and `--design-system PROJECT/design-system.json`; choose the profile. The skill supports only v2 state and validated execution/design/asset contracts. Scaffold resolves sound anchors into the master clock and checks selected source duration. It creates placeholders and guarded exports, not permission to implement all scenes. Run scene preflight and author only active SceneN.tsx. Compare each planned action to actual code and Studio checkpoints; a fade or image pan does not satisfy a promised transformation. Return material unplanned choices to planning. Existing structural files cause safe refusal; inspect before `--refresh-generated`, which preserves authored scenes/helpers.
+## Verification while developing this skill
 
-Stage selected media in PROJECT/public/media with traceable source paths. Combine footage or imagery with animation where useful; choose crops and motion around the subject, and avoid stretching or unintentional looping. Mute source-video audio unless deliberately used. Decide music, ambience and SFX during planning—even when each is intentionally `none`. Tie selected effects to the same named events used by visual code; specify source trims, envelopes, ducking intent and listening acceptance. Control peaks and keep narration intelligible. Never claim generated graphics are real footage or invent assets that are not available. See the pipeline reference for media implementation and review guidance.
+Engineering fixtures do not require creative review gates. Run all Python code through the dedicated uv environment, then run the relevant contract, compiler, renderer, and fixture tests:
 
-Use frame-driven animation, deterministic randomness, and local assets. In new visual-only scenes, use contentFrame for normal action and rawContentFrame for deliberate transition handles; the master owns narration and captions on the speech clock. The included WordCaptions groups phrases by punctuation, pauses, and a width heuristic with optional word highlighting; inspect real font bounds. @remotion/captions contains utilities, not a ready-made Captions React component. Other caption styles require implementation and preview verification. Do not suppress TypeScript errors to make templates appear valid.
+```bash
+uv run --python WORKSPACE/.venv/bin/python python SKILL/scripts/test_editorial_timeline.py
+uv run --python WORKSPACE/.venv/bin/python python SKILL/scripts/test_production_system.py
+uv run --python WORKSPACE/.venv/bin/python python SKILL/scripts/test_follow_on_system.py
+```
 
-## Verification and delivery
-
-Read [creative review](references/creative-review.md). Run npm run typecheck and review isolated SceneN plus `SceneNReview`, the bounded master-context composition with music/SFX at their original timeline positions. Review BoundaryN and VideoFull before export. Inspect opening, dense and final frames for readability, clipping, missing elements and caption timing. Check whether visuals demonstrate the idea, each beat adds understanding and the payoff fulfills the hook. Check sound-event alignment, source edits, ducking, safe areas and voice clarity. Review muted, audio-only and combined playback; metadata/stills do not prove audible synchronization. Record feedback, revisions and actual user approvals durably in production-state.json; implemented feedback is not automatically approved. Reopen affected reviews when inputs change. scripts/05_review_bundle.py prepares commands/report; `--render` checks recorded export approval when state exists, then renders. Honor a user's requested pause before testing or rendering.
-
-After approval, render scene/boundary exports, the full master composition, and exact final-frame PNG. Do not concatenate isolated scene files to assemble the deliverable; render VideoFull to preserve its overlaps and mix. Check audio/video streams, dimensions, fps, duration, and the final frame using ffprobe and decoded frames. Compare with compiled TOTAL_FRAMES / fps, including explicit holds; narration quantization contributes less than one frame per scene beyond summed WAV duration. Check each narration mounts once and survives visual transitions intact. Run `scripts/10_audio_qc.py` on an authorized rendered mix and report its integrated loudness/true peak against the project's documented target; measurement is not mastering, listening or approval. Material post-render audio changes require playback review. When authorized analytics are available, map observations to master beats and propose controlled revisions; otherwise report editorial hypotheses, not measured retention gains.
-
-Deliver links to MP4, PNG, editable project, dimensions/fps/duration, style/voice/captions, and verification results. Clearly distinguish a technical smoke test from a finished creative video. State any remaining blockers without claiming incomplete checks passed.
+Use a short numbered-video and tone fixture to prove source PTS, picture/audio offsets, playback rate, captions, and final-frame behavior before claiming a renderer supports an edit operation. Unit tests do not establish playback continuity, mix quality, editorial usefulness, or production readiness.

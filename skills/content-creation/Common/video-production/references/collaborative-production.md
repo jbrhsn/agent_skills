@@ -78,7 +78,7 @@ Start from assets/production-state.json.template:
 At each handoff compute the snapshot and retain it with the pending review target. Record that exact snapshot when the user approves. Never recompute after changing reviewed files and attach the old approval. Helpers print hashes only:
 
 ```bash
-uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python \
+uv run --python WORKSPACE/.venv/bin/python python \
   SKILL/scripts/09_check_production.py --project-dir PROJECT --snapshot narration
 ```
 

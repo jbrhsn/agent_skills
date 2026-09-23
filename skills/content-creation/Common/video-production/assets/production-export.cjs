@@ -9,10 +9,15 @@ if (!['render', 'hero'].includes(mode) || process.argv.length !== 3) {
   console.error('Usage: production-export.cjs render|hero');
   process.exit(1);
 }
-const check = spawnSync('uv', ['run', '--no-project', '--python',
-  process.env.VIDEO_PRODUCTION_PYTHON || config.python, 'python',
+const interpreter = process.env.VIDEO_PRODUCTION_PYTHON || config.python;
+let check = spawnSync('uv', ['run', '--no-project', '--python', interpreter, 'python',
   path.join(__dirname, 'production/09_check_production.py'), '--project-dir', root,
   '--production-state', config.state, '--stage', 'render'], {cwd: root, stdio: 'inherit'});
+if (check.error && check.error.code === 'ENOENT') {
+  console.error('WARNING: uv is unavailable; using the project-local configured Python interpreter directly.');
+  check = spawnSync(interpreter, [path.join(__dirname, 'production/09_check_production.py'), '--project-dir', root,
+    '--production-state', config.state, '--stage', 'render'], {cwd: root, stdio: 'inherit'});
+}
 if (check.error || check.status !== 0) {
   if (check.error) console.error(check.error.message);
   process.exit(check.status || 1);

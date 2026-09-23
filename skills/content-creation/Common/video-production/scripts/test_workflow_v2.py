@@ -54,6 +54,12 @@ def plan(root, state):
     design["backgroundStrategy"] = "Use the light background with semantic accents."
     (root / "design-system.json").write_text(json.dumps(design))
     (root / "asset-manifest.json").write_text('{"version":1,"assets":[]}')
+    (root / "analysis").mkdir(exist_ok=True)
+    (root / "analysis/asset-library-review.json").write_text(json.dumps({
+        "schema": "video-production-asset-library-review", "version": 1, "route": "faceless-standard",
+        "assetsDir": ".video_production_assets", "collections": ["images"],
+        "queries": [{"beatId": "S1-B1", "query": "code circle", "candidates": []}],
+        "dispositions": [{"beatId": "S1-B1", "outcome": "no-fit", "reason": "Fixture uses an original code visual."}]}))
     for name in ("asset-plan.md", "implementation-plan.md"):
         (root / name).write_text("Fixture: animate a code circle growing to show increase; no external dependency.")
     execution = {"version": 2, "fps": 30, "scenes": [
@@ -68,11 +74,14 @@ def plan(root, state):
     return execution
 
 
-def scaffold(root):
-    return subprocess.run([sys.executable, str(SCRIPTS / "03_scaffold.py"), "--project-dir", str(root),
+def scaffold(root, visual_style="custom", refresh=False):
+    command = [sys.executable, str(SCRIPTS / "03_scaffold.py"), "--project-dir", str(root),
         "--storyboard", str(root / "storyboard.json"), "--audio-metadata", str(root / "public/audio/metadata.json"),
         "--edit-plan", str(root / "edit-plan.json"), "--design-system", str(root / "design-system.json"),
-        "--width", "640", "--height", "360", "--skip-install"], capture_output=True, text=True)
+        "--width", "640", "--height", "360", "--visual-style", visual_style, "--skip-install"]
+    if refresh:
+        command.append("--refresh-generated")
+    return subprocess.run(command, capture_output=True, text=True)
 
 
 class WorkflowV2Tests(unittest.TestCase):
@@ -93,6 +102,12 @@ class WorkflowV2Tests(unittest.TestCase):
         plan(self.root, self.state)
         self.state["phase"] = "implementation"
         approve(self.root, self.state, "plan", "plan-1")
+
+    def test_asset_library_review_is_required_for_implementation(self):
+        self.ready_plan()
+        (self.root / "analysis/asset-library-review.json").unlink()
+        with self.assertRaisesRegex(ValueError, "asset-library-review"):
+            self.check("implement")
 
     def test_sequential_trajectory_requires_each_handoff(self):
         with self.assertRaisesRegex(ValueError, "Narration package approval"):
@@ -171,6 +186,18 @@ class WorkflowV2Tests(unittest.TestCase):
         (self.root / "src/Timeline.tsx").write_text("// changed shared behavior")
         with self.assertRaisesRegex(ValueError, "Scene 1 must be reviewed"):
             self.check("scene", 2)
+
+    def test_whiteboard_helpers_are_preserved_on_refresh(self):
+        self.ready_plan()
+        result = scaffold(self.root, visual_style="whiteboard")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        helper = self.root / "src/visuals/DoodleAssets.tsx"
+        self.assertTrue(helper.is_file())
+        authored = helper.read_text() + "\n// authored fixture revision\n"
+        helper.write_text(authored)
+        result = scaffold(self.root, visual_style="whiteboard", refresh=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(helper.read_text(), authored)
 
     def test_npm_render_and_hero_block_before_remotion_then_allow_reviewed_inputs(self):
         self.ready_plan()

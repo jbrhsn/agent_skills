@@ -2,7 +2,7 @@
 
 Read when directing speech or adding music/effects. Narration explains; visuals demonstrate; captions preserve speech access. Give the opening energy, let important distinctions breathe, and allow a takeaway to settle. Do not accelerate every passage to maximize density.
 
-Kokoro remains the local default. Use phrasing, punctuation, sentence length, and supported speed/voice controls; inspect the installed implementation before claiming SSML, emotion, or phoneme control. Audition neighboring scene clips together for cadence and tone. If segmentation repeatedly harms delivery, synthesize a longer passage and implement timestamp-driven boundaries explicitly; the default scaffold still expects one WAV per scene. Do not pretend it automatically segments a longer take.
+Kokoro remains the local default. Before synthesis or transcription, verify/cache its required model or the selected Whisper checkpoint with `scripts/model_cache.py`; both live only in `WORKSPACE/.video_production_assets`. Use phrasing, punctuation, sentence length, and supported speed/voice controls; inspect the installed implementation before claiming SSML, emotion, or phoneme control. Audition neighboring scene clips together for cadence and tone. If segmentation repeatedly harms delivery, synthesize a longer passage and implement timestamp-driven boundaries explicitly; the default scaffold still expects one WAV per scene. Do not pretend it automatically segments a longer take.
 
 Preserve original narration files. Explicit edit-plan holds can add breathing room after speech without clipping or stretching it. Measured WAV spans include silence; compare captions with the approved transcript, since recognition is not forced alignment.
 

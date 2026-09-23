@@ -14,7 +14,7 @@ word_timestamps=True and writes a structured JSON file containing
 word-level start/end times in seconds.
 
 Usage:
-    uv run 02_timestamps.py \\
+    uv run --python WORKSPACE/.venv/bin/python python SKILL/scripts/02_timestamps.py \\
         --audio path/to/public/audio/scene-N.wav \\
         --model base \\
         --out path/to/public/audio/scene-N-timestamps.json
@@ -25,7 +25,7 @@ The output JSON is consumed by the Remotion scene components to drive
 Supported --model values: tiny, base, small, medium, large
 Default: base  (best speed/quality balance for typical narration audio)
 
-First run downloads the model to ~/.cache/whisper/ automatically.
+Required models are verified and cached under WORKSPACE/.video_production_assets/whisper.
 """
 
 from __future__ import annotations
@@ -36,6 +36,7 @@ import sys
 from pathlib import Path
 
 import whisper
+from model_cache import ensure
 
 
 def parse_args() -> argparse.Namespace:
@@ -46,7 +47,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out", required=True, help="Path to write the output JSON file.")
     p.add_argument("--language", default=None,
                    help="Force a specific language code (e.g. 'en'). Auto-detected if omitted.")
-    p.add_argument("--model-dir", default=None, help="Explicit Whisper model cache directory.")
+    p.add_argument("--assets-dir", required=True, help="Path to WORKSPACE/.video_production_assets.")
+    p.add_argument("--model-dir", default=None, help="Compatibility override; must equal ASSETS_DIR/whisper.")
     return p.parse_args()
 
 
@@ -78,19 +80,26 @@ def main() -> None:
     args = parse_args()
     audio_path = Path(args.audio).expanduser().resolve()
     out_path = Path(args.out).expanduser().resolve()
+    assets_dir = Path(args.assets_dir).expanduser().resolve()
 
     if not audio_path.exists():
         print(f"ERROR: audio file not found: {audio_path}", file=sys.stderr)
         sys.exit(1)
 
+    if assets_dir.name != ".video_production_assets":
+        raise ValueError("--assets-dir must name WORKSPACE/.video_production_assets")
+    model_dir = assets_dir / "whisper"
+    if args.model_dir and Path(args.model_dir).expanduser().resolve() != model_dir:
+        raise ValueError("--model-dir must equal WORKSPACE/.video_production_assets/whisper")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     duration_s = get_audio_duration(audio_path)
     if duration_s <= 0:
         raise ValueError("Audio has no samples")
     if duration_s >= 0.5:
-        print(f"Loading Whisper '{args.model}' into {args.model_dir or '~/.cache/whisper'}...")
-    model = whisper.load_model(args.model, download_root=args.model_dir) if duration_s >= 0.5 else None
+        ensure(assets_dir, [f"whisper:{args.model}"], allow_download=True)
+        print(f"Loading Whisper '{args.model}' from {model_dir}...")
+    model = whisper.load_model(args.model, download_root=str(model_dir)) if duration_s >= 0.5 else None
 
     transcribe_kwargs: dict = {"word_timestamps": True, "fp16": False}
     if args.language:

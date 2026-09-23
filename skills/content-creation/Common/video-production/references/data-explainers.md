@@ -9,7 +9,7 @@ Keep `assumptions.json` or CSV data with units, jurisdiction/date where relevant
 `scripts/finance_model.py` is a deliberately limited illustrative fixed-rate loan and investment calculator. It has no live market assumptions and makes no rent-versus-buy recommendation. Run through the pipeline's uv environment:
 
 ```bash
-uv run --no-project --python WORKSPACE/.venv-video-production/bin/python python SKILL/scripts/finance_model.py --input PROJECT/assumptions.json --out PROJECT/public/data/model.json
+uv run --python WORKSPACE/.venv/bin/python python SKILL/scripts/finance_model.py --input PROJECT/assumptions.json --out PROJECT/public/data/model.json
 ```
 
 Example input:
