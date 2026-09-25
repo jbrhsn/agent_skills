@@ -14,6 +14,10 @@ Each unit needs an outcome, scope, dependencies, acceptance evidence, and releva
 
 Size units so the result can be implemented and checked coherently. Counts of phases, units, or test rows are not quality criteria. A helper refactor may need one check; a money-moving state machine needs more.
 
+Consider splitting a unit when it contains independently verifiable outcomes, unrelated subsystems, unresolved design mixed with dependent implementation, or enough context that an executor must explore broadly before acting. Separate discovery from work whose contract depends on its result. Keep changes together when separating them would leave an incoherent or untestable intermediate state; crossing a file or layer boundary alone is not a reason to split. Give each resulting unit its own acceptance evidence and dependencies rather than fragmenting one task into unchecked editing steps.
+
+Settle internal design choices that affect correctness or other units: component responsibilities, data flow, state ownership, persistence/transaction boundaries, and shared abstractions where relevant. Link the authoritative decision and its rationale. Distinguish these constraints from choices the executor may make locally, such as private helper structure or naming within repository conventions. Increase implementation guidance where unfamiliar patterns or complex invariants demand it, rather than prescribing every function or treating model size as a fixed capability limit.
+
 Use stable IDs when needed across documents. Trace requirements and important interface states to work or an explicit deferred/blocked decision. Include enabling infrastructure and operations when they serve an outcome; not every useful unit directly adds a screen.
 
 ## Execution and verification

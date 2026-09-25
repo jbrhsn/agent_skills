@@ -46,11 +46,13 @@ For substantial projects, use an overview and phase files; for smaller work comb
 
 **Starting state:** <existing behavior, prerequisite, relevant paths/symbols and evidence; label proposed paths>
 
+**Read first:** <applicable repository guidance, exact contract/decision sections, implementation entry points, and nearby tests; include when context spans several sources>
+
 **Scope:** <behavior and likely affected paths; proposed paths labeled>
 
 **Contract / examples:** <authoritative link or concrete input/output/state transition and meaningful edge cases where ambiguity matters>
 
-**Approach:** <settled design decisions and rationale without overspecifying incidental choices>
+**Approach / design boundaries:** <settled component responsibilities, data flow, state or transaction ownership where relevant; authoritative decisions and rationale; choices the executor may make locally>
 
 **Dependencies / open decisions:** <what is needed before or during implementation>
 
@@ -71,6 +73,8 @@ For substantial projects, use an overview and phase files; for smaller work comb
 **Risks / recovery:** <specific migration, failure, or operational concern where relevant>
 
 **If evidence changes:** <authoritative contract/decision and dependent units or checks to update; include when uncertainty is material>
+
+**Execution record (when work spans agents/sessions):** <planned until execution; link the existing tracker or record status, actual changed paths/contracts, checks/results and revision/environment, deviations/blockers, and next ready work; do not prefill successful results>
 
 ### Milestone verification
 
