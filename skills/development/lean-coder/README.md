@@ -14,4 +14,10 @@ The agent reads relevant code and contracts, makes a focused change when authori
 
 [SKILL.md](SKILL.md) routes to focused language and domain guides. Load only relevant references. Production guidance scales with operational risk; routine edits do not require a full audit.
 
+For languages without a dedicated guide, inspect the local toolchain, resource and error semantics, concurrency model, and project checks, then apply relevant domain guidance. Changes to durable writes, retries, shared state, unbounded input, or schemas trigger the applicable production sections. New throughput-sensitive paths establish capacity assumptions and resource limits before adding infrastructure.
+
+Lean design means minimum necessary code with clear contracts and failure behavior. Check existing code and standard/platform capabilities before adding dependencies; preserve useful abstractions and avoid speculative ones. [Decision examples](references/lean-decisions/GUIDE.md) clarify these tradeoffs without imposing LOC limits.
+
+For maintainers evaluating skill revisions, use the [behavioral evaluation protocol](references/evaluation/GUIDE.md) with captured real tasks. It compares runs with and without the skill across smaller and larger models. The protocol is not a routine coding step, and its presence does not establish measured effectiveness.
+
 Results include changes or findings, test or measurement evidence, and remaining risks. Python commands use `uv run`; installing uv requires confirmation if absent.

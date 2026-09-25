@@ -15,10 +15,12 @@ Distinguish implementation, review, diagnosis, and optimization. A review report
 
 Inspect installed versions and deployment targets before using version-sensitive APIs. Consult official documentation when behavior is uncertain or changing; state unavailable evidence rather than inventing compatibility.
 
+For a language without a guide here, inspect its toolchain/version, package manifest, resource ownership and cleanup, error handling, concurrency model, and existing checks. Follow repository idioms and relevant domain guides; resolve unfamiliar semantics using version-matched official documentation rather than transferring assumptions from another language.
+
 ## Make the change
 
-- Choose the smallest coherent change that satisfies the requirement, including necessary failure behavior. Retain single-use helpers, interfaces, and named variables when they explain intent, isolate effects, or establish a useful boundary.
-- Prefer existing platform capabilities when they fit. A maintained dependency can be safer and cheaper than custom parsing, cryptography, retries, or protocol code; assess compatibility, maintenance, license, and operational cost rather than line count.
+- Choose the smallest coherent change that satisfies the requirement, including necessary failure behavior. Minimize unnecessary code without compressing away clarity or checks. Retain single-use helpers, interfaces, and named variables when they explain intent, isolate effects, or establish a useful boundary. Avoid forwarding-only layers and speculative extension points without a concrete contract; extract shared behavior when callers share semantics, not merely similar syntax.
+- Before adding a dependency, check suitable existing code and standard-library/platform capabilities. Preserve established dependencies when they fit. A maintained dependency can be safer and cheaper than custom parsing, cryptography, retries, or protocol code; assess compatibility, maintenance, license, and operational cost rather than line count.
 - Validate untrusted input and enforce authorization at the boundary that owns the action. Types and hidden UI controls do not validate network data or prove permission.
 - Model state changes, retries, cancellation, and concurrent updates explicitly where they affect correctness. Preserve existing contracts unless a change to them is intended.
 - Separate computation from external effects when useful for reasoning and testing. Use fakes, mocks, integration tests, and real services according to what must be proved; no mock-count quotas.
@@ -34,10 +36,11 @@ Review the final diff for unintended behavior and sensitive data. Report changes
 
 ## Load relevant references
 
-Select references for the boundary being changed; do not read every guide for every task. Polyglot work may need more than one.
+Select references before implementation for the boundary being changed; do not read every guide for every task. Polyglot work may need more than one. When changing durable writes, external-call retries, shared mutable state, unbounded input, or schemas, read the applicable production-readiness sections alongside the domain guide. This does not require a release audit for routine edits.
 
 | Context | Reference |
 |---|---|
+| Uncertain helper, dependency, reuse, or verification decision | [Decision examples](references/lean-decisions/GUIDE.md) |
 | Failure, incident, flaky test, performance regression | [Debugging](references/debugging/GUIDE.md) |
 | Reliability, release, migrations, service boundaries | [Production readiness](references/production-grade/GUIDE.md) |
 | Browser, API, backend | [Web](references/web/GUIDE.md) |

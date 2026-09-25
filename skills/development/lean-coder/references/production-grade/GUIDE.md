@@ -6,9 +6,13 @@ Select concerns affected by the change and actual operational risk. Libraries, C
 
 Define valid inputs, ownership, authorization, and observable errors. Keep secrets and personal data out of logs and client error details. Distinguish validation, conflicts, transient failures, and defects. Handle or propagate errors with actionable context; avoid duplicate logging unless layers add distinct operational value.
 
+For a changed trust boundary, identify the protected data or action, who can supply inputs, and where permission and input limits are enforced. Trace a plausible unauthorized or malformed request through that path and verify rejection at the owning boundary. Expand into a broader threat analysis only when the change warrants it.
+
 Use deadlines, bounded concurrency, queue limits, and cancellation where work can consume unbounded resources. Retry transient failures only when replay is safe, with bounded attempts and backoff/jitter as appropriate. A timed-out write may already have committed; reconcile before retrying. An idempotency key needs durable enforcement, scope, payload matching, and expiry semantics, not just a header.
 
 Protect invariants with datastore constraints, transactions, conditional updates, or synchronization. An in-process lock does not coordinate separate workers. Atomic file replacement depends on filesystem guarantees; durability may require additional sync and recovery handling.
+
+For new throughput-sensitive paths, establish expected input size, arrival rate, concurrency, latency target, and memory/connection limits before choosing an implementation. Use available requirements or measurements; label unknowns and assumptions. Choose bounded work and a way to measure capacity before adding caches, queues, or distributed infrastructure. State what happens when a limit is reached: reject, defer, or apply backpressure according to the contract.
 
 ## Operability and recovery
 
