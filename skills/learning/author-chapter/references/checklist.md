@@ -6,6 +6,8 @@ Use the checks relevant to the deliverable. Scale review to the size and stakes 
 
 - Does the material deliver the requested outcome at the learner's level?
 - Are requested topics and depths covered, with prerequisites taught or referenced?
+- Does the coverage map include the adjacent concepts needed to understand and apply the topic, while keeping optional enrichment distinguishable?
+- Does the allocation of depth prioritize concepts and practical patterns that contribute most to the goal, without cutting necessary prerequisites or requested coverage to meet an arbitrary 80/20 split?
 - Are relevant brief, tier, navigation, and metadata relationships consistent?
 - Are unfinished instructional placeholders removed while learner response fields remain usable?
 - Are existing notes and progress preserved, and any completion claims accurate?
@@ -14,10 +16,14 @@ Use the checks relevant to the deliverable. Scale review to the size and stakes 
 
 - Can the reader follow the reasoning and identify the important ideas?
 - Are unfamiliar terms introduced with enough context for this audience?
+- Are notation, background assumptions, and examples accessible to the stated learner, defaulting to a curious 15-year-old?
 - Do examples expose the important steps rather than merely restate an abstraction?
 - Are simplifications bounded where a literal reading would mislead?
 - Do exercises assess what was taught, with suitable support and answer placement?
+- For a practical module, can the learner follow a demonstrated application, attempt a meaningfully different case with the supplied setup, and assess the result?
 - Are sections, headings, and visuals useful at this document's length?
+- Do transitions explain the connections between ideas, with topic-specific headings instead of a repeated teaching formula?
+- Would removing a section, example, or caveat materially reduce understanding, application, or sound judgment? If not, cut or shorten it while preserving requested coverage and useful narrative connections.
 
 A takeaway, analogy, misconception, trade-off, glossary, or recall question is useful when it improves understanding. Its absence is not itself a defect.
 

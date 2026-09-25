@@ -6,7 +6,7 @@ Choose techniques according to the learner, topic, and task. These are useful op
 
 An early takeaway helps readers organize an explanation. A motivating problem can make a mechanism meaningful. For guided discovery or assessment, allowing the reader to try before revealing the conclusion may be more appropriate.
 
-For long material, distinguish essential concepts from optional extensions. Let dependencies and the requested outcome determine that distinction rather than a fixed 20/80 ratio.
+Use the skill's 80/20 prioritization to distinguish essential concepts from optional extensions. Allocate depth according to the requested outcome and its dependencies, not a fixed percentage of topics or words. A rare boundary case still belongs when omitting it would teach a misleading rule; an extra example earns its space when it explains a new difficulty or supports transfer.
 
 ## Cognitive load and pacing
 
@@ -18,7 +18,7 @@ Simplify when that makes an idea accessible, while signalling the limits that ma
 
 For beginners, a worked example often provides the support needed to attempt a similar task. Gradually reduce that support as the learner gains competence. Experienced learners may benefit from starting with a challenge, diagnosis, or comparison.
 
-Recall, prediction, transfer, and diagnosis questions serve different purposes. Choose what tests the intended capability. Place answers where the learner can attempt the question first when self-testing matters, and provide explanations or solutions when requested.
+Recall, prediction, transfer, and diagnosis questions serve different purposes. Choose what tests the intended capability. For independent application, change a meaningful condition or context so the learner must choose how to apply the idea rather than copy the worked example. Provide enough setup to begin and feedback to assess the result: an explained answer, expected behavior, success criteria, or diagnostic hints. Place feedback after the attempt when self-testing matters. If the user wants solutions withheld, use non-spoiling success criteria or hints instead.
 
 ## Analogies and misconceptions
 

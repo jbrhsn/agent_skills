@@ -1,6 +1,6 @@
 # Structure options
 
-Use this as a starting point for a substantial chapter, adapting or omitting sections to fit the audience, domain, and requested format. A short explanation, problem set, advanced reference, or discovery exercise may need a different shape.
+Choose an order that follows the learner's questions and dependencies. The outline below is an organizational option, not default headings to reproduce. Prefer topic-specific headings and connected prose for a complete chapter; see [chapter-example.md](chapter-example.md) for a finished illustration. A short explanation, problem set, advanced reference, or discovery exercise may need a different shape.
 
 ```markdown
 # <Chapter>
