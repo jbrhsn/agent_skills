@@ -16,7 +16,7 @@ For substantial projects, use an overview and phase files; for smaller work comb
 
 ### Sequence and risks
 
-<Why this order, open decisions, external dependencies, and which work can proceed independently.>
+<Why this order, open decisions, external dependencies, and which work can proceed independently. For shared contracts, name the owner, integration order, and cross-unit check.>
 
 ### Coverage and verification
 
@@ -44,11 +44,17 @@ For substantial projects, use an overview and phase files; for smaller work comb
 
 **Covers:** <requirement / contract / enabling outcome>
 
+**Starting state:** <existing behavior, prerequisite, relevant paths/symbols and evidence; label proposed paths>
+
 **Scope:** <behavior and likely affected paths; proposed paths labeled>
 
-**Approach:** <useful design decisions and rationale without overspecifying incidental choices>
+**Contract / examples:** <authoritative link or concrete input/output/state transition and meaningful edge cases where ambiguity matters>
+
+**Approach:** <settled design decisions and rationale without overspecifying incidental choices>
 
 **Dependencies / open decisions:** <what is needed before or during implementation>
+
+**Readiness:** <ready with available prerequisites and clear next action, or blocked by named decision/evidence; omit for plans that are not coding-agent handoffs>
 
 **Done when:** <observable acceptance and relevant failure behavior>
 
@@ -63,6 +69,8 @@ For substantial projects, use an overview and phase files; for smaller work comb
 **Execution notes:** <repository conventions, needed fixtures, permissions, relevant scope limits; continue authorized dependent work after verification>
 
 **Risks / recovery:** <specific migration, failure, or operational concern where relevant>
+
+**If evidence changes:** <authoritative contract/decision and dependent units or checks to update; include when uncertainty is material>
 
 ### Milestone verification
 

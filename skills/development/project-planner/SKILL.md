@@ -31,7 +31,7 @@ For domain-sensitive decisions, read the relevant section of [project domains](r
 
 ## Make the plan executable
 
-Trace important outcomes to implementation units and observable verification. Use stable IDs when cross-document traceability helps. Sequence by dependencies and risk: a thin end-to-end slice, a compatibility spike, or a migration rehearsal may be the best first step. Avoid prescribing counts of phases, units, questions, or tests.
+Trace important outcomes to implementation units and observable verification. Use stable IDs when cross-document traceability helps. Sequence by dependencies and risk: a thin end-to-end slice, a compatibility spike, or a migration rehearsal may be the best first step. Avoid prescribing counts of phases, units, questions, or tests. When coding agents will execute the plan, make each ready unit a bounded handoff with enough contract, context, and checks to start without repeating product discovery; see [execution readiness](references/execution-spec.md) and the [worked handoff](references/handoff-example.md).
 
 For production work, establish relevant reliability, security, data integrity, performance, accessibility, and operational requirements. Record proposed targets as assumptions with measurement conditions. Include migration, deployment compatibility, observability, and recovery where affected. Identify remaining decisions and the work they block.
 

@@ -10,6 +10,8 @@ For a substantial project, defaults are `docs/prd.md`, `docs/uiux.md` (or an int
 
 Plans include domain-specific failure behavior: replay and backfill for data, finality and signing for Web3, lifecycle and offline recovery for mobile, and authorization and cache isolation for web. Proposed performance/reliability targets include measurement conditions and remain labeled assumptions until established.
 
+When a plan is intended for coding agents, ready units carry the starting state, settled behavior, relevant contracts/examples, prerequisites, and a check with an expected result. Shared contracts have an owner and integration check. A [worked handoff](references/handoff-example.md) illustrates the desired detail without imposing its format on every project; contradicted assumptions are updated in the authoritative plan before affected work continues.
+
 Optional `learnings/` documents connect relevant concepts and exercises to the build. Templates are adaptable; test cases can be linked instead of copied into multiple documents.
 
 Planning alone writes documents. If the request includes implementation, the agent continues after sufficient planning within the same authorization. Review gates apply when requested or a consequential decision is unresolved.
