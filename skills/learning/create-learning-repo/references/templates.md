@@ -2,9 +2,9 @@
 
 This describes the standard output of `scripts/scaffold.py`. Match its metadata and links when compatibility matters; adapt headings and content to the request. The helper creates unanswered stubs. Authoring can fill teaching content and requested model answers while preserving learner response fields.
 
-Six files per chapter, the same six in every profile. Only `learning.md` is bespoke; the other five are one renderer with different labels, so read the shared parts once and the differences are small.
+Three files per chapter by default (`learning.md`, `examples.md`, `practice.md`); `chapter_files` selects from six supported files. Only `learning.md` is bespoke; activity files share one renderer with different labels.
 
-## Shared by all six files
+## Shared by selected files
 
 **Frontmatter — identical key set everywhere**, so nothing has to be special-cased by tooling:
 
@@ -16,7 +16,7 @@ module: "Data Structures"
 chapter: "Builtin Collections"
 position: "1 of 2"                    # within the module, derived
 profile: "technical"
-tiers: ["Junior", "Senior", "Architect", "Expert"]
+tiers: ["Junior", "Senior"]
 serves: "The coding screen's first fifteen minutes."
 builds_on: []
 enables: ["Complexity and Trade-offs"]
@@ -32,16 +32,21 @@ tags: []
 
 ```markdown
 > Python Core › Data Structures · chapter 1 of 2
+>
 > **Section arc:** Rebuild the fluency an interviewer assumes you never lost.
+>
 > **Module arc:** From what the builtins are to why CPython made them that way.
+>
 > **This chapter serves:** The coding screen's first fifteen minutes.
 ```
 
-**Nav footer**, after a `---` rule: sibling files as relative links, plus previous/next chapter pointing at their `learning.md`.
+**Nav footer**, after a `---` rule: selected sibling files as relative links, plus previous/next chapter pointing at their `learning.md`.
 
 ```markdown
-**This chapter:** [examples](examples.md) · [practice](practice.md) · [interview](interview.md) · [thought leadership](thought_leadership.md) · [quizzies](quizzies.md)
+**This chapter:** [examples](examples.md) · [practice](practice.md)
+
 **Previous:** [Builtin Collections](../builtin-collections/learning.md)
+
 **Next:** [Pipeline Design Round](../../../02-interview-format/01-system-design/pipeline-design-round/learning.md)
 ```
 
@@ -64,10 +69,13 @@ The only bespoke template: a full brief, then one section per tier rung.
 
 **Unblocks later:** {enables, joined}
 
+**Completion check:** {observable task and success condition}
+
+**Estimated effort:** {study plus practice estimate, if supplied}
+
 **Topics to cover:**
 
-1. **Dictionaries** — hashing, collision handling, insertion order, dict views
-   *Depth:* Explain the compact layout; benchmark it, don't just describe it.
+1. **Dictionaries** — hashing, collision handling, insertion order, dict views *Depth:* Explain the compact layout; benchmark it, don't just describe it.
 2. **Lists and arrays** — over-allocation, amortised append
 3. **Sets**
 
@@ -85,7 +93,7 @@ The only bespoke template: a full brief, then one section per tier rung.
 <!-- Links you actually read. -->
 ```
 
-Optional brief lines (`Depth required`, `Style`, `Assumes`, `Unblocks`) are omitted entirely when the plan doesn't supply them, rather than emitted empty. `Scope here:` falls back to a prompt when the plan has no `tiers` entry for that rung.
+Optional brief lines are omitted when absent. Missing `completion_check` is accepted for older plans but warned about; provide one for new plans. `Scope here:` falls back to a prompt when the plan has no `tiers` entry for that rung.
 
 The four tier prompts are fixed and domain-neutral — foundation, working, systemic, frontier. See `profiles.md` for why one set covers every profile.
 
@@ -102,13 +110,20 @@ Same skeleton, different labels:
 
 **This file's job:** {framing, from the profile}
 
+**Chapter purpose:** {chapter purpose}
+
 **Topics in scope:** {topic names, joined}
 
 **Depth target:** {chapter depth}
 
+**Completion check:** {chapter completion check}
+
+Before filling this file, read the [full chapter brief](learning.md#brief) for topic coverage, depth, and prerequisites. Keep this activity within that assignment.
+
 ## {Item} 1
 
 **{Slot}:**
+
 **{Slot}:** <!-- hint, when the slot has one -->
 ...
 
@@ -117,25 +132,25 @@ Same skeleton, different labels:
 {nav footer}
 ```
 
-The two-line brief is derived — no extra authoring — so every file knows its own job without the planner writing five briefs.
+The compact brief is derived, so every selected file has assignment context without duplicating the full topic-level brief. The visible link tells a later author to read the authoritative coverage and depth before filling the activity.
 
 Default labels (the `technical` baseline; see `profiles.md` for per-profile overrides):
 
 | File | Item | Count | Slots |
 |---|---|---|---|
-| `examples.md` | Example | 3 | Source · Why it works · What to take from it · My annotation |
-| `practice.md` | Task | 4 | Task · Tier · What done looks like · What I actually did · What broke |
-| `interview.md` | Q | 12 | Type · Answer · Follow-up they'd ask |
-| `thought_leadership.md` | Idea | 4 | Angle · Hook · Audience · Platform · Evidence I have |
-| `quizzies.md` | Q | 10 | Question · My answer, from memory · Verified? · Revisit on |
+| `examples.md` | Example | 2 | Source · Why it works · What to take from it · My annotation |
+| `practice.md` | Task | 2 | Task · Tier · What done looks like · What I actually did · What broke |
+| `interview.md` (opt-in) | Q | 3 | Question · Type · Answer · Follow-up they'd ask |
+| `thought_leadership.md` (opt-in) | Idea | 1 | Angle · Hook · Audience · Platform · Evidence I have |
+| `quizzies.md` (opt-in) | Q | 3 | Question · My answer, from memory · Verified? · Revisit on |
 
 `examples.md` is what you study; `practice.md` is what you do. Keeping them apart is the point — a chapter with four examples and no tasks is a chapter you have read, not learned.
 
 ## Root files
 
-- `README.md` — goal, the six-file layout, the profile's ladder with rung definitions, and how to use `status` / `tier_reached`.
-- `PLAN.md` — human-readable summary of the machine-readable plan: goal, profile, ladder, exclusions, assumptions, research notes, full tree.
-- `progress.md` — one row per chapter (`Section | Module | Chapter | Topics | Tier reached | Status`) plus a per-chapter checklist of the six files, with topics nested in a `<details>` block under `learning.md`.
+- `README.md` — goal, selected layout, the profile's ladder with rung definitions, and how to use completion checks, `status`, and `tier_reached`.
+- `PLAN.md` — goal and goal check, profile, ladder, exclusions, assumptions, research notes, linked roadmap, and full tree. Roadmap columns: chapter, purpose, coverage and depth, prerequisites, completion check, effort. Missing checks and effort are explicitly marked, not invented.
+- `progress.md` — one row per chapter (`Section | Module | Chapter | Topics | Tier reached | Status`) plus a per-chapter completion check and checklist of selected files. A separate `<details>` block lists topics. Filling files and demonstrating learning are distinct.
 
 ## Maintaining the output
 

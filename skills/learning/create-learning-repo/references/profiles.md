@@ -1,6 +1,6 @@
 # Profiles
 
-In the bundled helper, every chapter gets six files. A profile changes the tier ladder and file labels, counts, slots, and framing, but not filenames. These are implementation details of the standard layout; create a different layout directly when it better fits the task.
+In the bundled helper, every chapter gets the files selected by `chapter_files`, defaulting to `learning`, `examples`, and `practice`. A profile changes the tier ladder and file labels, counts, slots, and framing, but not the selection or filenames. Add interview, recall, or public-writing files only when useful to the goal.
 
 Set it once at the top of `plan.yaml`. The helper default is `technical`; select the profile that fits the goal.
 
@@ -42,7 +42,7 @@ Only labels, and only where the difference is real:
 | `technical` | None — it is the baseline. |
 | `craft` | `examples.md` items are Specimens; `practice.md` items are Exercises; `interview.md` is titled *Hard Questions* and framed as editor pushback. |
 | `practice` | `examples.md` items are Cases; `practice.md` becomes Experiments with hypothesis/setup/result slots; `interview.md` is *Hard Questions*, framed as what breaks your system three months in. |
-| `exam` | `practice.md` becomes timed Drills; `interview.md` is *Examiner Questions* (15 of them); `quizzies.md` grows to 15; `thought_leadership.md` shrinks to 2 and is marked optional. |
+| `exam` | `practice.md` becomes timed Drills (3); selected `interview.md` is *Examiner Questions* (3); selected `quizzies.md` has 5 slots; selected `thought_leadership.md` has 2 optional writing slots. |
 
 Note what is *not* on that list: which topics, why they matter, how deep to go, what style to write in. Those come from the per-chapter brief in the plan, which is where domain difference actually belongs. Use a custom profile when the presets do not describe the intended progression.
 
@@ -59,7 +59,7 @@ Goals are often mixed ("learn Rust **and** blog about it"). A single dominant pr
 
 ## `tier_count`
 
-Plan-level, clamped 2–4, default 4. Trims the ladder from the top.
+Plan-level, clamped 1–4, default 2 for presets. Custom profiles use all declared rungs unless trimmed explicitly. Trims the ladder from the top; select only the levels needed for the goal.
 
 ```yaml
 tier_count: 3    # stop at Architect / Voice / Adaptive / Scenario
@@ -69,7 +69,7 @@ Use fewer rungs when the requested scope does not call for the full ladder. Trea
 
 ## `custom`
 
-For a domain none of the four fit. The plan declares the ladder itself; the six files are unchanged.
+For a domain none of the four fit. The plan declares the ladder itself; file selection is still controlled by `chapter_files`.
 
 ```yaml
 profile: custom
@@ -79,7 +79,7 @@ tiers:
   - [Master, "You compose your own and it holds up."]
 ```
 
-Two to four rungs, each a name plus a one-line test the learner can apply honestly to themselves. A rung whose definition is a synonym of the rung below it is not a rung.
+One to four rungs, each a name plus a one-line test the learner can apply honestly to themselves. A rung whose definition is a synonym of the rung below it is not a rung. Chapter completion checks make these broad levels concrete for the actual assignment.
 
 ## Adding a preset
 

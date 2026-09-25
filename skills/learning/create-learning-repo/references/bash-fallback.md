@@ -6,10 +6,10 @@ Use when shell creation is useful and the standard helper is unavailable or unsu
 
 - Sections and modules get zero-padded numeric prefixes (`01-`); module numbering restarts inside each section. Chapters get plain slugs.
 - Slugify: lowercase, non-alphanumeric → `-`, collapse repeats, trim.
-- Every chapter gets **all six files**: `learning.md`, `examples.md`, `practice.md`, `interview.md`, `thought_leadership.md`, `quizzies.md`.
-- All six carry the **same frontmatter key set** — see `references/templates.md`. Getting this wrong is the most likely failure of a hand-run; the keys are what make the repo navigable.
+- Every chapter gets the selected files, always including `learning.md`. Default: `learning.md`, `examples.md`, `practice.md`; add interview, recall, and writing files when relevant.
+- Selected files carry the **same frontmatter key set** — see `templates.md`.
 - `prev`/`next` follow plan order across module and section boundaries, not just within a module.
-- Root gets `README.md`, `PLAN.md`, `progress.md`.
+- Root gets `README.md`, a linked `PLAN.md` roadmap, and `progress.md`. Include goal and chapter completion checks and link only to selected files.
 - Inspect existing files and preserve learner work. Make authorized targeted edits; ask only when replacement would exceed the request or discard work without authorization.
 
 ## Pattern
@@ -32,7 +32,7 @@ module: "Data Structures"
 chapter: "Builtin Collections"
 position: "1 of 2"
 profile: "technical"
-tiers: ["Junior", "Senior", "Architect", "Expert"]
+tiers: ["Junior", "Senior"]
 serves: "The coding screen's first fifteen minutes."
 builds_on: []
 enables: ["Complexity and Trade-offs"]
@@ -46,8 +46,11 @@ tags: []
 # Builtin Collections
 
 > Python Core › Data Structures · chapter 1 of 2
+>
 > **Section arc:** Rebuild the fluency an interviewer assumes you never lost.
+>
 > **Module arc:** From what the builtins are to why CPython made them that way.
+>
 > **This chapter serves:** The coding screen's first fifteen minutes.
 
 ## Brief
@@ -57,6 +60,8 @@ tags: []
 **Purpose:** Interviewers open with collections because the answers reveal whether you think about memory or only about syntax.
 
 **Depth required:** Far enough to explain the CPython layout and benchmark a claim.
+
+**Completion check:** Choose collections for an unfamiliar lookup task, implement it, and explain time and memory trade-offs.
 
 **Topics to cover:**
 
@@ -82,19 +87,19 @@ slots() {  # slots <item> <count> <slot>...
   item="$1"; count="$2"; shift 2
   for i in $(seq 1 "$count"); do
     printf '\n## %s %d\n\n' "$item" "$i"
-    for s in "$@"; do printf '**%s:**\n' "$s"; done
+    for s in "$@"; do printf '**%s:**\n\n' "$s"; done
   done
 }
 
-slots Q 12 Type Answer "Follow-up they'd ask" >> "$CH/interview.md"
-slots Task 4 Task Tier "What done looks like" "What I actually did" "What broke" >> "$CH/practice.md"
+slots Example 2 Source "Why it works" "What to take from it" "My annotation"
+slots Task 2 Task Tier "What done looks like" "What I actually did" "What broke"
 ```
 
-Verify at the end that no chapter is short a file:
+Verify at the end that no chapter is short a selected file (adjust the list to the plan):
 
 ```bash
 find "$ROOT" -mindepth 3 -maxdepth 3 -type d | while read -r d; do
-  for f in learning examples practice interview thought_leadership quizzies; do
+  for f in learning examples practice; do
     [ -e "$d/$f.md" ] || echo "MISSING $f.md: $d"
   done
 done

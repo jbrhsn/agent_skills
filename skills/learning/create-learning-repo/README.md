@@ -4,15 +4,15 @@ Design or review a learning path, organize a syllabus, or create a repository wi
 
 ## Approach
 
-Use the learner's goal, starting level, and constraints to choose scope and depth. Infer reasonable defaults, ask only consequential unanswered questions, and research where verification or gap-filling helps. A broad exploratory goal is enough to begin. Profiles, size estimates, and interview questions are guidance rather than prerequisites.
+Use the learner's goal, starting level, and constraints to choose scope and depth. Build the smallest useful path, covering essential capabilities and prerequisites while deferring enrichment. Each chapter gets coverage, a depth boundary, a connection to the goal, and an observable completion check; the plan also defines how to demonstrate the overall goal. Infer reasonable defaults, ask only consequential unanswered questions, and research where verification or gap-filling helps. A broad exploratory goal is enough to begin.
 
 The skill usually scaffolds briefs. If teaching content is also requested, the agent continues authoring, optionally using `author-chapter`. There is no mandatory handoff that leaves the requested work incomplete.
 
 ## Bundled helper
 
-The helper generates sections → modules → chapters with six files per chapter: `learning.md`, `examples.md`, `practice.md`, `interview.md`, `thought_leadership.md`, and `quizzies.md`. It also creates `README.md`, `PLAN.md`, and `progress.md`.
+The helper generates sections → modules → chapters with three files per chapter by default: `learning.md`, `examples.md`, and `practice.md`. Set `chapter_files` to select from these plus `interview`, `thought_leadership`, and `quizzies`, always retaining `learning`. It also creates `README.md`, a linked `PLAN.md` roadmap with chapter coverage and completion checks, and `progress.md`. Activity stubs carry their purpose and completion check and direct the author to the full chapter brief before filling them.
 
-Profiles select tier labels and study prompts: `technical`, `craft`, `practice`, `exam`, or `custom`. The helper supports two to four progression levels and configurable slot counts. These limits describe the script, not all learning projects. Create a custom layout directly when the request needs another shape; the script has no option to select a subset of chapter files.
+Profiles select tier labels and study prompts: `technical`, `craft`, `practice`, `exam`, or `custom`. Presets default to two progression levels; custom profiles use their declared ladder. `tier_count` selects one to four levels. Activity defaults are small (two examples and two practice tasks, or three exam drills); `counts` adjusts them. Navigation and tracking include only selected files. Create a custom layout directly when another directory structure fits better.
 
 From this skill's directory:
 
@@ -24,6 +24,10 @@ uv run scripts/scaffold.py /path/to/plan.yaml --out /path/to/repo
 JSON input also works with plain Python without external dependencies. YAML requires PyYAML. Existing files are skipped unless `--force` is supplied; inspect before replacing content and prefer targeted edits where learning has already begun.
 
 Keep `plan.yaml` or `plan.json`: it is the helper's actual input. `PLAN.md` is a generated human-readable summary, so editing it alone cannot change a later scaffold run. Keep the plan, summary, links, and progress tracker consistent when scope changes. Regeneration with `--force` replaces authored files and resets generated progress.
+
+Existing plans without file or tier settings now use the smaller defaults. To reproduce the former technical layout, explicitly select all six files, set `tier_count: 4`, and set `counts` to `examples: 3`, `practice: 4`, `interview: 12`, `thought_leadership: 4`, and `quizzies: 10`. Deselected files are never deleted; update existing repositories with targeted edits to preserve learner work and avoid stale navigation.
+
+The helper rejects invalid chapter references and prerequisite ordering, and warns when chapter depth, goal connection, or completion checks are absent. Older plans remain loadable without the new `goal_check` and chapter `completion_check` fields. The agent reviews coverage, scope, effort, and generated output before delivery; script success alone does not establish educational completeness.
 
 ## References
 

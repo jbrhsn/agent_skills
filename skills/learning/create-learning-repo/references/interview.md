@@ -15,4 +15,4 @@ A goal can be exploratory. â€œUnderstand the basics and find what interests meâ€
 
 Infer a profile from the goal: technical judgment, craft, sustained practice, or exam performance. Use a custom progression when the presets do not fit. State important assumptions so the user can correct them, without requiring confirmation for routine choices.
 
-Ask about public writing or a long-term career arc only when it affects this request. A standard helper repository includes optional files regardless of interest; a custom layout can omit them. Fit schedules and effort estimates to available context, and avoid false precision.
+Ask about public writing or a long-term career arc only when it affects this request. Select optional files only when they serve the goal. Fit schedules and effort estimates to available context, and avoid false precision.

@@ -9,8 +9,8 @@ Usage:
     uv run scaffold.py plan.yaml [--out ./repo] [--dry-run] [--force]
     python3 scaffold.py plan.json ...      # works too; YAML needs PyYAML installed
 
-Every chapter gets the same six files. The profile decides the tier ladder and the
-labels inside those files — never their names. Creates stubs only: the brief tells
+Every chapter gets the selected files (learning, examples, practice by default).
+The profile decides the tier ladder and activity labels. Creates stubs only: the brief tells
 the learner what to write and how deep, and never writes it for them.
 """
 
@@ -21,6 +21,7 @@ import re
 import sys
 
 MAX_TIERS = 4
+DEFAULT_FILES = ["learning", "examples", "practice"]
 
 # ---------- profiles ----------
 # A profile is data: a tier ladder, plus label overrides for the five slot files.
@@ -61,11 +62,11 @@ PROFILES = {
         "files": {
             "examples": {"item": "Case",
                          "framing": "Real systems - yours or other people's - seen close up."},
-            "practice": {"item": "Experiment", "count": 3,
+            "practice": {"item": "Experiment", "count": 2,
                          "slots": ["Hypothesis", "Setup", "Run for", "What actually happened",
                                    "Keep, adjust, or drop"],
                          "framing": "You cannot read your way to a habit. Run it and record what happened."},
-            "interview": {"title": "Hard Questions", "count": 8,
+            "interview": {"title": "Hard Questions", "count": 3,
                           "framing": "What someone would challenge your system with - "
                                      "including you, three months in, when it stops working."},
         },
@@ -78,13 +79,13 @@ PROFILES = {
             ("Edge", "You handle the distractors and boundary cases examiners actually use."),
         ],
         "files": {
-            "practice": {"item": "Drill", "count": 5,
+            "practice": {"item": "Drill", "count": 3,
                          "slots": ["Question type", "My attempt", "Where I lost time", "Fix"],
                          "framing": "Timed drills in the exam's own question format."},
-            "interview": {"title": "Examiner Questions", "count": 15,
+            "interview": {"title": "Examiner Questions", "count": 3,
                           "framing": "Questions in the exam's phrasing, including the ones "
                                      "designed to catch you out."},
-            "quizzies": {"count": 15},
+            "quizzies": {"count": 5},
             "thought_leadership": {"count": 2,
                                    "framing": "Optional for an exam goal - fill it only if you "
                                               "intend to write publicly. Teaching a topic is still "
@@ -99,25 +100,25 @@ PROFILES = {
 FILES = [
     {"stem": "learning", "title": "{chapter}"},
     {
-        "stem": "examples", "title": "Examples", "item": "Example", "count": 3,
+        "stem": "examples", "title": "Examples", "item": "Example", "count": 2,
         "slots": ["Source", "Why it works", "What to take from it", "My annotation"],
         "framing": "Worked examples or specimens to study, with sources or original-example labels.",
     },
     {
-        "stem": "practice", "title": "Practice", "item": "Task", "count": 4,
+        "stem": "practice", "title": "Practice", "item": "Task", "count": 2,
         "slots": ["Task", "Tier", "What done looks like", "What I actually did", "What broke"],
         "hints": {"Tier": "{tiers}"},
         "framing": "Tasks you do, not read. Each one should be small enough to finish in a sitting.",
     },
     {
-        "stem": "interview", "title": "Interview Questions", "item": "Q", "count": 12,
-        "slots": ["Type", "Answer", "Follow-up they'd ask"],
+        "stem": "interview", "title": "Interview Questions", "item": "Q", "count": 3,
+        "slots": ["Question", "Type", "Answer", "Follow-up they'd ask"],
         "hints": {"Type": "recall | applied | design | debugging"},
         "framing": "Questions someone else puts to you, at your target level. "
                    "Mix recall, applied, and judgement.",
     },
     {
-        "stem": "thought_leadership", "title": "Thought Leadership", "item": "Idea", "count": 4,
+        "stem": "thought_leadership", "title": "Thought Leadership", "item": "Idea", "count": 1,
         "slots": ["Angle", "Hook", "Audience", "Platform", "Evidence I have"],
         "hints": {"Angle": "A useful claim or synthesis for the intended audience.",
                   "Platform": "LinkedIn post | Medium article | talk | internal writeup",
@@ -125,7 +126,7 @@ FILES = [
         "framing": "Public-writing angles. Ship only what you have actually done or verified.",
     },
     {
-        "stem": "quizzies", "title": "Quizzies", "item": "Q", "count": 10,
+        "stem": "quizzies", "title": "Quizzies", "item": "Q", "count": 3,
         "slots": ["Question", "My answer, from memory", "Verified?", "Revisit on"],
         "hints": {"Verified?": "yes | no - check against a source, not against your own notes"},
         "framing": "Self-assessment. Write the questions early, answer them later with the "
@@ -172,8 +173,8 @@ def resolve_profile(plan):
     name = str(plan.get("profile") or "technical").strip().lower()
     if name == "custom":
         tiers = parse_tiers(plan.get("tiers"))
-        if not tiers:
-            die("profile: custom requires a top-level `tiers:` list of [name, definition] pairs.")
+        if not 1 <= len(tiers) <= MAX_TIERS or any(not n.strip() or not d.strip() for n, d in tiers):
+            die("profile: custom requires 1-4 `tiers:` entries with nonempty names and definitions.")
         return name, {"tiers": tiers, "files": {}}
     if name not in PROFILES:
         die(f"unknown profile: {name}. Known: {', '.join(sorted(PROFILES))}, custom.")
@@ -213,41 +214,77 @@ def validate(plan):
     errs, warns = [], []
     if not isinstance(plan, dict):
         die("Plan must be a mapping at the top level.")
-    for key in ("repo_name", "goal", "sections"):
-        if not plan.get(key):
-            errs.append(f"missing required field: {key}")
-    for si, sec in enumerate(plan.get("sections") or [], 1):
+
+    def required_string(obj, key, loc):
+        if not isinstance(obj.get(key), str) or not obj[key].strip():
+            errs.append(f"{loc}: `{key}` must be a nonempty string")
+
+    def children(obj, key, loc):
+        items = obj.get(key)
+        if not isinstance(items, list) or not items or any(not isinstance(x, dict) for x in items):
+            errs.append(f"{loc}: `{key}` must be a nonempty list of mappings")
+            return []
+        return items
+
+    for key in ("repo_name", "goal"):
+        required_string(plan, key, "plan")
+    if not text(plan.get("goal_check")):
+        warns.append("plan: no `goal_check` - define how the learner will demonstrate the overall goal")
+    chapters = []
+    for si, sec in enumerate(children(plan, "sections", "plan"), 1):
         loc = f"section {si}"
-        if not sec.get("name"):
-            errs.append(f"{loc}: missing name")
+        required_string(sec, "name", loc)
         if not sec.get("arc"):
             warns.append(f"{loc} ({sec.get('name', '?')}): no `arc` - chapters will not say "
                          f"where they sit in the section's story")
-        mods = sec.get("modules") or []
-        if not mods:
-            errs.append(f"{loc}: needs at least one module")
+        mods = children(sec, "modules", loc)
         for mi, mod in enumerate(mods, 1):
             mloc = f"{loc}/module {mi}"
-            if not mod.get("name"):
-                errs.append(f"{mloc}: missing name")
-            chaps = mod.get("chapters") or []
-            if not chaps:
-                errs.append(f"{mloc}: needs at least one chapter")
+            required_string(mod, "name", mloc)
+            chaps = children(mod, "chapters", mloc)
             for ci, ch in enumerate(chaps, 1):
                 cloc = f"{mloc}/chapter {ci}"
                 nm = ch.get("name")
-                if not nm:
-                    errs.append(f"{cloc}: missing name")
-                if not (ch.get("topics") or []):
-                    errs.append(f"{cloc}: needs at least one topic")
-                if not ch.get("purpose"):
-                    errs.append(f"{cloc} ({nm or '?'}): missing `purpose` - a chapter with no "
-                                f"stated purpose produces a stub nobody knows how to fill")
-                for field in ("depth", "style", "serves"):
-                    if not ch.get(field):
+                required_string(ch, "name", cloc)
+                required_string(ch, "purpose", cloc)
+                topics = ch.get("topics")
+                if not isinstance(topics, list) or not topics:
+                    errs.append(f"{cloc}: `topics` must be a nonempty list")
+                else:
+                    for topic in topics:
+                        if isinstance(topic, dict):
+                            required_string(topic, "name", f"{cloc}/topic")
+                            covers = topic.get("covers", [])
+                            if not isinstance(covers, list) or any(not isinstance(x, str) for x in covers):
+                                errs.append(f"{cloc}/topic: `covers` must be a list of strings")
+                        elif not isinstance(topic, str) or not topic.strip():
+                            errs.append(f"{cloc}: each topic must be a name or mapping with a name")
+                for field in ("depth", "serves", "completion_check"):
+                    if not text(ch.get(field)):
                         warns.append(f"{cloc} ({nm or '?'}): no `{field}`")
+                for field in ("builds_on", "enables"):
+                    refs = ch.get(field, [])
+                    if not isinstance(refs, list) or any(not isinstance(x, str) or not x.strip() for x in refs):
+                        errs.append(f"{cloc}: `{field}` must be a list of chapter names")
+                chapters.append(ch)
     if errs:
         die("invalid plan:\n  - " + "\n  - ".join(errs))
+
+    positions = {}
+    for i, ch in enumerate(chapters):
+        positions.setdefault(ch["name"], []).append(i)
+    for i, ch in enumerate(chapters):
+        for field in ("builds_on", "enables"):
+            for name in ch.get(field, []):
+                matches = positions.get(name, [])
+                if len(matches) != 1:
+                    kind = "unknown" if not matches else "ambiguous"
+                    errs.append(f"{ch['name']}: `{field}` references {kind} chapter {name!r}")
+                elif matches[0] == i or (field == "builds_on" and matches[0] > i) or (field == "enables" and matches[0] < i):
+                    direction = "earlier" if field == "builds_on" else "later"
+                    errs.append(f"{ch['name']}: `{field}` must reference a chapter appearing {direction}: {name!r}")
+    if errs:
+        die("invalid dependencies:\n  - " + "\n  - ".join(errs))
     return warns
 
 
@@ -286,7 +323,7 @@ def yq(v):
 
 
 def frontmatter(ctx, stem):
-    """The same key set in all six files, so tooling never special-cases one."""
+    """The same key set in all selected files, so tooling never special-cases one."""
     pairs = [
         ("title", ctx["titles"][stem]),
         ("section", ctx["section"]),
@@ -315,18 +352,18 @@ def breadcrumb(ctx):
         lines.append(f"> **Module arc:** {ctx['module_arc']}")
     if ctx["serves"]:
         lines.append(f"> **This chapter serves:** {ctx['serves']}")
-    return "\n".join(lines)
+    return "\n>\n".join(lines)
 
 
 def nav(ctx, stem):
     sibs = " · ".join(
         f"[{s.replace('_', ' ')}]({s}.md)" for s in (f["stem"] for f in ctx["files"]) if s != stem
     )
-    out = f"**This chapter:** {sibs}"
+    out = f"**This chapter:** {sibs}" if sibs else ""
     if ctx["prev_rel"]:
-        out += f"\n**Previous:** [{ctx['prev']}]({ctx['prev_rel']})"
+        out += f"\n\n**Previous:** [{ctx['prev']}]({ctx['prev_rel']})"
     if ctx["next_rel"]:
-        out += f"\n**Next:** [{ctx['next']}]({ctx['next_rel']})"
+        out += f"\n\n**Next:** [{ctx['next']}]({ctx['next_rel']})"
     return out
 
 
@@ -340,7 +377,9 @@ def brief_block(ctx):
     ]
     for label, value in (("Depth required", ctx["depth"]), ("Style", ctx["style"]),
                          ("Assumes you already have", ", ".join(ctx["builds_on"])),
-                         ("Unblocks later", ", ".join(ctx["enables"]))):
+                         ("Unblocks later", ", ".join(ctx["enables"])),
+                         ("Completion check", ctx["completion_check"]),
+                         ("Estimated effort", ctx["effort"])):
         if value:
             paras.append(f"**{label}:** {value}")
 
@@ -351,18 +390,21 @@ def brief_block(ctx):
             line += " — " + ", ".join(t["covers"])
         topics.append(line)
         if t["depth"]:
-            topics.append(f"   *Depth:* {t['depth']}")
+            topics[-1] += f" *Depth:* {t['depth']}"
     paras.append("\n".join(topics))
     return "\n\n".join(paras)
 
 
 def brief_lite(ctx, spec):
-    """Two lines, derived - so every file knows its own job without extra authoring."""
+    """Compact assignment, with the full coverage contract one link away."""
     names = ", ".join(t["name"] for t in ctx["topics"])
-    out = f"**This file's job:** {spec['framing']}\n\n**Topics in scope:** {names}"
+    out = (f"**This file's job:** {spec['framing']}\n\n**Chapter purpose:** {ctx['purpose']}"
+           f"\n\n**Topics in scope:** {names}")
     if ctx["depth"]:
         out += f"\n\n**Depth target:** {ctx['depth']}"
-    return out
+    if ctx["completion_check"]:
+        out += f"\n\n**Completion check:** {ctx['completion_check']}"
+    return out + "\n\nBefore filling this file, read the [full chapter brief](learning.md#brief) for topic coverage, depth, and prerequisites. Keep this activity within that assignment."
 
 
 def learning_stub(ctx):
@@ -406,7 +448,7 @@ def slot_stub(ctx, spec):
         for s in spec["slots"]:
             hint = hints.get(s, "").replace("{tiers}", tier_names)
             lines.append(f"**{s}:**" + (f" <!-- {hint} -->" if hint else ""))
-        blocks.append("\n".join(lines))
+        blocks.append("\n\n".join(line for line in lines if line))
 
     return f"""{frontmatter(ctx, stem)}
 
@@ -429,7 +471,7 @@ def slot_stub(ctx, spec):
 def bullets(title, items):
     if not items:
         return ""
-    return f"\n## {title}\n" + "".join(f"- {i}\n" for i in items)
+    return f"\n## {title}\n\n" + "".join(f"- {i}\n" for i in items)
 
 
 def meta_lines(plan):
@@ -447,7 +489,7 @@ def readme(plan, profile_name, tiers, files, tree):
                           for f in files)
     return f"""# {plan['repo_name']}
 
-{str(plan['goal']).strip()}
+{text(plan['goal'])}
 
 {meta_lines(plan)}
 ## How this repo is organised
@@ -455,7 +497,7 @@ def readme(plan, profile_name, tiers, files, tree):
 ```
 section/            numbered, broad area
   module/           numbered within its section
-    chapter/        a coherent unit of study - always the same six files
+    chapter/        a coherent unit of study - selected chapter files
 {file_list}
 ```
 
@@ -467,7 +509,7 @@ Every generated file starts as a **stub**. Its brief guides the content and dept
 
 {defs}
 
-`learning.md` has one section per rung. You are not finished with a chapter when you have written something under every heading — you are finished when the rung named in `tier_reached` is one you could defend out loud.
+Start with the linked roadmap in `PLAN.md`, then follow chapter order. `learning.md` has one section per selected rung. Use each chapter's completion check to decide when to move on; filled headings and activity slots alone do not demonstrate the capability. Where an older plan lacks a check, define one from its goal and depth before studying.
 
 ## Tracking
 
@@ -475,7 +517,7 @@ Every file carries the same frontmatter: `status` (`todo` → `learning` → `dr
 
 ## Files
 
-- `PLAN.md` — summary of scope, exclusions, and structure. Keep it consistent with the input plan.yaml or plan.json when changing scope. Prefer targeted edits once files contain learner work; `--force` replaces files and resets generated progress.
+- `PLAN.md` — linked roadmap with chapter assignments and completion checks. Keep it consistent with the input plan.yaml or plan.json when changing scope. Prefer targeted edits once files contain learner work; `--force` replaces files and resets generated progress. Changing the selected files does not delete old files.
 - `progress.md` — tracker.
 {bullets("Out of scope", plan.get("excluded"))}
 ## Structure
@@ -486,17 +528,53 @@ Every file carries the same frontmatter: `status` (`todo` → `learning` → `dr
 """
 
 
-def plan_md(plan, profile_name, tiers, tree):
+def table_cell(value):
+    return text(value).replace("|", "&#124;")
+
+
+def roadmap(chapters, out):
+    rows = ["| Chapter | Purpose | Coverage and depth | Prerequisites | Completion check | Effort |",
+            "|---|---|---|---|---|---|"]
+    for c in chapters:
+        path = os.path.relpath(os.path.join(c["path"], "learning.md"), out)
+        topics = []
+        for t in c["topics"]:
+            entry = t["name"]
+            if t["covers"]:
+                entry += ": " + ", ".join(t["covers"])
+            if t["depth"]:
+                entry += f" (depth: {t['depth']})"
+            topics.append(entry)
+        coverage = "; ".join(topics)
+        if c["depth"]:
+            coverage += f". Chapter depth: {c['depth']}"
+        cells = [f"[{c['chapter']}]({path})", c["purpose"], coverage,
+                 ", ".join(c["builds_on"]) or "None specified",
+                 c["completion_check"] or "Not specified — define before study",
+                 c["effort"] or "Not estimated"]
+        rows.append("| " + " | ".join(table_cell(x) for x in cells) + " |")
+    return "\n".join(rows)
+
+
+def plan_md(plan, profile_name, tiers, tree, chapters, out):
     return f"""# Plan
 
 ## Goal
 
-{str(plan['goal']).strip()}
+{text(plan['goal'])}
+
+**Goal check:** {text(plan.get('goal_check')) or 'Not specified — define how to demonstrate the goal before study.'}
 
 {meta_lines(plan)}
 - **Profile:** {profile_name}
 - **Ladder:** {" → ".join(n for n, _ in tiers)}
 {bullets("Out of scope", plan.get("excluded"))}{bullets("Assumptions", plan.get("assumptions"))}{bullets("Research notes", plan.get("research_notes"))}
+## Roadmap
+
+Read in this order. Completion checks describe evidence of learning; the files start as briefs, not completed lessons. Effort estimates, when supplied, include study and practice and depend on starting knowledge.
+
+{roadmap(chapters, out)}
+
 ## Structure
 
 ```
@@ -514,17 +592,19 @@ def progress_md(chapters, files):
     )
     checklist = ""
     for c in chapters:
-        checklist += f"\n### {c['section']} › {c['module']} › {c['chapter']}\n"
+        checklist += f"\n### {c['section']} › {c['module']} › {c['chapter']}\n\n"
+        if c["completion_check"]:
+            checklist += f"- [ ] Demonstrate: {c['completion_check']}\n"
         for f in files:
             checklist += f"- [ ] {f['stem']}.md\n"
-        checklist += "  <details><summary>topics in learning.md</summary>\n\n"
+        checklist += "\n<details><summary>Topics in learning.md</summary>\n\n"
         for t in c["topics"]:
-            checklist += f"  - [ ] {t['name']}\n"
-        checklist += "  </details>\n"
+            checklist += f"- [ ] {t['name']}\n"
+        checklist += "\n</details>\n"
 
     return f"""# Progress
 
-Status: `todo` → `learning` → `drafted` → `mastered`. Tier reached: the top rung you could defend out loud, not the last heading you typed under.
+Status: `todo` → `learning` → `drafted` → `mastered`. Mark mastery from the chapter completion check; file checkboxes track material, not demonstrated learning. Tier reached records the level demonstrated.
 
 | Section | Module | Chapter | Topics | Tier reached | Status |
 |---|---|---|---|---|---|
@@ -557,10 +637,17 @@ class Writer:
                 f.write(content)
 
 
-def chapter_files(profile):
-    """Merge the profile's label overrides onto the six base specs."""
+def chapter_files(profile, plan):
+    """Select known files in canonical order, always retaining learning.md."""
+    selected = plan.get("chapter_files", DEFAULT_FILES)
+    known = {f["stem"] for f in FILES}
+    if (not isinstance(selected, list) or not selected
+            or any(not isinstance(s, str) or s not in known for s in selected)
+            or len(set(selected)) != len(selected) or "learning" not in selected):
+        die("`chapter_files` must be a list of unique file stems including learning; "
+            f"choose from {', '.join(sorted(known))}")
     overrides = profile.get("files") or {}
-    return [dict(base, **overrides.get(base["stem"], {})) for base in FILES]
+    return [dict(base, **overrides.get(base["stem"], {})) for base in FILES if base["stem"] in selected]
 
 
 def clamp(v, lo, hi, default=None):
@@ -596,6 +683,7 @@ def collect(plan, out, files):
                     "pos": ci, "pos_total": len(chaps),
                     "purpose": text(ch.get("purpose")), "depth": text(ch.get("depth")),
                     "style": text(ch.get("style")), "serves": text(ch.get("serves")),
+                    "completion_check": text(ch.get("completion_check")), "effort": text(ch.get("effort")),
                     "builds_on": [str(x) for x in (ch.get("builds_on") or [])],
                     "enables": [str(x) for x in (ch.get("enables") or [])],
                     "topics": parse_topics(ch.get("topics")),
@@ -609,7 +697,8 @@ def collect(plan, out, files):
 
 def build(plan, out, writer, profile_name, profile, files):
     chapters, tree = collect(plan, out, files)
-    tiers = profile["tiers"][:clamp(plan.get("tier_count", MAX_TIERS), 2, MAX_TIERS, MAX_TIERS)]
+    default_tiers = len(profile["tiers"]) if profile_name == "custom" else 2
+    tiers = profile["tiers"][:clamp(plan.get("tier_count", default_tiers), 1, MAX_TIERS, default_tiers)]
     plan_counts = {str(k): v for k, v in (plan.get("counts") or {}).items()}
     titles_base = {f["stem"]: f.get("title", f["stem"]) for f in files}
 
@@ -641,7 +730,7 @@ def build(plan, out, writer, profile_name, profile, files):
 
     writer.write(os.path.join(out, "README.md"),
                  readme(plan, profile_name, tiers, files, tree))
-    writer.write(os.path.join(out, "PLAN.md"), plan_md(plan, profile_name, tiers, tree))
+    writer.write(os.path.join(out, "PLAN.md"), plan_md(plan, profile_name, tiers, tree, chapters, out))
     writer.write(os.path.join(out, "progress.md"), progress_md(chapters, files))
     return tree, chapters
 
@@ -657,7 +746,7 @@ def main():
     plan = load_plan(args.plan)
     warns = validate(plan)
     profile_name, profile = resolve_profile(plan)
-    files = chapter_files(profile)
+    files = chapter_files(profile, plan)
     out = args.out or os.path.join(".", slug(plan["repo_name"]))
 
     writer = Writer(args.dry_run, args.force)
