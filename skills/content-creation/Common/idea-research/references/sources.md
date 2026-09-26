@@ -11,7 +11,7 @@ Choose sources by audience and task. The bundled helpers use public endpoints wi
 
 Fetchers write JSON arrays under `.idea-research/raw/` in their working directory and print diagnostics. They may exit successfully with partial or empty results; inspect both counts and warnings. The scorer loads every JSON file there, so use a fresh isolated working directory for a new run and deliberately copy only evidence intended for that run.
 
-Resolve script paths from the installed skill, not a target project's unrelated scripts directory. Python commands use `uv run`. `setup_env.sh` checks uv without creating a venv or installing anything.
+Resolve script paths from the installed skill, not a target project's unrelated scripts directory. Python commands use `uv run` with the isolated research project's `.venv`. `setup_env.sh` checks uv and that local environment without creating or modifying it.
 
 ## Raw record contract
 

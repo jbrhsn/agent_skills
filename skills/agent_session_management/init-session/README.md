@@ -5,12 +5,12 @@ Restores project memory, the latest work, and two previous sessions from `.agent
 Follow [SKILL.md](SKILL.md) for the workflow. The agent gives a brief relevant recap and continues authorized work; loading context does not require an extra approval round.
 
 ```bash
-uv run /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --format json
-uv run /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --format text
-uv run /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --open-only
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --format json
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --format text
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --open-only
 ```
 
-Resolve the script from the installed skill location. The helper finds a project root by walking up for `.git` or `.agent_docs` when `--repo-root` is omitted. It requires Python 3.8+ via uv and no third-party libraries. If uv is absent, request confirmation before installing it; file tools can read the memory without running Python.
+Resolve the script from the installed skill location and run it through the target project's `.venv` with `uv run`. The helper finds a project root by walking up for `.git` or `.agent_docs` when `--repo-root` is omitted. It requires Python 3.8+ via uv and no third-party libraries. If uv is absent, request confirmation before installing it; file tools can read the memory without running Python.
 
 JSON includes `snapshot`, `learnings`, `previous_session`, `last_session`, `current_session`, and `additional_memory`. Historical sessions are Markdown strings so both summaries and concrete legacy records survive. Current session includes date, focus, done work, decisions, verification, open items and completed checkboxes. Text output presents the same working context. `--open-only` selects current open tasks; use it when full memory is already known or the user only wants the task list.
 

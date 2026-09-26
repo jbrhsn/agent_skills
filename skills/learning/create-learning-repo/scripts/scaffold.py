@@ -1,4 +1,3 @@
-#!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.9"
 # dependencies = ["pyyaml"]
@@ -6,8 +5,7 @@
 """Scaffold a goal-based learning repository from a plan file.
 
 Usage:
-    uv run scaffold.py plan.yaml [--out ./repo] [--dry-run] [--force]
-    python3 scaffold.py plan.json ...      # works too; YAML needs PyYAML installed
+    uv run --python /path/to/repo/.venv/bin/python python scaffold.py plan.yaml [--out ./repo] [--dry-run] [--force]
 
 Every chapter gets the selected files (learning, examples, practice by default).
 The profile decides the tier ladder and activity labels. Creates stubs only: the brief tells
@@ -163,8 +161,7 @@ def load_plan(path):
         try:
             import yaml
         except ImportError:
-            die("PyYAML not installed. Run this script with `uv run scaffold.py` (which "
-                "installs it), or convert the plan to plan.json and rerun.")
+            die("PyYAML not installed. Install it in the target project's .venv, then run this script through uv run with that interpreter.")
         return yaml.safe_load(raw)
     return json.loads(raw)
 

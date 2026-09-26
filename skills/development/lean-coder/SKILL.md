@@ -30,7 +30,7 @@ For a language without a guide here, inspect its toolchain/version, package mani
 
 Use existing project checks relevant to the change and any required CI gates. Test the defect or changed contract, including meaningful failure cases; use integration tests when a boundary cannot be proved by isolated tests. Avoid tests that merely restate implementation. Reuse valid results and expand verification when a failure or remaining risk justifies it.
 
-For Python commands use `uv run`. If uv is missing, ask for confirmation before installing it and verify availability afterward; continue independent inspection meanwhile.
+For Python commands use `uv run` with the target project's `.venv`, for example `uv run --python /absolute/project/.venv/bin/python python /path/to/helper.py`. Use the project's existing package manager, manifest, lockfile, and local dependencies for Node, TypeScript, and other ecosystems; `npm run` is preferred for an established package script. Before executing a newly authored program, save it under `/absolute/project/.temp/` with an appropriate extension and invoke the saved file. Do not submit program source with interpreter `-c`/`-e`/`--eval`, stdin, executable heredocs, or `bash -c`/`sh -c`. Reuse a suitable existing script first and promote maintained tooling into the project's `scripts/` directory. If uv is missing, ask for confirmation before installing it and verify availability afterward; continue independent inspection meanwhile.
 
 Review the final diff for unintended behavior and sensitive data. Report changes or findings, evidence from checks or measurements, and material limitations. Distinguish passed, failed, and not-run checks; never equate a green unit suite with production readiness. Report line counts only if useful or requested.
 
@@ -47,6 +47,8 @@ Select references before implementation for the boundary being changed; do not r
 | Batch, streaming, orchestration, warehouse | [Data engineering](references/data-engineering/GUIDE.md) |
 | Wallets, transactions, RPC, indexing | [Web3](references/web3/GUIDE.md) |
 | Python and AI/ML | [Python](references/python/GUIDE.md) |
+| Node.js, npm, TypeScript tooling | [Node and npm](references/node-npm/GUIDE.md) |
+| Bash, POSIX shell, shell automation | [Shell](references/shell/GUIDE.md) |
 | SQL and database changes | [SQL](references/sql/GUIDE.md) |
 | Scala and Spark | [Scala / Spark](references/scala-spark/GUIDE.md) |
 | TypeScript, React, Next.js | [TypeScript / React](references/typescript-react/GUIDE.md) |

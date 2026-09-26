@@ -1,6 +1,6 @@
 # Bash fallback
 
-Use when shell creation is useful and the standard helper is unavailable or unsuitable. For the standard layout, prefer `uv run scripts/scaffold.py`, and note that plain `python3` works too if `uv` is missing (convert the plan to JSON if PyYAML isn't installed).
+Use when shell creation is useful and the standard helper is unavailable or unsuitable. For the standard layout, prefer the `uv run` command in [SKILL.md](../SKILL.md). Save any fallback program under the target project's `.temp/` and invoke that saved file; do not paste it into the terminal or substitute bare Python when uv is unavailable.
 
 ## Standard-layout compatibility
 
@@ -12,7 +12,9 @@ Use when shell creation is useful and the standard helper is unavailable or unsu
 - Root gets `README.md`, a linked `PLAN.md` roadmap, and `progress.md`. Include goal and chapter completion checks and link only to selected files.
 - Inspect existing files and preserve learner work. Make authorized targeted edits; ask only when replacement would exceed the request or discard work without authorization.
 
-## Pattern
+## Saved-script pattern
+
+Save the following program as `PROJECT/.temp/scaffold-learning.sh`, review it, then run `bash PROJECT/.temp/scaffold-learning.sh`. Adapt its paths and content for the requested repository; it is an illustration of file creation, not a complete generator.
 
 ```bash
 ROOT="python-senior-data-engineer"

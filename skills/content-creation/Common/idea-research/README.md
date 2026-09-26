@@ -9,16 +9,16 @@ Research useful content angles for a chosen audience and prioritize them with tr
 Resolve the installed skill path. Run helpers from a fresh research directory so cached JSON from unrelated work cannot enter the ranking.
 
 ```bash
-bash /absolute/idea-research/scripts/setup_env.sh
-uv run /absolute/idea-research/scripts/fetch_hn.py --days 7
-uv run /absolute/idea-research/scripts/dedupe_and_score.py --min-score 0 --dry-run
-uv run /absolute/idea-research/scripts/dedupe_and_score.py --min-score 0
-uv run /absolute/idea-research/scripts/scaffold_article.py --id idea-1 --root /absolute/articles --dry-run
+bash /absolute/idea-research/scripts/setup_env.sh /absolute/research-project
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/fetch_hn.py --days 7
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/dedupe_and_score.py --min-score 0 --dry-run
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/dedupe_and_score.py --min-score 0
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/scaffold_article.py --id idea-1 --root /absolute/articles --dry-run
 ```
 
 Remove --dry-run to create a requested scaffold. Existing folders are not overwritten. Each helper call handles one scaffold; repeat for a user-requested selection without another confirmation gate.
 
-The setup script only checks uv; it does not create a venv or install packages. Python scripts use uv run. If uv is missing, obtain installation confirmation rather than falling back to bare Python.
+The setup script checks uv and the research project's local `.venv`; create that environment with `uv venv /absolute/research-project/.venv` when absent. Python scripts use `uv run` with that interpreter. If uv is missing, obtain installation confirmation rather than falling back to bare Python.
 
 ## Evidence and scores
 

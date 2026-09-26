@@ -20,4 +20,4 @@ Lean design means minimum necessary code with clear contracts and failure behavi
 
 For maintainers evaluating skill revisions, use the [behavioral evaluation protocol](references/evaluation/GUIDE.md) with captured real tasks. It compares runs with and without the skill across smaller and larger models. The protocol is not a routine coding step, and its presence does not establish measured effectiveness.
 
-Results include changes or findings, test or measurement evidence, and remaining risks. Python commands use `uv run`; installing uv requires confirmation if absent.
+Results include changes or findings, test or measurement evidence, and remaining risks. Python commands use `uv run` with the target project's `.venv`; installing uv requires confirmation if absent. Newly authored executable programs are saved under the target project's `.temp/` before execution.

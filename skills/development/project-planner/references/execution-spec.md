@@ -6,7 +6,7 @@ A plan should let an implementing agent start without rediscovering prerequisite
 
 Inspect existing package managers, supported versions, CI, test runners, configuration, and deployment setup. Reuse working infrastructure. For a new project, include only the setup needed for reproducible builds and relevant verification: dependencies/lockfiles according to ecosystem conventions, safe configuration examples, ignored generated/secrets files, and test tooling.
 
-State real commands when known. Label proposed commands until implemented and verified. A single check command can be convenient, but multiple established commands are fine. Python commands use `uv run`; obtain confirmation before installing missing uv.
+State real commands when known. Label proposed commands until implemented and verified. A single check command can be convenient, but multiple established commands are fine. Python commands use `uv run` with the target project's `.venv`; obtain confirmation before installing missing uv. New automation belongs in a saved file under the target project's `.temp/`, not an inline terminal program.
 
 Identify fixtures, database instances, emulators/devices, local chains, credentials, or external sandboxes required by checks. Mark unavailable prerequisites and what they block; do not imply local availability.
 

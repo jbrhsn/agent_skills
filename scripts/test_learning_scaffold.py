@@ -47,7 +47,7 @@ class ScaffoldTests(unittest.TestCase):
     def run_helper(self, plan, *flags):
         source = self.root / "plan.json"
         source.write_text(json.dumps(plan), encoding="utf-8")
-        return subprocess.run([sys.executable, str(HELPER), str(source), "--out", str(self.out), *flags],
+        return subprocess.run(["uv", "run", "--python", sys.executable, "python", str(HELPER), str(source), "--out", str(self.out), *flags],
                               capture_output=True, text=True, timeout=10)
 
     def assert_links_exist(self):

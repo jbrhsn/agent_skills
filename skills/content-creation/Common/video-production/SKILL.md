@@ -9,7 +9,7 @@ Build an editable Remotion project, master MP4, exact final-frame PNG, captions 
 
 ## Run Python, model caches, and asset discovery consistently
 
-Use `uv run` with the workspace-local `.venv` for every top-level Python program. The legacy `.venv-video-production` is a temporary compatibility fallback. Never use inline Python; store reusable ad hoc scripts in `WORKSPACE/.video_production_tmp/scripts/`. Before loading Kokoro or Whisper, run `scripts/model_cache.py` so required files are checksum-verified in `WORKSPACE/.video_production_assets`; missing files are atomically cached there and never in a home-directory cache. After routing and before creative planning, record a route- and beat-aware inventory review with `scripts/review_asset_inventory.py`. Read [runtime preflight](references/runtime-preflight.md).
+Use `uv run` with the target workspace's local `.venv` for every top-level Python program. Never use inline program source; store reusable ad hoc scripts in `WORKSPACE/.temp/` with a descriptive extension. Before loading Kokoro or Whisper, run `scripts/model_cache.py` so required files are checksum-verified in `WORKSPACE/.video_production_assets`; missing files are atomically cached there and never in a home-directory cache. After routing and before creative planning, record a route- and beat-aware inventory review with `scripts/review_asset_inventory.py`. Read [runtime preflight](references/runtime-preflight.md).
 
 ## Route the production before planning
 

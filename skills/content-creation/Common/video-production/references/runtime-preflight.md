@@ -1,8 +1,8 @@
 # Runtime, model cache, and library preflight
 
-Use `uv` for every top-level Python command. Prefer `WORKSPACE/.venv/bin/python`; accept the existing `WORKSPACE/.venv-video-production/bin/python` only as a migration fallback. If `uv` is unavailable, run that selected project-local interpreter directly and report the fallback. Do not silently choose global Python.
+Use `uv run` for every top-level Python command with `WORKSPACE/.venv/bin/python`. If `.venv` is absent, create it through uv before execution; if uv is unavailable, request installation confirmation and do not execute Python through another interpreter.
 
-Do not pass ad hoc Python through `python -c`, stdin, or a heredoc. Reuse an existing skill script first. Put a temporary reusable script at `WORKSPACE/.video_production_tmp/scripts/<purpose>.py`; promote generally useful scripts into `SKILL/scripts/` with tests.
+Do not pass ad hoc program source through `python -c`, stdin, a heredoc, Node `-e`/`--eval`, or `bash -c`/`sh -c`. Reuse an existing skill script first. Put a temporary reusable script at `WORKSPACE/.temp/<purpose>.py`, `.mjs`, or `.sh`; promote generally useful scripts into `SKILL/scripts/` with tests.
 
 Before generated narration or transcription, verify the required models in the workspace cache:
 

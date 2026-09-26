@@ -1,6 +1,8 @@
 # Python
 
-Use the project's supported Python version, environment, lockfile, and established libraries. Run Python through `uv run`; obtain confirmation before installing uv if missing. Do not replace an existing dependency simply because a shorter standard-library example exists.
+Use the project's supported Python version, local `.venv`, lockfile, and established libraries. Run top-level Python through `uv run` with the target project's interpreter, for example `uv run --python /absolute/project/.venv/bin/python python /path/to/script.py`; this also prevents a helper's PEP 723 metadata from selecting an isolated script environment. If `.venv` is absent, create it with `uv venv /absolute/project/.venv` and install only the dependencies declared by the project or helper. Obtain confirmation before installing uv if missing. Do not replace an existing dependency simply because a shorter standard-library example exists.
+
+Before running newly authored Python, write a reusable `.py` file under `/absolute/project/.temp/`. Do not use `python -c`, stdin, or an executable heredoc for generated program source. A Python child process may use `sys.executable` only when its parent was launched through the required project-local `uv run` command.
 
 ## Design and resource use
 

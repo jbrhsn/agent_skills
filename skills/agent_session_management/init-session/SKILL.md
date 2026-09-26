@@ -9,14 +9,14 @@ Restore enough context to act on the user's request. The handoff contains projec
 
 ## Python execution
 
-Run Python scripts with `uv run`, including these helpers and project Python commands. Check `uv --version` before first use if availability is unknown. If uv is missing, explain that this workflow requires it, ask for confirmation to install it, and wait. After approval, use the official installation method appropriate to the system, verify `uv --version`, and continue. Honor existing explicit installation approval. If declined or unavailable, read the handoff with file tools and continue independent work; do not silently fall back to bare Python.
+Run Python scripts with `uv run` using the target project's `.venv`, including these helpers and project Python commands. Resolve the target root first, then invoke helpers with that environment, for example `uv run --python /absolute/project/.venv/bin/python python /absolute/skill/scripts/helper.py`. Do not execute generated program source through the terminal; save any new reusable script under `/absolute/project/.temp/` first. Check `uv --version` before first use if availability is unknown. If uv is missing, explain that this workflow requires it, ask for confirmation to install it, and wait. After approval, use the official installation method appropriate to the system, verify `uv --version`, and continue. Honor existing explicit installation approval. If declined or unavailable, read the handoff with file tools and continue independent work; do not silently fall back to bare Python.
 
 ## Restore context
 
 Resolve the helper from this skill's installed directory and pass the target project explicitly:
 
 ```bash
-uv run /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --format json
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/init-session/scripts/handoff_read.py --repo-root /absolute/project --format json
 ```
 
 Read the project snapshot and cumulative learnings as durable memory, then the current session and two preceding sessions for concrete context. The helper returns done work, decisions, verification, and open items as well as historical summaries. Read referenced documents or archived snapshots only when the task needs details absent from the handoff. Avoid loading the archive wholesale.

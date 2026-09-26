@@ -46,14 +46,14 @@ Set `chapter_files` in the plan to select file stems, always including `learning
 
 For the standard layout, read [plan-schema.md](references/plan-schema.md) and create `plan.yaml` or `plan.json`. The script requires chapter `purpose` and other schema fields; warnings about missing optional depth or style are useful review signals, not automatic blockers.
 
-Run the helper from this skill's directory, or resolve its path relative to this skill rather than the user's project:
+Resolve the helper path from this skill's installed directory, but run it through the target learning project's `.venv`, not the skill directory or a global interpreter:
 
 ```bash
-uv run scripts/scaffold.py /path/to/plan.yaml --out /path/to/learning-repo --dry-run
-uv run scripts/scaffold.py /path/to/plan.yaml --out /path/to/learning-repo
+uv run --python /path/to/learning-repo/.venv/bin/python python /absolute/path/to/create-learning-repo/scripts/scaffold.py /path/to/plan.yaml --out /path/to/learning-repo --dry-run
+uv run --python /path/to/learning-repo/.venv/bin/python python /absolute/path/to/create-learning-repo/scripts/scaffold.py /path/to/plan.yaml --out /path/to/learning-repo
 ```
 
-`python3 scripts/scaffold.py /path/to/plan.json` works without third-party dependencies. YAML input requires PyYAML. If the helper is unavailable or unsuitable, create the requested files with available tools; [templates.md](references/templates.md) describes its output and [bash-fallback.md](references/bash-fallback.md) offers a shell option.
+Create `/path/to/learning-repo/.venv` with `uv venv` when it is absent, then install the helper's declared dependency with `uv pip install --python /path/to/learning-repo/.venv/bin/python pyyaml` before running a YAML plan. Do not substitute bare Python. If the helper is unavailable or unsuitable, create the requested files with available tools; [templates.md](references/templates.md) describes its output and [bash-fallback.md](references/bash-fallback.md) offers a shell option saved under the target project's `.temp/` before execution.
 
 The helper skips existing files unless `--force` is used and never deletes deselected files. Inspect existing content before replacement; prefer targeted edits for a repository with learner work. Keep the machine-readable plan, `PLAN.md`, links, and `progress.md` consistent when changing scope. `PLAN.md` is a linked human-readable roadmap, not an input format the script reads. Older plans remain accepted without completion checks, but new plans should supply them; review warnings before delivery.
 

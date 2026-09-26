@@ -6,6 +6,8 @@ Standing instructions for every agent session in this workspace. Sourced from th
 
 Before writing, editing, reviewing, or debugging any code, load the `lean-coder` skill and the matching per-language reference guide it points to. This is mandatory for coding work, not optional.
 
+Run Python through `uv run` using the target project's `.venv`. Before executing a newly authored program in any language, save it under the target project's `.temp/` and execute that file; do not pass program source through the terminal. Reuse existing scripts and promote maintained tooling into the target project's `scripts/` directory.
+
 ## Execution & verification standards
 
 - Implement complete units of work end-to-end: make the change, then verify it yourself before reporting back.

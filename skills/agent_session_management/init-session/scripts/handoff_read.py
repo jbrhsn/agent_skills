@@ -7,7 +7,7 @@ biggest source of wasted context at session start. This script reports that they
 exist and how big they are; the calling agent decides whether reading is warranted.
 
 Usage:
-    uv run handoff_read.py [--repo-root PATH] [--format json|text] [--open-only]
+    uv run --python PROJECT/.venv/bin/python python handoff_read.py [--repo-root PATH] [--format json|text] [--open-only]
 
 Always exits 0 when the filesystem is readable — a missing handoff is a normal
 first-session state, not an error, and should not derail the session.

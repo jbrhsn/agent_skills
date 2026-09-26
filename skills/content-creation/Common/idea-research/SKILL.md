@@ -17,14 +17,14 @@ For timely claims, research live sources and check event dates as well as public
 
 Choose relevant sources instead of fetching every platform by default. Prefer primary evidence for factual claims and community discussion for audience questions. Read [sources](references/sources.md) before using the bundled fetchers. Public keyless access is their default; use other available sources when authorized and useful. Respect access controls and rate limits.
 
-Resolve helper paths from this skill's installed directory. Run them from an isolated research working directory so old raw files cannot silently enter a new ranking. Python runs through `uv run`; if uv is missing, ask before installation, then verify it. Do not substitute bare Python. Browser research remains available if helpers cannot run.
+Resolve helper paths from this skill's installed directory. Run them from an isolated research project with a local `.venv` so old raw files cannot silently enter a new ranking. Python runs through `uv run` with that `.venv`, for example `uv run --python /absolute/research-project/.venv/bin/python python /absolute/skill/scripts/helper.py`; if uv is missing, ask before installation, then verify it. Do not substitute bare Python. Save newly authored automation under `/absolute/research-project/.temp/` before execution. Browser research remains available if helpers cannot run.
 
 Example, with paths resolved for the actual environment:
 
 ```bash
-uv run /absolute/idea-research/scripts/fetch_hn.py --days 7
-uv run /absolute/idea-research/scripts/fetch_reddit.py --subs dataengineering --window week
-uv run /absolute/idea-research/scripts/dedupe_and_score.py --top 10 --min-score 0
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/fetch_hn.py --days 7
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/fetch_reddit.py --subs dataengineering --window week
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/dedupe_and_score.py --top 10 --min-score 0
 ```
 
 The scorer reads `.idea-research/raw/` under the working directory and writes `.idea-research/scored.json`. The [scoring guide](references/scoring.md) explains biases and overrides. Scripts are optional aids; direct research may fit a niche better. Do not run keyword research unless query expansion would help the requested task.
@@ -42,7 +42,7 @@ A request for ideas can be answered directly. If the user asks to save or scaffo
 The scaffold helper creates one folder per invocation and refuses overwrite. Preview with `--dry-run`, then run the same command without it from the working directory holding the scored file:
 
 ```bash
-uv run /absolute/idea-research/scripts/scaffold_article.py --id idea-1 --root /absolute/articles --hook "Working title" --angle "Proposed angle" --dry-run
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/scaffold_article.py --id idea-1 --root /absolute/articles --hook "Working title" --angle "Proposed angle" --dry-run
 ```
 
 Use [source_template.md](assets/source_template.md) for manual scaffolds or non-script research. Preserve provenance and clearly separate prompts for future author input from known facts. Report source gaps and created paths. This workflow does not publish or contact anyone.

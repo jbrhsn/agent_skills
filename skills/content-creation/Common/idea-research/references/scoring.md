@@ -28,8 +28,8 @@ Check existing coverage for usefulness, evidence, freshness, and audience fit. A
 Run from the research directory containing the raw files, using the resolved installed helper path:
 
 ```bash
-uv run /absolute/idea-research/scripts/dedupe_and_score.py --top 10 --min-score 0 --dry-run
-uv run /absolute/idea-research/scripts/dedupe_and_score.py --gap-overrides '{"idea-1": 15}'
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/dedupe_and_score.py --top 10 --min-score 0 --dry-run
+uv run --python /absolute/research-project/.venv/bin/python python /absolute/idea-research/scripts/dedupe_and_score.py --gap-overrides '{"idea-1": 15}'
 ```
 
 Overrides range from 0 to 20. IDs describe the current clustering run; do not reuse them after changing raw data or beats without checking the associated title and URL. Preview without writing using `--dry-run`. Default threshold 50 is a convenience filter, not a quality gate; lower it or research directly when niche/evergreen ideas are excluded.

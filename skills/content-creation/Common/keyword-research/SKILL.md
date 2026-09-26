@@ -5,6 +5,8 @@ description: Research search intent, query phrasing, and discovery terms for an 
 
 # Keyword Research
 
+Run the bundled shell helper as its saved file. Before executing newly authored shell, Python, or Node automation, save it under the target project's `.temp/` and invoke it from there; do not pass program source through the terminal. Python, when needed, runs through `uv run` with the target project's `.venv`.
+
 Help the right reader find content that answers their question. Keyword selection follows the article's substance; do not add unsupported sections or distort a thesis to chase a score.
 
 ## Establish intent

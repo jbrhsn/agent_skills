@@ -14,14 +14,14 @@ The helper generates sections → modules → chapters with three files per chap
 
 Profiles select tier labels and study prompts: `technical`, `craft`, `practice`, `exam`, or `custom`. Presets default to two progression levels; custom profiles use their declared ladder. `tier_count` selects one to four levels. Activity defaults are small (two examples and two practice tasks, or three exam drills); `counts` adjusts them. Navigation and tracking include only selected files. Create a custom layout directly when another directory structure fits better.
 
-From this skill's directory:
+Resolve the helper from this skill's installed directory, then run it through the target learning project's `.venv`:
 
 ```bash
-uv run scripts/scaffold.py /path/to/plan.yaml --out /path/to/repo --dry-run
-uv run scripts/scaffold.py /path/to/plan.yaml --out /path/to/repo
+uv run --python /path/to/repo/.venv/bin/python python /absolute/path/to/create-learning-repo/scripts/scaffold.py /path/to/plan.yaml --out /path/to/repo --dry-run
+uv run --python /path/to/repo/.venv/bin/python python /absolute/path/to/create-learning-repo/scripts/scaffold.py /path/to/plan.yaml --out /path/to/repo
 ```
 
-JSON input also works with plain Python without external dependencies. YAML requires PyYAML. Existing files are skipped unless `--force` is supplied; inspect before replacing content and prefer targeted edits where learning has already begun.
+YAML requires PyYAML in the target `.venv`; create that environment with `uv venv` when absent and install the dependency with `uv pip install --python /path/to/repo/.venv/bin/python pyyaml`. Existing files are skipped unless `--force` is supplied; inspect before replacing content and prefer targeted edits where learning has already begun.
 
 Keep `plan.yaml` or `plan.json`: it is the helper's actual input. `PLAN.md` is a generated human-readable summary, so editing it alone cannot change a later scaffold run. Keep the plan, summary, links, and progress tracker consistent when scope changes. Regeneration with `--force` replaces authored files and resets generated progress.
 

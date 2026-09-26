@@ -9,7 +9,7 @@ Keep `.agent_docs/handoff.md` useful as memory for the whole project, including 
 
 ## Python execution
 
-Run Python scripts with `uv run`, including these helpers and project Python commands. Check `uv --version` before first use if availability is unknown. If uv is missing, explain that this workflow requires it, ask the user to confirm installation, and wait. After approval, install uv using the official method appropriate to the system and verify `uv --version` before continuing. Existing explicit installation approval counts; do not ask again. If installation is declined or unavailable, use file tools for the handoff and continue independent work; do not silently substitute bare Python.
+Run Python scripts with `uv run` using the target project's `.venv`, including these helpers and project Python commands. Resolve the target root first, then invoke helpers with that environment, for example `uv run --python /absolute/project/.venv/bin/python python /absolute/skill/scripts/helper.py`. Do not execute generated program source through the terminal; save any new reusable script under `/absolute/project/.temp/` first. Check `uv --version` before first use if availability is unknown. If uv is missing, explain that this workflow requires it, ask the user to confirm installation, and wait. After approval, install uv using the official method appropriate to the system and verify `uv --version` before continuing. Existing explicit installation approval counts; do not ask again. If installation is declined or unavailable, use file tools for the handoff and continue independent work; do not silently substitute bare Python.
 
 ## Memory to retain
 
@@ -34,8 +34,8 @@ Keep project memory current: promote durable facts from older sessions before th
 Use the helper at this skill's installed location, with the target project passed explicitly. Paths below are placeholders; resolve them from the loaded skill location, not from the target project's `scripts/` directory.
 
 ```bash
-uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /tmp/handoff_payload.json --dry-run
-uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /tmp/handoff_payload.json
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /absolute/project/.temp/handoff_payload.json --dry-run
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /absolute/project/.temp/handoff_payload.json
 ```
 
 See [README.md](README.md) for the payload schema. Supply compact `last_session` and `previous_session` summaries when useful; omitted summaries rotate existing concrete records automatically. On subsequent writes for the same session, add `--checkpoint` to both commands. Include the whole updated current session, not just the checkpoint delta. Omitted snapshot/learnings are preserved; supplied learnings replace that section, so merge existing knowledge first.

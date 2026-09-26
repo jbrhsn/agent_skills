@@ -16,6 +16,10 @@ import common  # noqa: E402
 
 
 class SkillSyncManifestTests(unittest.TestCase):
+    def test_excludes_project_temp_directory(self):
+        self.assertTrue(common.is_excluded(Path("skill/.temp/reusable-check.py")))
+        self.assertFalse(common.is_excluded(Path("skill/scripts/reusable-check.py")))
+
     def test_prunes_only_manifest_owned_folders(self):
         with tempfile.TemporaryDirectory() as temp:
             destination = Path(temp)

@@ -10,13 +10,8 @@ workspace="${1:-$PWD}"
 workspace="$(cd "$workspace" && pwd)"
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 interpreter="$workspace/.venv/bin/python"
-[[ -x "$interpreter" ]] || interpreter="$workspace/.venv-video-production/bin/python"
 if command -v uv >/dev/null 2>&1 && [[ -x "$interpreter" ]]; then
   exec uv run --no-project --python "$interpreter" python "$script_dir/model_cache.py" --workspace-root "$workspace" --require kokoro --ensure
 fi
-if [[ -x "$interpreter" ]]; then
-  echo "WARNING: uv is unavailable; using the project-local interpreter directly." >&2
-  exec "$interpreter" "$script_dir/model_cache.py" --workspace-root "$workspace" --require kokoro --ensure
-fi
-echo "ERROR: uv or a project-local .venv/.venv-video-production interpreter is required." >&2
+echo "ERROR: uv and a project-local .venv interpreter are required. Create the environment with uv venv \"$workspace/.venv\"." >&2
 exit 1

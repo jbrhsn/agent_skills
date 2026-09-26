@@ -2,15 +2,15 @@
 
 Maintains project memory plus the current session and two previous sessions in `.agent_docs/handoff.md`, then creates a local Git commit for session changes. Pair with [init-session](../init-session/README.md) to resume. Use for wrapping up, checkpoints, and context resets; checkpoints do not stop ongoing work.
 
-See [SKILL.md](SKILL.md) for memory selection and Python execution guidance. Python commands use `uv run`. If uv is absent, the agent asks for installation confirmation before installing it; file tools remain available while installation is pending or declined.
+See [SKILL.md](SKILL.md) for memory selection and Python execution guidance. Python commands use `uv run` with the target project's `.venv`; generated payloads and scripts belong under the project `.temp/`. If uv is absent, the agent asks for installation confirmation before installing it; file tools remain available while installation is pending or declined.
 
 ## Helper contract
 
 Resolve the script from the installed skill directory. Run from any project subdirectory or specify `--repo-root`:
 
 ```bash
-uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input payload.json --dry-run
-uv run /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input payload.json
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /absolute/project/.temp/handoff_payload.json --dry-run
+uv run --python /absolute/project/.venv/bin/python python /absolute/path/to/end-session/scripts/handoff_write.py --repo-root /absolute/project --input /absolute/project/.temp/handoff_payload.json
 ```
 
 The stdlib-only helper requires Python 3.8+ via uv. Input may also arrive on stdin. Example payload:

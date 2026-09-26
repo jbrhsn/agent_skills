@@ -9,12 +9,7 @@ if (!['render', 'hero'].includes(mode) || process.argv.length !== 3) {
   process.exit(1);
 }
 const runPython = (args) => {
-  let result = spawnSync('uv', ['run', '--no-project', '--python', config.python, 'python', ...args], {cwd: root, stdio: 'inherit'});
-  if (result.error && result.error.code === 'ENOENT') {
-    console.error('WARNING: uv is unavailable; using the project-local configured Python interpreter directly.');
-    result = spawnSync(config.python, args, {cwd: root, stdio: 'inherit'});
-  }
-  return result;
+  return spawnSync('uv', ['run', '--no-project', '--python', config.python, 'python', ...args], {cwd: root, stdio: 'inherit'});
 };
 const review = runPython([path.join(__dirname, 'production/check_production_v1.py'), '--project-dir', root,
   '--project', config.project, '--state', config.state]);

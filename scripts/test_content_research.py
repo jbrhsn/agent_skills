@@ -30,7 +30,7 @@ class ResearchTests(unittest.TestCase):
 
     def run_helper(self, filename, *args):
         return subprocess.run(
-            ["uv", "run", "--no-project", str(IDEA / filename), *args],
+            ["uv", "run", "--python", sys.executable, "python", str(IDEA / filename), *args],
             cwd=self.cwd, text=True, capture_output=True, timeout=30,
         )
 

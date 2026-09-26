@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Write compact project memory and a rolling session window.
 
-Usage: uv run handoff_write.py --input payload.json [--repo-root PATH] [--dry-run]
+Usage: uv run --python PROJECT/.venv/bin/python python handoff_write.py --input PROJECT/.temp/payload.json [--repo-root PATH] [--dry-run]
 Use --checkpoint to update the same session without rotating history.
 See ../README.md for the payload contract. Exit codes: 0 ok, 1 input, 2 filesystem.
 """
