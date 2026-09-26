@@ -4,7 +4,7 @@
 
 ## Project Snapshot
 
-agent_skills is a curated distribution repository with 16 canonical skills under skills/, 3 base agent definitions under agents/, and the optional OpenCode search-internet plugin under plugins/. Canonical content syncs to OpenCode, IBM Bob, Antigravity, Claude Code, and Codex/ChatGPT through scripts/sync_all.py and platform-specific scripts. Python tooling uses PEP 723 and must run with uv run. Primary validation: uv run scripts/sync_all.py --dry-run; use --verify when destination harnesses are available. Skills flatten from category directories to destination skills/{name}/. Repository rules live in AGENTS.md; root README.md and category READMEs describe the public collection.
+agent_skills is a curated distribution repository with 15 canonical skills under skills/, 3 base agent definitions under agents/, and the optional OpenCode search-internet plugin under plugins/. Canonical content syncs to OpenCode, IBM Bob, Antigravity, Claude Code, and Codex/ChatGPT through scripts/sync_all.py and platform-specific scripts. Python tooling must use uv run with the target project's local .venv. Primary validation: uv run scripts/sync_all.py --dry-run; use --verify when destination harnesses are available. Skills flatten from category directories to destination skills/{name}/. Repository rules live in AGENTS.md; root README.md and category READMEs describe the public collection.
 
 ## Cumulative Learnings
 
@@ -19,16 +19,13 @@ agent_skills is a curated distribution repository with 16 canonical skills under
 - LinkedIn, X, and Medium writers use a five-proposal hook-and-structure review for new drafts and substantial rewrites, research comparable performance evidence, recommend a faithful direction, and wait for author confirmation before producing their two output files.
 - content-fact-checker replaces evidence-preserving-refinement. It improves claim reliability and attribution without changing the author's core message, opinions, voice, or tone. Remotion infographics needs an approved or delegated visual direction before it renders a project, MP4, and exact-final-frame hero PNG.
 - video-production skill (skills/content-creation/Common/video-production/) uses Kokoro ONNX (local TTS via kokoro-onnx) and Whisper (local timestamps via openai-whisper), all run with uv via PEP 723 scripts. Model assets (~500 MB total) go in {repo-root}/.video_production_assets/kokoro/, gitignored. 03_scaffold.py is re-run safe and never overwrites existing scene TSX files. sync_all.py discovers and syncs new skill folders automatically; no script changes are needed when adding a skill.
+- All Python skill helpers now run through uv run with the target project's .venv. Newly authored executable programs are saved under .temp/, which is ignored by Git and excluded from skill sync. Node/npm and shell execution follow the target project's declared toolchain and saved-file rule.
 
 ## Previous Session
 
-- 2026-09-19: Created content-strategy as platform-neutral superset of planning and idea research. Added x-post-writer for single posts plus threads with five-proposal workflow. Both skills exercised; sync dry-run and live sync passed.
-
-## Last Session
-
 - 2026-09-20: Refined LinkedIn, Medium, and X writers (five-proposal review gate), renamed evidence-preserving-refinement to content-fact-checker, expanded remotion-infographics with retention research, six style variants, theme/palette gate, workspace, MP4+hero PNG delivery and verification. Added manifest-scoped safe pruning, duplicate-name detection, sync regression tests. Ran full live sync --plugins search-internet --verify: all 15 canonical skills verified across all 5 platforms.
 
-## Current Session
+## Last Session
 
 **Date:** 2026-09-20
 
@@ -59,3 +56,33 @@ agent_skills is a curated distribution repository with 16 canonical skills under
 
 - [ ] video-production has not been exercised in a real production session yet; per AGENTS.md rules, it should be before being considered fully mature.
 - [ ] Category README.md skill count may need updating from 15 to 16 if a skill count is explicitly tracked there.
+
+## Current Session
+
+**Date:** 2026-09-26
+
+**Focus:** Standardize project-local Python environments and reusable-script execution across canonical skills.
+
+### Done
+
+- Audited all canonical skills and implemented uv run plus target .venv guidance for session, learning, idea-research, video-production, and general coding workflows.
+- Added the save-first .temp/ policy to AGENTS.md, executor agents, lean-coder, project-planner, keyword-research, and video-production; added detailed Node/npm and shell lean-coder references.
+- Removed bare-Python, direct-interpreter, and legacy .venv-video-production fallbacks; updated video Node export wrappers to require uv.
+- Added .temp/ to .gitignore and sync exclusions, plus a sync regression test.
+
+### Decisions
+
+- Use uv run --python PROJECT/.venv/bin/python python SCRIPT.py for top-level helpers so PEP 723 script metadata cannot select an isolated environment.
+- Do not replace the repository's existing Python 3.9 .venv, which lacks PyYAML; use a temporary project-local Python 3.11 .venv for validation instead.
+
+### Verification
+
+- scripts/test_sync_skills.py: 6 passed; scripts/test_learning_scaffold.py: 8 passed; scripts/test_content_research.py: 13 passed, all under a temporary Python 3.11 .venv.
+- Python compilation, Bash syntax checks, Node syntax checks, git diff --check, and uv run scripts/sync_all.py --dry-run passed.
+- Video media tests were not run because the temporary verification environment intentionally lacked NumPy and the media stack.
+
+### Open Items
+
+- [ ] Run a live sync/verify when distribution to configured platforms is requested; retain explicit plugin selection if needed.
+- [ ] Exercise video-production in a real production session and run its media-dependent tests in its provisioned environment.
+- [ ] Update category documentation if it explicitly reports a stale skill count.
